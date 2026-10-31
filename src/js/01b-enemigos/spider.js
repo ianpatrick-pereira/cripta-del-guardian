@@ -1,0 +1,26 @@
+defEnemy('spider', {
+  orden: 7,
+  stats: { hp: 6, r: 12, speed: 210, dmg: 1, spr: 'spider', s: 2 },
+  bestiario: { n: 'Araña', d: 'Zigzag veloz; escupe telaraña que frena.' },
+  sprite: {
+    clave: 'spider',
+    mapa: ['l..l......l..l', '.l..l....l..l.', '..l.kkkkkk.l..', 'llkksssssskkll', '..kssrssrssk..', 'llksssssssskll', '..kssssssssk..', '.l.kkkkkkkk.l.', 'l..l......l..l'],
+    paleta: { k: '#120c12', s: '#3a2a3a', r: '#ff4a4a', l: '#5a4a5a' }
+  },
+  esquiva: true,
+  // Arañas: zigzag rápido hacia su flanco; desde lejos escupen telaraña que te frena
+  ia(e, c) {
+    const { dt, cdt, hidden, tgt, d, go, done } = c;
+    e.cd -= cdt; e.shootT -= cdt;
+    if (e.st === 'dash') {
+      e.st_t -= dt; go(e.ca, e.speed);
+      if (e.st_t <= 0) { e.st = 'walk'; e.cd = rand(.3, .6); }
+    } else if (e.st === 'tele') {
+      e.st_t -= dt;
+      if (e.st_t <= 0) { enemyShoot(e, leadAng(e, 190), 190, 8, '#e8e8d8', 1, 'web'); sfx(500, .08, 'triangle', .03, -250); done(.3, .6); e.shootT = rand(3, 4.5); }
+    } else if (e.st === 'walk' && e.cd <= 0) {
+      if (!hidden && (G.floor >= 2 || e.elite) && d > 150 && e.shootT <= 0 && e.los && takeToken(e)) telegraph(e, .4);
+      else { e.st = 'dash'; e.st_t = .32; e.ca = angTo(e, flankPoint(e, tgt, d)) + rand(-.6, .6); }
+    }
+  }
+});

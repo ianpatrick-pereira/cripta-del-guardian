@@ -1,0 +1,6 @@
+// Espada oxidada
+defWeapon('rusty', {
+  orden: 1,
+  datos: { name: 'Espada oxidada', type: 'melee', shape: 'sword', rarity: 'common', dmg: 3, cd: .38, range: 50, arc: 1.9, en: 0, chg: 'spin', chgEn: 8 },
+  familia: 'knight'
+});

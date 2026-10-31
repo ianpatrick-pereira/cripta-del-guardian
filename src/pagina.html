@@ -1,0 +1,148 @@
+<title>Cripta del Guardián</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@600;800&family=Chakra+Petch:wght@400;600&display=swap">
+<style>
+@@CSS@@
+</style>
+
+<div id="frame">
+  <canvas id="cv" aria-label="Juego Cripta del Guardián"></canvas>
+
+  <div id="touch" hidden>
+    <button class="tbtn" id="bAtk" type="button">ATACAR</button>
+    <button class="tbtn" id="bChg" type="button">CARGA</button>
+    <button class="tbtn" id="bDash" type="button">ESQUIVA</button>
+    <button class="tbtn" id="bSwap" type="button">ARMA</button>
+    <button class="tbtn" id="bHab" type="button">HABIL.</button>
+    <button class="tbtn" id="bEle" type="button" hidden>ELEM.</button>
+    <button class="tbtn" id="bUse" type="button" hidden>TOMAR</button>
+    <button class="tbtn" id="bPause" type="button" aria-label="Pausa">II</button>
+  </div>
+
+  <div class="overlay" id="ovStart">
+    <div class="panel">
+      <p class="eyebrow">Prototipo jugable · v0.31</p>
+      <h1>Cripta del Guardián</h1>
+      <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
+      <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
+      <div class="cards" id="charCards"></div>
+      <h3>Dificultad</h3>
+      <div class="cards diffs" id="diffCards"></div>
+      <h3>Compañero</h3>
+      <div class="cards pets" id="petCards"></div>
+      <h3>Altar de almas</h3>
+      <div class="upgs" id="upgList"></div>
+      <details class="codex"><summary>Arma inicial <span id="swCount"></span></summary><p class="hint">Solo las armas grises de 1★ se compran como arma inicial para la próxima partida; las demás se consiguen dentro de la cripta. Reemplaza la primera arma del personaje.</p><div class="chips" id="swList"></div></details>
+      <details class="codex"><summary>Logros <span id="achCount"></span></summary><div class="clist" id="achList"></div></details>
+      <details class="codex"><summary>Bestiario <span id="beastCount"></span></summary><div class="clist" id="beastList"></div></details>
+      <details class="codex"><summary>Diario <span id="noteCount"></span></summary><div class="clist" id="noteList"></div></details>
+      <details class="codex"><summary>Sinergias <span id="synCount"></span></summary><div class="clist" id="synList"></div></details>
+      <details class="codex"><summary>Opciones</summary><div class="opts" id="menuOpts"></div></details>
+      <div class="keys">
+        <div><kbd>WASD</kbd> moverse</div>
+        <div><kbd>Clic</kbd> atacar</div>
+        <div><kbd>Clic der.</kbd> mantén y suelta: ataque cargado</div>
+        <div><kbd>Espacio</kbd> esquiva</div>
+        <div><kbd>F</kbd> habilidad del personaje</div>
+        <div><kbd>Q</kbd> / <kbd>Rueda</kbd> cambiar arma</div>
+        <div><kbd>E</kbd> tomar, abrir, comprar</div>
+        <div>Mejores armas gastan más energía; la espada la recupera al golpear</div>
+        <div><kbd>!</kbd> va a atacar · círculo rojo: sal de ahí</div>
+        <div>Armas de 1★ a 5★ (4★ y 5★ desde el piso 3) · forja en la tienda</div>
+        <div><kbd>R</kbd> habilidad elemental (armas de 3★+ con 3 cristales)</div>
+        <div><kbd>Esc</kbd> pausa · <kbd>M</kbd> sonido</div>
+      </div>
+      <p class="hint">En móvil: arrastra el lado izquierdo para moverte; los botones apuntan solos al enemigo más cercano. Mejor en horizontal. El progreso se guarda en este navegador.</p>
+      <div class="row"><button class="primary" id="btnContinue" type="button" hidden>Continuar</button><button class="primary" id="btnStart" type="button">Entrar a la cripta</button><button class="ghost" id="btnDaily" type="button">Reto diario</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ovPause" hidden>
+    <div class="panel">
+      <h2>Pausa</h2>
+      <p class="hint" id="pauseInfo"></p>
+      <div class="relist" id="pauseRelics"></div>
+      <div id="pauseSyn"></div>
+      <div class="opts" id="pauseOpts"></div>
+      <p class="hint">«Guardar y salir» te deja continuar desde el inicio de este piso con el equipo que tenías al llegar.</p>
+      <div class="row">
+        <button class="primary" id="btnResume" type="button">Continuar</button>
+        <button class="ghost" id="btnSaveQuit" type="button">Guardar y salir</button>
+        <button class="ghost" id="btnMenu" type="button">Abandonar al menú</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gamble" id="ovGamble" hidden>
+    <div class="ggold"><i></i><b id="gamGold">0</b> oro</div>
+    <div class="gmon"><canvas id="gamMonster" width="120" height="120"></canvas><div class="gbub" id="gamBubble"></div></div>
+    <div class="gtable"><div class="gcards" id="gamCards">
+      <button class="gcard" type="button" data-i="0" aria-label="Carta 1"><span class="gin"><span class="gface gback"></span><span class="gface gfront"></span></span><span class="gk">1</span></button>
+      <button class="gcard" type="button" data-i="1" aria-label="Carta 2"><span class="gin"><span class="gface gback"></span><span class="gface gfront"></span></span><span class="gk">2</span></button>
+      <button class="gcard" type="button" data-i="2" aria-label="Carta 3"><span class="gin"><span class="gface gback"></span><span class="gface gfront"></span></span><span class="gk">3</span></button>
+    </div></div>
+    <div class="gbottom">
+      <canvas id="gamPlayer" width="96" height="96"></canvas>
+      <div class="gctl">
+        <p id="gamPlays"></p>
+        <div class="grow">
+          <button class="small" id="gamMinus" type="button">−10</button>
+          <input id="gamBet" type="number" min="5" step="5" inputmode="numeric" aria-label="Apuesta en múltiplos de 5">
+          <button class="small" id="gamPlus" type="button">+10</button>
+          <button class="primary" id="gamGo" type="button">Apostar</button>
+          <button class="ghost" id="gamLeave" type="button">Levantarse</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="ovChoice" hidden>
+    <div class="panel">
+      <p class="eyebrow" id="choiceEyebrow">Recompensa</p>
+      <h2 id="choiceTitle">Elige una reliquia</h2>
+      <div class="cards" id="choiceCards"></div>
+      <p class="hint">Teclas 1, 2 o 3 para elegir.</p>
+    </div>
+  </div>
+
+  <div class="overlay" id="ovForge" hidden>
+    <div class="panel">
+      <p class="eyebrow">Tienda · Forja del herrero</p>
+      <h2>Mejora tus armas</h2>
+      <p class="hint" id="forgeCoins"></p>
+      <div id="forgeList"></div>
+      <div class="row"><button class="primary" id="btnForgeClose" type="button">Volver a la mazmorra</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ovNote" hidden>
+    <div class="panel note">
+      <p class="eyebrow" id="noteEyebrow">Nota</p>
+      <h2 id="noteTitle">Diario</h2>
+      <p class="lead" id="noteText"></p>
+      <div class="row"><button class="primary" id="btnNoteClose" type="button">Guardar en el diario</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ovEnd" hidden>
+    <div class="panel">
+      <p class="eyebrow" id="endEyebrow">Fin de la partida</p>
+      <h2 id="endTitle">Has caído</h2>
+      <p class="lead" id="endText"></p>
+      <div class="stats">
+        <div class="stat"><b id="stFloor">1</b><span>Piso</span></div>
+        <div class="stat"><b id="stTime">0:00</b><span>Tiempo</span></div>
+        <div class="stat"><b id="stKills">0</b><span>Enemigos</span></div>
+        <div class="stat"><b id="stCoins">0</b><span>Monedas</span></div>
+        <div class="stat"><b id="stGems">0</b><span>Gemas</span></div>
+      </div>
+      <div class="relist" id="endRelics"></div>
+      <div class="row"><button class="primary" id="btnAgain" type="button">Volver al altar</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+@@JS@@
+</script>

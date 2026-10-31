@@ -1,0 +1,15 @@
+{
+  "name": "cripta-del-guardian",
+  "version": "0.31.0",
+  "private": true,
+  "description": "Roguelike de mazmorras en el navegador: un solo cripta.html generado desde src/.",
+  "scripts": {
+    "build": "node build.js",
+    "check": "node build.js --check",
+    "test": "node pruebas/probar.js",
+    "referencia": "node pruebas/probar.js --referencia"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0"
+  }
+}
