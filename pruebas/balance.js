@@ -2,6 +2,8 @@
 // Uso: node pruebas/balance.js            (6 partidas por clase y piso: unos 5 minutos)
 //      node pruebas/balance.js 12         (más partidas = resultados más fiables, más tiempo)
 //      node pruebas/balance.js armas      (solo las armas)
+//      node pruebas/balance.js 2 --ci     (lo que corre GitHub Actions: comprueba pruebas/balance-limites.jsonc
+//                                          y sale con error si algún límite de «fallo» no se cumple)
 // Qué mide:
 //  - clases: cada clase juega cada piso desde la entrada (salas de combate, subjefe y jefe) con
 //    la vida y la energía normales y el equipo típico de ese piso. Cuenta cuántas veces llega al
@@ -15,7 +17,7 @@ const { chromium } = require('playwright');
 const { preparar, BOT, SAVE_BASE } = require('./probar.js');
 const JUEGO = 'file://' + path.join(__dirname, '..', 'cripta.html');
 const SALIDA = path.join(__dirname, 'informe-balance.md');
-const args = process.argv.slice(2), N = +args.find(a => /^\d+$/.test(a)) || 6, solo = args.find(a => /^[a-z]+$/.test(a));
+const args = process.argv.slice(2), N = +args.find(a => /^\d+$/.test(a)) || 6, solo = args.find(a => /^[a-z]+$/.test(a)), CI = args.includes('--ci');
 const CLASES = ['knight', 'archer', 'rogue'], NOMBRE = { knight: 'Caballero', archer: 'Tirador', rogue: 'Asesino' };
 
 const jugarPiso = ([ch, piso]) => {
@@ -87,6 +89,7 @@ const probarArma = ([id, ch, blanco]) => {
   await Promise.all([1, 2, 3, 4].map(trabajador));
   await nav.close();
 
+  const L = JSON.parse(fs.readFileSync(path.join(__dirname, 'balance-limites.jsonc'), 'utf8').replace(/^\s*\/\/.*$/gm, ''));
   const pct = x => Math.round(100 * x) + ' %', md = [];
   md.push('# Informe de balance', '', `Generado por \`node pruebas/balance.js ${args.join(' ')}\`.`, '',
     'El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): compara clases, pisos y armas entre sí, no mide la dificultad real.', '');
@@ -114,12 +117,41 @@ const probarArma = ([id, ch, blanco]) => {
     const filas = Object.values(por).map(x => ({ ...x, dps: media(x.r, 'dps'), real: media(x.q, 'dps'), todos: x.q.filter(r => r.todos).length, en: Math.round(media(x.q, 'energia')) }))
       .sort((a, b) => b.dps - a.dps);
     const med = [...filas].sort((a, b) => a.dps - b.dps)[Math.floor(filas.length / 2)].dps;
-    md.push('', '## Armas a 3★ (piso 4)', '', `Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: ${med.toFixed(1)}. Marcadas: contra un blanco, más de 1,6× (⬆) o menos de 0,6× (⬇) la mediana.`, '',
+    md.push('', '## Armas a 3★ (piso 4)', '', `Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: ${med.toFixed(1)}. Marcadas: contra un blanco, más de ${L.armas.aviso[1]}× (⬆) o menos de ${L.armas.aviso[0]}× (⬇) la mediana (los avisos de pruebas/balance-limites.jsonc).`, '',
       '| Arma | Rareza | Clase | Contra un blanco (daño/s) | × mediana | Contra un grupo (daño/s) | Grupo despejado | Energía al final |', '|---|---|---|---|---|---|---|---|');
-    for (const f of filas) { const k = f.dps / med, m = k > 1.6 ? ' ⬆' : k < .6 ? ' ⬇' : '';
+    for (const f of filas) { const k = f.dps / med, m = k > L.armas.aviso[1] ? ' ⬆' : k < L.armas.aviso[0] ? ' ⬇' : '';
       md.push(`| ${f.w.n}${m} | ${f.w.r} | ${NOMBRE[f.ch]} | ${f.dps.toFixed(1)} | ${k.toFixed(2)} | ${f.real.toFixed(1)} | ${f.todos}/${f.q.length} | ${f.en} % |`); }
   }
+  // ---------- límites (pruebas/balance-limites.jsonc) ----------
+  const avisos = [], fallos = [], ok = [];
+  const fuera = ([a, b], x) => x < a || x > b;
+  if (A.length) {
+    const lista = Object.values(A.filter(t => t.sl).reduce((o, t) => { (o[t.w.id] = o[t.w.id] || { n: t.w.n, d: [] }).d.push(t.r.dps); return o; }, {})).map(x => ({ n: x.n, dps: x.d.reduce((a, b) => a + b, 0) / x.d.length }));
+    const med = [...lista].sort((a, b) => a.dps - b.dps)[Math.floor(lista.length / 2)].dps;
+    for (const w of lista) { const k = w.dps / med, txt = `Arma «${w.n}»: ${k.toFixed(2)}× la mediana`;
+      if (fuera(L.armas.fallo, k)) fallos.push(`${txt} (límite ${L.armas.fallo.join('–')})`); else if (fuera(L.armas.aviso, k)) avisos.push(`${txt} (aviso fuera de ${L.armas.aviso.join('–')})`); }
+    ok.push(`${lista.length} armas comprobadas`);
+  }
+  if (C.length) {
+    const vidas = h => h.reduce((a, t) => a + (t.r.dano.sala + t.r.dano.subjefe + t.r.dano.jefe) / t.r.maxHp, 0) / h.length;
+    const porPiso = [1, 2, 3, 4, 5, 6, 7, 8].map(piso => CLASES.reduce((a, ch) => a + vidas(C.filter(t => t.piso === piso && t.ch === ch)), 0) / CLASES.length);
+    for (let i = 1; i < 8; i++) { const k = porPiso[i] / Math.max(.1, porPiso[i - 1]), txt = `Piso ${i + 1}: ${k.toFixed(1)}× más difícil que el piso ${i}`;
+      if (k > L.pisos.saltoFallo) fallos.push(`${txt} (límite ${L.pisos.saltoFallo}×)`); else if (k > L.pisos.saltoAviso) avisos.push(`${txt} (aviso desde ${L.pisos.saltoAviso}×)`); }
+    const cl = CLASES.map(ch => ({ ch, v: vidas(C.filter(t => t.ch === ch)) })).sort((a, b) => a.v - b.v), k = cl[2].v / Math.max(.1, cl[0].v);
+    const txt = `${NOMBRE[cl[2].ch]} necesita ${k.toFixed(1)}× las vidas de ${NOMBRE[cl[0].ch]}`;
+    if (k > L.clases.diferenciaFallo) fallos.push(`${txt} (límite ${L.clases.diferenciaFallo}×)`); else if (k > L.clases.diferenciaAviso) avisos.push(`${txt} (aviso desde ${L.clases.diferenciaAviso}×)`);
+    ok.push('8 pisos y 3 clases comprobados');
+  }
+  md.splice(6, 0, '## Límites (pruebas/balance-limites.jsonc)', '',
+    fallos.length ? `**✗ ${fallos.length} límites rotos**` : `**✓ Ningún límite roto** (${ok.join(', ')})`, '',
+    ...fallos.map(f => `- ✗ ${f}`), ...avisos.map(a => `- ⚠ ${a}`), ...(avisos.length || fallos.length ? [''] : []));
   md.push('', `_${res.length} partidas en ${Math.round((Date.now() - t0) / 1000)} s._`, '');
   fs.writeFileSync(SALIDA, md.join('\n'));
   console.log(`\nInforme escrito en pruebas/informe-balance.md (${res.length} partidas, ${Math.round((Date.now() - t0) / 1000)} s)`);
+  for (const f of fallos) console.log('✗ ' + f);
+  for (const a of avisos) console.log('⚠ ' + a);
+  console.log(fallos.length ? `\n${fallos.length} límites de balance rotos (ver pruebas/balance-limites.jsonc)` : '\nNingún límite de balance roto' + (avisos.length ? ` · ${avisos.length} avisos` : ''));
+  // en GitHub Actions, el informe completo sale en el resumen de la ejecución
+  if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md.join('\n'));
+  if (CI && fallos.length) process.exit(1);
 })();

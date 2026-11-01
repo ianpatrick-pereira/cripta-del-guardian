@@ -1,0 +1,23 @@
+// Límites de balance que comprueba GitHub Actions en cada cambio (node pruebas/balance.js 2 --ci).
+// Cada límite tiene dos niveles:
+//   aviso → sale en el informe con ⚠ para que lo mires, pero no frena nada
+//   fallo → la prueba sale en rojo: algo se rompió de verdad (un arma que pega 10 veces más, un piso imposible...)
+// El bot juega peor que una persona: estos números comparan armas, pisos y clases entre sí, no miden la dificultad real.
+// Si cambias el balance a propósito y un límite ya no tiene sentido, cámbialo aquí.
+{
+  "armas": {
+    // daño por segundo de cada arma a 3★ contra un blanco quieto, dividido por la mediana de todas las armas
+    "aviso": [0.6, 1.7],
+    "fallo": [0.3, 2.6]
+  },
+  "pisos": {
+    // vidas que necesita el bot para terminar un piso, dividido por las del piso anterior (media de las 3 clases)
+    "saltoAviso": 1.8,
+    "saltoFallo": 4
+  },
+  "clases": {
+    // vidas por piso de la clase que más necesita dividido por la que menos (media de los 8 pisos)
+    "diferenciaAviso": 2,
+    "diferenciaFallo": 4
+  }
+}

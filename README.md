@@ -13,7 +13,7 @@ npm run tipos        # revisión de tipos con TypeScript (menos de 1 segundo)
 npm test             # 33 pruebas automáticas (~1 minuto)
 ```
 
-Cada push y cada pull request ejecuta las pruebas en GitHub Actions (`.github/workflows/pruebas.yml`).
+Cada push y cada pull request ejecuta en GitHub Actions (`.github/workflows/pruebas.yml`) las pruebas, la revisión de tipos y los límites de balance.
 
 ## Cómo está organizado el código
 
@@ -27,6 +27,7 @@ Desde la v0.38 cada archivo de `src/js/` es un módulo ES: declara con `import` 
 Desde la v0.39 hay revisión de tipos (TypeScript sobre el JavaScript) y esquemas para los archivos de datos.
 Desde la v0.40 el juego está en español e inglés: los textos visibles pasan por `tr()` y las traducciones viven en `src/textos/`.
 Desde la v0.41 los dibujos de personajes, enemigos y objetos son imágenes PNG en `src/sprites/`.
+Desde la v0.42 el balance se comprueba solo en cada cambio, con límites en `pruebas/balance-limites.jsonc`.
 
 ```
 ./
@@ -140,6 +141,12 @@ Al ejecutar `build.js` se comprueban: si falta una coma, dice el archivo y la l�
 ## Medir el balance y el rendimiento
 
 - `node pruebas/balance.js` (unos 6 minutos) escribe `pruebas/informe-balance.md`: cuántas vidas necesita un bot inmortal para terminar cada piso con cada clase, quién hace más daño y el daño por segundo de cada arma a 3★ (contra un blanco y contra un grupo). El bot juega peor que una persona: sirve para comparar, no como dificultad real. `node pruebas/balance.js 12` juega más partidas; `node pruebas/balance.js armas` solo mide las armas.
+- **El balance también es una prueba automática.** En cada cambio, GitHub Actions ejecuta `npm run balance-ci` (2 partidas por clase y piso y todas las armas, unos 4 minutos, en paralelo con las demás pruebas) y compara los resultados con `pruebas/balance-limites.jsonc`:
+  - **armas:** el daño por segundo de cada arma a 3★ comparado con la mediana de todas;
+  - **pisos:** cuánto más difícil es cada piso que el anterior;
+  - **clases:** cuántas más vidas necesita la clase más débil que la más fuerte.
+
+  Cada límite tiene un nivel de **aviso** (⚠: se muestra en el informe, no frena nada; hoy marca, por ejemplo, el salto del piso 3 y los bastones flojos) y otro de **fallo** (✗: la ejecución sale en rojo y el cambio no se publica). El informe completo aparece en la pestaña *Summary* de la ejecución en GitHub. Si cambias el balance a propósito, ajusta los límites en ese archivo.
 - `node pruebas/rendimiento.js` mide los milisegundos por fotograma en el piso 8 con 20, 40 y 80 enemigos y contra el jefe, en escritorio y en un celular simulado, con calidad alta, media y baja. Sin tarjeta gráfica el dibujo sale más lento que en un aparato real: para la cifra real, activa en el juego *Opciones → Mostrar FPS*.
 - En el menú, **Historial** guarda las últimas 50 partidas: piso, tiempo, arma y qué te derrotó, con un resumen por clase.
 

@@ -1,8 +1,25 @@
 # Informe de balance
 
-Generado por `node pruebas/balance.js` (la tabla de armas se regeneró en la v0.35, tras arreglar la Hoz arrojadiza).
+Generado por `node pruebas/balance.js `.
 
 El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): compara clases, pisos y armas entre sí, no mide la dificultad real.
+
+## Límites (pruebas/balance-limites.jsonc)
+
+**✓ Ningún límite roto** (41 armas comprobadas, 8 pisos y 3 clases comprobados)
+
+- ⚠ Arma «Mandoble»: 1.93× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Espada flamígera»: 1.76× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Arco triple»: 0.51× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Bastón de roca»: 0.49× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Bastón de marea»: 0.48× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Bastón del vendaval»: 0.38× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Orbe del vacío»: 0.40× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Shurikens»: 0.50× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Látigo de cadenas»: 1.76× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Piso 2: 1.8× más difícil que el piso 1 (aviso desde 1.8×)
+- ⚠ Piso 3: 2.6× más difícil que el piso 2 (aviso desde 1.8×)
+- ⚠ Tirador necesita 2.5× las vidas de Caballero (aviso desde 2×)
 
 ## Dificultad por piso
 
@@ -42,14 +59,14 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 
 ## Armas a 3★ (piso 4)
 
-Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: 29.2. Marcadas: contra un blanco, más de 1,6× (⬆) o menos de 0,6× (⬇) la mediana.
+Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: 29.2. Marcadas: contra un blanco, más de 1.7× (⬆) o menos de 0.6× (⬇) la mediana (los avisos de pruebas/balance-limites.jsonc).
 
 | Arma | Rareza | Clase | Contra un blanco (daño/s) | × mediana | Contra un grupo (daño/s) | Grupo despejado | Energía al final |
 |---|---|---|---|---|---|---|---|
 | Mandoble ⬆ | rare | Caballero | 56.2 | 1.93 | 39.9 | 3/3 | 76 % |
 | Espada flamígera ⬆ | epic | Caballero | 51.4 | 1.76 | 43.8 | 3/3 | 73 % |
 | Látigo de cadenas ⬆ | uncommon | Asesino | 51.4 | 1.76 | 42.6 | 3/3 | 83 % |
-| Garrote ⬆ | common | Caballero | 48.4 | 1.66 | 34.3 | 3/3 | 96 % |
+| Garrote | common | Caballero | 48.4 | 1.66 | 34.3 | 3/3 | 96 % |
 | Espada de hierro | uncommon | Caballero | 46.5 | 1.60 | 42.7 | 3/3 | 89 % |
 | Hoja del Abismo | epic | Caballero | 46.2 | 1.58 | 42.5 | 3/3 | 53 % |
 | Martillo de guerra | rare | Caballero | 43.4 | 1.49 | 66.5 | 3/3 | 94 % |
@@ -88,4 +105,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Orbe del vacío ⬇ | epic | Caballero | 11.6 | 0.40 | 13.7 | 0/3 | 9 % |
 | Bastón del vendaval ⬇ | rare | Caballero | 11.2 | 0.38 | 7.4 | 0/3 | 7 % |
 
-_246 partidas en 74 s._
+_390 partidas en 403 s._
