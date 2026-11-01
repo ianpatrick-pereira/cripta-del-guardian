@@ -2,7 +2,7 @@
 
 Roguelike de mazmorras en 2D con vista desde arriba que se juega en el navegador: tres clases, 41 armas, 18 enemigos, subjefes, jefes, salas de evento y una campaña de 8 pisos.
 
-**Jugar:** abre `cripta.html` en el navegador, o la [versión publicada](https://claude.ai/artifact/SXkA8uYzdymQ37YAaXuFTj).
+**Jugar:** en https://ianpatrick-pereira.github.io/cripta-del-guardian/ (se actualiza sola cada vez que un cambio entra en `main` y pasa las pruebas), o abre `cripta.html` en el navegador.
 
 ```
 npm install          # solo la primera vez (instala Playwright para las pruebas)
