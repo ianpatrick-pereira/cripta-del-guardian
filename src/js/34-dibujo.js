@@ -12,7 +12,8 @@ function resize() {
   dpr = Math.min(GFX_DPR[gfxLevel()], window.devicePixelRatio || 1);
   cv.width = Math.max(1, Math.round(r.width * dpr));
   cv.height = Math.max(1, Math.round(r.height * dpr));
-  zoom = clamp(Math.min(r.width / 720, r.height / 470), .62, 2.4);
+  // en un celular (pantalla chica) la cámara se aleja un poco más para ver más de la sala
+  zoom = clamp(Math.min(r.width / 720, r.height / 470) * (Math.min(r.width, r.height) < 500 ? .82 : 1), .42, 2.4);
 }
 new ResizeObserver(resize).observe(frame);
 resize();

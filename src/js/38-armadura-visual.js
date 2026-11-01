@@ -410,7 +410,7 @@ function hudText(txt, x, y, size = 13, color = '#ece4cf', align = 'left', weight
 // barra de armas y habilidad (abajo). En un celular en vertical va a lo ancho y en formato compacto.
 function drawWeaponBar(p, w, h) {
   const vert = hudVertical(w, h), H = vert ? 46 : 54;
-  const avail = vert ? w - 20 : touch.on ? w - (h <= 420 ? 230 : 280) : w - 20;   // deja sitio a los botones (más chicos si la pantalla es bajita)
+  const avail = vert || !touch.on ? w - 20 : w - touchPadW;   // en horizontal deja sitio a los botones táctiles
   const sw = vert ? (avail - 16) / 3 : clamp((avail - 16) / 3, 96, 186), sy = h - H - 10;
   const small = sw < 140;
   for (let i = 0; i < 2; i++) {
@@ -558,12 +558,6 @@ function drawHUD(w, h) {
     ctx.globalAlpha = 1;
   }
 
-  if (touch.stickId !== null) {
-    ctx.strokeStyle = 'rgba(236,228,207,.35)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(touch.ox, touch.oy, 46, 0, TAU); ctx.stroke();
-    const dx = touch.x - touch.ox, dy = touch.y - touch.oy, l = Math.min(46, Math.hypot(dx, dy)), a = Math.atan2(dy, dx);
-    ctx.fillStyle = 'rgba(236,228,207,.3)'; ctx.beginPath(); ctx.arc(touch.ox + Math.cos(a) * l, touch.oy + Math.sin(a) * l, 20, 0, TAU); ctx.fill();
-  }
   if (G.hurtFlash > 0) {
     const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .3, w / 2, h / 2, Math.max(w, h) * .7);
     g.addColorStop(0, 'rgba(212,71,75,0)'); g.addColorStop(1, `rgba(212,71,75,${G.hurtFlash})`);
@@ -784,18 +778,36 @@ function render0() {
   }
   ctx.globalAlpha = 1;
 
+  // el panel se dibuja en un espacio «virtual» más grande y se encoge (uiScale) para que en un celular ocupe menos
+  const k = uiScale(w, h);
+  touchPadW = touch.on ? 270 * touchScale(w, h) / k + 14 : 0;
+  ctx.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+  drawHUD(w / k, h / k);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  drawHUD(w, h);
+  drawStick();
   layoutTouch(w, h);
+}
+// tamaño del panel y de los botones según la pantalla: 1 en computador; en un celular, más chicos
+const uiScale = (w, h) => Math.min(w, h) >= 500 ? 1 : clamp(Math.min(w, h) / 520, .68, 1);
+const touchScale = (w, h) => Math.min(w, h) >= 500 ? 1 : Math.min(w, h) <= 420 && w > h ? .66 : .76;
+let touchPadW = 0;   // ancho (en el espacio del panel) que ocupan los botones táctiles abajo a la derecha
+// joystick táctil: en coordenadas de pantalla, sin escalar
+function drawStick() {
+  if (touch.stickId === null) return;
+  ctx.strokeStyle = 'rgba(236,228,207,.35)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(touch.ox, touch.oy, 46, 0, TAU); ctx.stroke();
+  const dx = touch.x - touch.ox, dy = touch.y - touch.oy, l = Math.min(46, Math.hypot(dx, dy)), a = Math.atan2(dy, dx);
+  ctx.fillStyle = 'rgba(236,228,207,.3)'; ctx.beginPath(); ctx.arc(touch.ox + Math.cos(a) * l, touch.oy + Math.sin(a) * l, 20, 0, TAU); ctx.fill();
 }
 // botones táctiles: en vertical suben por encima de la barra de armas; la pausa va justo bajo el panel
 let touchLay = '';
 function layoutTouch(w, h) {
   if (!touch.on) return;
-  const k = (hudVertical(w, h) ? 60 : 0) + ':' + Math.round(G.hudBottom + 10);
-  if (k === touchLay) return;
-  touchLay = k; const [tb, top] = k.split(':');
-  $('touch').style.setProperty('--tb', tb + 'px');
+  const u = uiScale(w, h), s = touchScale(w, h);
+  const key = [hudVertical(w / u, h / u) ? Math.round(60 * u) : 0, Math.round(G.hudBottom * u + 8), s].join(':');
+  if (key === touchLay) return;
+  touchLay = key; const [tb, top] = key.split(':');
+  const T = $('touch'); T.style.setProperty('--tb', tb + 'px'); T.style.setProperty('--ts', s);
   $('bPause').style.top = top + 'px';
 }
 
