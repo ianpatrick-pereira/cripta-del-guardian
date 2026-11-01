@@ -191,23 +191,7 @@ const FLOORS = [
     pool1: ['phantom', 'burrower', 'charger', 'sniper', 'splitter'], pool2: ['phantom', 'burrower', 'charger', 'sniper', 'priest', 'warden', 'bomber', 'eye', 'wraith'],
     boss: 'elena', light: [72, 260, .97], elite: .28, music: { root: 36, tempo: 72, horror: true }, horror: true },
 ];
-const BOSSES = {
-  guardian: { name: 'El Guardián de la Cripta', hp: 420, r: 30, minion: 'bat',
-    p1: ['burst', 'aimed', 'charge'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict'] },
-  queen:    { name: 'La Reina Tejedora', hp: 800, r: 30, minion: 'spider',
-    p1: ['web', 'leap', 'aimed', 'summon'], p2: ['web', 'leap', 'spiral', 'burst', 'summon', 'rain'], p3: ['leap', 'web', 'gapring', 'rain', 'predict', 'summon'] },
-  devourer: { name: 'El Devorador de Luz', hp: 1250, r: 32, minion: 'wraith',
-    p1: ['laser', 'teleport', 'aimed', 'summon'], p2: ['laser', 'dark', 'spiral', 'teleport', 'burst', 'summon', 'gapring'], p3: ['laser', 'dark', 'rain', 'teleport', 'gapring', 'predict'] },
-  // jefes de los pisos 4 a 8: aspecto de un jefe anterior con otro color, más vida y más ataques por fase
-  ossuary:    { name: 'El Señor del Osario', hp: 1600, r: 32, minion: 'warden', look: 'guardian', tint: '#9bd8ff', col: '#bfe8ff', want: 150, scale: 1.1,
-    p1: ['burst', 'aimed', 'charge', 'rain'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring', 'web'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict', 'web', 'burst'] },
-  forger:     { name: 'La Forjadora', hp: 2000, r: 32, minion: 'bomber', look: 'queen', tint: '#ff8a3a', col: '#ffb070', want: 170, scale: 1.12,
-    p1: ['leap', 'burst', 'aimed', 'rain'], p2: ['leap', 'charge', 'rain', 'gapring', 'summon', 'burst'], p3: ['leap', 'charge', 'rain', 'gapring', 'laser', 'predict', 'burst'] },
-  rootmother: { name: 'La Raíz Madre', hp: 2400, r: 34, minion: 'splitter', look: 'queen', tint: '#7ac04a', col: '#b8f080', want: 200, scale: 1.18,
-    p1: ['web', 'summon', 'spiral', 'rain'], p2: ['web', 'leap', 'spiral', 'summon', 'rain', 'gapring'], p3: ['web', 'leap', 'spiral', 'rain', 'gapring', 'predict', 'burst'] },
-  bishop:     { name: 'El Obispo Hueco', hp: 2900, r: 32, minion: 'phantom', look: 'devourer', tint: '#a07ad8', col: '#d8b0ff', want: 220, scale: 1.12,
-    p1: ['teleport', 'laser', 'spiral', 'summon'], p2: ['teleport', 'laser', 'dark', 'spiral', 'gapring', 'summon', 'predict'], p3: ['teleport', 'laser', 'dark', 'rain', 'gapring', 'predict', 'burst', 'spiral'] },
-  elena:      { name: 'Elena, Corazón de la Cripta', hp: 3500, r: 34, minion: 'phantom', look: 'devourer', tint: '#ffd0d8', col: '#ff8aa0', want: 190, scale: 1.25,
-    p1: ['laser', 'web', 'charge', 'spiral', 'summon'], p2: ['laser', 'web', 'leap', 'dark', 'gapring', 'rain', 'summon', 'teleport'], p3: ['laser', 'dark', 'leap', 'charge', 'gapring', 'rain', 'predict', 'spiral', 'burst', 'web'] },
-};
+// cada jefe vive en su archivo de 01e-jefes/
+const BOSSES = {};
+for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 

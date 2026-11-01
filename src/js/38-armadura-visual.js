@@ -198,10 +198,7 @@ const bossCv = document.createElement('canvas'); bossCv.width = bossCv.height = 
 const bctx = bossCv.getContext('2d');
 function drawBoss(e) {
   const ph2 = e.phase >= 2, white = e.flash > 0;
-  if (e.st === 'charge' && e.k === 0) {
-    ctx.globalAlpha = .22; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2;
-    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 420, e.y + Math.sin(e.ca) * 420); ctx.stroke(); ctx.globalAlpha = 1;
-  }
+  const mv = BOSS_MOVES[e.st]; if (mv && mv.aviso) mv.aviso(e);
   let lift = 0;
   if (e.air && e.tgt) {
     const k = clamp(e.timer, 0, 1);
@@ -215,36 +212,7 @@ function drawBoss(e) {
   g.save(); g.translate(32, 32); g.scale(.5, .5);
   const fill = c => white ? '#ffffff' : (e.invuln && Math.floor(G.time * 12) % 2 ? '#d4474b' : c);
   const BD = BOSSES[e.kind], look = BD.look || e.kind;
-  if (look === 'guardian') {
-    g.fillStyle = ph2 ? 'rgba(212,71,75,.35)' : 'rgba(199,125,255,.25)'; g.beginPath(); g.arc(0, 0, 50, 0, TAU); g.fill();
-    g.fillStyle = fill('#5b3f7a'); g.beginPath(); g.arc(0, 0, 30, 0, TAU); g.fill();
-    g.fillStyle = fill('#3e2a56'); g.fillRect(-30, 4, 60, 8);
-    g.fillStyle = '#e3a24a'; g.beginPath(); g.moveTo(-18, -22); for (let i = 0; i <= 4; i++) g.lineTo(-18 + i * 9, -(i % 2 ? 26 : 40)); g.lineTo(18, -22); g.fill();
-    g.fillStyle = ph2 ? '#ff4040' : '#d6a6ff'; g.fillRect(-14, -8, 8, 8); g.fillRect(6, -8, 8, 8);
-    g.fillStyle = '#2b1f3a'; g.fillRect(-10, 14, 20, 4);
-  } else if (look === 'queen') {
-    g.strokeStyle = fill('#4a3a4a'); g.lineWidth = 5;
-    for (let s = -1; s <= 1; s += 2) for (let i = 0; i < 4; i++) {
-      const wig = Math.sin(e.t * 10 + i) * 4;
-      g.beginPath(); g.moveTo(0, 0); g.lineTo(s * 36, -10 + i * 10 + wig); g.lineTo(s * 50, 4 + i * 12 + wig); g.stroke();
-    }
-    g.fillStyle = fill('#2a1f2a'); g.beginPath(); g.arc(0, 14, 24, 0, TAU); g.fill();
-    g.fillStyle = fill('#8a2a3a'); g.fillRect(-6, 6, 12, 18);
-    g.fillStyle = fill('#3a2a3a'); g.beginPath(); g.arc(0, -10, 20, 0, TAU); g.fill();
-    g.fillStyle = ph2 ? '#ff2a2a' : '#ff6a6a';
-    for (const [x, y] of [[-10, -14], [10, -14], [-5, -20], [5, -20], [-14, -6], [14, -6]]) g.fillRect(x - 3, y - 3, 6, 6);
-    g.fillStyle = '#e8e8d8'; g.fillRect(-7, 2, 3, 8); g.fillRect(4, 2, 3, 8);
-  } else {
-    g.globalAlpha = e.fade;
-    g.fillStyle = ph2 ? 'rgba(255,60,40,.3)' : 'rgba(120,20,30,.35)'; g.beginPath(); g.arc(0, 0, 54, 0, TAU); g.fill();
-    g.fillStyle = fill('#0c0608'); g.beginPath(); g.arc(0, 0, 32, 0, TAU); g.fill();
-    g.fillStyle = '#e8d8d0';
-    for (let i = 0; i < 14; i++) { const a = i * TAU / 14 + e.spin * .5; g.save(); g.rotate(a); g.fillRect(26, -3, 10, 6); g.restore(); }
-    g.fillStyle = fill('#e8d8d0'); g.beginPath(); g.arc(0, 0, 15, 0, TAU); g.fill();
-    const pa = angTo(e, G.player);
-    g.fillStyle = ph2 ? '#ff2a1a' : '#b0303a'; g.beginPath(); g.arc(Math.cos(pa) * 6, Math.sin(pa) * 6, 8, 0, TAU); g.fill();
-    g.fillStyle = '#000'; g.fillRect(Math.cos(pa) * 7 - 2, Math.sin(pa) * 7 - 5, 4, 10);
-  }
+  BOSS_DEFS[look].aspecto(g, e, fill, ph2);
   g.restore();
   if (BD.tint && !white) { g.save(); g.globalCompositeOperation = 'source-atop'; g.globalAlpha = .5; g.fillStyle = BD.tint; g.fillRect(0, 0, 64, 64); g.restore(); }
   const sz = 128 * (BD.scale || 1);
@@ -255,23 +223,16 @@ function drawBoss(e) {
 
 function drawSub(e) {
   const p = G.player, white = e.flash > 0;
-  if (e.st === 'charge3' && e.k === 1) {
-    ctx.globalAlpha = .25; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2;
-    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 380, e.y + Math.sin(e.ca) * 380); ctx.stroke(); ctx.globalAlpha = 1;
-  }
-  if (e.st === 'volley' && e.timer < .5 && e.aimA !== undefined) {
-    ctx.strokeStyle = 'rgba(255,90,90,.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
-    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.aimA) * 260, e.y + Math.sin(e.aimA) * 260); ctx.stroke(); ctx.setLineDash([]);
-  }
+  const mv = SUB_MOVES[e.st], sd = SUB_DEFS[e.sk] || {}; if (mv && mv.aviso) mv.aviso(e);
   drawShadow(e.x, e.y, e.r);
   const lift = e.lift || 0;
   ctx.globalAlpha = .16 + .08 * Math.sin(G.time * 5) + (e.phase === 2 ? .1 : 0); ctx.fillStyle = e.tint;
   ctx.beginPath(); ctx.arc(e.x, e.y - lift, e.r + 12, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
   let sx = 1, sy = 1;
-  if (e.sk === 'matriarch') { const q = Math.sin(e.t * 5) * .1; sx = 1 + q; sy = 1 - q; }
+  if (sd.forma) { const f = { sx, sy }; sd.forma(e, f); sx = f.sx; sy = f.sy; }
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
   drawSpr(e.spr, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
-  if (e.sk === 'captain' && !e.cheat) drawWeapon({ type: 'bow', rarity: 'rare', id: 'long' }, e.x, e.y - lift, e.aimA ?? angTo(e, p), 1.4);
+  if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
   // corona: distingue al subjefe
   const cy = e.y - lift - e.r - 14;

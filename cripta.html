@@ -193,7 +193,7 @@ details.codex[open]{padding-bottom:12px}
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.31</p>
+      <p class="eyebrow">Prototipo jugable · v0.32</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -380,6 +380,38 @@ const weaponList = () => Object.keys(WEAPON_DEFS).sort((a, b) => WEAPON_DEFS[a].
 const ROOM_DEFS = {}, ROOM_OBJ = {};
 function defRoom(id, def) { ROOM_DEFS[id] = def; ROOM_OBJ[def.objeto] = def; }
 const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden - ROOM_DEFS[b].orden);
+
+// Cada jefe vive en su propio archivo dentro de 01e-jefes/ y se registra con defBoss.
+// Para añadir uno: copia el archivo de uno parecido, cambia el id y sus datos, y ponlo como boss de un piso
+// (FLOORS, en 03-datos-del-juego.js). Sale en el bestiario solo.
+//   orden      posición en el bestiario
+//   datos      name, hp, r (radio), minion (enemigo que invoca), want (distancia a la que se queda),
+//              col (color de sus balas), tint y scale (color y tamaño del dibujo), look (usar el aspecto de otro jefe),
+//              p1, p2, p3: ataques que elige en cada fase (cada uno es un archivo de 01g-ataques-de-jefe/)
+//   logro      opcional: logro que se gana al derrotarlo
+//   aspecto(g, e, fill, ph2)   su dibujo, si no reutiliza el de otro con look
+const BOSS_DEFS = {};
+function defBoss(id, def) { BOSS_DEFS[id] = def; }
+const bossList = () => Object.keys(BOSS_DEFS).sort((a, b) => BOSS_DEFS[a].orden - BOSS_DEFS[b].orden);
+
+// Cada subjefe vive en su propio archivo dentro de 01f-subjefes/ y se registra con defSub.
+//   piso       piso en el que aparece (uno por piso)
+//   datos      name, spr y s (sprite y escala), r, hp, speed, tint, minion, want, pc (color de balas),
+//              p1, p2: ataques de cada fase (cada uno es un archivo de 01h-ataques-de-subjefe/)
+//   forma(e, f), encima(e, lift, p), alMorir(e), rompeAlCaminar   ajustes opcionales
+const SUB_DEFS = {};
+function defSub(id, def) { SUB_DEFS[id] = def; }
+
+// Cada ataque de jefe o subjefe vive en su archivo (01g-ataques-de-jefe/, 01h-ataques-de-subjefe/).
+// Un ataque nuevo se usa poniendo su id en las listas p1/p2/p3 de un jefe o subjefe.
+//   hacer(e, dt, c)   lo que hace cada fotograma; termina llamando a bossIdle(e) o subIdle(e).
+//                     c trae p (jugador), a y d (ángulo y distancia al jugador), ph2, ph3 y los datos
+//                     del jefe (B, bcol) o del subjefe (S, move)
+//   aviso(e)          opcional: dibuja el aviso (línea roja, mira...) antes que el jefe
+// En vez de un objeto se puede dar el id de otro ataque para copiar el suyo.
+const BOSS_MOVES = {}, SUB_MOVES = {};
+function defBossMove(id, def) { BOSS_MOVES[id] = typeof def === 'string' ? BOSS_MOVES[def] : def; }
+function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOVES[def] : def; }
 defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
@@ -1558,6 +1590,515 @@ defRoom('prisoner', {
     return [key + (it.room.cleared ? 'Liberar al prisionero' : 'Prisionero encadenado'), it.room.cleared ? 'Te dará una recompensa' : 'Despeja la sala primero', '#9be0c8'];
   }
 });
+// Jefe del piso 7: El Obispo Hueco
+defBoss('bishop', {
+  orden: 7,
+  datos: { name: 'El Obispo Hueco', hp: 2900, r: 32, minion: 'phantom', look: 'devourer', tint: '#a07ad8', col: '#d8b0ff', want: 220, scale: 1.12,
+           p1: ['teleport', 'laser', 'spiral', 'summon'], p2: ['teleport', 'laser', 'dark', 'spiral', 'gapring', 'summon', 'predict'], p3: ['teleport', 'laser', 'dark', 'rain', 'gapring', 'predict', 'burst', 'spiral'] }
+});
+// Jefe del piso 3: El Devorador de Luz
+defBoss('devourer', {
+  orden: 3,
+  datos: { name: 'El Devorador de Luz', hp: 1250, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,
+           p1: ['laser', 'teleport', 'aimed', 'summon'], p2: ['laser', 'dark', 'spiral', 'teleport', 'burst', 'summon', 'gapring'], p3: ['laser', 'dark', 'rain', 'teleport', 'gapring', 'predict'] },
+  logro: 'boss3',
+  // su dibujo (a media resolución; los jefes con look: 'devourer' lo reutilizan con otro color)
+  aspecto(g, e, fill, ph2) {
+    g.globalAlpha = e.fade;
+    g.fillStyle = ph2 ? 'rgba(255,60,40,.3)' : 'rgba(120,20,30,.35)'; g.beginPath(); g.arc(0, 0, 54, 0, TAU); g.fill();
+    g.fillStyle = fill('#0c0608'); g.beginPath(); g.arc(0, 0, 32, 0, TAU); g.fill();
+    g.fillStyle = '#e8d8d0';
+    for (let i = 0; i < 14; i++) { const a = i * TAU / 14 + e.spin * .5; g.save(); g.rotate(a); g.fillRect(26, -3, 10, 6); g.restore(); }
+    g.fillStyle = fill('#e8d8d0'); g.beginPath(); g.arc(0, 0, 15, 0, TAU); g.fill();
+    const pa = angTo(e, G.player);
+    g.fillStyle = ph2 ? '#ff2a1a' : '#b0303a'; g.beginPath(); g.arc(Math.cos(pa) * 6, Math.sin(pa) * 6, 8, 0, TAU); g.fill();
+    g.fillStyle = '#000'; g.fillRect(Math.cos(pa) * 7 - 2, Math.sin(pa) * 7 - 5, 4, 10);
+  }
+});
+// Jefe del piso 8: Elena, Corazón de la Cripta
+defBoss('elena', {
+  orden: 8,
+  datos: { name: 'Elena, Corazón de la Cripta', hp: 3500, r: 34, minion: 'phantom', look: 'devourer', tint: '#ffd0d8', col: '#ff8aa0', want: 190, scale: 1.25,
+           p1: ['laser', 'web', 'charge', 'spiral', 'summon'], p2: ['laser', 'web', 'leap', 'dark', 'gapring', 'rain', 'summon', 'teleport'], p3: ['laser', 'dark', 'leap', 'charge', 'gapring', 'rain', 'predict', 'spiral', 'burst', 'web'] }
+});
+// Jefe del piso 5: La Forjadora
+defBoss('forger', {
+  orden: 5,
+  datos: { name: 'La Forjadora', hp: 2000, r: 32, minion: 'bomber', look: 'queen', tint: '#ff8a3a', col: '#ffb070', want: 170, scale: 1.12,
+           p1: ['leap', 'burst', 'aimed', 'rain'], p2: ['leap', 'charge', 'rain', 'gapring', 'summon', 'burst'], p3: ['leap', 'charge', 'rain', 'gapring', 'laser', 'predict', 'burst'] }
+});
+// Jefe del piso 1: El Guardián de la Cripta
+defBoss('guardian', {
+  orden: 1,
+  datos: { name: 'El Guardián de la Cripta', hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,
+           p1: ['burst', 'aimed', 'charge'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict'] },
+  logro: 'boss1',
+  // su dibujo (a media resolución; los jefes con look: 'guardian' lo reutilizan con otro color)
+  aspecto(g, e, fill, ph2) {
+    g.fillStyle = ph2 ? 'rgba(212,71,75,.35)' : 'rgba(199,125,255,.25)'; g.beginPath(); g.arc(0, 0, 50, 0, TAU); g.fill();
+    g.fillStyle = fill('#5b3f7a'); g.beginPath(); g.arc(0, 0, 30, 0, TAU); g.fill();
+    g.fillStyle = fill('#3e2a56'); g.fillRect(-30, 4, 60, 8);
+    g.fillStyle = '#e3a24a'; g.beginPath(); g.moveTo(-18, -22); for (let i = 0; i <= 4; i++) g.lineTo(-18 + i * 9, -(i % 2 ? 26 : 40)); g.lineTo(18, -22); g.fill();
+    g.fillStyle = ph2 ? '#ff4040' : '#d6a6ff'; g.fillRect(-14, -8, 8, 8); g.fillRect(6, -8, 8, 8);
+    g.fillStyle = '#2b1f3a'; g.fillRect(-10, 14, 20, 4);
+  }
+});
+// Jefe del piso 4: El Señor del Osario
+defBoss('ossuary', {
+  orden: 4,
+  datos: { name: 'El Señor del Osario', hp: 1600, r: 32, minion: 'warden', look: 'guardian', tint: '#9bd8ff', col: '#bfe8ff', want: 150, scale: 1.1,
+           p1: ['burst', 'aimed', 'charge', 'rain'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring', 'web'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict', 'web', 'burst'] }
+});
+// Jefe del piso 2: La Reina Tejedora
+defBoss('queen', {
+  orden: 2,
+  datos: { name: 'La Reina Tejedora', hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,
+           p1: ['web', 'leap', 'aimed', 'summon'], p2: ['web', 'leap', 'spiral', 'burst', 'summon', 'rain'], p3: ['leap', 'web', 'gapring', 'rain', 'predict', 'summon'] },
+  // su dibujo (a media resolución; los jefes con look: 'queen' lo reutilizan con otro color)
+  aspecto(g, e, fill, ph2) {
+    g.strokeStyle = fill('#4a3a4a'); g.lineWidth = 5;
+    for (let s = -1; s <= 1; s += 2) for (let i = 0; i < 4; i++) {
+      const wig = Math.sin(e.t * 10 + i) * 4;
+      g.beginPath(); g.moveTo(0, 0); g.lineTo(s * 36, -10 + i * 10 + wig); g.lineTo(s * 50, 4 + i * 12 + wig); g.stroke();
+    }
+    g.fillStyle = fill('#2a1f2a'); g.beginPath(); g.arc(0, 14, 24, 0, TAU); g.fill();
+    g.fillStyle = fill('#8a2a3a'); g.fillRect(-6, 6, 12, 18);
+    g.fillStyle = fill('#3a2a3a'); g.beginPath(); g.arc(0, -10, 20, 0, TAU); g.fill();
+    g.fillStyle = ph2 ? '#ff2a2a' : '#ff6a6a';
+    for (const [x, y] of [[-10, -14], [10, -14], [-5, -20], [5, -20], [-14, -6], [14, -6]]) g.fillRect(x - 3, y - 3, 6, 6);
+    g.fillStyle = '#e8e8d8'; g.fillRect(-7, 2, 3, 8); g.fillRect(4, 2, 3, 8);
+  }
+});
+// Jefe del piso 6: La Raíz Madre
+defBoss('rootmother', {
+  orden: 6,
+  datos: { name: 'La Raíz Madre', hp: 2400, r: 34, minion: 'splitter', look: 'queen', tint: '#7ac04a', col: '#b8f080', want: 200, scale: 1.18,
+           p1: ['web', 'summon', 'spiral', 'rain'], p2: ['web', 'leap', 'spiral', 'summon', 'rain', 'gapring'], p3: ['web', 'leap', 'spiral', 'rain', 'gapring', 'predict', 'burst'] }
+});
+// Subjefe del piso 7: Obispo de Ceniza
+defSub('ashbishop', {
+  piso: 7,
+  datos: { name: 'Obispo de Ceniza', spr: 'priest', s: 3.6, r: 22, hp: 1050, speed: 80, tint: '#c77dff', minion: 'phantom', want: 220,
+           p1: ['volley', 'retreat', 'gust', 'fan'], p2: ['volley', 'retreat', 'gust', 'fan', 'summon', 'wave', 'rain'] }
+});
+// Subjefe del piso 1: Capitán Hueso
+defSub('captain', {
+  piso: 1,
+  datos: { name: 'Capitán Hueso', spr: 'skel', s: 3.4, r: 22, hp: 140, speed: 85, tint: '#e3a24a', minion: 'archer', want: 210,
+           p1: ['volley', 'rain', 'retreat'], p2: ['volley', 'rain', 'fan', 'summon', 'retreat'] },
+  // dibuja su arco largo encima del sprite
+  encima(e, lift, p) { if (!e.cheat) drawWeapon({ type: 'bow', rarity: 'rare', id: 'long' }, e.x, e.y - lift, e.aimA ?? angTo(e, p), 1.4); }
+});
+// Subjefe del piso 3: El Verdugo
+defSub('executioner', {
+  piso: 3,
+  datos: { name: 'El Verdugo', spr: 'brute', s: 3.6, r: 26, hp: 450, speed: 72, tint: '#d4474b', minion: 'wraith', want: 0,
+           p1: ['charge3', 'slam', 'charge3'], p2: ['charge3', 'slam', 'fan', 'summon'] },
+  // rompe cajas y barriles al caminar
+  rompeAlCaminar: true
+});
+// Subjefe del piso 2: Matriarca del Limo
+defSub('matriarch', {
+  piso: 2,
+  datos: { name: 'Matriarca del Limo', spr: 'toxic', s: 4.4, r: 26, hp: 290, speed: 62, tint: '#9be05a', minion: 'toxic', want: 120,
+           p1: ['hop', 'spit', 'hop'], p2: ['hop', 'spit', 'bighop', 'summon'] },
+  // se aplasta y se estira al moverse
+  forma(e, f) { const q = Math.sin(e.t * 5) * .1; f.sx = 1 + q; f.sy = 1 - q; },
+  // al morir suelta tres limos tóxicos
+  alMorir(e) { for (let i = 0; i < 3; i++) G.enemies.push(mkEnemy('toxic', e.x + rand(-20, 20), e.y + rand(-20, 20), 1, false)); }
+});
+// Subjefe del piso 6: Madre Espina
+defSub('rootqueen', {
+  piso: 6,
+  datos: { name: 'Madre Espina', spr: 'splitter', s: 4.6, r: 26, hp: 900, speed: 60, tint: '#9be05a', minion: 'splitter', want: 120,
+           p1: ['hop', 'spit', 'whirl'], p2: ['bighop', 'spit', 'whirl', 'summon', 'fan'] }
+});
+// Subjefe del piso 4: Centinela Escarchado
+defSub('sentinel', {
+  piso: 4,
+  datos: { name: 'Centinela Escarchado', spr: 'warden', s: 3.6, r: 24, hp: 600, speed: 72, tint: '#9bd8ff', minion: 'warden', want: 150,
+           p1: ['volley', 'charge3', 'rain'], p2: ['volley', 'charge3', 'rain', 'summon', 'wave'] }
+});
+// Subjefe del piso 5: Herrero Fundido
+defSub('smith', {
+  piso: 5,
+  datos: { name: 'Herrero Fundido', spr: 'charger', s: 3.8, r: 26, hp: 750, speed: 66, tint: '#ff8a3a', minion: 'bomber', want: 0,
+           p1: ['slam', 'charge3', 'rain'], p2: ['slam', 'charge3', 'rain', 'summon', 'fan'] }
+});
+// Subjefe del piso 8: El Gemelo de Aldric
+defSub('twin', {
+  piso: 8,
+  datos: { name: 'El Gemelo de Aldric', spr: 'phantom', s: 3.6, r: 22, hp: 1250, speed: 105, tint: '#ffb0c8', minion: 'phantom', want: 160,
+           p1: ['charge3', 'fan', 'retreat', 'wave'], p2: ['charge3', 'fan', 'retreat', 'summon', 'whirl', 'gust', 'bighop'] }
+});
+// Ataque de jefe: aimed
+defBossMove('aimed', {
+  hacer(e, dt, c) {
+    const { a, ph2 } = c;
+    e.timer += dt;
+    const vol = ph2 ? 5 : 3, n = ph2 ? 5 : 3;
+    if (e.k < vol && e.timer >= e.k * .3) { for (let i = 0; i < n; i++) enemyShoot(e, a + (i - (n - 1) / 2) * .2, 270, 6, '#ffb36a'); e.k++; sfx(420, .06, 'square', .03); }
+    if (e.timer > vol * .3 + .4) bossIdle(e);
+  }
+});
+// Ataque de jefe: burst
+defBossMove('burst', {
+  hacer(e, dt, c) {
+    const { ph2, bcol } = c;
+    e.timer += dt;
+    const rings = ph2 ? 3 : 2, n = ph2 ? 20 : 15;
+    if (e.k < rings && e.timer >= e.k * .38) { bossRing(e, n, ph2 ? 180 : 160, bcol, e.k * (TAU / n / 2)); e.k++; sfx(160, .12, 'square', .04, -60); }
+    if (e.timer > rings * .38 + .4) bossIdle(e);
+  }
+});
+// Ataque de jefe: charge
+defBossMove('charge', {
+  hacer(e, dt, c) {
+    const { ph2, ph3, bcol } = c;
+    e.timer += dt;
+    const wind = ph2 ? .6 : .85;
+    if (!e.reps) e.reps = ph3 ? 3 : 1;
+    if (e.k === 0) {
+      if (e.timer < wind - .25) e.ca = leadAng(e, ph2 ? 640 : 520, .5);
+      if (e.timer >= wind) { e.k = 1; e.timer = 0; sfx(80, .3, 'sawtooth', .05); }
+    } else {
+      const sp = ph2 ? 640 : 520;
+      const hit = moveEnt(e, Math.cos(e.ca) * sp * dt, Math.sin(e.ca) * sp * dt);
+      const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
+      if (hit || e.timer > .75) {
+        if (hit) { shake(12); burst(e.x, e.y, '#7a6f8a', 16, 200); if (ph2) bossRing(e, 12, 170, bcol); }
+        if (--e.reps > 0) { e.k = 0; e.timer = .3; } else bossIdle(e);
+      }
+    }
+  },
+  // aviso que se dibuja antes que el jefe
+  aviso(e) {
+    if (e.k !== 0) return;
+    ctx.globalAlpha = .22; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2;
+    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 420, e.y + Math.sin(e.ca) * 420); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+});
+// Ataque de jefe: dark
+defBossMove('dark', {
+  hacer(e, dt, c) {
+    const { a } = c;
+    e.timer += dt;
+    if (e.k === 0) { G.darkT = 3.5; e.k = 1; showBanner('La luz se apaga', '#d4474b'); sfx(50, 1.2, 'sine', .08, -20); }
+    if (e.k >= 1 && e.k < 5 && e.timer >= e.k * .6) { for (let i = -1; i <= 1; i++) enemyShoot(e, a + i * .25, 230, 6, '#ff5a3a'); e.k++; }
+    if (e.timer > 3.2) bossIdle(e);
+  }
+});
+// Ataque de jefe: gapring
+defBossMove('gapring', {
+  hacer(e, dt, c) {
+    const { ph3, bcol } = c;
+    // anillos con un hueco: hay que encontrar la abertura
+    e.timer += dt;
+    const rings = ph3 ? 3 : 2;
+    if (e.k < rings && e.timer >= e.k * .55) {
+      const n = 34;
+      for (let i = 0; i < n; i++) { const ang = i * TAU / n; if (Math.abs(angDiff(ang, e.gap)) < .42) continue; enemyShoot(e, ang, 150, 6, bcol); }
+      e.gap += (Math.random() < .5 ? 1 : -1) * rand(.6, 1.1); e.k++; sfx(200, .12, 'square', .04, -60);
+    }
+    if (e.timer > rings * .55 + .3) bossIdle(e);
+  }
+});
+// Ataque de jefe: laser
+defBossMove('laser', {
+  hacer(e, dt, c) {
+    const { p, a, ph2, ph3 } = c;
+    e.timer += dt;
+    const n = ph3 ? 4 : ph2 ? 3 : 1, wind = .85, act = ph2 ? 1.2 : .6;
+    if (e.k === 0) {
+      if (e.timer < wind - .25) e.ca = a;
+      G.beams = []; for (let i = 0; i < n; i++) G.beams.push({ x: e.x, y: e.y, a: e.ca + i * TAU / n, on: false });
+      if (e.timer >= wind) { e.k = 1; e.timer = 0; sfx(90, act, 'sawtooth', .05, 60); noise(act, .05, 2000); }
+    } else {
+      for (const b of G.beams) { b.on = true; b.x = e.x; b.y = e.y; if (ph2) b.a += dt * .9; }
+      for (const b of G.beams) {
+        const dx = p.x - b.x, dy = p.y - b.y, along = dx * Math.cos(b.a) + dy * Math.sin(b.a), perp = Math.abs(-dx * Math.sin(b.a) + dy * Math.cos(b.a));
+        if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1); }
+      }
+      if (e.timer > act) { G.beams = []; bossIdle(e); }
+    }
+  }
+});
+// Ataque de jefe: leap
+defBossMove('leap', {
+  hacer(e, dt, c) {
+    const { p, ph2, ph3, bcol } = c;
+    e.timer += dt;
+    if (!e.reps) e.reps = ph3 ? 2 : 1;
+    if (e.k === 0) { e.air = true; e.k = 1; sfx(140, .3, 'sawtooth', .04, 200); }
+    if (e.timer < .45) { const t = .55 * D().lead, tx = p.x + G.pv.x * t, ty = p.y + G.pv.y * t; e.tgt = hitsWall(tx, ty, e.r) ? { x: p.x, y: p.y } : { x: tx, y: ty }; }
+    if (e.timer >= 1 && e.k === 1) {
+      e.k = 2; e.air = false;
+      if (!hitsWall(e.tgt.x, e.tgt.y, e.r)) { e.x = e.tgt.x; e.y = e.tgt.y; }
+      shake(14); noise(.3, .1, 500); burst(e.x, e.y, '#5a4a5a', 22, 220, 5);
+      bossRing(e, ph2 ? 18 : 12, 170, bcol);
+      if (dist(e, p) < e.r + p.r + 10) hurtPlayer(2);
+    }
+    if (e.timer > 1.5) { if (--e.reps > 0) { e.k = 0; e.timer = .2; } else bossIdle(e); }
+  }
+});
+// Ataque de jefe: predict
+defBossMove('predict', {
+  hacer(e, dt, c) {
+    const { ph3 } = c;
+    e.timer += dt;
+    const vol = ph3 ? 6 : 4;
+    if (e.k < vol && e.timer >= e.k * .22) { const A = leadAng(e, 300, 1); for (let i = -1; i <= 1; i++) enemyShoot(e, A + i * .12, 300, 6, '#ffb36a'); e.k++; sfx(460, .05, 'square', .03); }
+    if (e.timer > vol * .22 + .4) bossIdle(e);
+  }
+});
+// Ataque de jefe: rain
+defBossMove('rain', {
+  hacer(e, dt, c) {
+    const { p, ph3, bcol } = c;
+    e.timer += dt;
+    const n = ph3 ? 9 : 6;
+    while (e.k < n && e.timer >= e.k * .14) {
+      const t = .5, j = e.k === 0 ? 0 : 90;
+      hazard(p.x + G.pv.x * t * .8 + rand(-j, j), p.y + G.pv.y * t * .8 + rand(-j, j), 44, .85, 1, bcol, { shred: true });
+      e.k++;
+    }
+    if (e.timer > n * .14 + .6) bossIdle(e);
+  }
+});
+// Ataque de jefe: spiral
+defBossMove('spiral', {
+  hacer(e, dt, c) {
+    e.timer += dt;
+    while (e.k * .065 < e.timer && e.timer < 2.6) {
+      const base = e.k * .33;
+      for (let i = 0; i < 3; i++) enemyShoot(e, base + i * TAU / 3, 165, 6, '#c77dff');
+      e.k++;
+      if (e.k % 4 === 0) sfx(300 + (e.k % 20) * 10, .04, 'square', .015);
+    }
+    if (e.timer > 3) bossIdle(e);
+  }
+});
+// Ataque de jefe: summon
+defBossMove('summon', {
+  hacer(e, dt, c) {
+    const { B } = c;
+    if (e.k === 0) {
+      e.k = 1;
+      for (let i = 0; i < 3; i++) {
+        const ang = rand(0, TAU), x = e.x + Math.cos(ang) * 90, y = e.y + Math.sin(ang) * 90;
+        if (!hitsWall(x, y, 12)) G.markers.push({ x, y, t: .8, type: B.minion, depth: 3 });
+      }
+      sfx(240, .4, 'triangle', .04, -150);
+    }
+    if (e.st_t < -.7) bossIdle(e);
+  }
+});
+// Ataque de jefe: teleport
+defBossMove('teleport', {
+  hacer(e, dt, c) {
+    const { p, ph2, bcol } = c;
+    e.timer += dt;
+    if (e.k === 0) { e.fade = Math.max(0, 1 - e.timer / .4); if (e.timer >= .4) { e.k = 1; e.invuln = true; const s = freeSpot(G.bossRoom, 3, 0, p, 170); if (s) { e.x = s.x; e.y = s.y; } sfx(160, .3, 'sine', .04, -100); } }
+    else { e.fade = Math.min(1, (e.timer - .4) / .3); if (e.k === 1 && e.timer >= .7) { e.k = 2; e.invuln = false; bossRing(e, ph2 ? 16 : 12, 170, bcol); } }
+    if (e.timer > 1.1) { e.fade = 1; e.invuln = false; bossIdle(e); }
+  }
+});
+// Ataque de jefe: web
+defBossMove('web', {
+  hacer(e, dt, c) {
+    const { a, ph2 } = c;
+    e.timer += dt;
+    const vol = ph2 ? 3 : 2, n = ph2 ? 7 : 5;
+    if (e.k < vol && e.timer >= e.k * .5) { for (let i = 0; i < n; i++) enemyShoot(e, a + (i - (n - 1) / 2) * .22, 140, 9, '#e8e8d8', 1, 'web'); e.k++; sfx(500, .1, 'triangle', .03, -250); }
+    if (e.timer > vol * .5 + .5) bossIdle(e);
+  }
+});
+// Ataque de subjefe: charge3
+defSubMove('charge3', {
+  hacer(e, dt, c) {
+    const { ph2 } = c;
+    // embiste varias veces seguidas; la línea roja marca el camino
+    e.timer += dt;
+    if (e.k === 0) { e.k = 1; e.reps = ph2 ? 3 : 2; e.timer = 0; }
+    if (e.k === 1) {
+      const wind = e.reps === (ph2 ? 3 : 2) ? .6 : .38;
+      e.tele = wind - e.timer; e.charging = false;
+      if (e.timer < wind - .18) e.ca = leadAng(e, 560, .5);
+      if (e.timer >= wind) { e.k = 2; e.timer = 0; sfx(80, .3, 'sawtooth', .05); }
+    } else {
+      e.charging = true;
+      const hit = moveEnt(e, Math.cos(e.ca) * 560 * dt, Math.sin(e.ca) * 560 * dt);
+      const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
+      if (ph2 && Math.random() < dt * 14) enemyShoot(e, e.ca + Math.PI + rand(-.8, .8), 60, 6, '#ff6a3a');
+      if (hit || e.timer > .6) {
+        if (hit) { shake(9); burst(e.x, e.y, '#7a6f8a', 12, 200); }
+        e.charging = false;
+        if (--e.reps > 0) { e.k = 1; e.timer = 0; } else subIdle(e);
+      }
+    }
+  },
+  // aviso que se dibuja antes que el subjefe
+  aviso(e) {
+    if (e.k !== 1) return;
+    ctx.globalAlpha = .25; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2;
+    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 380, e.y + Math.sin(e.ca) * 380); ctx.stroke(); ctx.globalAlpha = 1;
+  }
+});
+// Ataque de subjefe: fan
+defSubMove('fan', {
+  hacer(e, dt, c) {
+    const { S, a } = c;
+    e.timer += dt;
+    if (e.timer < .5) { e.ca = a; return; }
+    const T = e.timer - .5, dur = 1.3;
+    while (e.k * .07 < T && T < dur) { const ang = e.ca - .9 + 1.8 * (e.k * .07 / dur); enemyShoot(e, ang, 230, 5, S.tint); e.k++; if (e.k % 3 === 0) sfx(420, .03, 'square', .015); }
+    if (T > dur + .3) subIdle(e);
+  }
+});
+// Ataque de subjefe: gust
+defSubMove('gust', {
+  hacer(e, dt, c) {
+    const { p, S } = c;
+    // ráfaga: viento que te empuja lejos mientras lanza cuchillas de aire
+    e.timer += dt;
+    if (e.timer > .5 && e.timer < 2.1) {
+      const A = angTo(e, p);
+      p.kbx = (p.kbx || 0) + Math.cos(A) * 900 * dt; p.kby = (p.kby || 0) + Math.sin(A) * 900 * dt;
+      while (e.k * .22 < e.timer - .5) { const n = 3; for (let i = 0; i < n; i++) enemyShoot(e, A + (i - 1) * .3 + rand(-.05, .05), 300, 5, S.pc); e.k++; }
+      if (Math.random() < .8) { const off = rand(-60, 60); G.parts.push({ x: e.x - Math.sin(A) * off, y: e.y + Math.cos(A) * off, vx: Math.cos(A) * 420, vy: Math.sin(A) * 420, life: .5, max: .5, color: 'rgba(200,240,224,.7)', size: 2 }); }
+    }
+    if (e.timer > 2.4) subIdle(e);
+  }
+});
+// Ataque de subjefe: hop (y su versión bighop, con hop2 entre saltos)
+defSubMove('hop', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    // salta hacia donde vas a estar; la sombra roja marca dónde cae
+    e.timer += dt;
+    const big = e.st === 'bighop', air = big ? .7 : .9;
+    if (e.k === 0) { e.k = 1; if (!(e.reps > 0)) e.reps = big ? 3 : 1; e.air = true; const t = .6; e.tgt = { x: p.x + G.pv.x * t * D().lead, y: p.y + G.pv.y * t * D().lead }; if (hitsWall(e.tgt.x, e.tgt.y, e.r) || roomAt(e.tgt.x, e.tgt.y) !== G.cur) e.tgt = { x: p.x, y: p.y }; hazard(e.tgt.x, e.tgt.y, e.r + 22, air, 1, S.tint); sfx(160, .25, 'sine', .04, 300); }
+    e.lift = Math.sin(clamp(e.timer / air, 0, 1) * Math.PI) * 110;
+    if (e.k === 1 && e.timer >= air) {
+      e.air = false; e.lift = 0; e.x = e.tgt.x; e.y = e.tgt.y; shake(9); noise(.2, .08, 500);
+      const n = ph2 ? 12 : 9, off = rand(0, TAU); for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, 150, 6, S.pc || '#9bff7a');
+      burst(e.x, e.y, S.tint, 16, 200, 4);
+      if (--e.reps > 0) { e.k = 0; e.timer = 0; e.st = 'hop2'; e.st_t = .25; }
+      else e.k = 2;
+    }
+    if (e.k === 2 && e.timer > air + .5) subIdle(e);
+  }
+});
+defSubMove('bighop', 'hop');
+// pausa entre un salto y el siguiente
+defSubMove('hop2', {
+  hacer(e, dt, c) {
+    if (e.st_t <= 0) { e.st = 'bighop'; e.k = 0; e.timer = 0; e.tele = .3; }
+  }
+});
+// Ataque de subjefe: rain
+defSubMove('rain', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    const n = ph2 ? 7 : 5;
+    while (e.k < n && e.timer >= e.k * .16) {
+      const t = .5 + e.k * .1, j = e.k === 0 ? 0 : 70;
+      hazard(p.x + G.pv.x * t * .8 + rand(-j, j), p.y + G.pv.y * t * .8 + rand(-j, j), 38, .85, 1, S.pc || '#e3a24a');
+      e.k++;
+    }
+    if (e.timer > 1.4) subIdle(e);
+  }
+});
+// Ataque de subjefe: retreat
+defSubMove('retreat', {
+  hacer(e, dt, c) {
+    const { S, a, ph2, move } = c;
+    e.timer += dt;
+    if (e.timer < .35) move(a + Math.PI, 380);
+    else if (e.k === 0) { e.k = 1; const n = ph2 ? 14 : 10; for (let i = 0; i < n; i++) enemyShoot(e, a + i * TAU / n, 170, 5, S.pc || '#f0e6c8'); sfx(300, .1, 'square', .03); }
+    if (e.timer > .8) subIdle(e);
+  }
+});
+// Ataque de subjefe: slam
+defSubMove('slam', {
+  hacer(e, dt, c) {
+    const { S, ph2 } = c;
+    e.timer += dt;
+    if (e.k === 0) { e.k = 1; hazard(e.x, e.y, 100, .7, 1, S.el ? S.tint : '#d4474b', { ring: ph2 ? 16 : 12, owner: e }); }
+    if (e.timer > 1.2) subIdle(e);
+  }
+});
+// Ataque de subjefe: spit
+defSubMove('spit', {
+  hacer(e, dt, c) {
+    const { S, ph2 } = c;
+    e.timer += dt;
+    const vols = ph2 ? 4 : 3;
+    if (e.timer > .45 && e.k < vols && e.timer >= .45 + e.k * .35) { const A = leadAng(e, 160); for (let i = 0; i < 7; i++) enemyShoot(e, A + (i - 3) * .16, 160, 7, S.pc || '#9bff7a'); e.k++; sfx(330, .1, 'sine', .03, 200); }
+    if (e.timer > .45 + vols * .35 + .3) subIdle(e);
+  }
+});
+// Ataque de subjefe: summon
+defSubMove('summon', {
+  hacer(e, dt, c) {
+    const { S } = c;
+    if (e.k === 0) {
+      e.k = 1;
+      for (let i = 0; i < 2; i++) { const ang = rand(0, TAU), x = e.x + Math.cos(ang) * 80, y = e.y + Math.sin(ang) * 80; if (!hitsWall(x, y, 12)) G.markers.push({ x, y, t: .8, type: Array.isArray(S.minion) ? pick(S.minion) : S.minion, depth: S.el ? 1 : 2, el: S.el }); }
+      sfx(240, .4, 'triangle', .04, -150);
+    }
+    if (e.st_t < -.8) subIdle(e);
+  }
+});
+// Ataque de subjefe: volley
+defSubMove('volley', {
+  hacer(e, dt, c) {
+    const { S, ph2 } = c;
+    e.timer += dt; e.aimA = leadAng(e, 270);
+    const vols = ph2 ? 4 : 3, n = ph2 ? 5 : 4;
+    if (e.timer > .5 && e.k < vols && e.timer >= .5 + e.k * .28) { for (let i = 0; i < n; i++) enemyShoot(e, e.aimA + (i - (n - 1) / 2) * .17, 270, 5, S.pc || '#f0e6c8'); e.k++; sfx(500, .05, 'triangle', .025, -200); }
+    if (e.timer > .5 + vols * .28 + .3) subIdle(e);
+  },
+  // aviso que se dibuja antes que el subjefe
+  aviso(e) {
+    if (!(e.timer < .5 && e.aimA !== undefined)) return;
+    ctx.strokeStyle = 'rgba(255,90,90,.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
+    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.aimA) * 260, e.y + Math.sin(e.aimA) * 260); ctx.stroke(); ctx.setLineDash([]);
+  }
+});
+// Ataque de subjefe: wave
+defSubMove('wave', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    // ola: dos muros de agua con un hueco; si te tocan, te empapan
+    e.timer += dt;
+    if (e.timer > .55 && e.k < 2 && e.timer >= .55 + e.k * .7) {
+      const A = angTo(e, p), px = -Math.sin(A), py = Math.cos(A), gap = rand(-3, 3) | 0, n = ph2 ? 13 : 11;
+      for (let i = -(n >> 1); i <= n >> 1; i++) {
+        if (Math.abs(i - gap) < 1.5) continue;
+        const sx = e.x + px * i * 22, sy = e.y + py * i * 22;
+        if (!hitsWall(sx, sy, 6)) enemyShoot({ x: sx, y: sy, r: 0 }, A, 150 + 10 * G.floor, 7, S.pc);
+      }
+      e.k++; sfx(260, .3, 'sine', .04, -120); noise(.25, .04, 900);
+    }
+    if (e.timer > 2.1) subIdle(e);
+  }
+});
+// Ataque de subjefe: whirl
+defSubMove('whirl', {
+  hacer(e, dt, c) {
+    const { p, S } = c;
+    // remolino: te arrastra hacia él mientras dispara anillos
+    e.timer += dt;
+    if (e.timer > .4 && e.timer < 2) {
+      const ap = angTo(p, e); moveEnt(p, Math.cos(ap) * 110 * dt, Math.sin(ap) * 110 * dt);
+      while (e.k * .3 < e.timer - .4) { const n = 8, off = e.k * .4; for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, 140, 5, S.pc || S.tint); e.k++; }
+      if (Math.random() < .6) { const an = rand(0, TAU), rr = rand(30, 120); G.parts.push({ x: e.x + Math.cos(an) * rr, y: e.y + Math.sin(an) * rr, vx: -Math.cos(an) * 120, vy: -Math.sin(an) * 120, life: .4, max: .4, color: S.tint, size: 3 }); }
+    }
+    if (e.timer > 2.3) subIdle(e);
+  }
+});
 // ================= Pixel art =================
 const MAPS = {
   knight: ['.....oo.....', '....kook....', '...kssssk...', '..kssssssk..', '..ksvvvvsk..', '..kssssssk..', '...kkkkkk...',
@@ -1810,25 +2351,9 @@ const FLOORS = [
     pool1: ['phantom', 'burrower', 'charger', 'sniper', 'splitter'], pool2: ['phantom', 'burrower', 'charger', 'sniper', 'priest', 'warden', 'bomber', 'eye', 'wraith'],
     boss: 'elena', light: [72, 260, .97], elite: .28, music: { root: 36, tempo: 72, horror: true }, horror: true },
 ];
-const BOSSES = {
-  guardian: { name: 'El Guardián de la Cripta', hp: 420, r: 30, minion: 'bat',
-    p1: ['burst', 'aimed', 'charge'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict'] },
-  queen:    { name: 'La Reina Tejedora', hp: 800, r: 30, minion: 'spider',
-    p1: ['web', 'leap', 'aimed', 'summon'], p2: ['web', 'leap', 'spiral', 'burst', 'summon', 'rain'], p3: ['leap', 'web', 'gapring', 'rain', 'predict', 'summon'] },
-  devourer: { name: 'El Devorador de Luz', hp: 1250, r: 32, minion: 'wraith',
-    p1: ['laser', 'teleport', 'aimed', 'summon'], p2: ['laser', 'dark', 'spiral', 'teleport', 'burst', 'summon', 'gapring'], p3: ['laser', 'dark', 'rain', 'teleport', 'gapring', 'predict'] },
-  // jefes de los pisos 4 a 8: aspecto de un jefe anterior con otro color, más vida y más ataques por fase
-  ossuary:    { name: 'El Señor del Osario', hp: 1600, r: 32, minion: 'warden', look: 'guardian', tint: '#9bd8ff', col: '#bfe8ff', want: 150, scale: 1.1,
-    p1: ['burst', 'aimed', 'charge', 'rain'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring', 'web'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict', 'web', 'burst'] },
-  forger:     { name: 'La Forjadora', hp: 2000, r: 32, minion: 'bomber', look: 'queen', tint: '#ff8a3a', col: '#ffb070', want: 170, scale: 1.12,
-    p1: ['leap', 'burst', 'aimed', 'rain'], p2: ['leap', 'charge', 'rain', 'gapring', 'summon', 'burst'], p3: ['leap', 'charge', 'rain', 'gapring', 'laser', 'predict', 'burst'] },
-  rootmother: { name: 'La Raíz Madre', hp: 2400, r: 34, minion: 'splitter', look: 'queen', tint: '#7ac04a', col: '#b8f080', want: 200, scale: 1.18,
-    p1: ['web', 'summon', 'spiral', 'rain'], p2: ['web', 'leap', 'spiral', 'summon', 'rain', 'gapring'], p3: ['web', 'leap', 'spiral', 'rain', 'gapring', 'predict', 'burst'] },
-  bishop:     { name: 'El Obispo Hueco', hp: 2900, r: 32, minion: 'phantom', look: 'devourer', tint: '#a07ad8', col: '#d8b0ff', want: 220, scale: 1.12,
-    p1: ['teleport', 'laser', 'spiral', 'summon'], p2: ['teleport', 'laser', 'dark', 'spiral', 'gapring', 'summon', 'predict'], p3: ['teleport', 'laser', 'dark', 'rain', 'gapring', 'predict', 'burst', 'spiral'] },
-  elena:      { name: 'Elena, Corazón de la Cripta', hp: 3500, r: 34, minion: 'phantom', look: 'devourer', tint: '#ffd0d8', col: '#ff8aa0', want: 190, scale: 1.25,
-    p1: ['laser', 'web', 'charge', 'spiral', 'summon'], p2: ['laser', 'web', 'leap', 'dark', 'gapring', 'rain', 'summon', 'teleport'], p3: ['laser', 'dark', 'leap', 'charge', 'gapring', 'rain', 'predict', 'spiral', 'burst', 'web'] },
-};
+// cada jefe vive en su archivo de 01e-jefes/
+const BOSSES = {};
+for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 
 // ================= Guardado =================
 const SAVE_KEY = 'cripta-guardian-v1';
@@ -3240,24 +3765,9 @@ function updateEnemy(e, dt) {
 }
 
 // ================= Subjefes =================
-const SUBS = {
-  1: { sk: 'captain', name: 'Capitán Hueso', spr: 'skel', s: 3.4, r: 22, hp: 140, speed: 85, tint: '#e3a24a', minion: 'archer', want: 210,
-       p1: ['volley', 'rain', 'retreat'], p2: ['volley', 'rain', 'fan', 'summon', 'retreat'] },
-  2: { sk: 'matriarch', name: 'Matriarca del Limo', spr: 'toxic', s: 4.4, r: 26, hp: 290, speed: 62, tint: '#9be05a', minion: 'toxic', want: 120,
-       p1: ['hop', 'spit', 'hop'], p2: ['hop', 'spit', 'bighop', 'summon'] },
-  3: { sk: 'executioner', name: 'El Verdugo', spr: 'brute', s: 3.6, r: 26, hp: 450, speed: 72, tint: '#d4474b', minion: 'wraith', want: 0,
-       p1: ['charge3', 'slam', 'charge3'], p2: ['charge3', 'slam', 'fan', 'summon'] },
-  4: { sk: 'sentinel', name: 'Centinela Escarchado', spr: 'warden', s: 3.6, r: 24, hp: 600, speed: 72, tint: '#9bd8ff', minion: 'warden', want: 150,
-       p1: ['volley', 'charge3', 'rain'], p2: ['volley', 'charge3', 'rain', 'summon', 'wave'] },
-  5: { sk: 'smith', name: 'Herrero Fundido', spr: 'charger', s: 3.8, r: 26, hp: 750, speed: 66, tint: '#ff8a3a', minion: 'bomber', want: 0,
-       p1: ['slam', 'charge3', 'rain'], p2: ['slam', 'charge3', 'rain', 'summon', 'fan'] },
-  6: { sk: 'rootqueen', name: 'Madre Espina', spr: 'splitter', s: 4.6, r: 26, hp: 900, speed: 60, tint: '#9be05a', minion: 'splitter', want: 120,
-       p1: ['hop', 'spit', 'whirl'], p2: ['bighop', 'spit', 'whirl', 'summon', 'fan'] },
-  7: { sk: 'ashbishop', name: 'Obispo de Ceniza', spr: 'priest', s: 3.6, r: 22, hp: 1050, speed: 80, tint: '#c77dff', minion: 'phantom', want: 220,
-       p1: ['volley', 'retreat', 'gust', 'fan'], p2: ['volley', 'retreat', 'gust', 'fan', 'summon', 'wave', 'rain'] },
-  8: { sk: 'twin', name: 'El Gemelo de Aldric', spr: 'phantom', s: 3.6, r: 22, hp: 1250, speed: 105, tint: '#ffb0c8', minion: 'phantom', want: 160,
-       p1: ['charge3', 'fan', 'retreat', 'wave'], p2: ['charge3', 'fan', 'retreat', 'summon', 'whirl', 'gust', 'bighop'] },
-};
+// cada subjefe vive en su archivo de 01f-subjefes/; SUBS los ordena por piso
+const SUBS = {};
+for (const id of Object.keys(SUB_DEFS)) SUBS[SUB_DEFS[id].piso] = { sk: id, ...SUB_DEFS[id].datos };
 function mkSub(floor, x, y) {
   // los subjefes extra (de pisos anteriores) llegan con la vida del subjefe del piso actual
   const S = SUBS[floor], base = floor === G.fi + 1 ? S.hp : SUBS[G.fi + 1].hp * .75, hp = Math.round(base * D().hp * (1 + .8 * (G.cycle - 1)));
@@ -3267,14 +3777,14 @@ function mkSub(floor, x, y) {
 const enemyPace = () => Math.min(1.4, 1 + .05 * (G.floor - 1));
 function subIdle(e) { e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.1 : .7) / D().rate / (e.elem ? 1 + .12 * (G.floor - 1) : enemyPace()); }
 function updateSub(e, dt) {
-  const p = G.player, S = e.def || SUBS[G.fi + 1], a = angTo(e, p), d = dist(e, p), ph2 = e.phase === 2;
+  const p = G.player, S = e.def || SUBS[G.fi + 1], sd = SUB_DEFS[e.sk] || {}, a = angTo(e, p), d = dist(e, p), ph2 = e.phase === 2;
   const sm = e.slowT > 0 ? .7 : 1;
   e.st_t -= dt; e.tele = (e.tele || 0) - dt;
   if (e.phase === 1 && e.hp <= e.max * (G.diff === 'hard' ? .6 : .5)) {
     e.phase = 2; e.speed *= 1.25; const heal = Math.round(e.max * .12); e.hp = Math.min(e.max, e.hp + heal); addText(e.x, e.y - e.r - 20, `¡Furioso! +${heal} vida`, '#d4474b', 16); shake(8); sfx(70, .5, 'sawtooth', .05, 30);
     burst(e.x, e.y, S.tint, 24, 220, 4);
   }
-  const move = (ang, sp) => { moveEnt(e, Math.cos(ang) * sp * sm * dt, Math.sin(ang) * sp * sm * dt); const o = pushOutProps(e); if (o && o.kind !== 'merchant' && e.sk === 'executioner') damageProp(o, 99); };
+  const move = (ang, sp) => { moveEnt(e, Math.cos(ang) * sp * sm * dt, Math.sin(ang) * sp * sm * dt); const o = pushOutProps(e); if (o && o.kind !== 'merchant' && sd.rompeAlCaminar) damageProp(o, 99); };
   switch (e.st) {
     case 'idle': {
       // se coloca a su distancia preferida y te rodea
@@ -3290,137 +3800,10 @@ function updateSub(e, dt) {
       }
       return;
     }
-    case 'volley': {
-      e.timer += dt; e.aimA = leadAng(e, 270);
-      const vols = ph2 ? 4 : 3, n = ph2 ? 5 : 4;
-      if (e.timer > .5 && e.k < vols && e.timer >= .5 + e.k * .28) { for (let i = 0; i < n; i++) enemyShoot(e, e.aimA + (i - (n - 1) / 2) * .17, 270, 5, S.pc || '#f0e6c8'); e.k++; sfx(500, .05, 'triangle', .025, -200); }
-      if (e.timer > .5 + vols * .28 + .3) subIdle(e);
-      return;
-    }
-    case 'rain': {
-      e.timer += dt;
-      const n = ph2 ? 7 : 5;
-      while (e.k < n && e.timer >= e.k * .16) {
-        const t = .5 + e.k * .1, j = e.k === 0 ? 0 : 70;
-        hazard(p.x + G.pv.x * t * .8 + rand(-j, j), p.y + G.pv.y * t * .8 + rand(-j, j), 38, .85, 1, S.pc || '#e3a24a');
-        e.k++;
-      }
-      if (e.timer > 1.4) subIdle(e);
-      return;
-    }
-    case 'retreat': {
-      e.timer += dt;
-      if (e.timer < .35) move(a + Math.PI, 380);
-      else if (e.k === 0) { e.k = 1; const n = ph2 ? 14 : 10; for (let i = 0; i < n; i++) enemyShoot(e, a + i * TAU / n, 170, 5, S.pc || '#f0e6c8'); sfx(300, .1, 'square', .03); }
-      if (e.timer > .8) subIdle(e);
-      return;
-    }
-    case 'fan': {
-      e.timer += dt;
-      if (e.timer < .5) { e.ca = a; return; }
-      const T = e.timer - .5, dur = 1.3;
-      while (e.k * .07 < T && T < dur) { const ang = e.ca - .9 + 1.8 * (e.k * .07 / dur); enemyShoot(e, ang, 230, 5, S.tint); e.k++; if (e.k % 3 === 0) sfx(420, .03, 'square', .015); }
-      if (T > dur + .3) subIdle(e);
-      return;
-    }
-    case 'summon': {
-      if (e.k === 0) {
-        e.k = 1;
-        for (let i = 0; i < 2; i++) { const ang = rand(0, TAU), x = e.x + Math.cos(ang) * 80, y = e.y + Math.sin(ang) * 80; if (!hitsWall(x, y, 12)) G.markers.push({ x, y, t: .8, type: Array.isArray(S.minion) ? pick(S.minion) : S.minion, depth: S.el ? 1 : 2, el: S.el }); }
-        sfx(240, .4, 'triangle', .04, -150);
-      }
-      if (e.st_t < -.8) subIdle(e);
-      return;
-    }
-    case 'hop': case 'bighop': {
-      // salta hacia donde vas a estar; la sombra roja marca dónde cae
-      e.timer += dt;
-      const big = e.st === 'bighop', air = big ? .7 : .9;
-      if (e.k === 0) { e.k = 1; if (!(e.reps > 0)) e.reps = big ? 3 : 1; e.air = true; const t = .6; e.tgt = { x: p.x + G.pv.x * t * D().lead, y: p.y + G.pv.y * t * D().lead }; if (hitsWall(e.tgt.x, e.tgt.y, e.r) || roomAt(e.tgt.x, e.tgt.y) !== G.cur) e.tgt = { x: p.x, y: p.y }; hazard(e.tgt.x, e.tgt.y, e.r + 22, air, 1, S.tint); sfx(160, .25, 'sine', .04, 300); }
-      e.lift = Math.sin(clamp(e.timer / air, 0, 1) * Math.PI) * 110;
-      if (e.k === 1 && e.timer >= air) {
-        e.air = false; e.lift = 0; e.x = e.tgt.x; e.y = e.tgt.y; shake(9); noise(.2, .08, 500);
-        const n = ph2 ? 12 : 9, off = rand(0, TAU); for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, 150, 6, S.pc || '#9bff7a');
-        burst(e.x, e.y, S.tint, 16, 200, 4);
-        if (--e.reps > 0) { e.k = 0; e.timer = 0; e.st = 'hop2'; e.st_t = .25; }
-        else e.k = 2;
-      }
-      if (e.k === 2 && e.timer > air + .5) subIdle(e);
-      return;
-    }
-    case 'hop2': { if (e.st_t <= 0) { e.st = 'bighop'; e.k = 0; e.timer = 0; e.tele = .3; } return; }
-    case 'spit': {
-      e.timer += dt;
-      const vols = ph2 ? 4 : 3;
-      if (e.timer > .45 && e.k < vols && e.timer >= .45 + e.k * .35) { const A = leadAng(e, 160); for (let i = 0; i < 7; i++) enemyShoot(e, A + (i - 3) * .16, 160, 7, S.pc || '#9bff7a'); e.k++; sfx(330, .1, 'sine', .03, 200); }
-      if (e.timer > .45 + vols * .35 + .3) subIdle(e);
-      return;
-    }
-    case 'charge3': {
-      // embiste varias veces seguidas; la línea roja marca el camino
-      e.timer += dt;
-      if (e.k === 0) { e.k = 1; e.reps = ph2 ? 3 : 2; e.timer = 0; }
-      if (e.k === 1) {
-        const wind = e.reps === (ph2 ? 3 : 2) ? .6 : .38;
-        e.tele = wind - e.timer; e.charging = false;
-        if (e.timer < wind - .18) e.ca = leadAng(e, 560, .5);
-        if (e.timer >= wind) { e.k = 2; e.timer = 0; sfx(80, .3, 'sawtooth', .05); }
-      } else {
-        e.charging = true;
-        const hit = moveEnt(e, Math.cos(e.ca) * 560 * dt, Math.sin(e.ca) * 560 * dt);
-        const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
-        if (ph2 && Math.random() < dt * 14) enemyShoot(e, e.ca + Math.PI + rand(-.8, .8), 60, 6, '#ff6a3a');
-        if (hit || e.timer > .6) {
-          if (hit) { shake(9); burst(e.x, e.y, '#7a6f8a', 12, 200); }
-          e.charging = false;
-          if (--e.reps > 0) { e.k = 1; e.timer = 0; } else subIdle(e);
-        }
-      }
-      return;
-    }
-    case 'wave': {
-      // ola: dos muros de agua con un hueco; si te tocan, te empapan
-      e.timer += dt;
-      if (e.timer > .55 && e.k < 2 && e.timer >= .55 + e.k * .7) {
-        const A = angTo(e, p), px = -Math.sin(A), py = Math.cos(A), gap = rand(-3, 3) | 0, n = ph2 ? 13 : 11;
-        for (let i = -(n >> 1); i <= n >> 1; i++) {
-          if (Math.abs(i - gap) < 1.5) continue;
-          const sx = e.x + px * i * 22, sy = e.y + py * i * 22;
-          if (!hitsWall(sx, sy, 6)) enemyShoot({ x: sx, y: sy, r: 0 }, A, 150 + 10 * G.floor, 7, S.pc);
-        }
-        e.k++; sfx(260, .3, 'sine', .04, -120); noise(.25, .04, 900);
-      }
-      if (e.timer > 2.1) subIdle(e);
-      return;
-    }
-    case 'gust': {
-      // ráfaga: viento que te empuja lejos mientras lanza cuchillas de aire
-      e.timer += dt;
-      if (e.timer > .5 && e.timer < 2.1) {
-        const A = angTo(e, p);
-        p.kbx = (p.kbx || 0) + Math.cos(A) * 900 * dt; p.kby = (p.kby || 0) + Math.sin(A) * 900 * dt;
-        while (e.k * .22 < e.timer - .5) { const n = 3; for (let i = 0; i < n; i++) enemyShoot(e, A + (i - 1) * .3 + rand(-.05, .05), 300, 5, S.pc); e.k++; }
-        if (Math.random() < .8) { const off = rand(-60, 60); G.parts.push({ x: e.x - Math.sin(A) * off, y: e.y + Math.cos(A) * off, vx: Math.cos(A) * 420, vy: Math.sin(A) * 420, life: .5, max: .5, color: 'rgba(200,240,224,.7)', size: 2 }); }
-      }
-      if (e.timer > 2.4) subIdle(e);
-      return;
-    }
-    case 'whirl': {
-      // remolino: te arrastra hacia él mientras dispara anillos
-      e.timer += dt;
-      if (e.timer > .4 && e.timer < 2) {
-        const ap = angTo(p, e); moveEnt(p, Math.cos(ap) * 110 * dt, Math.sin(ap) * 110 * dt);
-        while (e.k * .3 < e.timer - .4) { const n = 8, off = e.k * .4; for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, 140, 5, S.pc || S.tint); e.k++; }
-        if (Math.random() < .6) { const an = rand(0, TAU), rr = rand(30, 120); G.parts.push({ x: e.x + Math.cos(an) * rr, y: e.y + Math.sin(an) * rr, vx: -Math.cos(an) * 120, vy: -Math.sin(an) * 120, life: .4, max: .4, color: S.tint, size: 3 }); }
-      }
-      if (e.timer > 2.3) subIdle(e);
-      return;
-    }
-    case 'slam': {
-      e.timer += dt;
-      if (e.k === 0) { e.k = 1; hazard(e.x, e.y, 100, .7, 1, S.el ? S.tint : '#d4474b', { ring: ph2 ? 16 : 12, owner: e }); }
-      if (e.timer > 1.2) subIdle(e);
-      return;
+    default: {
+      // cada ataque vive en su archivo de 01h-ataques-de-subjefe/
+      const mv = SUB_MOVES[e.st];
+      if (mv) mv.hacer(e, dt, { p, S, a, d, ph2, move });
     }
   }
 }
@@ -3438,7 +3821,8 @@ function subDefeated(e) {
   for (let i = 0; i < 12; i++) dropCoin(e.x, e.y);
   G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });
   G.pickups.push({ kind: 'potion', x: e.x + 20, y: e.y });
-  if (e.sk === 'matriarch') for (let i = 0; i < 3; i++) G.enemies.push(mkEnemy('toxic', e.x + rand(-20, 20), e.y + rand(-20, 20), 1, false));
+  const sd = SUB_DEFS[e.sk];
+  if (sd && sd.alMorir) sd.alMorir(e);
 }
 
 // ================= Jefes =================
@@ -3457,7 +3841,7 @@ function updateBoss(e, dt) {
     return;
   }
   const ph2 = e.phase >= 2, ph3 = e.phase === 3, d = dist(e, p);
-  const bcol = B.col || (e.kind === 'queen' ? '#cfd8a0' : e.kind === 'devourer' ? '#ff5a3a' : '#ff6a8a');
+  const bcol = B.col || '#ff6a8a';
   switch (e.st) {
     case 'enrage':
       if (Math.random() < .5) burst(e.x, e.y, '#d4474b', 2, 200, 4);
@@ -3466,7 +3850,7 @@ function updateBoss(e, dt) {
     case 'idle': {
       // se mueve a su distancia preferida y te rodea en vez de caminar en línea recta
       if (!e.dir || Math.random() < dt * .3) e.dir = Math.random() < .5 ? 1 : -1;
-      const want = B.want || (e.kind === 'guardian' ? 120 : 190);
+      const want = B.want || 190;
       const mv = d < want - 40 ? a + Math.PI * .75 * e.dir : d < want + 60 ? a + Math.PI / 2 * e.dir : a;
       moveEnt(e, Math.cos(mv) * e.speed * dt, Math.sin(mv) * e.speed * dt);
       const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
@@ -3487,143 +3871,10 @@ function updateBoss(e, dt) {
     case 'prep':
       if (e.st_t <= 0) { e.st = e.next; e.st_t = 0; e.k = 0; e.timer = 0; e.ca = a; e.gap = a + rand(-1, 1); e.tgt = { x: p.x, y: p.y }; }
       return;
-    case 'gapring': {
-      // anillos con un hueco: hay que encontrar la abertura
-      e.timer += dt;
-      const rings = ph3 ? 3 : 2;
-      if (e.k < rings && e.timer >= e.k * .55) {
-        const n = 34;
-        for (let i = 0; i < n; i++) { const ang = i * TAU / n; if (Math.abs(angDiff(ang, e.gap)) < .42) continue; enemyShoot(e, ang, 150, 6, bcol); }
-        e.gap += (Math.random() < .5 ? 1 : -1) * rand(.6, 1.1); e.k++; sfx(200, .12, 'square', .04, -60);
-      }
-      if (e.timer > rings * .55 + .3) bossIdle(e);
-      return;
-    }
-    case 'rain': {
-      e.timer += dt;
-      const n = ph3 ? 9 : 6;
-      while (e.k < n && e.timer >= e.k * .14) {
-        const t = .5, j = e.k === 0 ? 0 : 90;
-        hazard(p.x + G.pv.x * t * .8 + rand(-j, j), p.y + G.pv.y * t * .8 + rand(-j, j), 44, .85, 1, bcol, { shred: true });
-        e.k++;
-      }
-      if (e.timer > n * .14 + .6) bossIdle(e);
-      return;
-    }
-    case 'predict': {
-      e.timer += dt;
-      const vol = ph3 ? 6 : 4;
-      if (e.k < vol && e.timer >= e.k * .22) { const A = leadAng(e, 300, 1); for (let i = -1; i <= 1; i++) enemyShoot(e, A + i * .12, 300, 6, '#ffb36a'); e.k++; sfx(460, .05, 'square', .03); }
-      if (e.timer > vol * .22 + .4) bossIdle(e);
-      return;
-    }
-    case 'burst': {
-      e.timer += dt;
-      const rings = ph2 ? 3 : 2, n = ph2 ? 20 : 15;
-      if (e.k < rings && e.timer >= e.k * .38) { bossRing(e, n, ph2 ? 180 : 160, bcol, e.k * (TAU / n / 2)); e.k++; sfx(160, .12, 'square', .04, -60); }
-      if (e.timer > rings * .38 + .4) bossIdle(e);
-      return;
-    }
-    case 'aimed': {
-      e.timer += dt;
-      const vol = ph2 ? 5 : 3, n = ph2 ? 5 : 3;
-      if (e.k < vol && e.timer >= e.k * .3) { for (let i = 0; i < n; i++) enemyShoot(e, a + (i - (n - 1) / 2) * .2, 270, 6, '#ffb36a'); e.k++; sfx(420, .06, 'square', .03); }
-      if (e.timer > vol * .3 + .4) bossIdle(e);
-      return;
-    }
-    case 'charge': {
-      e.timer += dt;
-      const wind = ph2 ? .6 : .85;
-      if (!e.reps) e.reps = ph3 ? 3 : 1;
-      if (e.k === 0) {
-        if (e.timer < wind - .25) e.ca = leadAng(e, ph2 ? 640 : 520, .5);
-        if (e.timer >= wind) { e.k = 1; e.timer = 0; sfx(80, .3, 'sawtooth', .05); }
-      } else {
-        const sp = ph2 ? 640 : 520;
-        const hit = moveEnt(e, Math.cos(e.ca) * sp * dt, Math.sin(e.ca) * sp * dt);
-        const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
-        if (hit || e.timer > .75) {
-          if (hit) { shake(12); burst(e.x, e.y, '#7a6f8a', 16, 200); if (ph2) bossRing(e, 12, 170, bcol); }
-          if (--e.reps > 0) { e.k = 0; e.timer = .3; } else bossIdle(e);
-        }
-      }
-      return;
-    }
-    case 'spiral': {
-      e.timer += dt;
-      while (e.k * .065 < e.timer && e.timer < 2.6) {
-        const base = e.k * .33;
-        for (let i = 0; i < 3; i++) enemyShoot(e, base + i * TAU / 3, 165, 6, '#c77dff');
-        e.k++;
-        if (e.k % 4 === 0) sfx(300 + (e.k % 20) * 10, .04, 'square', .015);
-      }
-      if (e.timer > 3) bossIdle(e);
-      return;
-    }
-    case 'summon': {
-      if (e.k === 0) {
-        e.k = 1;
-        for (let i = 0; i < 3; i++) {
-          const ang = rand(0, TAU), x = e.x + Math.cos(ang) * 90, y = e.y + Math.sin(ang) * 90;
-          if (!hitsWall(x, y, 12)) G.markers.push({ x, y, t: .8, type: B.minion, depth: 3 });
-        }
-        sfx(240, .4, 'triangle', .04, -150);
-      }
-      if (e.st_t < -.7) bossIdle(e);
-      return;
-    }
-    case 'web': {
-      e.timer += dt;
-      const vol = ph2 ? 3 : 2, n = ph2 ? 7 : 5;
-      if (e.k < vol && e.timer >= e.k * .5) { for (let i = 0; i < n; i++) enemyShoot(e, a + (i - (n - 1) / 2) * .22, 140, 9, '#e8e8d8', 1, 'web'); e.k++; sfx(500, .1, 'triangle', .03, -250); }
-      if (e.timer > vol * .5 + .5) bossIdle(e);
-      return;
-    }
-    case 'leap': {
-      e.timer += dt;
-      if (!e.reps) e.reps = ph3 ? 2 : 1;
-      if (e.k === 0) { e.air = true; e.k = 1; sfx(140, .3, 'sawtooth', .04, 200); }
-      if (e.timer < .45) { const t = .55 * D().lead, tx = p.x + G.pv.x * t, ty = p.y + G.pv.y * t; e.tgt = hitsWall(tx, ty, e.r) ? { x: p.x, y: p.y } : { x: tx, y: ty }; }
-      if (e.timer >= 1 && e.k === 1) {
-        e.k = 2; e.air = false;
-        if (!hitsWall(e.tgt.x, e.tgt.y, e.r)) { e.x = e.tgt.x; e.y = e.tgt.y; }
-        shake(14); noise(.3, .1, 500); burst(e.x, e.y, '#5a4a5a', 22, 220, 5);
-        bossRing(e, ph2 ? 18 : 12, 170, bcol);
-        if (dist(e, p) < e.r + p.r + 10) hurtPlayer(2);
-      }
-      if (e.timer > 1.5) { if (--e.reps > 0) { e.k = 0; e.timer = .2; } else bossIdle(e); }
-      return;
-    }
-    case 'laser': {
-      e.timer += dt;
-      const n = ph3 ? 4 : ph2 ? 3 : 1, wind = .85, act = ph2 ? 1.2 : .6;
-      if (e.k === 0) {
-        if (e.timer < wind - .25) e.ca = a;
-        G.beams = []; for (let i = 0; i < n; i++) G.beams.push({ x: e.x, y: e.y, a: e.ca + i * TAU / n, on: false });
-        if (e.timer >= wind) { e.k = 1; e.timer = 0; sfx(90, act, 'sawtooth', .05, 60); noise(act, .05, 2000); }
-      } else {
-        for (const b of G.beams) { b.on = true; b.x = e.x; b.y = e.y; if (ph2) b.a += dt * .9; }
-        for (const b of G.beams) {
-          const dx = p.x - b.x, dy = p.y - b.y, along = dx * Math.cos(b.a) + dy * Math.sin(b.a), perp = Math.abs(-dx * Math.sin(b.a) + dy * Math.cos(b.a));
-          if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1); }
-        }
-        if (e.timer > act) { G.beams = []; bossIdle(e); }
-      }
-      return;
-    }
-    case 'teleport': {
-      e.timer += dt;
-      if (e.k === 0) { e.fade = Math.max(0, 1 - e.timer / .4); if (e.timer >= .4) { e.k = 1; e.invuln = true; const s = freeSpot(G.bossRoom, 3, 0, p, 170); if (s) { e.x = s.x; e.y = s.y; } sfx(160, .3, 'sine', .04, -100); } }
-      else { e.fade = Math.min(1, (e.timer - .4) / .3); if (e.k === 1 && e.timer >= .7) { e.k = 2; e.invuln = false; bossRing(e, ph2 ? 16 : 12, 170, bcol); } }
-      if (e.timer > 1.1) { e.fade = 1; e.invuln = false; bossIdle(e); }
-      return;
-    }
-    case 'dark': {
-      e.timer += dt;
-      if (e.k === 0) { G.darkT = 3.5; e.k = 1; showBanner('La luz se apaga', '#d4474b'); sfx(50, 1.2, 'sine', .08, -20); }
-      if (e.k >= 1 && e.k < 5 && e.timer >= e.k * .6) { for (let i = -1; i <= 1; i++) enemyShoot(e, a + i * .25, 230, 6, '#ff5a3a'); e.k++; }
-      if (e.timer > 3.2) bossIdle(e);
-      return;
+    default: {
+      // cada ataque vive en su archivo de 01g-ataques-de-jefe/
+      const mv = BOSS_MOVES[e.st];
+      if (mv) mv.hacer(e, dt, { p, B, a, d, ph2, ph3, bcol });
     }
   }
 }
@@ -3636,8 +3887,7 @@ function bossDefeated(e) {
   G.markers.length = 0;
   G.proj = G.proj.filter(pr => pr.owner === 'player');
   const room = G.bossRoom; room.locked = false; room.cleared = true; G.roomsCleared++;
-  if (e.kind === 'guardian') ach('boss1');
-  if (e.kind === 'devourer') ach('boss3');
+  if (BOSS_DEFS[e.kind].logro) ach(BOSS_DEFS[e.kind].logro);
   SAVE.kills['boss:' + e.kind] = (SAVE.kills['boss:' + e.kind] || 0) + 1;
   if (G.floor === 8 && !G.wonOnce) {
     G.wonOnce = true; SAVE.wins++; ach('win'); if (G.diff === 'hard') ach('nightmare'); writeSave();
@@ -6063,10 +6313,7 @@ const bossCv = document.createElement('canvas'); bossCv.width = bossCv.height = 
 const bctx = bossCv.getContext('2d');
 function drawBoss(e) {
   const ph2 = e.phase >= 2, white = e.flash > 0;
-  if (e.st === 'charge' && e.k === 0) {
-    ctx.globalAlpha = .22; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2;
-    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 420, e.y + Math.sin(e.ca) * 420); ctx.stroke(); ctx.globalAlpha = 1;
-  }
+  const mv = BOSS_MOVES[e.st]; if (mv && mv.aviso) mv.aviso(e);
   let lift = 0;
   if (e.air && e.tgt) {
     const k = clamp(e.timer, 0, 1);
@@ -6080,36 +6327,7 @@ function drawBoss(e) {
   g.save(); g.translate(32, 32); g.scale(.5, .5);
   const fill = c => white ? '#ffffff' : (e.invuln && Math.floor(G.time * 12) % 2 ? '#d4474b' : c);
   const BD = BOSSES[e.kind], look = BD.look || e.kind;
-  if (look === 'guardian') {
-    g.fillStyle = ph2 ? 'rgba(212,71,75,.35)' : 'rgba(199,125,255,.25)'; g.beginPath(); g.arc(0, 0, 50, 0, TAU); g.fill();
-    g.fillStyle = fill('#5b3f7a'); g.beginPath(); g.arc(0, 0, 30, 0, TAU); g.fill();
-    g.fillStyle = fill('#3e2a56'); g.fillRect(-30, 4, 60, 8);
-    g.fillStyle = '#e3a24a'; g.beginPath(); g.moveTo(-18, -22); for (let i = 0; i <= 4; i++) g.lineTo(-18 + i * 9, -(i % 2 ? 26 : 40)); g.lineTo(18, -22); g.fill();
-    g.fillStyle = ph2 ? '#ff4040' : '#d6a6ff'; g.fillRect(-14, -8, 8, 8); g.fillRect(6, -8, 8, 8);
-    g.fillStyle = '#2b1f3a'; g.fillRect(-10, 14, 20, 4);
-  } else if (look === 'queen') {
-    g.strokeStyle = fill('#4a3a4a'); g.lineWidth = 5;
-    for (let s = -1; s <= 1; s += 2) for (let i = 0; i < 4; i++) {
-      const wig = Math.sin(e.t * 10 + i) * 4;
-      g.beginPath(); g.moveTo(0, 0); g.lineTo(s * 36, -10 + i * 10 + wig); g.lineTo(s * 50, 4 + i * 12 + wig); g.stroke();
-    }
-    g.fillStyle = fill('#2a1f2a'); g.beginPath(); g.arc(0, 14, 24, 0, TAU); g.fill();
-    g.fillStyle = fill('#8a2a3a'); g.fillRect(-6, 6, 12, 18);
-    g.fillStyle = fill('#3a2a3a'); g.beginPath(); g.arc(0, -10, 20, 0, TAU); g.fill();
-    g.fillStyle = ph2 ? '#ff2a2a' : '#ff6a6a';
-    for (const [x, y] of [[-10, -14], [10, -14], [-5, -20], [5, -20], [-14, -6], [14, -6]]) g.fillRect(x - 3, y - 3, 6, 6);
-    g.fillStyle = '#e8e8d8'; g.fillRect(-7, 2, 3, 8); g.fillRect(4, 2, 3, 8);
-  } else {
-    g.globalAlpha = e.fade;
-    g.fillStyle = ph2 ? 'rgba(255,60,40,.3)' : 'rgba(120,20,30,.35)'; g.beginPath(); g.arc(0, 0, 54, 0, TAU); g.fill();
-    g.fillStyle = fill('#0c0608'); g.beginPath(); g.arc(0, 0, 32, 0, TAU); g.fill();
-    g.fillStyle = '#e8d8d0';
-    for (let i = 0; i < 14; i++) { const a = i * TAU / 14 + e.spin * .5; g.save(); g.rotate(a); g.fillRect(26, -3, 10, 6); g.restore(); }
-    g.fillStyle = fill('#e8d8d0'); g.beginPath(); g.arc(0, 0, 15, 0, TAU); g.fill();
-    const pa = angTo(e, G.player);
-    g.fillStyle = ph2 ? '#ff2a1a' : '#b0303a'; g.beginPath(); g.arc(Math.cos(pa) * 6, Math.sin(pa) * 6, 8, 0, TAU); g.fill();
-    g.fillStyle = '#000'; g.fillRect(Math.cos(pa) * 7 - 2, Math.sin(pa) * 7 - 5, 4, 10);
-  }
+  BOSS_DEFS[look].aspecto(g, e, fill, ph2);
   g.restore();
   if (BD.tint && !white) { g.save(); g.globalCompositeOperation = 'source-atop'; g.globalAlpha = .5; g.fillStyle = BD.tint; g.fillRect(0, 0, 64, 64); g.restore(); }
   const sz = 128 * (BD.scale || 1);
@@ -6120,23 +6338,16 @@ function drawBoss(e) {
 
 function drawSub(e) {
   const p = G.player, white = e.flash > 0;
-  if (e.st === 'charge3' && e.k === 1) {
-    ctx.globalAlpha = .25; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2;
-    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 380, e.y + Math.sin(e.ca) * 380); ctx.stroke(); ctx.globalAlpha = 1;
-  }
-  if (e.st === 'volley' && e.timer < .5 && e.aimA !== undefined) {
-    ctx.strokeStyle = 'rgba(255,90,90,.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]);
-    ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.aimA) * 260, e.y + Math.sin(e.aimA) * 260); ctx.stroke(); ctx.setLineDash([]);
-  }
+  const mv = SUB_MOVES[e.st], sd = SUB_DEFS[e.sk] || {}; if (mv && mv.aviso) mv.aviso(e);
   drawShadow(e.x, e.y, e.r);
   const lift = e.lift || 0;
   ctx.globalAlpha = .16 + .08 * Math.sin(G.time * 5) + (e.phase === 2 ? .1 : 0); ctx.fillStyle = e.tint;
   ctx.beginPath(); ctx.arc(e.x, e.y - lift, e.r + 12, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
   let sx = 1, sy = 1;
-  if (e.sk === 'matriarch') { const q = Math.sin(e.t * 5) * .1; sx = 1 + q; sy = 1 - q; }
+  if (sd.forma) { const f = { sx, sy }; sd.forma(e, f); sx = f.sx; sy = f.sy; }
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
   drawSpr(e.spr, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
-  if (e.sk === 'captain' && !e.cheat) drawWeapon({ type: 'bow', rarity: 'rare', id: 'long' }, e.x, e.y - lift, e.aimA ?? angTo(e, p), 1.4);
+  if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
   // corona: distingue al subjefe
   const cy = e.y - lift - e.r - 14;

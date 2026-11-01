@@ -41,3 +41,35 @@ const weaponList = () => Object.keys(WEAPON_DEFS).sort((a, b) => WEAPON_DEFS[a].
 const ROOM_DEFS = {}, ROOM_OBJ = {};
 function defRoom(id, def) { ROOM_DEFS[id] = def; ROOM_OBJ[def.objeto] = def; }
 const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden - ROOM_DEFS[b].orden);
+
+// Cada jefe vive en su propio archivo dentro de 01e-jefes/ y se registra con defBoss.
+// Para añadir uno: copia el archivo de uno parecido, cambia el id y sus datos, y ponlo como boss de un piso
+// (FLOORS, en 03-datos-del-juego.js). Sale en el bestiario solo.
+//   orden      posición en el bestiario
+//   datos      name, hp, r (radio), minion (enemigo que invoca), want (distancia a la que se queda),
+//              col (color de sus balas), tint y scale (color y tamaño del dibujo), look (usar el aspecto de otro jefe),
+//              p1, p2, p3: ataques que elige en cada fase (cada uno es un archivo de 01g-ataques-de-jefe/)
+//   logro      opcional: logro que se gana al derrotarlo
+//   aspecto(g, e, fill, ph2)   su dibujo, si no reutiliza el de otro con look
+const BOSS_DEFS = {};
+function defBoss(id, def) { BOSS_DEFS[id] = def; }
+const bossList = () => Object.keys(BOSS_DEFS).sort((a, b) => BOSS_DEFS[a].orden - BOSS_DEFS[b].orden);
+
+// Cada subjefe vive en su propio archivo dentro de 01f-subjefes/ y se registra con defSub.
+//   piso       piso en el que aparece (uno por piso)
+//   datos      name, spr y s (sprite y escala), r, hp, speed, tint, minion, want, pc (color de balas),
+//              p1, p2: ataques de cada fase (cada uno es un archivo de 01h-ataques-de-subjefe/)
+//   forma(e, f), encima(e, lift, p), alMorir(e), rompeAlCaminar   ajustes opcionales
+const SUB_DEFS = {};
+function defSub(id, def) { SUB_DEFS[id] = def; }
+
+// Cada ataque de jefe o subjefe vive en su archivo (01g-ataques-de-jefe/, 01h-ataques-de-subjefe/).
+// Un ataque nuevo se usa poniendo su id en las listas p1/p2/p3 de un jefe o subjefe.
+//   hacer(e, dt, c)   lo que hace cada fotograma; termina llamando a bossIdle(e) o subIdle(e).
+//                     c trae p (jugador), a y d (ángulo y distancia al jugador), ph2, ph3 y los datos
+//                     del jefe (B, bcol) o del subjefe (S, move)
+//   aviso(e)          opcional: dibuja el aviso (línea roja, mira...) antes que el jefe
+// En vez de un objeto se puede dar el id de otro ataque para copiar el suyo.
+const BOSS_MOVES = {}, SUB_MOVES = {};
+function defBossMove(id, def) { BOSS_MOVES[id] = typeof def === 'string' ? BOSS_MOVES[def] : def; }
+function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOVES[def] : def; }
