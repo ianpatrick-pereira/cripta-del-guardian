@@ -407,6 +407,68 @@ function hudText(txt, x, y, size = 13, color = '#ece4cf', align = 'left', weight
   ctx.fillStyle = color; ctx.fillText(txt, x, y);
 }
 
+// barra de armas y habilidad (abajo). En un celular en vertical va a lo ancho y en formato compacto.
+function drawWeaponBar(p, w, h) {
+  const vert = hudVertical(w, h), H = vert ? 46 : 54;
+  const avail = vert ? w - 20 : touch.on ? w - (h <= 420 ? 230 : 280) : w - 20;   // deja sitio a los botones (más chicos si la pantalla es bajita)
+  const sw = vert ? (avail - 16) / 3 : clamp((avail - 16) / 3, 96, 186), sy = h - H - 10;
+  const small = sw < 140;
+  for (let i = 0; i < 2; i++) {
+    const wpn = p.slots[i], x = 10 + i * (sw + 8), act = i === p.cur;
+    ctx.fillStyle = act ? 'rgba(42,36,56,.92)' : 'rgba(12,11,17,.72)'; ctx.fillRect(x, sy, sw, H);
+    ctx.strokeStyle = act ? RARITY[wpn.rarity].c : '#2e2a3c'; ctx.lineWidth = act ? 2 : 1; ctx.strokeRect(x + .5, sy + .5, sw - 1, H - 1);
+    const stars = '★'.repeat(wpn.stars || 1) + (wpn.up && (wpn.up.dmg + wpn.up.rate + wpn.up.chg + wpn.up.en) ? ' +' + (wpn.up.dmg + wpn.up.rate + wpn.up.chg + wpn.up.en) : '');
+    const cost = `${wpn.dmg} daño · ${wpn.en ? wpn.en + ' en.' : 'gratis'}`, costCol = p.en < (wpn.en || 0) ? '#d4474b' : '#9d95ab';
+    if (vert) {
+      // nombre arriba; abajo, daño y estrellas a la izquierda y el dibujo del arma a la derecha
+      const elTag = wpn.el && wpn.elOn && act;
+      fitText(wpn.name, x + 7, sy + 11, sw - (elTag ? 30 : 14), 11, RARITY[wpn.rarity].c);
+      if (elTag) { const ready = p.elCd <= 0; hudText(ready ? '◆' : Math.ceil(p.elCd) + 's', x + sw - 6, sy + 11, 9, ready ? ELEMS[wpn.el].c : '#9d95ab', 'right', 600); }
+      drawWeapon(wpn, x + sw - 20, sy + 31, -.5, .55);
+      fitText(cost, x + 7, sy + 26, sw - 40, 9, costCol, 'left', 400);
+      hudText(stars, x + 7, sy + 38, 8, RARITY[wpn.rarity].c, 'left', 600);
+      continue;
+    }
+    drawWeapon(wpn, x + 12, sy + 27, -.5, .9);
+    const right = touch.on ? 8 : 20;
+    fitText(wpn.name, x + 46, sy + 18, sw - 46 - right, small ? 11 : 12, RARITY[wpn.rarity].c);
+    fitText(cost + (sw >= 150 ? ` · carga ${wpn.chgEn}` : ''), x + 46, sy + 36, sw - 54, 10, costCol, 'left', 400);
+    if (!touch.on) hudText(String(i + 1), x + sw - 10, sy + 12, 10, '#6b6480', 'right');
+    hudText(stars, x + 46, sy + 48, 9, RARITY[wpn.rarity].c, 'left', 600);
+    if (wpn.el) {
+      const E = ELEMS[wpn.el], ready = p.elCd <= 0;
+      const txt = wpn.elOn ? `${touch.on || !act ? '' : 'R · '}${elAbName(wpn)} ${act && !ready ? Math.ceil(p.elCd) + ' s' : 'Nv' + wpn.elLv}` : `${E.n} ${wpn.elC}/3`;
+      hudText(txt, x + sw - 8, sy + 48, 9, wpn.elOn && act && ready ? E.c : '#9d95ab', 'right', 600);
+    }
+  }
+  const ch = p.spec ? SPECS[p.spec] : CHARS[p.char], ax = 10 + 2 * (sw + 8);
+  ctx.fillStyle = 'rgba(12,11,17,.72)'; ctx.fillRect(ax, sy, sw, H);
+  const ready = p.abilCd <= 0;
+  if (!ready) { ctx.fillStyle = 'rgba(199,125,255,.18)'; ctx.fillRect(ax, sy, sw * (1 - p.abilCd / ch.cd), H); }
+  ctx.strokeStyle = ready ? '#c77dff' : '#2e2a3c'; ctx.lineWidth = ready ? 2 : 1; ctx.strokeRect(ax + .5, sy + .5, sw - 1, H - 1);
+  const SL = subLv(p);
+  const ty = vert ? [11, 26, 38] : [18, 36, 48], pad = vert ? 7 : 10;
+  fitText(ch.abil + (SL ? ` Nv${SL}` : ''), ax + pad, sy + ty[0], sw - pad * 2, vert ? 11 : small ? 11 : 12, ready ? '#c77dff' : '#9d95ab');
+  hudText((ready ? (touch.on ? 'Lista' : 'F · Lista') : `${Math.ceil(p.abilCd)} s`), ax + pad, sy + ty[1], vert ? 9 : 10, '#9d95ab', 'left', 400);
+  const cr = classRes(p);
+  if (cr) {
+    if (cr.k !== undefined) { ctx.fillStyle = '#2e2a3c'; ctx.fillRect(ax + pad, sy + ty[2] - 4, sw - pad * 2, 4); ctx.fillStyle = cr.c; ctx.fillRect(ax + pad, sy + ty[2] - 4, (sw - pad * 2) * cr.k, 4); }
+    else fitText(cr.t, ax + sw - pad + 2, sy + ty[2], sw - pad * 2, vert ? 8 : 9, cr.c, 'right', 600);
+  }
+  return sy;
+}
+
+// texto que no se sale de su caja: achica la letra (hasta 8 px) y, si aún no cabe, lo corta con «…»
+function fitText(txt, x, y, maxW, size, color, align = 'left', weight = 600) {
+  let s = size;
+  const f = () => { ctx.font = `${weight} ${s}px "Chakra Petch", ui-monospace, monospace`; return ctx.measureText(txt).width; };
+  while (s > 8 && f() > maxW) s--;
+  if (f() > maxW) { while (txt.length > 1 && ctx.measureText(txt + '…').width > maxW) txt = txt.slice(0, -1); txt += '…'; }
+  hudText(txt, x, y, s, color, align, weight);
+}
+// pantalla de celular en vertical: la barra de armas va abajo a lo ancho y los botones táctiles suben encima
+const hudVertical = (w, h) => h > w && w < 600;
+
 function drawHUD(w, h) {
   const p = G.player;
   ctx.fillStyle = 'rgba(12,11,17,.72)'; ctx.fillRect(10, 10, 200, 108);
@@ -441,10 +503,14 @@ function drawHUD(w, h) {
   { let cx = 18; for (const el of EL_ORDER) if (G.crystals[el]) { drawCrystal(cx + 4, 114, ELEMS[el].c, .8); hudText(String(G.crystals[el]), cx + 12, 114, 11, ELEMS[el].c); cx += 34; } }
   const rel = p.relics;
   for (let i = 0; i < rel.length; i++) drawRelicIcon(rel[i], 20 + (i % 9) * 21, 132 + Math.floor(i / 9) * 21, .95);
+  // dónde termina el panel de la izquierda (lo usan el botón de pausa y la barra del jefe en vertical)
+  let hudBottom = 118 + (rel.length ? Math.ceil(rel.length / 9) * 21 + 4 : 0);
   if (G.syn && G.syn.size) {
     let sy0 = 132 + Math.ceil(rel.length / 9) * 21 + 4;
     for (const S of SYNERGIES) if (G.syn.has(S.id)) { hudText('◆ ' + S.n, 12, sy0, 10, S.c, 'left', 600); sy0 += 14; }
+    hudBottom = sy0 - 4;
   }
+  G.hudBottom = hudBottom;
   if (G.toasts && G.toasts.length) G.toasts.forEach((t, i) => {
     const ty = 64 + i * 26; ctx.globalAlpha = Math.min(1, t.t * 2);
     ctx.font = '600 12px "Chakra Petch", ui-monospace, monospace'; const tw = ctx.measureText(t.txt).width + 24;
@@ -452,36 +518,7 @@ function drawHUD(w, h) {
     hudText(t.txt, w / 2, ty, 12, '#ffd27a', 'center'); ctx.globalAlpha = 1;
   });
 
-  const avail = touch.on ? w - 280 : w - 20;
-  const sw = clamp((avail - 16) / 3, 96, 186), sy = h - 64;
-  for (let i = 0; i < 2; i++) {
-    const wpn = p.slots[i], x = 10 + i * (sw + 8), act = i === p.cur;
-    ctx.fillStyle = act ? 'rgba(42,36,56,.92)' : 'rgba(12,11,17,.72)'; ctx.fillRect(x, sy, sw, 54);
-    ctx.strokeStyle = act ? RARITY[wpn.rarity].c : '#2e2a3c'; ctx.lineWidth = act ? 2 : 1; ctx.strokeRect(x + .5, sy + .5, sw - 1, 53);
-    drawWeapon(wpn, x + 12, sy + 27, -.5, .9);
-    hudText(wpn.name, x + 46, sy + 18, sw < 140 ? 10 : 12, RARITY[wpn.rarity].c);
-    hudText(`${wpn.dmg} daño · ${wpn.en ? wpn.en + ' en.' : 'gratis'}${sw >= 150 ? ` · carga ${wpn.chgEn}` : ''}`, x + 46, sy + 36, 10, p.en < (wpn.en || 0) ? '#d4474b' : '#9d95ab', 'left', 400);
-    if (!touch.on) hudText(String(i + 1), x + sw - 10, sy + 12, 10, '#6b6480', 'right');
-    hudText('★'.repeat(wpn.stars || 1) + (wpn.up && (wpn.up.dmg + wpn.up.rate + wpn.up.chg + wpn.up.en) ? ' +' + (wpn.up.dmg + wpn.up.rate + wpn.up.chg + wpn.up.en) : ''), x + 46, sy + 48, 9, RARITY[wpn.rarity].c, 'left', 600);
-    if (wpn.el) {
-      const E = ELEMS[wpn.el], ready = p.elCd <= 0;
-      const txt = wpn.elOn ? `${touch.on || !act ? '' : 'R · '}${elAbName(wpn)} ${act && !ready ? Math.ceil(p.elCd) + ' s' : 'Nv' + wpn.elLv}` : `${E.n} ${wpn.elC}/3`;
-      hudText(txt, x + sw - 8, sy + 48, 9, wpn.elOn && act && ready ? E.c : '#9d95ab', 'right', 600);
-    }
-  }
-  const ch = p.spec ? SPECS[p.spec] : CHARS[p.char], ax = 10 + 2 * (sw + 8);
-  ctx.fillStyle = 'rgba(12,11,17,.72)'; ctx.fillRect(ax, sy, sw, 54);
-  const ready = p.abilCd <= 0;
-  if (!ready) { ctx.fillStyle = 'rgba(199,125,255,.18)'; ctx.fillRect(ax, sy, sw * (1 - p.abilCd / ch.cd), 54); }
-  ctx.strokeStyle = ready ? '#c77dff' : '#2e2a3c'; ctx.lineWidth = ready ? 2 : 1; ctx.strokeRect(ax + .5, sy + .5, sw - 1, 53);
-  const SL = subLv(p);
-  hudText(ch.abil + (SL ? ` Nv${SL}` : ''), ax + 10, sy + 18, sw < 140 ? 10 : 12, ready ? '#c77dff' : '#9d95ab');
-  hudText((ready ? (touch.on ? 'Lista' : 'F · Lista') : `${Math.ceil(p.abilCd)} s`) , ax + 10, sy + 36, 10, '#9d95ab', 'left', 400);
-  const cr = classRes(p);
-  if (cr) {
-    if (cr.k !== undefined) { ctx.fillStyle = '#2e2a3c'; ctx.fillRect(ax + 10, sy + 44, sw - 20, 4); ctx.fillStyle = cr.c; ctx.fillRect(ax + 10, sy + 44, (sw - 20) * cr.k, 4); }
-    else hudText(cr.t, ax + sw - 8, sy + 48, 9, cr.c, 'right', 600);
-  }
+  drawWeaponBar(p, w, h);
 
   const mmBottom = drawMinimap(w);
   const r = G.cur;
@@ -500,21 +537,23 @@ function drawHUD(w, h) {
 
   const B = G.enemies.find(e => e.isBoss) || G.enemies.find(e => e.isSub);
   if (B) {
-    const bw = Math.min(460, w - 260), bx = (w - bw) / 2;
-    if (bw > 120) {
-      hudText(B.isSub ? B.name : BOSSES[B.kind].name, w / 2, 20, 18, B.phase >= 2 ? '#d4474b' : '#e3a24a', 'center', 800, 'Grenze Gotisch');
-      ctx.fillStyle = 'rgba(12,11,17,.8)'; ctx.fillRect(bx - 2, 34, bw + 4, 12);
-      ctx.fillStyle = B.phase === 3 ? '#ff6a3a' : B.phase === 2 ? '#d4474b' : B.isSub ? '#e3a24a' : '#a77bd0'; ctx.fillRect(bx, 36, bw * Math.max(0, B.hp / B.max), 8);
-      ctx.fillStyle = '#ece4cf'; ctx.fillRect(bx + bw / 2 - 1, 34, 2, 12);
-      if (B.isBoss) ctx.fillRect(bx + bw / 4 - 1, 34, 2, 12);
-    }
+    // arriba al centro; si no cabe entre el panel y el mapa (celular en vertical), a lo ancho bajo el panel
+    let bw = Math.min(460, w - 440), by = 34;
+    let bx = (w - bw) / 2;
+    if (bw < 160) { bx = touch.on ? 64 : 12; bw = w - bx - 12; by = Math.max(G.hudBottom, hy + (G.daily ? 16 : 0)) + 26; }   // a la derecha del botón de pausa
+    hudText(B.isSub ? B.name : BOSSES[B.kind].name, w / 2, by - 14, 18, B.phase >= 2 ? '#d4474b' : '#e3a24a', 'center', 800, 'Grenze Gotisch');
+    ctx.fillStyle = 'rgba(12,11,17,.8)'; ctx.fillRect(bx - 2, by, bw + 4, 12);
+    ctx.fillStyle = B.phase === 3 ? '#ff6a3a' : B.phase === 2 ? '#d4474b' : B.isSub ? '#e3a24a' : '#a77bd0'; ctx.fillRect(bx, by + 2, bw * Math.max(0, B.hp / B.max), 8);
+    ctx.fillStyle = '#ece4cf'; ctx.fillRect(bx + bw / 2 - 1, by, 2, 12);
+    if (B.isBoss) ctx.fillRect(bx + bw / 4 - 1, by, 2, 12);
   }
 
   if (G.banner) {
     const a = Math.min(1, G.banner.t * 2, (2.6 - G.banner.t) * 4);
     ctx.globalAlpha = Math.max(0, a);
-    const by = h * .3;
-    if (G.banner.sub) hudText(G.banner.sub.toUpperCase(), w / 2, by - 30, 12, '#9d95ab', 'center');
+    // bajo el panel (y bajo el botón de pausa en un celular en vertical) para no taparlos
+    const by = Math.max(h * .3, Math.min(h * .5, G.hudBottom + (hudVertical(w, h) ? 100 : 44)));
+    if (G.banner.sub) fitText(G.banner.sub.toUpperCase(), w / 2, by - 30, w - 24, 12, '#9d95ab', 'center');
     hudText(G.banner.txt, w / 2, by, Math.min(46, w / 13), G.banner.color, 'center', 800, 'Grenze Gotisch');
     ctx.globalAlpha = 1;
   }
@@ -747,6 +786,17 @@ function render0() {
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   drawHUD(w, h);
+  layoutTouch(w, h);
+}
+// botones táctiles: en vertical suben por encima de la barra de armas; la pausa va justo bajo el panel
+let touchLay = '';
+function layoutTouch(w, h) {
+  if (!touch.on) return;
+  const k = (hudVertical(w, h) ? 60 : 0) + ':' + Math.round(G.hudBottom + 10);
+  if (k === touchLay) return;
+  touchLay = k; const [tb, top] = k.split(':');
+  $('touch').style.setProperty('--tb', tb + 'px');
+  $('bPause').style.top = top + 'px';
 }
 
 let last = performance.now();
