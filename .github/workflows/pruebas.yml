@@ -19,9 +19,24 @@ jobs:
       - name: Pruebas automáticas
         run: npm test
 
+  # Balance con bots (unos 4 minutos, en paralelo con las pruebas): comprueba pruebas/balance-limites.jsonc.
+  # Los avisos (⚠) solo se muestran; un límite de «fallo» roto pone la ejecución en rojo.
+  # El informe completo sale en el resumen de la ejecución (pestaña Summary de GitHub Actions).
+  balance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Límites de balance
+        run: npm run balance-ci
+
   # Solo en main y solo si las pruebas pasaron: publica cripta.html en GitHub Pages
   publicar:
-    needs: pruebas
+    needs: [pruebas, balance]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

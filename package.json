@@ -1,6 +1,6 @@
 {
   "name": "cripta-del-guardian",
-  "version": "0.41.0",
+  "version": "0.42.0",
   "private": true,
   "description": "Roguelike de mazmorras en el navegador: un solo cripta.html generado desde src/.",
   "scripts": {
@@ -11,6 +11,7 @@
     "test": "node pruebas/probar.js",
     "referencia": "node pruebas/probar.js --referencia",
     "balance": "node pruebas/balance.js",
+    "balance-ci": "node pruebas/balance.js 2 --ci",
     "rendimiento": "node pruebas/rendimiento.js"
   },
   "devDependencies": {
