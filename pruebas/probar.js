@@ -36,9 +36,11 @@ const BOT = `window.__bot = (frames, godmode) => {
     if (vivos.length) {
       let t = vivos[0], bd = 1e9; for (const e of vivos) { const d = Math.hypot(e.x - p.x, e.y - p.y); if (d < bd) { bd = d; t = e; } }
       const w = p.slots[p.cur], melee = w.type === 'melee', a = Math.atan2(t.y - p.y, t.x - p.x), lado = (Math.floor(G.time / 2) % 2) ? 1 : -1;
+      // distancia que mantiene con armas a distancia (la hoz llega a unos 150 px: se pone más cerca)
+      const [cerca, lejos] = w.style === 'sickle' ? [70, 140] : [150, 300];
       let mv;
       if (melee) mv = bd > 45 ? [Math.cos(a), Math.sin(a)] : [Math.cos(a + lado * 1.4), Math.sin(a + lado * 1.4)];
-      else mv = bd < 150 ? [-Math.cos(a), -Math.sin(a)] : bd > 300 ? [Math.cos(a), Math.sin(a)] : [Math.cos(a + lado * 1.57), Math.sin(a + lado * 1.57)];
+      else mv = bd < cerca ? [-Math.cos(a), -Math.sin(a)] : bd > lejos ? [Math.cos(a), Math.sin(a)] : [Math.cos(a + lado * 1.57), Math.sin(a + lado * 1.57)];
       const ciclo = G.time % 5;
       o = { mv, atk: ciclo < 4, chg: ciclo >= 4 && ciclo < 4.8, dash: f % 170 === 0, abil: f % 480 === 0, elem: f % 600 === 0 };
     }

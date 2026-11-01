@@ -6,11 +6,17 @@
 // Ojo: el navegador sin ventana dibuja sin tarjeta gráfica, así que el dibujo sale más lento que en
 // un aparato real. Sirve para comparar versiones y escenas, no como cifra exacta.
 const path = require('path'), { chromium, devices } = require('playwright');
-const JUEGO = 'file://' + path.join(__dirname, '..', 'cripta.html');
+// se mide la versión de página completa (la de GitHub Pages): sin la etiqueta viewport el celular simulado
+// dibujaría la página a 980 px de ancho y saldría mucho más lento de lo que es
+const fs = require('fs'), os = require('os'), { paginaWeb } = require('../build.js');
+const WEB = path.join(os.tmpdir(), 'cripta-rendimiento.html');
+fs.writeFileSync(WEB, paginaWeb(fs.readFileSync(path.join(__dirname, '..', 'cripta.html'), 'utf8')));
+const JUEGO = 'file://' + WEB;
 const PRESUPUESTO = 1000 / 60;   // 16,7 ms por fotograma para ir a 60 fps
 
 const escena = ([n, jefe]) => {
   const T = window.__cripta; T.run('knight'); const G = T.state(); T.floor(8); T.sim(2);
+  // jugador inmortal: vida enorme (la barra de vida deja de dibujar una raya por punto cuando pasa de 60)
   const p = G.player; p.hp = p.maxHp = 9999; T.weapon(p.slots[p.cur].id, 5);
   const r = jefe ? G.bossRoom : G.rooms.filter(r => r.type === 'combat').sort((a, b) => b.depth - a.depth)[0];
   if (jefe) { T.toBoss(); } else { p.x = r.cx; p.y = r.cy; G.cam.x = p.x; G.cam.y = p.y; }
@@ -18,12 +24,14 @@ const escena = ([n, jefe]) => {
   const tipos = ['phantom', 'burrower', 'charger', 'sniper', 'priest', 'warden', 'bomber', 'eye', 'wraith', 'splitter'];
   for (let i = 0; i < n; i++) { const a = i * 2.4, d = 90 + (i % 7) * 25; T.spawn(tipos[i % tipos.length], r.cx + Math.cos(a) * d, r.cy + Math.sin(a) * d); }
   const med = (xs, q) => { const s = [...xs].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(q * s.length))]; };
+  // leer un píxel obliga al navegador a terminar de pintar el fotograma (si no, junta varios y da tirones falsos)
+  const px = document.getElementById('cv').getContext('2d');
   const upd = [], dib = [];
   for (let f = 0; f < 360; f++) {
     p.hp = p.maxHp; while (T.resolve());
     const vivos = G.enemies.filter(e => !e.dead && !e.ally).length;
     if (!jefe && vivos < n * .6) for (let i = vivos; i < n; i++) T.spawn(tipos[i % tipos.length], r.cx + Math.cos(i) * 140, r.cy + Math.sin(i) * 140);
-    const t0 = performance.now(); T.sim(1); const t1 = performance.now(); T.render(); const t2 = performance.now();
+    const t0 = performance.now(); T.sim(1); const t1 = performance.now(); T.render(); px.getImageData(0, 0, 1, 1); const t2 = performance.now();
     if (f >= 60) { upd.push(t1 - t0); dib.push(t2 - t1); }
   }
   const tot = upd.map((u, i) => u + dib[i]);

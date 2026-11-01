@@ -32,8 +32,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Preparar la web
         run: |
-          mkdir web
-          cp cripta.html web/index.html
+          # página completa (con <!doctype> y la etiqueta viewport para celulares)
+          node build.js --web web/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: web

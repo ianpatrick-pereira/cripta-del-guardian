@@ -29,6 +29,7 @@ function updateThrown(pr, dt) {
     else if (pr.t > pr.outT) { pr.ph = 'spin'; pr.vx = pr.vy = 0; pr.st = 0; }
   } else if (pr.ph === 'spin') {
     pr.st += dt; pr.tick = (pr.tick || 0) - dt;
+    if (pr.stick) { if (pr.stick.dead) pr.stick = null; else { pr.x = pr.stick.x; pr.y = pr.stick.y; } }
     if (pr.tick <= 0) { pr.tick = .26; pr.hit = new Set(); }
     if (pr.st > pr.spinT) { pr.ph = 'back'; pr.hit = new Set(); }
   }

@@ -157,6 +157,8 @@ function update(dt) {
         hurtEnemy(e, pr.dmg, Math.atan2(pr.vy, pr.vx), pr.kb || (pr.kind === 'power' ? 300 : 140), { src: pr.src, fx: pr.fx });
         if (pr.fx === 'chain') chainHit(e, pr.dmg);
         if (pr.split) splitShot(pr);
+        // la hoz se clava en el primer enemigo que toca y gira ahí y lo sigue mientras gira (antes pasaba de largo y giraba en el vacío)
+        if (pr.thrown === 'sickle' && pr.ph === 'out') { pr.ph = 'spin'; pr.vx = pr.vy = 0; pr.st = 0; pr.tick = .26; pr.stick = e; }
         if (pr.fx === 'explode' || pr.boom) { explode(pr.x, pr.y, pr.boom || 55, pr.dmg, true); pr.life = 0; break; }
         if (pr.pierce-- <= 0) { pr.life = 0; break; }
       }
