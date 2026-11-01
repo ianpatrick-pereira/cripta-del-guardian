@@ -3,9 +3,8 @@
 // Para añadir uno nuevo: copia un archivo de esa carpeta, cambia el id y sus datos, y ponlo en la lista
 // de enemigos de algún piso (src/datos/pisos/). No hace falta tocar nada más.
 //   orden      posición en el bestiario
-//   stats      vida, radio, velocidad, daño, sprite y escala
+//   stats      vida, radio, velocidad, daño, spr (su dibujo: src/sprites/<spr>.png) y escala s
 //   bestiario  nombre y descripción que ve el jugador
-//   sprite     { clave, mapa (filas de píxeles o el nombre de otro mapa), paleta }
 //   esquiva    true si se aparta de tus disparos
 //   ia(e, c)   su comportamiento cada fotograma (o el id de otro enemigo para copiar el suyo)
 //   forma(e, f), debajo(e, la), encima(e, la, white)   ajustes y detalles de dibujo

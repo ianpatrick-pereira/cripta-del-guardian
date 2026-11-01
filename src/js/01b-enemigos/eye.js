@@ -8,12 +8,6 @@ defEnemy('eye', {
   orden: 10,
   stats: { hp: 12, r: 13, speed: 0, dmg: 1, spr: 'eye', s: 2.2 },
   bestiario: { n: tr('Ojo vigía'), d: tr('Inmóvil. Anillos, ráfagas y espirales.') },
-  sprite: {
-    clave: 'eye',
-    mapa: ['...kkkkkk...', '..kwwwwwwk..', '.kwwwwwwwwk.', 'kwwwrrrrwwwk', 'kwwrrkkrrwwk', 'kwwrkkkkrwwk', 'kwwrkkkkrwwk',
-      'kwwrrkkrrwwk', 'kwwwrrrrwwwk', '.kwwwwwwwwk.', '..kwwwwwwk..', '...kkkkkk...'],
-    paleta: { k: '#2a0a0e', w: '#e8d8d0', r: '#b0303a' }
-  },
   // no retrocede al recibir golpes
   sinEmpuje: true,
   // Ojos: no se mueven; alternan anillo, ráfaga apuntada y espiral

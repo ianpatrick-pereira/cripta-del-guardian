@@ -11,12 +11,6 @@ defEnemy('brute', {
   orden: 6,
   stats: { hp: 15, r: 17, speed: 58, dmg: 2, spr: 'brute', s: 2.6 },
   bestiario: { n: tr('Bruto'), d: tr('Embiste de lejos; de cerca golpea el suelo.') },
-  sprite: {
-    clave: 'brute',
-    mapa: ['.h..........h.', '.hh.kkkkkk.hh.', '..hkrrrrrrkh..', '..krrrrrrrrk..', '..kreerreerk..', '..krrrrrrrrk..', '..krrkkkkrrk..',
-      '.kkrrrrrrrrkk.', 'krrrrrrrrrrrrk', 'krrkrrrrrrkrrk', 'krk.kddddk.krk', '...kddddddk...', '...krrk.krrk..', '...kkk..kkk...'],
-    paleta: { k: '#2a0f0c', h: '#e8dcc0', r: '#c96a48', e: '#1b1822', d: '#4a3020' }
-  },
   // Brutos: si estás lejos embisten; si estás cerca golpean el suelo (círculo rojo = sal de ahí)
   ia(e, c) {
     const { dt, cdt, hidden, tgt, d, go, done } = c;

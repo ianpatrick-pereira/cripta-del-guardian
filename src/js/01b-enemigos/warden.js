@@ -10,11 +10,6 @@ defEnemy('warden', {
   orden: 11,
   stats: { hp: 22, r: 15, speed: 55, dmg: 1, spr: 'warden', s: 2.3 },
   bestiario: { n: tr('Escudero'), d: tr('Su escudo frena casi todo el daño de frente: flanquéalo. Empuja con el escudo.') },
-  sprite: {
-    clave: 'warden',
-    mapa: 'knight',
-    paleta: { k: '#0e1420', o: '#9bd8ff', s: '#8a9ab0', v: '#1b2230', a: '#5a6a80', b: '#3a4a5a', r: '#4ab0e8', l: '#3a4658' }
-  },
   // Escudero: escudo al frente (los golpes de frente casi no le hacen nada); de cerca empuja con el escudo
   ia(e, c) {
     const { dt, cdt, p, hidden, tgt, d, a, go, done } = c;

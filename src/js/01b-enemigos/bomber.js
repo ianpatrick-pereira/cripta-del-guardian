@@ -10,11 +10,6 @@ defEnemy('bomber', {
   orden: 12,
   stats: { hp: 10, r: 12, speed: 80, dmg: 1, spr: 'bomber', s: 2 },
   bestiario: { n: tr('Artificiero'), d: tr('Guarda distancia y lanza bombas; el círculo naranja marca dónde caen.') },
-  sprite: {
-    clave: 'bomber',
-    mapa: 'rogue',
-    paleta: { k: '#1a0e08', d: '#5a3a20', y: '#ff8a3a', m: '#ffd34a', c: '#3a2a1a', l: '#2a1a10' }
-  },
   esquiva: true,
   // Artificiero: guarda distancia y lanza bombas en arco; el círculo marca dónde caen
   ia(e, c) {

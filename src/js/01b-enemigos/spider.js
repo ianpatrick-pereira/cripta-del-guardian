@@ -8,11 +8,6 @@ defEnemy('spider', {
   orden: 7,
   stats: { hp: 6, r: 12, speed: 210, dmg: 1, spr: 'spider', s: 2 },
   bestiario: { n: tr('Araña'), d: tr('Zigzag veloz; escupe telaraña que frena.') },
-  sprite: {
-    clave: 'spider',
-    mapa: ['l..l......l..l', '.l..l....l..l.', '..l.kkkkkk.l..', 'llkksssssskkll', '..kssrssrssk..', 'llksssssssskll', '..kssssssssk..', '.l.kkkkkkkk.l.', 'l..l......l..l'],
-    paleta: { k: '#120c12', s: '#3a2a3a', r: '#ff4a4a', l: '#5a4a5a' }
-  },
   esquiva: true,
   // Arañas: zigzag rápido hacia su flanco; desde lejos escupen telaraña que te frena
   ia(e, c) {

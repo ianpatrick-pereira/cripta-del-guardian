@@ -9,11 +9,6 @@ defEnemy('priest', {
   orden: 16,
   stats: { hp: 14, r: 12, speed: 72, dmg: 1, spr: 'priest', s: 2.2 },
   bestiario: { n: tr('Sacerdote hueco'), d: tr('Da escudos y cura a sus aliados. Mátalo primero.') },
-  sprite: {
-    clave: 'priest',
-    mapa: 'mage',
-    paleta: { k: '#140a0a', p: '#d8d0b8', g: '#ffd27a', b: '#c77dff' }
-  },
   // Sacerdote: se queda atrás y protege a sus aliados con escudos; si te acercas, huye
   ia(e, c) {
     const { dt, cdt, hidden, d, a, go, done } = c;

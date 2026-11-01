@@ -10,12 +10,6 @@ defEnemy('wraith', {
   orden: 9,
   stats: { hp: 8, r: 12, speed: 95, dmg: 1, spr: 'wraith', s: 2 },
   bestiario: { n: tr('Espectro'), d: tr('Se esfuma y reaparece a tu espalda.') },
-  sprite: {
-    clave: 'wraith',
-    mapa: ['....kkkk....', '...kwwwwk...', '..kwwwwwwk..', '..kwewwewk..', '..kwwwwwwk..', '..kwwkkwwk..', '.kwwwwwwwwk.',
-      '.kwwwwwwwwk.', 'kwwwwwwwwwwk', 'kwwwwwwwwwwk', 'kwwkwwwwkwwk', 'kwk.kwwk.kwk', 'kk...kk...kk'],
-    paleta: { k: '#4a5a6a', w: '#c8dcec', e: '#0a0c12' }
-  },
   esquiva: true,
   // Espectros: se esfuman, reaparecen a tu espalda, avisan y embisten
   ia(e, c) {

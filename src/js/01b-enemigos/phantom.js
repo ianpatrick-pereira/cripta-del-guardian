@@ -10,11 +10,6 @@ defEnemy('phantom', {
   orden: 17,
   stats: { hp: 12, r: 12, speed: 100, dmg: 1, spr: 'phantom', s: 2.2 },
   bestiario: { n: tr('Fantasma'), d: tr('Se vuelve intangible, reaparece cerca y dispara en abanico.') },
-  sprite: {
-    clave: 'phantom',
-    mapa: 'wraith',
-    paleta: { k: '#5a2a3a', w: '#ffb0c8', e: '#2a0010' }
-  },
   // Fantasma: se vuelve intangible, reaparece cerca, dispara en abanico y queda expuesto un momento
   ia(e, c) {
     const { dt, cdt, p, hidden, a, go, done } = c;

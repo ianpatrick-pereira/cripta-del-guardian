@@ -9,11 +9,6 @@ defEnemy('burrower', {
   orden: 15,
   stats: { hp: 14, r: 13, speed: 90, dmg: 1, spr: 'burrower', s: 2.2 },
   bestiario: { n: tr('Excavador'), d: tr('Se hunde, viaja bajo tus pies y emerge con un anillo de púas.') },
-  sprite: {
-    clave: 'burrower',
-    mapa: 'spider',
-    paleta: { k: '#1a120a', s: '#6a4a2a', r: '#ffb03a', l: '#8a6a48' }
-  },
   // Excavador: se hunde (invulnerable), viaja bajo tus pies y emerge con un anillo de púas
   ia(e, c) {
     const { dt, cdt, hidden, d, a, go, done } = c;
