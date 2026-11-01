@@ -53,6 +53,8 @@ cv.addEventListener('pointercancel', endPtr);
 cv.addEventListener('wheel', e => { e.preventDefault(); if (started) wantSwap = 1; }, { passive: false });
 
 function enableTouch() { if (touch.on) return; touch.on = true; mouse.down = mouse.right = false; if (started) $('touch').hidden = false; }
+// en un celular o tableta los botones táctiles salen desde el principio (no hace falta tocar el juego primero)
+if (window.matchMedia && matchMedia('(pointer: coarse)').matches) enableTouch();
 function holdBtn(id, on, off) {
   const b = $(id);
   b.addEventListener('pointerdown', e => { e.preventDefault(); enableTouch(); b.setPointerCapture(e.pointerId); b.classList.add('on'); on(); });
