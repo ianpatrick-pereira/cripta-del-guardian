@@ -1,10 +1,11 @@
 // Jefe del piso 3: El Devorador de Luz
+import { tr } from '../00b-textos.js';
 import { TAU, angTo } from '../01-utilidades.js';
 import { defBoss } from '../01a-registro.js';
 import { G } from '../07-estado.js';
 defBoss('devourer', {
   orden: 3,
-  datos: { name: 'El Devorador de Luz', hp: 1250, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,
+  datos: { name: tr('El Devorador de Luz'), hp: 1250, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,
            p1: ['laser', 'teleport', 'aimed', 'summon'], p2: ['laser', 'dark', 'spiral', 'teleport', 'burst', 'summon', 'gapring'], p3: ['laser', 'dark', 'rain', 'teleport', 'gapring', 'predict'] },
   logro: 'boss3',
   // su dibujo (a media resolución; los jefes con look: 'devourer' lo reutilizan con otro color)

@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { TAU, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
@@ -8,7 +9,7 @@ import { hazard, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('bomber', {
   orden: 12,
   stats: { hp: 10, r: 12, speed: 80, dmg: 1, spr: 'bomber', s: 2 },
-  bestiario: { n: 'Artificiero', d: 'Guarda distancia y lanza bombas; el círculo naranja marca dónde caen.' },
+  bestiario: { n: tr('Artificiero'), d: tr('Guarda distancia y lanza bombas; el círculo naranja marca dónde caen.') },
   sprite: {
     clave: 'bomber',
     mapa: 'rogue',

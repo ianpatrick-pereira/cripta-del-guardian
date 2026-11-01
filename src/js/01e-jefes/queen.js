@@ -1,9 +1,10 @@
 // Jefe del piso 2: La Reina Tejedora
+import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defBoss } from '../01a-registro.js';
 defBoss('queen', {
   orden: 2,
-  datos: { name: 'La Reina Tejedora', hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,
+  datos: { name: tr('La Reina Tejedora'), hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,
            p1: ['web', 'leap', 'aimed', 'summon'], p2: ['web', 'leap', 'spiral', 'burst', 'summon', 'rain'], p3: ['leap', 'web', 'gapring', 'rain', 'predict', 'summon'] },
   // su dibujo (a media resolución; los jefes con look: 'queen' lo reutilizan con otro color)
   aspecto(g, e, fill, ph2) {

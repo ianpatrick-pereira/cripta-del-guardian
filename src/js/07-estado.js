@@ -1,4 +1,5 @@
 // ================= Estado =================
+import { tr } from './00b-textos.js';
 import { FLOOR, MW, TILE, pick, rand, randi, shuffle } from './01-utilidades.js';
 import { ROOM_DEFS, roomList } from './01a-registro.js';
 import { CHARS, CUR_CHAR, FLOORS, RELICS, UPG, WEAPONS, rollWeapon, setCUR_CHAR,
@@ -106,8 +107,8 @@ function buildFloor0(n) {
   G.pact = n >= 2 ? null : '';
   G.pactIds = n >= 2 ? shuffle(Object.keys(PACTS).filter(k => k !== 'none')).slice(0, 2) : null;
   if (n >= 2) later(2.4, offerPact);
-  const tr = G.rooms.find(r => r.type === 'treasure'), n0 = noteFor(0);
-  if (tr && n0 >= 0) G.pickups.push({ kind: 'note', id: n0, x: tr.cx + 70, y: tr.cy + 30 });
+  const tesoro = G.rooms.find(r => r.type === 'treasure'), n0 = noteFor(0);
+  if (tesoro && n0 >= 0) G.pickups.push({ kind: 'note', id: n0, x: tesoro.cx + 70, y: tesoro.cy + 30 });
   G.chal = null; G.pet = mkPet(G.petKind); G.syn = null;
   // 3 tótems elementales por piso, repartidos al azar entre las salas de combate
   let tRooms = shuffle(G.rooms.filter(r => r.type === 'combat' && !r.sub));
@@ -125,11 +126,11 @@ function buildFloor0(n) {
     }
   }
   G.dx = null; updateAdapt(false);
-  if (G.threat > 0) later(2.8, () => showBanner('Los enemigos se adaptan', '#d4474b', `Tu arsenal es fuerte: amenaza +${Math.round(G.threat * 16)} %`));
+  if (G.threat > 0) later(2.8, () => showBanner(tr('Los enemigos se adaptan'), '#d4474b', tr`Tu arsenal es fuerte: amenaza +${Math.round(G.threat * 16)} %`));
   G.snap = snapRun();
   if (started) { SAVE.run = G.snap; writeSave(); }
   if (!G.player.spec && G.player.preK >= SUB_UNLOCK) later(1.2, offerSpec);
-  showBanner(`Piso ${n} · ${G.cycle > 1 ? 'Abismo eterno · ' : ''}${FLOORS[fi].name}`, '#e3a24a', G.cycle > 1 ? 'La cripta te recuerda…' : NARRATOR[fi]);
+  showBanner(tr`Piso ${n} · ${G.cycle > 1 ? tr('Abismo eterno · ') : ''}${FLOORS[fi].name}`, '#e3a24a', G.cycle > 1 ? tr('La cripta te recuerda…') : NARRATOR[fi]);
 }
 
 function inCross(r, tx, ty) { return Math.abs(tx - r.tcx) <= 2 || Math.abs(ty - r.tcy) <= 2; }

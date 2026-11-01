@@ -1,4 +1,5 @@
 // ================= Generación =================
+import { tr } from './00b-textos.js';
 import { CELL_H, CELL_W, CRACK, DOOR, FLOOR, GRID, MH, MW, TAU, TILE, VOID, WALL, pick,
   randi } from './01-utilidades.js';
 import { OLEADAS } from './03-datos-del-juego.js';
@@ -51,7 +52,7 @@ function generate() {
     }
     return { list, edges, start, boss, secretEdge };
   }
-  throw new Error('No se pudo generar la mazmorra');
+  throw new Error(tr('No se pudo generar la mazmorra'));
 }
 
 // formas de sala: el contorno se recorta dentro de su caja

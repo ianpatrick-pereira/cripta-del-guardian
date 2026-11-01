@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { TAU, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -7,7 +8,7 @@ import { enemyShoot, hazard, takeToken } from '../14-enemigos.js';
 defEnemy('burrower', {
   orden: 15,
   stats: { hp: 14, r: 13, speed: 90, dmg: 1, spr: 'burrower', s: 2.2 },
-  bestiario: { n: 'Excavador', d: 'Se hunde, viaja bajo tus pies y emerge con un anillo de púas.' },
+  bestiario: { n: tr('Excavador'), d: tr('Se hunde, viaja bajo tus pies y emerge con un anillo de púas.') },
   sprite: {
     clave: 'burrower',
     mapa: 'spider',

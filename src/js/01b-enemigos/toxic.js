@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { G } from '../07-estado.js';
@@ -5,7 +6,7 @@ import { mkEnemy } from '../14-enemigos.js';
 defEnemy('toxic', {
   orden: 2,
   stats: { hp: 7, r: 13, speed: 80, dmg: 1, spr: 'toxic', s: 2 },
-  bestiario: { n: 'Limo tóxico', d: 'Al aterrizar suelta orbes; al morir se divide.' },
+  bestiario: { n: tr('Limo tóxico'), d: tr('Al aterrizar suelta orbes; al morir se divide.') },
   sprite: {
     clave: 'toxic',
     mapa: 'slime',

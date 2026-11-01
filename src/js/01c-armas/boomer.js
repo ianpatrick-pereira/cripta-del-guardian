@@ -1,19 +1,20 @@
 // Bumerán
+import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
 import { throwIt, thrownOut } from '../12-armas-con-estilo-propio.js';
 defWeapon('boomer', {
   orden: 35,
-  datos: { name: 'Bumerán', type: 'bow', style: 'boomer', shape: 'boomer', rarity: 'common', dmg: 3, cd: .35, speed: 520, pierce: 99, shots: 1, en: 1, chg: 'boomer', chgEn: 8 },
+  datos: { name: tr('Bumerán'), type: 'bow', style: 'boomer', shape: 'boomer', rarity: 'common', dmg: 3, cd: .35, speed: 520, pierce: 99, shots: 1, en: 1, chg: 'boomer', chgEn: 8 },
   familia: 'archer',
   potencia: 1.6,
   estilo: {
     // cobra la energía en ataque() al lanzar, no antes
     cobraAlLanzar: true,
-    d: 'va y vuelve; atrápalo para volver a lanzarlo',
-    esp: { n: 'Vuelo', d: '+25 % de distancia y vuelve más rápido' },
-    el: { fire: 'Bumerán ígneo', water: 'Bumerán de marea', air: 'Bumerán ciclón', earth: 'Bumerán de roca' },
+    d: tr('va y vuelve; atrápalo para volver a lanzarlo'),
+    esp: { n: tr('Vuelo'), d: tr('+25 % de distancia y vuelve más rápido') },
+    el: { fire: tr('Bumerán ígneo'), water: tr('Bumerán de marea'), air: tr('Bumerán ciclón'), earth: tr('Bumerán de roca') },
     // ataque normal
     ataque(p, w, { a, dmg, cost }) {
       if (thrownOut('boomer')) { p.cd = .05; return; }

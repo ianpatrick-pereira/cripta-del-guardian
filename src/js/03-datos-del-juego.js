@@ -1,4 +1,5 @@
 // ================= Datos del juego =================
+import { tr } from './00b-textos.js';
 import { DATOS } from '../datos/index.js';
 import { BOSS_DEFS, ENEMIES, WEAPON_DEFS, bossList, enemyList, weaponList } from './01a-registro.js';
 import { SAVE } from './04-guardado.js';
@@ -6,10 +7,10 @@ import { G, rc } from './07-estado.js';
 import { STYLE, elAbName } from './12-armas-con-estilo-propio.js';
 import { ELEMS } from './23-elementos.js';
 const RARITY = {
-  common:   { n: 'Común',      c: '#bdb6a8' },
-  uncommon: { n: 'Poco común', c: '#6cc46a' },
-  rare:     { n: 'Rara',       c: '#5aa4e8' },
-  epic:     { n: 'Épica',      c: '#bb7cf0' },
+  common:   { n: tr('Común'),      c: '#bdb6a8' },
+  uncommon: { n: tr('Poco común'), c: '#6cc46a' },
+  rare:     { n: tr('Rara'),       c: '#5aa4e8' },
+  epic:     { n: tr('Épica'),      c: '#bb7cf0' },
   // nivel de estrellas de cada arma (1 = base, 5 = legendaria)
   s1: { n: '★☆☆☆☆', c: '#bdb6a8' },
   s2: { n: '★★☆☆☆', c: '#6cc46a' },
@@ -23,22 +24,22 @@ const RWEIGHT = DATOS.botin.rarezaArmas;   // se cambia en src/datos/botin.jsonc
 const WEAPONS = weaponList().map(id => ({ id, ...WEAPON_DEFS[id].datos }));
 // el ataque cargado evoluciona con las estrellas del arma
 const CHG_LV = {
-  spin:   ['Giro', 'Giro amplio', 'Doble giro', 'Giro de cuchillas', 'Tormenta de acero'],
-  quake:  ['Terremoto', 'Gran terremoto', 'Réplica', 'Ondas sísmicas', 'Meteoro'],
-  lunge:  ['Embestida', 'Embestida larga', 'Doble embestida', 'Embestida de cuchillas', 'Danza mortal'],
-  power:  ['Disparo potente', 'Flecha perforante', 'Tridente', 'Flecha divisoria', 'Andanada'],
-  volley: ['Abanico', 'Gran abanico', 'Doble abanico', 'Abanico rebotante', 'Tormenta de flechas'],
-  nova:   ['Nova', 'Gran nova', 'Doble nova', 'Espiral arcana', 'Cataclismo'],
-  boomer: ['Doble bumerán', 'Bumerán triple', 'Órbita', 'Órbita doble', 'Tormenta de bumeranes'],
-  lash:   ['Latigazo circular', 'Doble latigazo', 'Cadena atrapante', 'Látigo de púas', 'Tormenta de cadenas'],
-  bash:   ['Empujón', 'Gran empujón', 'Carga con escudo', 'Muro de púas', 'Baluarte de púas'],
-  blast:  ['Perdigonada', 'Perdigonada amplia', 'Bala explosiva', 'Bala encadenada', 'Cañonazo'],
-  reap:   ['Hoz gigante', 'Doble hoz', 'Remolino de hoces', 'Hoces errantes', 'Cosecha'],
-  legion: ['Legión', 'Legión mayor', 'Caballero óseo', 'Ejército', 'Rey de huesos'],
-  ray:    ['Rayo concentrado', 'Rayo doble', 'Prisma', 'Rayo giratorio', 'Aniquilación'],
+  spin:   [tr('Giro'), tr('Giro amplio'), tr('Doble giro'), tr('Giro de cuchillas'), tr('Tormenta de acero')],
+  quake:  [tr('Terremoto'), tr('Gran terremoto'), tr('Réplica'), tr('Ondas sísmicas'), tr('Meteoro')],
+  lunge:  [tr('Embestida'), tr('Embestida larga'), tr('Doble embestida'), tr('Embestida de cuchillas'), tr('Danza mortal')],
+  power:  [tr('Disparo potente'), tr('Flecha perforante'), tr('Tridente'), tr('Flecha divisoria'), tr('Andanada')],
+  volley: [tr('Abanico'), tr('Gran abanico'), tr('Doble abanico'), tr('Abanico rebotante'), tr('Tormenta de flechas')],
+  nova:   [tr('Nova'), tr('Gran nova'), tr('Doble nova'), tr('Espiral arcana'), tr('Cataclismo')],
+  boomer: [tr('Doble bumerán'), tr('Bumerán triple'), tr('Órbita'), tr('Órbita doble'), tr('Tormenta de bumeranes')],
+  lash:   [tr('Latigazo circular'), tr('Doble latigazo'), tr('Cadena atrapante'), tr('Látigo de púas'), tr('Tormenta de cadenas')],
+  bash:   [tr('Empujón'), tr('Gran empujón'), tr('Carga con escudo'), tr('Muro de púas'), tr('Baluarte de púas')],
+  blast:  [tr('Perdigonada'), tr('Perdigonada amplia'), tr('Bala explosiva'), tr('Bala encadenada'), tr('Cañonazo')],
+  reap:   [tr('Hoz gigante'), tr('Doble hoz'), tr('Remolino de hoces'), tr('Hoces errantes'), tr('Cosecha')],
+  legion: [tr('Legión'), tr('Legión mayor'), tr('Caballero óseo'), tr('Ejército'), tr('Rey de huesos')],
+  ray:    [tr('Rayo concentrado'), tr('Rayo doble'), tr('Prisma'), tr('Rayo giratorio'), tr('Aniquilación')],
 };
 const chgName = w => CHG_LV[w.chg][(w.stars || 1) - 1];
-const FX_NAME = { stun: 'aturde', push: 'empuja lejos', slow: 'ralentiza', burn: 'quema', poison: 'envenena', explode: 'explota', chain: 'rayo en cadena', homing: 'teledirigido' };
+const FX_NAME = { stun: tr('aturde'), push: tr('empuja lejos'), slow: tr('ralentiza'), burn: tr('quema'), poison: tr('envenena'), explode: tr('explota'), chain: tr('rayo en cadena'), homing: tr('teledirigido') };
 // cada arma es un tipo base + un nivel de estrellas + mejoras de la forja
 function mkW(id, stars = 1) {
   const b = WEAPONS.find(w => w.id === id);
@@ -96,74 +97,74 @@ function rollWeapon(src = 'chest') {
   return mkW(t.id, rollStars(src));
 }
 function weaponStats(w) {
-  const parts = [`${w.dmg} daño${w.shots > 1 ? ' ×' + w.shots : ''}`, `${w.en ? w.en + ' energía' : 'sin coste'}`, `carga: ${chgName(w)} (${w.chgEn})`];
+  const parts = [tr`${w.dmg} daño${w.shots > 1 ? ' ×' + w.shots : ''}`, `${w.en ? w.en + tr(' energía') : tr('sin coste')}`, tr`carga: ${chgName(w)} (${w.chgEn})`];
   const nUp = w.up ? w.up.dmg + w.up.rate + w.up.chg + w.up.en + (w.up.esp || 0) + (w.up.bones || 0) : 0;
   if (w.style) parts.push(STYLE[w.style].d);
-  if (nUp) parts.push(`forjada +${nUp}`);
-  if (w.aff) parts.push(w.aff > 0 ? 'afín a tu clase +30 %' : 'de otra clase −30 %');
-  if (w.spd) parts.push(`+${Math.round(w.spd * 100)} % velocidad`);
-  if (w.dodge) parts.push(`esquiva −${Math.round(w.dodge * 100)} % recarga`);
-  if (w.veil) parts.push(`al matar ${String(w.veil).replace('.', ',')} s invisible`);
-  if (w.back) parts.push(`+${Math.round(w.back * 100)} % por la espalda`);
-  if (w.starter) parts.push('inicial');
-  if (w.el) parts.push(`+${Math.round((w.elMul - 1) * 100)} % daño elemental`);
-  if (w.el) parts.push(w.elOn ? `${ELEMS[w.el].n}: ${elAbName(w)} Nv${w.elLv}` : `${ELEMS[w.el].n} ${w.elC}/3`);
+  if (nUp) parts.push(tr`forjada +${nUp}`);
+  if (w.aff) parts.push(w.aff > 0 ? tr('afín a tu clase +30 %') : tr('de otra clase −30 %'));
+  if (w.spd) parts.push(tr`+${Math.round(w.spd * 100)} % velocidad`);
+  if (w.dodge) parts.push(tr`esquiva −${Math.round(w.dodge * 100)} % recarga`);
+  if (w.veil) parts.push(tr`al matar ${String(w.veil).replace('.', ',')} s invisible`);
+  if (w.back) parts.push(tr`+${Math.round(w.back * 100)} % por la espalda`);
+  if (w.starter) parts.push(tr('inicial'));
+  if (w.el) parts.push(tr`+${Math.round((w.elMul - 1) * 100)} % daño elemental`);
+  if (w.el) parts.push(w.elOn ? tr`${ELEMS[w.el].n}: ${elAbName(w)} Nv${w.elLv}` : `${ELEMS[w.el].n} ${w.elC}/3`);
   if (w.fx) parts.push(FX_NAME[w.fx]);
-  if (w.pierce && w.pierce < 99) parts.push('atraviesa ' + w.pierce);
-  if (w.pierce >= 99) parts.push('atraviesa todo');
-  if (w.leech) parts.push('roba vida');
+  if (w.pierce && w.pierce < 99) parts.push(tr('atraviesa ') + w.pierce);
+  if (w.pierce >= 99) parts.push(tr('atraviesa todo'));
+  if (w.leech) parts.push(tr('roba vida'));
   return parts.join(' · ');
 }
 
 const RELICS = {
-  corazon:  { n: 'Corazón de piedra',  d: '+2 de vida máxima y te cura 2.', c: '#d4474b' },
-  escudo:   { n: 'Escudo rúnico',      d: '+1 de escudo máximo.', c: '#8fb7d9' },
-  botas:    { n: 'Botas de viento',    d: '+15 % de velocidad.', c: '#9be0c8' },
-  rebote:   { n: 'Flechas rebotantes', d: 'Tus flechas rebotan una vez en las paredes.', c: '#e3a24a', u: 1 },
-  onda:     { n: 'Onda cortante',      d: 'Los tajos de espada lanzan una onda.', c: '#ece4cf', u: 1 },
-  veneno:   { n: 'Colmillo venenoso',  d: 'Tus golpes envenenan: 1 de daño por segundo durante 3 s.', c: '#9be05a', u: 1 },
-  ojo:      { n: 'Ojo del cazador',    d: '+15 % de probabilidad de crítico.', c: '#ffd27a' },
-  vampiro:  { n: 'Sangre de vampiro',  d: 'Cada 12 enemigos derrotados recuperas 1 de vida.', c: '#b0303a', u: 1 },
-  carcaj:   { n: 'Carcaj extra',       d: 'Los arcos disparan 1 flecha más.', c: '#c9a46a' },
-  piedra:   { n: 'Piedra de afilar',   d: '+20 % de daño.', c: '#bdb6a8' },
-  reloj:    { n: 'Reloj de arena',     d: 'La esquiva recarga un 40 % más rápido.', c: '#e8d08a', u: 1 },
-  iman:     { n: 'Imán de oro',        d: 'Atraes monedas desde lejos y los enemigos sueltan más.', c: '#f0c040', u: 1 },
-  bateria:  { n: 'Batería arcana',     d: '+40 de energía máxima y se recarga más rápido.', c: '#5aa4e8' },
-  espinas:  { n: 'Coraza de espinas',  d: 'Al recibir daño disparas espinas alrededor.', c: '#7a9a5a', u: 1 },
-  trebol:   { n: 'Trébol de cuatro',   d: 'Los cofres sueltan mejores armas y un objeto extra.', c: '#6cc46a', u: 1 },
-  polvora:  { n: 'Pólvora negra',      d: 'Al esquivar dejas una bomba. Las explosiones no te dañan.', c: '#8a84a0', u: 1 },
+  corazon:  { n: tr('Corazón de piedra'),  d: tr('+2 de vida máxima y te cura 2.'), c: '#d4474b' },
+  escudo:   { n: tr('Escudo rúnico'),      d: tr('+1 de escudo máximo.'), c: '#8fb7d9' },
+  botas:    { n: tr('Botas de viento'),    d: tr('+15 % de velocidad.'), c: '#9be0c8' },
+  rebote:   { n: tr('Flechas rebotantes'), d: tr('Tus flechas rebotan una vez en las paredes.'), c: '#e3a24a', u: 1 },
+  onda:     { n: tr('Onda cortante'),      d: tr('Los tajos de espada lanzan una onda.'), c: '#ece4cf', u: 1 },
+  veneno:   { n: tr('Colmillo venenoso'),  d: tr('Tus golpes envenenan: 1 de daño por segundo durante 3 s.'), c: '#9be05a', u: 1 },
+  ojo:      { n: tr('Ojo del cazador'),    d: tr('+15 % de probabilidad de crítico.'), c: '#ffd27a' },
+  vampiro:  { n: tr('Sangre de vampiro'),  d: tr('Cada 12 enemigos derrotados recuperas 1 de vida.'), c: '#b0303a', u: 1 },
+  carcaj:   { n: tr('Carcaj extra'),       d: tr('Los arcos disparan 1 flecha más.'), c: '#c9a46a' },
+  piedra:   { n: tr('Piedra de afilar'),   d: tr('+20 % de daño.'), c: '#bdb6a8' },
+  reloj:    { n: tr('Reloj de arena'),     d: tr('La esquiva recarga un 40 % más rápido.'), c: '#e8d08a', u: 1 },
+  iman:     { n: tr('Imán de oro'),        d: tr('Atraes monedas desde lejos y los enemigos sueltan más.'), c: '#f0c040', u: 1 },
+  bateria:  { n: tr('Batería arcana'),     d: tr('+40 de energía máxima y se recarga más rápido.'), c: '#5aa4e8' },
+  espinas:  { n: tr('Coraza de espinas'),  d: tr('Al recibir daño disparas espinas alrededor.'), c: '#7a9a5a', u: 1 },
+  trebol:   { n: tr('Trébol de cuatro'),   d: tr('Los cofres sueltan mejores armas y un objeto extra.'), c: '#6cc46a', u: 1 },
+  polvora:  { n: tr('Pólvora negra'),      d: tr('Al esquivar dejas una bomba. Las explosiones no te dañan.'), c: '#8a84a0', u: 1 },
 };
 
 const CHARS = {
-  knight: { name: 'Caballero', spr: 'knight', hp: 8, sh: 3, speed: 175, en: 100, start: ['rusty', 'club'], abil: 'Baluarte', abilDesc: '2,5 s invulnerable; las balas que te tocan rebotan.', cd: 14, cost: 0,
-            role: 'Aguanta y castiga de cerca', fam: 'espadas, mazas, lanzas y escudo',
-            mech: 'Desvío: si te golpean justo después de atacar, anulas el golpe y contraatacas. Represalia: tras recibir daño, tu siguiente golpe hace +50 %. Esquiva: carga con escudo que daña y empuja.' },
-  archer: { name: 'Tirador',   spr: 'archer', hp: 6, sh: 3, speed: 190, en: 140, start: ['short', 'sling'], abil: 'Lluvia de flechas', abilDesc: '3 oleadas de flechas en todas direcciones.', cd: 10, cost: 10,
-            role: 'Mantén la distancia y apunta', fam: 'arcos, honda, ballesta, mosquete y bumerán',
-            mech: 'Concentración: cada disparo la carga; llena, lanzas una flecha dorada ×3 que lo atraviesa todo. Recibir daño la vacía. Esquiva: voltereta larga.' },
-  rogue:  { name: 'Asesino',   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['dagger', 'wand'], abil: 'Sombra', abilDesc: '3 s invisible, más rápido y todo golpe es crítico.', cd: 12, cost: 20,
-            role: 'Entra, golpea por la espalda y sal', fam: 'dagas, katar, garras, kunais, shurikens, cerbatana, látigo, guadaña, hoz, arco sombrío y bastón de veneno',
-            mech: 'Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga la esquiva. Esquiva: parpadeo que te vuelve invisible un instante.' },
+  knight: { name: tr('Caballero'), spr: 'knight', hp: 8, sh: 3, speed: 175, en: 100, start: ['rusty', 'club'], abil: tr('Baluarte'), abilDesc: tr('2,5 s invulnerable; las balas que te tocan rebotan.'), cd: 14, cost: 0,
+            role: tr('Aguanta y castiga de cerca'), fam: tr('espadas, mazas, lanzas y escudo'),
+            mech: tr('Desvío: si te golpean justo después de atacar, anulas el golpe y contraatacas. Represalia: tras recibir daño, tu siguiente golpe hace +50 %. Esquiva: carga con escudo que daña y empuja.') },
+  archer: { name: tr('Tirador'),   spr: 'archer', hp: 6, sh: 3, speed: 190, en: 140, start: ['short', 'sling'], abil: tr('Lluvia de flechas'), abilDesc: tr('3 oleadas de flechas en todas direcciones.'), cd: 10, cost: 10,
+            role: tr('Mantén la distancia y apunta'), fam: tr('arcos, honda, ballesta, mosquete y bumerán'),
+            mech: tr('Concentración: cada disparo la carga; llena, lanzas una flecha dorada ×3 que lo atraviesa todo. Recibir daño la vacía. Esquiva: voltereta larga.') },
+  rogue:  { name: tr('Asesino'),   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['dagger', 'wand'], abil: tr('Sombra'), abilDesc: tr('3 s invisible, más rápido y todo golpe es crítico.'), cd: 12, cost: 20,
+            role: tr('Entra, golpea por la espalda y sal'), fam: tr('dagas, katar, garras, kunais, shurikens, cerbatana, látigo, guadaña, hoz, arco sombrío y bastón de veneno'),
+            mech: tr('Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga la esquiva. Esquiva: parpadeo que te vuelve invisible un instante.') },
 };
 const UPG = {
-  hp:   { name: 'Vitalidad',      desc: '+1 de vida máxima por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
-  coin: { name: 'Bolsa heredada', desc: '+10 monedas al empezar por nivel', max: 5, cost: [1, 2, 3, 4, 5] },
-  en:   { name: 'Reserva arcana', desc: '+15 de energía máxima por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
+  hp:   { name: tr('Vitalidad'),      desc: tr('+1 de vida máxima por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  coin: { name: tr('Bolsa heredada'), desc: tr('+10 monedas al empezar por nivel'), max: 5, cost: [1, 2, 3, 4, 5] },
+  en:   { name: tr('Reserva arcana'), desc: tr('+15 de energía máxima por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
   // mejoras propias de cada clase: el altar muestra solo las del personaje elegido
-  k_parry: { cls: 'knight', name: 'Temple',          desc: 'El Desvío se recarga 0,3 s antes por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
-  k_bash:  { cls: 'knight', name: 'Escudo pesado',   desc: '+20 % de daño de la carga con escudo y +10 % de Represalia por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
-  a_focus: { cls: 'archer', name: 'Pulso sereno',    desc: 'La Concentración se llena un 10 % más rápido por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
-  a_gold:  { cls: 'archer', name: 'Flecha dorada',   desc: 'El disparo concentrado hace +0,4× de daño por nivel (×3 → ×5)', max: 5, cost: [2, 3, 4, 5, 6] },
-  r_back:  { cls: 'rogue',  name: 'Instinto letal',  desc: '+20 % de daño por la espalda por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
-  r_veil:  { cls: 'rogue',  name: 'Pasos ligeros',   desc: '+0,1 s de invisibilidad al esquivar y +3 % de velocidad por nivel', max: 5, cost: [2, 3, 4, 5, 6] },
+  k_parry: { cls: 'knight', name: tr('Temple'),          desc: tr('El Desvío se recarga 0,3 s antes por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  k_bash:  { cls: 'knight', name: tr('Escudo pesado'),   desc: tr('+20 % de daño de la carga con escudo y +10 % de Represalia por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  a_focus: { cls: 'archer', name: tr('Pulso sereno'),    desc: tr('La Concentración se llena un 10 % más rápido por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  a_gold:  { cls: 'archer', name: tr('Flecha dorada'),   desc: tr('El disparo concentrado hace +0,4× de daño por nivel (×3 → ×5)'), max: 5, cost: [2, 3, 4, 5, 6] },
+  r_back:  { cls: 'rogue',  name: tr('Instinto letal'),  desc: tr('+20 % de daño por la espalda por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  r_veil:  { cls: 'rogue',  name: tr('Pasos ligeros'),   desc: tr('+0,1 s de invisibilidad al esquivar y +3 % de velocidad por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
 };
 // nivel de una mejora de clase comprada para esta partida
 const cu = id => (G && G.player && G.player.cu && G.player.cu[id]) || 0;
 
 const DIFFS = {
-  easy:   { name: 'Aprendiz',  desc: 'Enemigos con menos vida, más lentos para atacar y peor puntería. Gemas ×0,75.', hp: .75, rate: .8, count: -1, elite: -.05, lead: .25, dodge: .15, tokens: 2, gem: .75 },
-  normal: { name: 'Guardián',  desc: 'La experiencia pensada: los enemigos te rodean, anticipan y esquivan.', hp: 1, rate: 1, count: 0, elite: 0, lead: .6, dodge: .4, tokens: 3, gem: 1 },
-  hard:   { name: 'Pesadilla', desc: 'Más vida, más enemigos y élites, ataques más rápidos y puntería casi perfecta. Gemas ×1,5.', hp: 1.3, rate: 1.22, count: 1, elite: .08, lead: .9, dodge: .65, tokens: 5, gem: 1.5 },
+  easy:   { name: tr('Aprendiz'),  desc: tr('Enemigos con menos vida, más lentos para atacar y peor puntería. Gemas ×0,75.'), hp: .75, rate: .8, count: -1, elite: -.05, lead: .25, dodge: .15, tokens: 2, gem: .75 },
+  normal: { name: tr('Guardián'),  desc: tr('La experiencia pensada: los enemigos te rodean, anticipan y esquivan.'), hp: 1, rate: 1, count: 0, elite: 0, lead: .6, dodge: .4, tokens: 3, gem: 1 },
+  hard:   { name: tr('Pesadilla'), desc: tr('Más vida, más enemigos y élites, ataques más rápidos y puntería casi perfecta. Gemas ×1,5.'), hp: 1.3, rate: 1.22, count: 1, elite: .08, lead: .9, dodge: .65, tokens: 5, gem: 1.5 },
 };
 function D() { return (G && G.dx) || DIFFS[(G && G.diff) || SAVE.diff] || DIFFS.normal; }
 

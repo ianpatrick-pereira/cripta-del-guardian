@@ -47,7 +47,7 @@ const escena = ([n, jefe]) => {
   const fmt = x => x.toFixed(1).padStart(5);
   const CALIDAD = { 2: 'alta', 1: 'media', 0: 'baja' };
   for (const pf of perfiles) for (const q of ['2', '1', '0']) {
-    const ctx = await nav.newContext(pf.ctx), pg = await ctx.newPage();
+    const ctx = await nav.newContext({ locale: 'es-ES', ...pf.ctx }), pg = await ctx.newPage();
     await pg.addInitScript(q => { window.AudioContext = undefined; window.webkitAudioContext = undefined; window.requestAnimationFrame = () => 1;
       localStorage.setItem('cripta-guardian-v1', JSON.stringify({ gems: 0, opt: { music: 0, sfx: 0, shake: 1, gfx: q } })); }, q);
     await pg.goto(JUEGO); await pg.click('#btnStart');

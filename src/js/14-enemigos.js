@@ -1,4 +1,5 @@
 // ================= Enemigos =================
+import { tr } from './00b-textos.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, rand, randi } from './01-utilidades.js';
 import { ENEMIES } from './01a-registro.js';
 import { mirrorDefeated } from './01d-salas/mirror.js';
@@ -42,7 +43,7 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
   if (ed && ed.alRecibir) dmg = ed.alRecibir(e, dmg, ang, o);
   if (e.shield > 0) {
     const ab = Math.min(e.shield, dmg); e.shield -= ab; dmg -= ab;
-    if (e.shield <= 0) { burst(e.x, e.y, '#9bd8ff', 10, 140); addText(e.x, e.y - e.r - 10, 'Escudo roto', '#9bd8ff', 11); }
+    if (e.shield <= 0) { burst(e.x, e.y, '#9bd8ff', 10, 140); addText(e.x, e.y - e.r - 10, tr('Escudo roto'), '#9bd8ff', 11); }
     if (dmg <= 0) { e.flash = .06; addText(e.x + rand(-6, 6), e.y - e.r - 4, ab, '#9bd8ff', 12); return; }
   }
   if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * .7));
@@ -84,7 +85,7 @@ function killEnemy(e, src) {
   }
   classKill(e, src);
   if (src && src.leech && Math.random() < (syn('sangre') ? .6 : .3) && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); }
-  if (rc('vampiro')) { p.killCount++; if (p.killCount % (syn('sangre') ? 8 : 12) === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1 vida', '#b0303a'); } }
+  if (rc('vampiro')) { p.killCount++; if (p.killCount % (syn('sangre') ? 8 : 12) === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, tr('+1 vida'), '#b0303a'); } }
   if (e.isBoss) { bossDefeated(e); return; }
   if (e.mirror) mirrorDefeated(e);
   if (e.cheat) { ach('sub'); cheatDefeated(e); return; }
@@ -175,10 +176,10 @@ function hazard(x, y, r, t, dmg = 1, color = '#d4474b', o = {}) {
 // efecto del elemento cuando un Elemental te alcanza
 function elemHit(el, from) {
   const p = G.player;
-  if (el === 'fire') { if (!(p.burnT > 0)) p.burnTick = 1; p.burnT = 2.6; addText(p.x, p.y - 30, 'Quemado', '#ff6a3a', 12); }
-  else if (el === 'water') { p.slow = Math.max(p.slow, 2.4); addText(p.x, p.y - 30, 'Empapado', '#4ab0e8', 12); }
-  else if (el === 'air') { const a = angTo(from, p); p.kbx = Math.cos(a) * 640; p.kby = Math.sin(a) * 640; addText(p.x, p.y - 30, 'Empujado', '#c8f0e0', 12); }
-  else if (el === 'earth') { shake(10); addText(p.x, p.y - 30, 'Aplastado', '#c09060', 12); }
+  if (el === 'fire') { if (!(p.burnT > 0)) p.burnTick = 1; p.burnT = 2.6; addText(p.x, p.y - 30, tr('Quemado'), '#ff6a3a', 12); }
+  else if (el === 'water') { p.slow = Math.max(p.slow, 2.4); addText(p.x, p.y - 30, tr('Empapado'), '#4ab0e8', 12); }
+  else if (el === 'air') { const a = angTo(from, p); p.kbx = Math.cos(a) * 640; p.kby = Math.sin(a) * 640; addText(p.x, p.y - 30, tr('Empujado'), '#c8f0e0', 12); }
+  else if (el === 'earth') { shake(10); addText(p.x, p.y - 30, tr('Aplastado'), '#c09060', 12); }
 }
 // suelo en llamas: mientras estés encima, te sigue quemando
 function updateFlames(dt) {

@@ -1,5 +1,6 @@
 // ================= Subjefes =================
 // cada subjefe vive en su archivo de 01f-subjefes/; SUBS los ordena por piso
+import { tr } from './00b-textos.js';
 import { angTo, dist, pick, rand } from './01-utilidades.js';
 import { SUB_DEFS, SUB_MOVES } from './01a-registro.js';
 import { BOTIN, D } from './03-datos-del-juego.js';
@@ -25,7 +26,7 @@ function updateSub(e, dt) {
   const sm = e.slowT > 0 ? .7 : 1;
   e.st_t -= dt; e.tele = (e.tele || 0) - dt;
   if (e.phase === 1 && e.hp <= e.max * (G.diff === 'hard' ? .6 : .5)) {
-    e.phase = 2; e.speed *= 1.25; const heal = Math.round(e.max * .12); e.hp = Math.min(e.max, e.hp + heal); addText(e.x, e.y - e.r - 20, `¡Furioso! +${heal} vida`, '#d4474b', 16); shake(8); sfx(70, .5, 'sawtooth', .05, 30);
+    e.phase = 2; e.speed *= 1.25; const heal = Math.round(e.max * .12); e.hp = Math.min(e.max, e.hp + heal); addText(e.x, e.y - e.r - 20, tr`¡Furioso! +${heal} vida`, '#d4474b', 16); shake(8); sfx(70, .5, 'sawtooth', .05, 30);
     burst(e.x, e.y, S.tint, 24, 220, 4);
   }
   const move = (ang, sp) => { moveEnt(e, Math.cos(ang) * sp * sm * dt, Math.sin(ang) * sp * sm * dt); const o = pushOutProps(e); if (o && o.kind !== 'merchant' && sd.rompeAlCaminar) damageProp(o, 99); };
@@ -54,13 +55,13 @@ function updateSub(e, dt) {
 function subDefeated(e) {
   if (e.elem) {
     const E = ELEMS[e.elem];
-    showBanner(e.name + ' cae', E.c, `Suelta 1 cristal de ${E.n.toLowerCase()}`);
+    showBanner(e.name + tr(' cae'), E.c, tr`Suelta 1 cristal de ${E.n.toLowerCase()}`);
     G.pickups.push({ kind: 'crystal', el: e.elem, x: e.x, y: e.y });
     for (let i = 0; i < 8; i++) dropCoin(e.x, e.y);
     if (Math.random() < .5) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });
     return;
   }
-  showBanner(e.name + ' cae', '#e3a24a', 'Subjefe derrotado');
+  showBanner(e.name + tr(' cae'), '#e3a24a', tr('Subjefe derrotado'));
   later(.9, offerTalent);
   for (let i = 0; i < BOTIN.subjefe.monedas; i++) dropCoin(e.x, e.y);
   G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });

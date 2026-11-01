@@ -1,4 +1,5 @@
 // Sala de palancas
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { TAU } from '../01-utilidades.js';
 import { defRoom } from '../01a-registro.js';
@@ -25,7 +26,7 @@ defRoom('levers', {
     ctx.fillStyle = on ? '#9be0c8' : '#d4474b'; ctx.beginPath(); ctx.arc(hx, it.y - 17, 5, 0, TAU); ctx.fill();
   },
   aviso(it, key) {
-    return [key + 'Mover palanca', 'Enciéndelas todas (verde): cada una mueve también a sus vecinas', '#9be0c8'];
+    return [key + tr('Mover palanca'), tr('Enciéndelas todas (verde): cada una mueve también a sus vecinas'), '#9be0c8'];
   }
 });
 
@@ -41,7 +42,7 @@ function pullLever(it) {
   sfx(260, .08, 'square', .04, 120);
   if (r.lev.every(v => v)) {
     r.solved = true;
-    showBanner('¡Mecanismo resuelto!', '#9be0c8', 'Se abre un compartimento secreto');
+    showBanner(tr('¡Mecanismo resuelto!'), '#9be0c8', tr('Se abre un compartimento secreto'));
     G.pickups.push({ kind: 'relic', relic: randomRelics(1)[0], x: r.cx, y: r.cy + 50 });
     for (let i = 0; i < 8; i++) dropCoin(r.cx, r.cy + 50);
     G.pickups.push({ kind: 'gem', x: r.cx + 30, y: r.cy + 60, vx: 0, vy: 0 });

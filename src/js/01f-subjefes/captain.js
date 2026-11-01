@@ -1,10 +1,11 @@
 // Subjefe del piso 1: Capitán Hueso
+import { tr } from '../00b-textos.js';
 import { angTo } from '../01-utilidades.js';
 import { defSub } from '../01a-registro.js';
 import { drawWeapon } from '../38-armadura-visual.js';
 defSub('captain', {
   piso: 1,
-  datos: { name: 'Capitán Hueso', spr: 'skel', s: 3.4, r: 22, hp: 140, speed: 85, tint: '#e3a24a', minion: 'archer', want: 210,
+  datos: { name: tr('Capitán Hueso'), spr: 'skel', s: 3.4, r: 22, hp: 140, speed: 85, tint: '#e3a24a', minion: 'archer', want: 210,
            p1: ['volley', 'rain', 'retreat'], p2: ['volley', 'rain', 'fan', 'summon', 'retreat'] },
   // dibuja su arco largo encima del sprite
   encima(e, lift, p) { if (!e.cheat) drawWeapon({ type: 'bow', rarity: 'rare', id: 'long' }, e.x, e.y - lift, e.aimA ?? angTo(e, p), 1.4); }

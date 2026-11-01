@@ -1,4 +1,5 @@
 // ================= Bucle =================
+import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, esc, rand } from './01-utilidades.js';
 import { ROOM_DEFS, roomList } from './01a-registro.js';
@@ -38,20 +39,20 @@ function endGame(won) {
     G.dailyRec = G.dailyPts > SAVE.daily.best; SAVE.daily.best = Math.max(SAVE.daily.best, G.dailyPts);
   }
   writeSave();
-  if (won && G.floor === 8) showBanner('¡La cripta ha caído!', '#e3a24a');
+  if (won && G.floor === 8) showBanner(tr('¡La cripta ha caído!'), '#e3a24a');
 }
 function showEnd() {
   if (!$('ovEpi').hidden) return;
   const won = G.won;
   // al salir victorioso tras vencer a Elena, primero el final de la historia
   if (won && G.wonOnce && !G.epiShown) { G.epiShown = true; openEpilogue(); return; }
-  $('endEyebrow').textContent = won ? 'Victoria' : G.wonOnce ? 'Fin del descenso' : 'Derrota';
-  $('endTitle').textContent = won ? (G.floor > 8 ? `Saliste del Abismo en el piso ${G.floor}` : 'Has conquistado la cripta') : G.wonOnce ? `El Abismo te reclamó en el piso ${G.floor}` : `Caíste en el piso ${G.floor}`;
+  $('endEyebrow').textContent = won ? tr('Victoria') : G.wonOnce ? tr('Fin del descenso') : tr('Derrota');
+  $('endTitle').textContent = won ? (G.floor > 8 ? tr`Saliste del Abismo en el piso ${G.floor}` : tr('Has conquistado la cripta')) : G.wonOnce ? tr`El Abismo te reclamó en el piso ${G.floor}` : tr`Caíste en el piso ${G.floor}`;
   $('endText').textContent = won || G.wonOnce
-    ? 'La victoria quedó registrada. Las gemas que juntaste ya están en el altar para desbloquear personajes, mejoras y compañeros.'
-    : 'Las gemas que juntaste se guardaron. Úsalas en el Altar de almas para volver más fuerte.';
-  if (G.daily) $('endText').textContent = `Reto diario del ${G.daily}: ${G.dailyPts} puntos${G.dailyRec ? ' · ¡nuevo récord!' : ` · tu récord: ${SAVE.daily.best}`}. Puntos: 1000 por piso superado, 10 por baja y 1 por moneda (+3000 si ganas).`;
-  if (!won && G.hitBy) $('endText').textContent += ` Te derrotó: ${G.hitBy}.`;
+    ? tr('La victoria quedó registrada. Las gemas que juntaste ya están en el altar para desbloquear personajes, mejoras y compañeros.')
+    : tr('Las gemas que juntaste se guardaron. Úsalas en el Altar de almas para volver más fuerte.');
+  if (G.daily) $('endText').textContent = tr`Reto diario del ${G.daily}: ${G.dailyPts} puntos${G.dailyRec ? tr(' · ¡nuevo récord!') : tr` · tu récord: ${SAVE.daily.best}`}. Puntos: 1000 por piso superado, 10 por baja y 1 por moneda (+3000 si ganas).`;
+  if (!won && G.hitBy) $('endText').textContent += tr` Te derrotó: ${G.hitBy}.`;
   const s = Math.floor(G.time);
   $('stFloor').textContent = G.floor;
   $('stTime').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -64,7 +65,7 @@ function showEnd() {
 }
 function relicChips(list) {
   const counts = {}; list.forEach(id => counts[id] = (counts[id] || 0) + 1);
-  return Object.entries(counts).map(([id, n]) => `<span style="color:${RELICS[id].c}">${esc(RELICS[id].n)}${n > 1 ? ' ×' + n : ''}</span>`).join('') || '<span>Sin reliquias</span>';
+  return Object.entries(counts).map(([id, n]) => `<span style="color:${RELICS[id].c}">${esc(RELICS[id].n)}${n > 1 ? ' ×' + n : ''}</span>`).join('') || tr('<span>Sin reliquias</span>');
 }
 
 function update(dt) {
@@ -190,7 +191,7 @@ function update(dt) {
     } else if (!G.over && dist(pr, p) < p.r + pr.r - 2) {
       if (p.blockT > 0 && shieldBlock(p, pr)) { /* bloqueada por el escudo */ }
       else if (p.bulwarkT > 0) reflect(pr, angTo(p, pr), 3);
-      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, 'Atrapado', '#e8e8d8', 12); } pr.life = 0; }
+      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, tr('Atrapado'), '#e8e8d8', 12); } pr.life = 0; }
     }
   }
   G.proj = G.proj.filter(pr => pr.life > 0);
@@ -212,22 +213,22 @@ function update(dt) {
       it.r = 4; moveEnt(it, it.vx * dt, it.vy * dt);
       if (d < p.r + 8 && !G.over) {
         if (it.kind === 'coin') { it.gone = true; G.coins++; sfx(1300 + Math.random() * 200, .05, 'sine', .025); }
-        else if (it.kind === 'gem') { it.gone = true; G.gems++; addText(p.x, p.y - 24, '+1 gema', '#c77dff', 12); sfx(1600, .12, 'triangle', .03, 400); }
+        else if (it.kind === 'gem') { it.gone = true; G.gems++; addText(p.x, p.y - 24, tr('+1 gema'), '#c77dff', 12); sfx(1600, .12, 'triangle', .03, 400); }
         else if (p.en < maxEn) { it.gone = true; p.en = Math.min(maxEn, p.en + 20); sfx(900, .06, 'sine', .025, 300); }
       }
     } else if (it.kind === 'potion') {
       if (dist(it, p) < p.r + 12 && p.hp < p.maxHp && !G.over) {
         it.gone = true; const h = Math.min(3, p.maxHp - p.hp); p.hp += h;
-        addText(p.x, p.y - 24, '+' + h + ' vida', '#ff7a7e', 14); sfx(600, .18, 'sine', .04, 400);
+        addText(p.x, p.y - 24, '+' + h + tr(' vida'), '#ff7a7e', 14); sfx(600, .18, 'sine', .04, 400);
       }
     } else if (it.kind === 'crystal') {
       it.bob = (it.bob || 0) + dt;
-      if (dist(it, p) < p.r + 14 && !G.over) { it.gone = true; G.crystals[it.el]++; addText(p.x, p.y - 24, `+1 cristal de ${ELEMS[it.el].n.toLowerCase()}`, ELEMS[it.el].c, 13); sfx(1400, .2, 'triangle', .04, 600); ach('crystal'); }
+      if (dist(it, p) < p.r + 14 && !G.over) { it.gone = true; G.crystals[it.el]++; addText(p.x, p.y - 24, tr`+1 cristal de ${ELEMS[it.el].n.toLowerCase()}`, ELEMS[it.el].c, 13); sfx(1400, .2, 'triangle', .04, 600); ach('crystal'); }
     } else if (it.kind === 'totem') {
       it.rise = Math.min(1, (it.rise || 0) + dt * .8);
       if (it.rise < 1 && Math.random() < .5) G.parts.push({ x: it.x + rand(-16, 16), y: it.y, vx: rand(-40, 40), vy: rand(-60, -20), life: .5, max: .5, color: '#6b6480', size: 4 });
     } else if (it.kind === 'key') {
-      if (dist(it, p) < p.r + 12 && !G.over) { it.gone = true; G.keys++; addText(p.x, p.y - 24, '+1 llave', '#e3a24a', 13); sfx(1100, .1, 'triangle', .03, 300); }
+      if (dist(it, p) < p.r + 12 && !G.over) { it.gone = true; G.keys++; addText(p.x, p.y - 24, tr('+1 llave'), '#e3a24a', 13); sfx(1100, .1, 'triangle', .03, 300); }
     } else it.bob = (it.bob || 0) + dt;
   }
   G.pickups = G.pickups.filter(it => !it.gone);

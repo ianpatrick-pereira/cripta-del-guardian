@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { angTo, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
@@ -9,7 +10,7 @@ import { flankPoint, hazard, leadAng, takeToken } from '../14-enemigos.js';
 defEnemy('brute', {
   orden: 6,
   stats: { hp: 15, r: 17, speed: 58, dmg: 2, spr: 'brute', s: 2.6 },
-  bestiario: { n: 'Bruto', d: 'Embiste de lejos; de cerca golpea el suelo.' },
+  bestiario: { n: tr('Bruto'), d: tr('Embiste de lejos; de cerca golpea el suelo.') },
   sprite: {
     clave: 'brute',
     mapa: ['.h..........h.', '.hh.kkkkkk.hh.', '..hkrrrrrrkh..', '..krrrrrrrrk..', '..kreerreerk..', '..krrrrrrrrk..', '..krrkkkkrrk..',

@@ -1,4 +1,5 @@
 // ================= Elementos =================
+import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angTo, clamp, dist, pick, rand } from './01-utilidades.js';
 import { D } from './03-datos-del-juego.js';
@@ -12,25 +13,25 @@ import { armorSh } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { drawShadow } from './36-mar-de-lava.js';
 const ELEMS = {
-  fire:  { n: 'Fuego',  c: '#ff6a3a', ab: 'Lanzallamas', abd: 'Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.',
-           hitd: 'te quema y deja el suelo ardiendo',
-           boss: { name: 'Señor de las Brasas', r: 24, hp: 270, speed: 92, want: 190, minion: ['bat', 'mage'], p1: ['rain', 'fan', 'volley', 'rain'], p2: ['rain', 'fan', 'volley', 'summon', 'slam', 'rain'] } },
-  water: { n: 'Agua',   c: '#4ab0e8', ab: 'Maremoto', abd: 'Una ola en anillo empuja, frena y daña; desde Nv3 te cura 1.',
-           hitd: 'te empapa y te ralentiza',
-           boss: { name: 'Leviatán de la Fuente', r: 26, hp: 290, speed: 74, want: 130, minion: ['slime', 'toxic'], p1: ['spit', 'wave', 'hop', 'fan'], p2: ['spit', 'wave', 'bighop', 'fan', 'summon', 'whirl'] } },
-  air:   { n: 'Aire',   c: '#c8f0e0', ab: 'Tornado',  abd: 'Lanza un tornado que arrastra y tritura a los enemigos.',
-           hitd: 'te lanza hacia atrás',
-           boss: { name: 'Djinn del Vendaval', r: 22, hp: 250, speed: 118, want: 170, minion: ['bat', 'spider'], p1: ['gust', 'charge3', 'fan', 'retreat'], p2: ['gust', 'charge3', 'fan', 'retreat', 'summon', 'gust'] } },
-  earth: { n: 'Tierra', c: '#c09060', ab: 'Fisura',   abd: 'Una línea de picos de roca aturde y te da escudo.',
-           hitd: 'golpea +1 y resiste el daño',
-           boss: { name: 'Gólem de Roca', r: 28, hp: 380, speed: 62, want: 0, minion: ['brute', 'slime'], p1: ['slam', 'hop', 'rain'], p2: ['slam', 'bighop', 'rain', 'summon', 'charge3'] } },
+  fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.'),
+           hitd: tr('te quema y deja el suelo ardiendo'),
+           boss: { name: tr('Señor de las Brasas'), r: 24, hp: 270, speed: 92, want: 190, minion: ['bat', 'mage'], p1: ['rain', 'fan', 'volley', 'rain'], p2: ['rain', 'fan', 'volley', 'summon', 'slam', 'rain'] } },
+  water: { n: tr('Agua'),   c: '#4ab0e8', ab: tr('Maremoto'), abd: tr('Una ola en anillo empuja, frena y daña; desde Nv3 te cura 1.'),
+           hitd: tr('te empapa y te ralentiza'),
+           boss: { name: tr('Leviatán de la Fuente'), r: 26, hp: 290, speed: 74, want: 130, minion: ['slime', 'toxic'], p1: ['spit', 'wave', 'hop', 'fan'], p2: ['spit', 'wave', 'bighop', 'fan', 'summon', 'whirl'] } },
+  air:   { n: tr('Aire'),   c: '#c8f0e0', ab: tr('Tornado'),  abd: tr('Lanza un tornado que arrastra y tritura a los enemigos.'),
+           hitd: tr('te lanza hacia atrás'),
+           boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 250, speed: 118, want: 170, minion: ['bat', 'spider'], p1: ['gust', 'charge3', 'fan', 'retreat'], p2: ['gust', 'charge3', 'fan', 'retreat', 'summon', 'gust'] } },
+  earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Fisura'),   abd: tr('Una línea de picos de roca aturde y te da escudo.'),
+           hitd: tr('golpea +1 y resiste el daño'),
+           boss: { name: tr('Gólem de Roca'), r: 28, hp: 380, speed: 62, want: 0, minion: ['brute', 'slime'], p1: ['slam', 'hop', 'rain'], p2: ['slam', 'bighop', 'rain', 'summon', 'charge3'] } },
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
 function mkElem(el, x, y) {
   const E = ELEMS[el], B = E.boss;
   const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el, minion: B.minion };
   const lv = G.floor, hp = Math.round(B.hp * D().hp * (1 + .65 * (lv - 1)));
-  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: `${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), tint: E.c,
+  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), tint: E.c,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 function totemElement() { return pick(EL_ORDER); }
@@ -44,20 +45,20 @@ function startElemFight(it) {
     const pos = freeSpot(room, 2, 20, G.player, 150);
     if (pos) G.markers.push({ x: pos.x, y: pos.y, t: 1.1 + i * .1, type: pick(E.boss.minion), depth: 1, el: it.el });
   }
-  showBanner(E.boss.name, E.c, `Elemental de ${E.n.toLowerCase()} · opcional`);
+  showBanner(E.boss.name, E.c, tr`Elemental de ${E.n.toLowerCase()} · opcional`);
   shake(8); noise(.5, .08, 400); sfx(70, .8, 'sawtooth', .05, 20);
 }
 // habilidad elemental del arma (tecla R)
 function elemCost(w) { return 15 + 5 * w.elLv; }
 function elemAbility(p) {
   const w = p.slots[p.cur];
-  if (!w || !w.elOn) { addText(p.x, p.y - 26, 'Esta arma no tiene poder elemental', '#9d95ab', 11); return; }
+  if (!w || !w.elOn) { addText(p.x, p.y - 26, tr('Esta arma no tiene poder elemental'), '#9d95ab', 11); return; }
   if (p.elCd > 0) return;
   const cost = elemCost(w);
-  if (p.en < cost) { addText(p.x, p.y - 26, `${elAbName(w)}: necesitas ${cost} de energía`, '#5aa4e8', 12); return; }
+  if (p.en < cost) { addText(p.x, p.y - 26, tr`${elAbName(w)}: necesitas ${cost} de energía`, '#5aa4e8', 12); return; }
   p.en -= cost; p.elCd = Math.max(4, 9 - w.elLv);
   const L = w.elLv, a = p.aim, E = ELEMS[w.el], dm = k => Math.max(1, Math.round(w.dmg * k * dmgMul()));
-  addText(p.x, p.y - 32, `${elAbName(w)} Nv${L}`, E.c, 13);
+  addText(p.x, p.y - 32, tr`${elAbName(w)} Nv${L}`, E.c, 13);
   if (w.style) { styleElem(p, w, L, E, dm); return; }
   if (w.el === 'fire') {
     // lanzallamas: dura más, llega más lejos y se abre más con cada nivel
@@ -66,7 +67,7 @@ function elemAbility(p) {
   } else if (w.el === 'water') {
     const n = 16 + 4 * L;
     for (let i = 0; i < n; i++) { const an = i * TAU / n; G.proj.push({ x: p.x, y: p.y, vx: Math.cos(an) * 340, vy: Math.sin(an) * 340, r: 12, dmg: dm(.8 + .4 * L), owner: 'player', kind: 'wave', pierce: 99, hit: new Set(), life: .6, color: E.c, src: w, fx: 'slow', kb: 420 }); }
-    if (L >= 3 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 46, '+1 vida', '#4ab0e8', 12); }
+    if (L >= 3 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 46, tr('+1 vida'), '#4ab0e8', 12); }
     noise(.5, .08, 600); sfx(300, .4, 'sine', .05, -150);
   } else if (w.el === 'air') {
     G.tornados.push({ x: p.x + Math.cos(a) * 30, y: p.y + Math.sin(a) * 30, vx: Math.cos(a) * 150, vy: Math.sin(a) * 150, t: 2.2 + .5 * L, tick: 0, dmg: Math.max(1, Math.round(w.dmg * (.35 + .15 * L))), R: 90 + 10 * L });
@@ -74,7 +75,7 @@ function elemAbility(p) {
   } else {
     const n = 7 + 2 * L;
     for (let i = 1; i <= n; i++) { const x = p.x + Math.cos(a) * i * 28, y = p.y + Math.sin(a) * i * 28; later(i * .045, () => { if (!solidAt(Math.floor(x / TILE), Math.floor(y / TILE))) elemBlast(x, y, 30, dm(1.1 + .4 * L), 'stun', E.c); }); }
-    const maxSh = p.maxSh + rc('escudo') + armorSh(p), gain = L >= 2 ? 2 : 1; p.sh = Math.min(maxSh, p.sh + gain); addText(p.x, p.y - 46, `+${gain} escudo`, '#8fb7d9', 12);
+    const maxSh = p.maxSh + rc('escudo') + armorSh(p), gain = L >= 2 ? 2 : 1; p.sh = Math.min(maxSh, p.sh + gain); addText(p.x, p.y - 46, tr`+${gain} escudo`, '#8fb7d9', 12);
     shake(10); sfx(80, .4, 'sawtooth', .05, -30);
   }
 }
@@ -143,7 +144,7 @@ function shredShield() {
   const p = G.player;
   if (p.inv > 0 || p.sh <= 0) return;
   p.sh = 0; p.shT = -3;
-  addText(p.x, p.y - 34, '¡Escudo roto!', '#8fb7d9', 13); sfx(1600, .15, 'square', .03, -1200); burst(p.x, p.y, '#8fb7d9', 12, 180);
+  addText(p.x, p.y - 34, tr('¡Escudo roto!'), '#8fb7d9', 13); sfx(1600, .15, 'square', .03, -1200); burst(p.x, p.y, '#8fb7d9', 12, 180);
 }
 function drawElemental(e) {
   const c = e.tint, t = e.t, lift = e.lift || 0, y = e.y - lift, white = e.flash > 0;

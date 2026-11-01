@@ -1,19 +1,20 @@
 // Hoz arrojadiza
+import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
 import { espLv, throwIt, thrownOut } from '../12-armas-con-estilo-propio.js';
 defWeapon('sickle', {
   orden: 39,
-  datos: { name: 'Hoz arrojadiza', type: 'bow', style: 'sickle', shape: 'sickle', rarity: 'rare', dmg: 3, cd: .6, speed: 480, pierce: 99, shots: 1, en: 3, chg: 'reap', chgEn: 18 },
+  datos: { name: tr('Hoz arrojadiza'), type: 'bow', style: 'sickle', shape: 'sickle', rarity: 'rare', dmg: 3, cd: .6, speed: 480, pierce: 99, shots: 1, en: 3, chg: 'reap', chgEn: 18 },
   familia: 'rogue',
   potencia: .4,
   estilo: {
     // cobra la energía en ataque() al lanzar, no antes
     cobraAlLanzar: true,
-    d: 'la lanzas, se clava girando en el primer enemigo y vuelve',
-    esp: { n: 'Filo giratorio', d: '+0,4 s girando en el sitio' },
-    el: { fire: 'Hoz flamígera', water: 'Hoz de espuma', air: 'Hoz del vendaval', earth: 'Hoz de obsidiana' },
+    d: tr('la lanzas, se clava girando en el primer enemigo y vuelve'),
+    esp: { n: tr('Filo giratorio'), d: tr('+0,4 s girando en el sitio') },
+    el: { fire: tr('Hoz flamígera'), water: tr('Hoz de espuma'), air: tr('Hoz del vendaval'), earth: tr('Hoz de obsidiana') },
     // ataque normal
     ataque(p, w, { a, dmg, cost }) {
       if (thrownOut('sickle') >= 2 + (w.stars >= 3 ? 1 : 0)) { p.cd = .05; return; }

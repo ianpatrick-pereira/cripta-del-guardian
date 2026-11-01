@@ -1,4 +1,5 @@
 // ================= Forja =================
+import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { esc } from './01-utilidades.js';
 import { RARITY, applyW, weaponStats } from './03-datos-del-juego.js';
@@ -12,30 +13,30 @@ import { ach } from './21-logros-y-bestiario.js';
 import { ELEMS, EL_ORDER } from './23-elementos.js';
 import { updateAdapt } from './25-enemigos-que-se-adaptan.js';
 const FORGE = {
-  dmg:  { n: 'Filo',       d: '+8 % de daño' },
-  rate: { n: 'Cadencia',   d: 'ataca un 10 % más rápido' },
-  chg:  { n: 'Carga',      d: '+20 % de daño del ataque cargado' },
-  en:   { n: 'Eficiencia', d: '−1 energía por ataque y −12 % en la carga' },
+  dmg:  { n: tr('Filo'),       d: tr('+8 % de daño') },
+  rate: { n: tr('Cadencia'),   d: tr('ataca un 10 % más rápido') },
+  chg:  { n: tr('Carga'),      d: tr('+20 % de daño del ataque cargado') },
+  en:   { n: tr('Eficiencia'), d: tr('−1 energía por ataque y −12 % en la carga') },
 };
 const FORGE_MAX = 3;
 const forgeCost = (w, k) => Math.round(((10 + 6 * w.stars) * (1 + .6 * (w.up[k] || 0)) + 6 * (G.floor - 1)) * (k === 'bones' ? 2.5 : 1));
 // mejora exclusiva y cara del grimorio
-const BONES_UP = { n: 'Legión mayor', d: '+1 esqueleto como máximo por nivel (mejora cara)' };
+const BONES_UP = { n: tr('Legión mayor'), d: tr('+1 esqueleto como máximo por nivel (mejora cara)') };
 function openForge() {
   G.choice = { forge: true, ids: [] };
   keys.clear(); mouse.down = mouse.right = false; touch.atk = touch.chg = false;
   renderForge(); $('ovForge').hidden = false;
 }
 function renderForge() {
-  $('forgeCoins').textContent = `Tienes ${G.coins} monedas y ${EL_ORDER.map(el => `${G.crystals[el]} ${ELEMS[el].n.toLowerCase()}`).join(', ')} en cristales. Las mejoras normales llegan hasta 4★; la infusión elemental es para armas de 3★ o más.`;
+  $('forgeCoins').textContent = tr`Tienes ${G.coins} monedas y ${EL_ORDER.map(el => `${G.crystals[el]} ${ELEMS[el].n.toLowerCase()}`).join(', ')} en cristales. Las mejoras normales llegan hasta 4★; la infusión elemental es para armas de 3★ o más.`;
   $('forgeList').innerHTML = G.player.slots.map((w, i) => {
     const R = RARITY[w.rarity];
     const head = `<div class="hd"><b style="color:${R.c}">${esc(w.name)}</b><span style="color:${R.c}">${R.n}</span></div><div class="st">${esc(weaponStats(w))}</div>`;
     const elb = elemForgeHTML(w, i);
-    if (w.stars >= 5) return `<div class="fw">${head}<div class="st">Arma legendaria: no admite mejoras normales.</div>${elb}</div>`;
+    if (w.stars >= 5) return tr`<div class="fw">${head}<div class="st">Arma legendaria: no admite mejoras normales.</div>${elb}</div>`;
     const ups = Object.entries(w.style ? { ...FORGE, esp: STYLE[w.style].esp, ...(w.style === 'grimoire' ? { bones: BONES_UP } : {}) } : FORGE).map(([k, f]) => {
       const lv = w.up[k] || 0, max = lv >= FORGE_MAX, cost = forgeCost(w, k), useless = k === 'en' && w.en === 0 && w.chgEn <= 4;
-      return `<button class="small" type="button" data-s="${i}" data-k="${k}" ${!max && !useless && G.coins >= cost ? '' : 'disabled'}><b>${f.n} ${'●'.repeat(lv)}${'○'.repeat(FORGE_MAX - lv)}</b><span>${f.d}</span><span>${max ? 'Máximo' : cost + ' monedas'}</span></button>`;
+      return `<button class="small" type="button" data-s="${i}" data-k="${k}" ${!max && !useless && G.coins >= cost ? '' : 'disabled'}><b>${f.n} ${'●'.repeat(lv)}${'○'.repeat(FORGE_MAX - lv)}</b><span>${f.d}</span><span>${max ? tr('Máximo') : cost + tr(' monedas')}</span></button>`;
     }).join('');
     return `<div class="fw">${head}<div class="ups">${ups}</div>${elb}</div>`;
   }).join('');
@@ -46,24 +47,24 @@ function renderForge() {
 function elemForgeHTML(w, i) {
   const C = G.crystals, have = EL_ORDER.filter(el => C[el] > 0);
   let body = '';
-  if (w.stars < 3) body = `<span class="st">Requiere un arma de 3★ o más.</span>`;
+  if (w.stars < 3) body = tr`<span class="st">Requiere un arma de 3★ o más.</span>`;
   else if (!w.el) body = have.length
-    ? have.map(el => `<button class="small" type="button" data-s="${i}" data-el="${el}" style="border-color:${ELEMS[el].c}"><b style="color:${ELEMS[el].c}">Infundir ${ELEMS[el].n.toLowerCase()}</b><span>1 cristal (tienes ${C[el]}) · el arma queda ligada a este elemento</span></button>`).join('')
-    : `<span class="st">Vence a los Elementales de los tótems para conseguir cristales.</span>`;
+    ? have.map(el => tr`<button class="small" type="button" data-s="${i}" data-el="${el}" style="border-color:${ELEMS[el].c}"><b style="color:${ELEMS[el].c}">Infundir ${ELEMS[el].n.toLowerCase()}</b><span>1 cristal (tienes ${C[el]}) · el arma queda ligada a este elemento</span></button>`).join('')
+    : tr`<span class="st">Vence a los Elementales de los tótems para conseguir cristales.</span>`;
   else {
     const E = ELEMS[w.el];
-    if (w.elC < 3) body = `<button class="small" type="button" data-s="${i}" data-el="${w.el}" ${C[w.el] ? '' : 'disabled'}><b style="color:${E.c}">${E.n} ${'◆'.repeat(w.elC)}${'◇'.repeat(3 - w.elC)}</b><span>Añadir cristal (tienes ${C[w.el]}) · con 3 despierta ${esc(elAbName(w))}</span></button>`;
-    else if (w.elLv < 4) body = `<button class="small" type="button" data-s="${i}" data-el="${w.el}" ${C[w.el] ? '' : 'disabled'}><b style="color:${E.c}">${esc(elAbName(w))} Nv${w.elLv} → Nv${w.elLv + 1}</b><span>${esc(elAbDesc(w))} · 1 cristal (tienes ${C[w.el]})</span></button>`;
-    else body = `<span class="st" style="color:${E.c}">${esc(elAbName(w))} al nivel máximo.</span>`;
+    if (w.elC < 3) body = tr`<button class="small" type="button" data-s="${i}" data-el="${w.el}" ${C[w.el] ? '' : 'disabled'}><b style="color:${E.c}">${E.n} ${'◆'.repeat(w.elC)}${'◇'.repeat(3 - w.elC)}</b><span>Añadir cristal (tienes ${C[w.el]}) · con 3 despierta ${esc(elAbName(w))}</span></button>`;
+    else if (w.elLv < 4) body = tr`<button class="small" type="button" data-s="${i}" data-el="${w.el}" ${C[w.el] ? '' : 'disabled'}><b style="color:${E.c}">${esc(elAbName(w))} Nv${w.elLv} → Nv${w.elLv + 1}</b><span>${esc(elAbDesc(w))} · 1 cristal (tienes ${C[w.el]})</span></button>`;
+    else body = tr`<span class="st" style="color:${E.c}">${esc(elAbName(w))} al nivel máximo.</span>`;
   }
-  return `<div class="st" style="margin-top:8px"><b>Elemental</b></div><div class="ups">${body}</div>`;
+  return tr`<div class="st" style="margin-top:8px"><b>Elemental</b></div><div class="ups">${body}</div>`;
 }
 function forgeElem(i, el) {
   const w = G.player.slots[i];
   if (!w || w.stars < 3 || !G.crystals[el] || (w.el && w.el !== el) || w.elLv >= 4) return;
   G.crystals[el]--;
   if (!w.el) w.el = el;
-  if (w.elC < 3) { w.elC++; if (w.elC === 3) { w.elLv = 1; showBanner(`${w.name}: ${elAbName(w)}`, ELEMS[el].c, 'Habilidad elemental despertada · tecla R'); ach('awaken'); } }
+  if (w.elC < 3) { w.elC++; if (w.elC === 3) { w.elLv = 1; showBanner(`${w.name}: ${elAbName(w)}`, ELEMS[el].c, tr('Habilidad elemental despertada · tecla R')); ach('awaken'); } }
   else w.elLv++;
   applyW(w);
   sfx(600, .3, 'triangle', .05, 600); later(.1, () => sfx(1200, .3, 'sine', .04));

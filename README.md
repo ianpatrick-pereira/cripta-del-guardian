@@ -10,7 +10,7 @@ npx playwright install chromium
 npm run dev          # servidor de desarrollo: http://localhost:8000, se recarga solo al guardar
 npm run build        # une src/ en cripta.html
 npm run tipos        # revisión de tipos con TypeScript (menos de 1 segundo)
-npm test             # 32 pruebas automáticas (~1 minuto)
+npm test             # 33 pruebas automáticas (~1 minuto)
 ```
 
 Cada push y cada pull request ejecuta las pruebas en GitHub Actions (`.github/workflows/pruebas.yml`).
@@ -25,6 +25,7 @@ Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/
 Desde la v0.34 también la decoración de cada piso y los dos finales; y hay herramientas para medir el balance y el rendimiento.
 Desde la v0.38 cada archivo de `src/js/` es un módulo ES: declara con `import` lo que usa y con `export` lo que ofrece; y `npm run dev` recarga el juego al guardar.
 Desde la v0.39 hay revisión de tipos (TypeScript sobre el JavaScript) y esquemas para los archivos de datos.
+Desde la v0.40 el juego está en español e inglés: los textos visibles pasan por `tr()` y las traducciones viven en `src/textos/`.
 
 ```
 ./
@@ -70,11 +71,29 @@ Atrapan errores antes de jugar, sin abrir el juego:
 - Para añadir un campo nuevo a un dato: añádelo al esquema (con su `description`) y ejecuta `node build.js`.
 - El jugador, los enemigos en juego y `G` todavía no tienen tipo (`any`): se pueden ir tipando poco a poco.
 
+## Idiomas
+
+El juego se escribe en español, directamente en el código, y cada texto que ve el jugador pasa por `tr()` (de *traducir*):
+
+```js
+showBanner(tr('Sala despejada'));             // texto fijo
+addText(x, y, tr`Faltan ${n} monedas`);       // con valores: la clave es «Faltan {0} monedas»
+```
+
+- Las traducciones viven en `src/textos/<idioma>.jsonc` como `"texto en español": "traducción"`. Hoy hay `en.jsonc` (inglés). Los `{0}`, `{1}`... son los valores que pone el juego y deben seguir en la traducción (el build lo comprueba).
+- También se traducen los textos fijos de `pagina.html` y los nombres de pisos y finales de `src/datos/`.
+- Al añadir o cambiar un texto en español, `node build.js` avisa de qué traducciones faltan (con archivo y línea) y `node build.js --check` (y por tanto CI) falla hasta que estén. Si falta una, el juego muestra el español.
+- **Idioma nuevo:** copia `en.jsonc` como `fr.jsonc`, traduce los valores y añade `fr: 'Français'` a `IDIOMAS` en `src/js/00b-textos.js`.
+- El idioma se elige en Opciones (se guarda aparte del progreso). La primera vez se usa el del navegador: español si el navegador está en español, inglés si no.
+- Un mismo texto en español tiene una sola traducción: «Tirador» es la clase y el enemigo a la vez (en inglés, *Sharpshooter* para los dos). Si algún día hace falta separarlos, basta con que el texto en español sea distinto.
+- Un texto que no es para el jugador (clases CSS, nombres de fuentes, ids) no lleva `tr()`.
+
 ## Pruebas automáticas
 
-`node pruebas/probar.js` abre el juego en un navegador sin ventana y juega solo, con el azar fijado (la misma semilla da siempre la misma partida). Hace 32 pruebas:
+`node pruebas/probar.js` abre el juego en un navegador sin ventana y juega solo, con el azar fijado (la misma semilla da siempre la misma partida). Hace 33 pruebas:
 
 - **clases** (24): Caballero, Tirador y Asesino en cada uno de los 8 pisos. Un bot despeja las salas de combate, el subjefe y el jefe con mandos táctiles (que apuntan solos), ataque cargado, esquiva, habilidad F y, desde el piso 3, la habilidad elemental R. Es inmortal para poder llegar al final; si no termina una sala a tiempo, se rematan los enemigos que queden y se comprueba que la sala se abre igual.
+- **idioma** (1): la partida del Caballero en el piso 3, con el navegador en inglés. Tiene que jugar exactamente igual que en español (el idioma solo cambia textos) y la página tiene que verse traducida.
 - **armas** (1): las 41 armas a 1★, 3★ y 5★, con ataque normal y cargado; cada combinación tiene que hacer daño.
 - **salas** (1): genera pisos hasta ver las 7 salas de evento y las usa todas.
 - **guardado** (4): partida vieja, arma que ya no existe, guardado de una versión futura y sin guardado.

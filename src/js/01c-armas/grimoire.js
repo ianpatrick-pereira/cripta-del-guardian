@@ -1,4 +1,5 @@
 // Grimorio de huesos
+import { tr } from '../00b-textos.js';
 import { rand } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -7,14 +8,14 @@ import { shootPlayer } from '../11-jugador.js';
 import { maxBones, summonBones } from '../12-armas-con-estilo-propio.js';
 defWeapon('grimoire', {
   orden: 40,
-  datos: { name: 'Grimorio de huesos', type: 'staff', style: 'grimoire', shape: 'book', gem: '#d8d0b8', rarity: 'epic', dmg: 4, cd: 1.1, speed: 420, pierce: 0, shots: 1, en: 7, chg: 'legion', chgEn: 25 },
+  datos: { name: tr('Grimorio de huesos'), type: 'staff', style: 'grimoire', shape: 'book', gem: '#d8d0b8', rarity: 'epic', dmg: 4, cd: 1.1, speed: 420, pierce: 0, shots: 1, en: 7, chg: 'legion', chgEn: 25 },
   // sin familia: neutral para todas las clases
   familia: null,
   potencia: .4,
   estilo: {
-    d: 'invoca esqueletos aliados por unos segundos',
-    esp: { n: 'Osario', d: 'los esqueletos duran 2 s más y pegan un 15 % más' },
-    el: { fire: 'Legión ardiente', water: 'Legión ahogada', air: 'Legión espectral', earth: 'Legión de piedra' },
+    d: tr('invoca esqueletos aliados por unos segundos'),
+    esp: { n: tr('Osario'), d: tr('los esqueletos duran 2 s más y pegan un 15 % más') },
+    el: { fire: tr('Legión ardiente'), water: tr('Legión ahogada'), air: tr('Legión espectral'), earth: tr('Legión de piedra') },
     // ataque normal
     ataque(p, w, { a, dmg }) {
       if ((G.allies || []).filter(A => !A.merc).length < maxBones(w)) summonBones(p, w);

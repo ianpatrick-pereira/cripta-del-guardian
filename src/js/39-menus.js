@@ -1,4 +1,5 @@
 // ================= Menús =================
+import { IDIOMA, IDIOMAS, setIdioma, tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { esc } from './01-utilidades.js';
 import { WEAPON_DEFS, roomList } from './01a-registro.js';
@@ -33,22 +34,22 @@ function renderMenu() {
   setCUR_CHAR(selChar);
   $('charCards').innerHTML = Object.entries(CHARS).map(([id, c]) => {
     const own = SAVE.chars[id];
-    return `<button class="card${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
+    return tr`<button class="card${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
       <b>${esc(c.name)}</b>
       <span class="abil">${esc(c.role)}</span>
       <span class="meta">${c.hp + SAVE.upg.hp} vida · ${c.sh} escudo · ${c.en + SAVE.upg.en * 15} energía · velocidad ${c.speed}</span>
-      <span class="meta">Empieza con ${c.start.map(s => W(s).name).join(' y ')}</span>
+      <span class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}</span>
       <span class="meta">${esc(c.mech)}</span>
       <span class="meta">Subclases: ${Object.values(SPECS).filter(S => S.cls === id).map(S => `${S.n} (${S.d.replace('.', '').toLowerCase()})`).join(', ')}. Se desbloquea tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas.</span>
       <span class="meta">Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %; bastones neutrales.</span>
       <span class="abil">${esc(c.abil)}: ${esc(c.abilDesc)}</span>
-      ${own ? '' : `<span class="gems">Desbloquear · ${c.cost} gemas</span>`}
+      ${own ? '' : tr`<span class="gems">Desbloquear · ${c.cost} gemas</span>`}
     </button>`;
   }).join('');
   $('charCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.c, c = CHARS[id];
     if (!SAVE.chars[id]) {
-      if (SAVE.gems < c.cost) { b.querySelector('.gems').textContent = `Te faltan ${c.cost - SAVE.gems} gemas`; return; }
+      if (SAVE.gems < c.cost) { b.querySelector('.gems').textContent = tr`Te faltan ${c.cost - SAVE.gems} gemas`; return; }
       SAVE.gems -= c.cost; SAVE.chars[id] = true; writeSave();
     }
     // las mejoras de clase de otro personaje se devuelven al cambiar
@@ -57,15 +58,15 @@ function renderMenu() {
     setSelChar(id); renderMenu();
   }));
   // compañeros
-  $('petCards').innerHTML = /** @type {[string, any][]} */ ([['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)]).map(([id, P]) => {
+  $('petCards').innerHTML = /** @type {[string, any][]} */ ([['', { n: tr('Ninguno'), d: tr('Vas solo.'), c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)]).map(([id, P]) => {
     const own = !id || SAVE.pets[id];
-    return `<button class="card${SAVE.pet === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-p="${id}"><b style="color:${P.c}">${esc(P.n)}</b><span class="meta">${esc(P.d)}</span>${own ? (id ? '<span class="gems">Listo para la próxima partida</span>' : '') : `<span class="gems">Llevar · ${P.cost} gemas</span>`}</button>`;
+    return `<button class="card${SAVE.pet === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-p="${id}"><b style="color:${P.c}">${esc(P.n)}</b><span class="meta">${esc(P.d)}</span>${own ? (id ? tr('<span class="gems">Listo para la próxima partida</span>') : '') : tr`<span class="gems">Llevar · ${P.cost} gemas</span>`}</button>`;
   }).join('');
   $('petCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.p;
     if (id && !SAVE.pets[id]) {
       const refund = SAVE.pet && SAVE.pets[SAVE.pet] ? PETS[SAVE.pet].cost : 0;
-      if (SAVE.gems + refund < PETS[id].cost) { b.querySelector('.gems').textContent = `Te faltan ${PETS[id].cost - SAVE.gems - refund} gemas`; return; }
+      if (SAVE.gems + refund < PETS[id].cost) { b.querySelector('.gems').textContent = tr`Te faltan ${PETS[id].cost - SAVE.gems - refund} gemas`; return; }
       SAVE.gems += refund - PETS[id].cost; SAVE.pets = { [id]: true }; ach('pet');
     }
     if (!id && SAVE.pet && SAVE.pets[SAVE.pet]) { SAVE.gems += PETS[SAVE.pet].cost; SAVE.pets = {}; }
@@ -73,35 +74,35 @@ function renderMenu() {
   }));
   // arma inicial
   const found = WEAPONS.filter(w => w.rarity === 'common');
-  $('swCount').textContent = `· ${found.length} armas grises`;
-  $('swList').innerHTML = `<button class="small${!SAVE.startW ? ' sel' : ''}" type="button" data-w="">La del personaje · gratis</button>` +
-    found.map(w => `<button class="small${SAVE.startW === w.id ? ' sel' : ''}" type="button" data-w="${w.id}" style="color:${RARITY[w.rarity].c}">${esc(w.name)} · ${SAVE.startW === w.id ? 'comprada' : START_COST[w.rarity] + ' gemas'}</button>`).join('');
+  $('swCount').textContent = tr`· ${found.length} armas grises`;
+  $('swList').innerHTML = tr`<button class="small${!SAVE.startW ? ' sel' : ''}" type="button" data-w="">La del personaje · gratis</button>` +
+    found.map(w => `<button class="small${SAVE.startW === w.id ? ' sel' : ''}" type="button" data-w="${w.id}" style="color:${RARITY[w.rarity].c}">${esc(w.name)} · ${SAVE.startW === w.id ? tr('comprada') : START_COST[w.rarity] + tr(' gemas')}</button>`).join('');
   $('swList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.w; if (id === SAVE.startW) return;
     const refund = SAVE.startW ? START_COST[WEAPONS.find(w => w.id === SAVE.startW).rarity] : 0;
     const cost = id ? START_COST[WEAPONS.find(w => w.id === id).rarity] : 0;
-    if (SAVE.gems + refund < cost) { b.textContent = `Te faltan ${cost - SAVE.gems - refund} gemas`; return; }
+    if (SAVE.gems + refund < cost) { b.textContent = tr`Te faltan ${cost - SAVE.gems - refund} gemas`; return; }
     SAVE.gems += refund - cost; SAVE.startW = id; writeSave(); renderMenu();
   }));
   // logros, bestiario, diario, sinergias
   const nAch = Object.keys(ACH).filter(k => SAVE.ach[k]).length;
   $('achCount').textContent = `· ${nAch}/${Object.keys(ACH).length}`;
   $('achList').innerHTML = Object.entries(ACH).map(([k, A]) => `<div class="${SAVE.ach[k] ? '' : 'off'}"><b>${SAVE.ach[k] ? '✓ ' : ''}${esc(A.n)}</b>${esc(A.d)} · +${A.g} ${A.g === 1 ? 'gema' : 'gemas'}</div>`).join('');
-  const beasts = [...Object.entries(BEAST).map(([k, B]) => [k, B.n, B.d]), ...Object.values(SUBS).map(S => ['sub:' + S.sk, S.name, 'Subjefe.']), ...Object.entries(BOSSES).map(([k, B]) => ['boss:' + k, B.name, 'Jefe de piso.'])];
+  const beasts = [...Object.entries(BEAST).map(([k, B]) => [k, B.n, B.d]), ...Object.values(SUBS).map(S => ['sub:' + S.sk, S.name, tr('Subjefe.')]), ...Object.entries(BOSSES).map(([k, B]) => ['boss:' + k, B.name, tr('Jefe de piso.')])];
   $('beastCount').textContent = `· ${beasts.filter(b => SAVE.kills[b[0]]).length}/${beasts.length}`;
-  $('beastList').innerHTML = beasts.map(([k, n, d]) => SAVE.kills[k] ? `<div><b>${esc(n)}</b>${esc(d)} Derrotados: ${SAVE.kills[k]}</div>` : `<div class="off"><b>???</b>Aún no lo has derrotado.</div>`).join('');
+  $('beastList').innerHTML = beasts.map(([k, n, d]) => SAVE.kills[k] ? tr`<div><b>${esc(n)}</b>${esc(d)} Derrotados: ${SAVE.kills[k]}</div>` : tr`<div class="off"><b>???</b>Aún no lo has derrotado.</div>`).join('');
   $('noteCount').textContent = `· ${Object.keys(SAVE.notes).length}/${NOTES.length}`;
-  $('noteList').innerHTML = NOTES.map((N, i) => SAVE.notes[i] ? `<div><b>${esc(N.t)}</b>${esc(N.b)}</div>` : `<div class="off"><b>Página perdida</b>Sigue explorando la cripta.</div>`).join('');
+  $('noteList').innerHTML = NOTES.map((N, i) => SAVE.notes[i] ? `<div><b>${esc(N.t)}</b>${esc(N.b)}</div>` : tr`<div class="off"><b>Página perdida</b>Sigue explorando la cripta.</div>`).join('');
   $('synCount').textContent = `· ${SYNERGIES.filter(S => SAVE.syn[S.id]).length}/${SYNERGIES.length}`;
   $('synList').innerHTML = SYNERGIES.map(S => `<div class="${SAVE.syn[S.id] ? '' : 'off'}"><b style="color:${SAVE.syn[S.id] ? S.c : 'inherit'}">${esc(S.n)}</b>${esc(S.r)}: ${esc(S.d)}</div>`).join('');
   renderHistory();
   renderOpts('menuOpts');
   $('btnContinue').hidden = !SAVE.run;
-  if (SAVE.run) $('btnContinue').textContent = `Continuar · piso ${SAVE.run.floor} (${CHARS[SAVE.run.char].name})`;
-  $('btnStart').textContent = SAVE.run ? 'Nueva partida' : 'Entrar a la cripta';
+  if (SAVE.run) $('btnContinue').textContent = tr`Continuar · piso ${SAVE.run.floor} (${CHARS[SAVE.run.char].name})`;
+  $('btnStart').textContent = SAVE.run ? tr('Nueva partida') : tr('Entrar a la cripta');
   { const I = dailyInfo(), rec = SAVE.daily && SAVE.daily.date === I.date ? SAVE.daily.best : 0;
-    $('btnDaily').textContent = `Reto diario · ${CHARS[I.char].name}${rec ? ` · récord ${rec}` : ''}`;
-    $('btnDaily').title = 'La misma mazmorra para todos hoy, con clase fija, sin mejoras del altar y en dificultad Guardián'; }
+    $('btnDaily').textContent = tr`Reto diario · ${CHARS[I.char].name}${rec ? tr` · récord ${rec}` : ''}`;
+    $('btnDaily').title = tr('La misma mazmorra para todos hoy, con clase fija, sin mejoras del altar y en dificultad Guardián'); }
   $('diffCards').innerHTML = Object.entries(DIFFS).map(([id, d]) =>
     `<button class="card${SAVE.diff === id ? ' sel' : ''}" type="button" data-d="${id}"><b>${esc(d.name)}</b><span class="meta">${esc(d.desc)}</span></button>`).join('');
   $('diffCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { SAVE.diff = b.dataset.d; writeSave(); renderMenu(); }));
@@ -109,25 +110,28 @@ function renderMenu() {
     const lv = SAVE.upg[id] || 0, maxed = lv >= u.max, cost = u.cost[lv];
     return `<div class="upg${u.cls ? ' cls' : ''}"><div class="nm">${u.cls ? `<em>${esc(CHARS[u.cls].name)}</em> ` : ''}${esc(u.name)}<span>${esc(u.desc)}</span></div>
       <div class="dots">${Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</div>
-      <button class="small" type="button" data-u="${id}" ${maxed || SAVE.gems < cost ? 'disabled' : ''}>${maxed ? 'Máximo' : `Mejorar · ${cost} gemas`}</button></div>`;
+      <button class="small" type="button" data-u="${id}" ${maxed || SAVE.gems < cost ? 'disabled' : ''}>${maxed ? tr('Máximo') : tr`Mejorar · ${cost} gemas`}</button></div>`;
   }).join('');
-  $('upgList').insertAdjacentHTML('afterbegin', '<p class="hint">Las mejoras, el compañero y el arma inicial que compres valen solo para la próxima partida. Las gemas se guardan siempre. Las mejoras con el nombre de la clase cambian según el personaje que elijas; si cambias de personaje se te devuelven.</p>');
+  $('upgList').insertAdjacentHTML('afterbegin', tr('<p class="hint">Las mejoras, el compañero y el arma inicial que compres valen solo para la próxima partida. Las gemas se guardan siempre. Las mejoras con el nombre de la clase cambian según el personaje que elijas; si cambias de personaje se te devuelven.</p>'));
   $('upgList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.u, u = UPG[id], lv = SAVE.upg[id] || 0;
     if (lv >= u.max || SAVE.gems < u.cost[lv]) return;
     SAVE.gems -= u.cost[lv]; SAVE.upg[id] = lv + 1; writeSave(); renderMenu();
   }));
-  const extra = SAVE.best ? ` Récord: piso ${SAVE.best}${SAVE.wins ? ` · ${SAVE.wins} victorias` : ''}.` : '';
-  $('gemCount').textContent = `${SAVE.gems} gemas.${extra}`;
+  const extra = SAVE.best ? tr` Récord: piso ${SAVE.best}${SAVE.wins ? tr` · ${SAVE.wins} victorias` : ''}.` : '';
+  $('gemCount').textContent = tr`${SAVE.gems} gemas.${extra}`;
 }
 function renderOpts(id) {
   const o = SAVE.opt;
-  $(id).innerHTML = `<label>Música <input type="range" min="0" max="1" step=".05" value="${o.music}" data-o="music"></label>
+  $(id).innerHTML = tr`<label>Música <input type="range" min="0" max="1" step=".05" value="${o.music}" data-o="music"></label>
     <label>Efectos <input type="range" min="0" max="1" step=".05" value="${o.sfx}" data-o="sfx"></label>
     <label><input type="checkbox" data-o="shake" ${o.shake < 1 ? 'checked' : ''}> Reducir la sacudida de pantalla</label>
     <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
-    <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
+    <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`
+    // el idioma no se traduce: se ve igual en todos para poder encontrarlo
+    + `<label>Idioma · Language <select data-o="idioma">${Object.entries(IDIOMAS).map(([k, n]) => `<option value="${k}" ${k === IDIOMA ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
+    if (inp.dataset.o === 'idioma') { setIdioma(inp.value); return; }
     if (inp.tagName === 'SELECT') { o.gfx = inp.value; setQL(QL0); setSlowT(0); resize(); }
     else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
@@ -140,7 +144,7 @@ function setPause(v) {
   if (v) {
     renderOpts('pauseOpts');
     $('pauseSyn').innerHTML = G.syn && G.syn.size ? SYNERGIES.filter(S => G.syn.has(S.id)).map(S => `<span class="hint" style="color:${S.c}">◆ ${esc(S.n)}: ${esc(S.d)}</span>`).join('<br>') : '';
-    $('pauseInfo').textContent = `Piso ${G.floor} · ${FLOORS[G.fi].name} · ${CHARS[G.player.char].name} · ${D().name}`;
+    $('pauseInfo').textContent = tr`Piso ${G.floor} · ${FLOORS[G.fi].name} · ${CHARS[G.player.char].name} · ${D().name}`;
     $('pauseRelics').innerHTML = relicChips(G.player.relics);
     $('btnResume').focus();
   }
@@ -178,7 +182,7 @@ $('btnContinue').addEventListener('click', () => {
   if (touch.on) $('touch').hidden = false;
   setDAILY(SAVE.run.daily ? dailyInfo(SAVE.run.daily) : null);
   // si la partida guardada no se puede reanudar, se descarta sin tocar las gemas ni el progreso
-  try { resumeRun(SAVE.run); } catch (err) { console.warn('Partida guardada incompatible, se descarta', err); SAVE.run = null; writeSave(); if (G) { G.keepRun = true; G.gemsBanked = true; } toMenu(); }
+  try { resumeRun(SAVE.run); } catch (err) { console.warn(tr('Partida guardada incompatible, se descarta'), err); SAVE.run = null; writeSave(); if (G) { G.keepRun = true; G.gemsBanked = true; } toMenu(); }
 });
 $('btnNoteClose').addEventListener('click', closeNote);
 $('btnEpiClose').addEventListener('click', closeEpilogue);

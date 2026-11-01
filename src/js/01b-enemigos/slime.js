@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { TAU, angTo, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -6,7 +7,7 @@ import { enemyShoot, flankPoint, leadAng, takeToken, telegraph } from '../14-ene
 defEnemy('slime', {
   orden: 1,
   stats: { hp: 5, r: 13, speed: 75, dmg: 1, spr: 'slime', s: 2 },
-  bestiario: { n: 'Limo', d: 'Se encoge y salta hacia donde vas a estar.' },
+  bestiario: { n: tr('Limo'), d: tr('Se encoge y salta hacia donde vas a estar.') },
   sprite: {
     clave: 'slime',
     mapa: ['....kkkk....', '...kghggk...', '..kghggggk..', '.kggggggggk.', '.kggeggeggk.', '.kggeggeggk.', 'kggggggggggk', 'kggggggggggk', '.kkkkkkkkkk.'],

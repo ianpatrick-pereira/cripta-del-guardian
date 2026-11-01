@@ -64,7 +64,7 @@ const probarArma = ([id, ch, blanco]) => {
   let info = null;
   if (!solo || solo === 'clases') for (const ch of CLASES) for (let piso = 1; piso <= 8; piso++) for (let s = 1; s <= N; s++) tareas.push({ tipo: 'clase', ch, piso, seed: 1000 * piso + 37 * s + ch.length });
   const abrir = async seed => {
-    const ctx = await nav.newContext({ viewport: { width: 1000, height: 700 } }), pg = await ctx.newPage();
+    const ctx = await nav.newContext({ viewport: { width: 1000, height: 700 }, locale: 'es-ES' }), pg = await ctx.newPage();
     await pg.addInitScript(preparar, { seed, save: SAVE_BASE });
     await pg.goto(JUEGO); await pg.evaluate(BOT); await pg.evaluate(() => window.__frame()); await pg.click('#btnStart');
     return { ctx, pg };

@@ -1,6 +1,6 @@
 // Pruebas automáticas de Cripta del Guardián.
 // Uso:  node juego/pruebas/probar.js               ejecuta todas las pruebas
-//       node juego/pruebas/probar.js clases         solo un grupo (clases, armas, salas, guardado, finales)
+//       node juego/pruebas/probar.js clases         solo un grupo (clases, idioma, armas, salas, guardado, finales)
 //       node juego/pruebas/probar.js --referencia   guarda los resultados actuales como referencia
 // Un bot juega solo con azar repetible (misma semilla = misma partida). Cada prueba falla si hay
 // errores de JavaScript, valores imposibles (NaN) o salas que no se pueden terminar. Además compara
@@ -61,7 +61,7 @@ window.__simR = (n, o = {}) => { const T = window.__cripta; T.bot(o); for (let i
 const CLASES = ['knight', 'archer', 'rogue'], NOMBRE = { knight: 'Caballero', archer: 'Tirador', rogue: 'Asesino' };
 const escenarios = [];
 // 1) cada clase en cada piso: despeja las salas de combate, la del subjefe y la del jefe
-for (const ch of CLASES) for (let piso = 1; piso <= 8; piso++) escenarios.push({ grupo: 'clases', id: `${NOMBRE[ch]} · piso ${piso}`, seed: piso * 31 + ch.length, run: async pg => pg.evaluate(([ch, piso]) => {
+const casoClase = (ch, piso) => ({ grupo: 'clases', id: `${NOMBRE[ch]} · piso ${piso}`, seed: piso * 31 + ch.length, run: async pg => pg.evaluate(([ch, piso]) => {
   const T = window.__cripta; T.run(ch); const G = T.state(); T.floor(piso); const p = G.player; T.sim(2);
   // equipo acorde al piso (el bot no recoge botín): estrellas que suben con el piso y,
   // desde el piso 3, fuego despierto en el arma para probar también la habilidad R
@@ -90,6 +90,16 @@ for (const ch of CLASES) for (let piso = 1; piso <= 8; piso++) escenarios.push({
   }
   return { fallos, huella: [salas.length, G.kills, rematados, Math.round(G.time), hits, G.coins, p.slots.map(w => w.id + w.stars)], info: `${salas.length} salas + jefe · ${G.kills} bajas (${rematados} rematados) · ${Math.round(G.time)} s · ${hits} golpes recibidos` };
 }, [ch, piso]) });
+for (const ch of CLASES) for (let piso = 1; piso <= 8; piso++) escenarios.push(casoClase(ch, piso));
+// 1b) la misma partida con el juego en inglés: tiene que jugar exactamente igual (el idioma solo cambia los textos)
+{
+  const c = casoClase('knight', 3), run = c.run;
+  escenarios.push({ ...c, grupo: 'idioma', id: 'en inglés juega igual (Caballero · piso 3)', refDe: c.id, locale: 'en-US', run: async pg => {
+    const boton = await pg.textContent('#btnStart'), r = await run(pg);
+    if (/Entrar a la cripta/.test(boton)) r.fallos.push(`la página sigue en español: «${boton}»`);
+    return r;
+  } });
+}
 // 2) cada arma a 1★, 3★ y 5★: ataque normal y cargado contra enemigos
 escenarios.push({ grupo: 'armas', id: 'las armas a 1★, 3★ y 5★', seed: 777, run: async pg => pg.evaluate(() => {
   const T = window.__cripta; T.run('knight'); const G = T.state(); T.sim(2); const p = G.player, fallos = [], huella = [], cx = p.x, cy = p.y;
@@ -181,7 +191,7 @@ if (require.main === module) (async () => {
   const trabajador = async () => {
     while (siguiente < lista.length) {
       const i = siguiente++, e = lista[i];
-      const ctx = await browser.newContext({ viewport: { width: 1000, height: 700 } }), pg = await ctx.newPage(), errores = [];
+      const ctx = await browser.newContext({ viewport: { width: 1000, height: 700 }, locale: e.locale || 'es-ES' }), pg = await ctx.newPage(), errores = [];
       pg.on('pageerror', err => errores.push(errorCorto(err)));
       await pg.addInitScript(preparar, { seed: e.seed, save: e.save === undefined ? SAVE_BASE : e.save });
       let r;
@@ -193,8 +203,9 @@ if (require.main === module) (async () => {
       await ctx.close();
       for (const m of errores) r.fallos.push('error de JavaScript: ' + m);
       const h = r.huella ? crypto.createHash('md5').update(JSON.stringify(r.huella)).digest('hex').slice(0, 12) : null;
-      resultados[i] = { e, r, h, cambio: ref[e.id] && h && ref[e.id] !== h };
-      if (guardarRef && h) nueva[e.id] = h;
+      const id = e.refDe || e.id;   // refDe: se compara con la referencia de otra prueba
+      resultados[i] = { e, r, h, cambio: ref[id] && h && ref[id] !== h };
+      if (guardarRef && h && !e.refDe) nueva[e.id] = h;
       process.stdout.write(r.fallos.length ? '✗' : '·');
     }
   };

@@ -1,4 +1,5 @@
 // ================= Jugador =================
+import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { TAU, angDiff, angTo, dist, rand } from './01-utilidades.js';
 import { ROOM_OBJ } from './01a-registro.js';
@@ -104,7 +105,7 @@ function updatePlayer(dt) {
       p.burnTick = 1.1;
       if (p.sh > 0) p.sh--; else p.hp--;
       p.shT = 0; G.hurtFlash = .2; addText(p.x, p.y - 22, 1, '#ff6a3a', 12); sfx(160, .08, 'sawtooth', .03, -40);
-      if (p.hp <= 0) { p.hp = 0; G.hitBy = 'las quemaduras'; endGame(false); }
+      if (p.hp <= 0) { p.hp = 0; G.hitBy = tr('las quemaduras'); endGame(false); }
     }
   }
 
@@ -139,7 +140,7 @@ function updatePlayer(dt) {
   G.interact = it;
   const bu = $('bUse');
   if (touch.on) bu.hidden = !it;
-  if (it) bu.textContent = { chest: 'ABRIR', shop: 'COMPRAR', portal: 'BAJAR', altar: 'ELEGIR', note: 'LEER', totem: 'LUCHAR', armor: 'EQUIPAR', prisoner: 'LIBERAR', merc: 'LIBERAR', lever: 'PALANCA', gamble: 'APOSTAR', mirror: 'TOCAR', exit: 'SALIR', cursed: 'PACTO', trial: 'ACEPTAR', forge: 'FORJA' }[it.kind] || 'TOMAR';
+  if (it) bu.textContent = { chest: tr('ABRIR'), shop: tr('COMPRAR'), portal: tr('BAJAR'), altar: tr('ELEGIR'), note: tr('LEER'), totem: tr('LUCHAR'), armor: tr('EQUIPAR'), prisoner: tr('LIBERAR'), merc: tr('LIBERAR'), lever: tr('PALANCA'), gamble: tr('APOSTAR'), mirror: tr('TOCAR'), exit: tr('SALIR'), cursed: tr('PACTO'), trial: tr('ACEPTAR'), forge: tr('FORJA') }[it.kind] || tr('TOMAR');
   if (wantUse && it) interact(p, it);
   setWantUse(false);
 
@@ -178,7 +179,7 @@ function attack(p) {
     let dmg = w.dmg;
     if (p.en < cost) {
       dmg = Math.max(1, Math.floor(w.dmg / 2));
-      if (p.noEnT <= 0) { addText(p.x, p.y - 26, 'Agotado: daño a la mitad', '#5aa4e8', 12); p.noEnT = 1.5; }
+      if (p.noEnT <= 0) { addText(p.x, p.y - 26, tr('Agotado: daño a la mitad'), '#5aa4e8', 12); p.noEnT = 1.5; }
     } else p.en -= cost;
     p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
     sfx(w.shape === 'hammer' ? 120 : 180, .07, 'sawtooth', .025, -80);
@@ -190,7 +191,7 @@ function attack(p) {
       if (syn('viento')) G.proj[G.proj.length - 1].r = 18;
     }
   } else {
-    if (p.en < cost) { p.cd = .25; if (p.noEnT <= 0) { addText(p.x, p.y - 26, `Sin energía (necesitas ${cost})`, '#5aa4e8', 12); p.noEnT = 1.2; sfx(120, .08, 'square', .03); } return; }
+    if (p.en < cost) { p.cd = .25; if (p.noEnT <= 0) { addText(p.x, p.y - 26, tr`Sin energía (necesitas ${cost})`, '#5aa4e8', 12); p.noEnT = 1.2; sfx(120, .08, 'square', .03); } return; }
     p.en -= cost;
     const n = w.shots + (w.type === 'bow' ? rc('carcaj') + (syn('lluvia') ? 1 : 0) + (tl('carcaj2') ? 1 : 0) : 0), spread = .17;
     for (let i = 0; i < n; i++) shootPlayer(p, w, p.aim + (i - (n - 1) / 2) * spread + rand(-.025, .025), w.dmg);
@@ -230,12 +231,12 @@ function reflect(pr, a, dmg) {
   const sp = Math.max(260, Math.hypot(pr.vx, pr.vy) * 1.4);
   pr.owner = 'player'; pr.vx = Math.cos(a) * sp; pr.vy = Math.sin(a) * sp;
   pr.dmg = dmg; pr.hit = new Set(); pr.pierce = 0; pr.color = '#ffd27a'; pr.life = 2; pr.kind = 'orb'; pr.slowFx = false;
-  addText(pr.x, pr.y - 8, '¡Desviado!', '#ffd27a', 11);
+  addText(pr.x, pr.y - 8, tr('¡Desviado!'), '#ffd27a', 11);
   sfx(1200, .05, 'square', .02);
 }
 function chargedAttack(p) {
   const w = p.slots[p.cur], cost = w.chgEn || 10;
-  if (p.en < cost) { addText(p.x, p.y - 26, `Carga: necesitas ${cost} de energía`, '#5aa4e8', 12); sfx(120, .08, 'square', .03); return; }
+  if (p.en < cost) { addText(p.x, p.y - 26, tr`Carga: necesitas ${cost} de energía`, '#5aa4e8', 12); sfx(120, .08, 'square', .03); return; }
   p.en -= cost;
   p.cd = Math.max(p.cd, .3);
   const a = p.aim, S = w.stars || 1, M = w.chgMul || 1, col = RARITY[w.rarity].c;

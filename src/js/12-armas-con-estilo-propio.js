@@ -1,6 +1,7 @@
 // ================= Armas con estilo propio =================
 // cada una ataca a su manera, tiene su mejora de forja propia y su ataque elemental
 // el texto, la mejora de forja y los ataques de cada arma con estilo viven en su archivo de 01c-armas/
+import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angDiff, angTo, dist, rand } from './01-utilidades.js';
 import { WEAPON_DEFS, weaponList } from './01a-registro.js';
@@ -17,9 +18,9 @@ import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
-const EL_PROC = { fire: 'quema y estalla', water: 'empapa y frena', air: 'empuja lejos', earth: 'aturde' };
+const EL_PROC = { fire: tr('quema y estalla'), water: tr('empapa y frena'), air: tr('empuja lejos'), earth: tr('aturde') };
 const elAbName = w => w.style ? STYLE[w.style].el[w.el] : ELEMS[w.el].ab;
-const elAbDesc = w => w.style ? `Su ataque cargado en su forma de 5★ y, durante unos segundos, cada golpe ${EL_PROC[w.el]}.` : ELEMS[w.el].abd;
+const elAbDesc = w => w.style ? tr`Su ataque cargado en su forma de 5★ y, durante unos segundos, cada golpe ${EL_PROC[w.el]}.` : ELEMS[w.el].abd;
 const espLv = w => (w.up && w.up.esp) || 0;
 const thrownOut = kind => G.proj.filter(pr => pr.main === kind && pr.life > 0).length;
 function throwIt(p, w, kind, a, dmg, o = {}) {
@@ -51,7 +52,7 @@ function updateThrown(pr, dt) {
     const a = angTo(pr, p); pr.vx = Math.cos(a) * pr.backSp; pr.vy = Math.sin(a) * pr.backSp; pr.ghost = true;
     if (dist(pr, p) < p.r + 14) {
       pr.life = 0;
-      if (pr.main === 'boomer') { p.cd = Math.min(p.cd, .05); p.en = Math.min(maxEnergy(p), p.en + 1); addText(p.x, p.y - 26, 'Atrapado', '#ece4cf', 10); sfx(900, .05, 'triangle', .02); }
+      if (pr.main === 'boomer') { p.cd = Math.min(p.cd, .05); p.en = Math.min(maxEnergy(p), p.en + 1); addText(p.x, p.y - 26, tr('Atrapado'), '#ece4cf', 10); sfx(900, .05, 'triangle', .02); }
     }
   }
   if (pr.t > 7) pr.life = 0;
@@ -141,7 +142,7 @@ function styleAttack(p, w, cost) {
   const a = p.aim, melee = w.type === 'melee';
   let dmg = w.dmg;
   if (p.en < cost) {
-    if (!melee) { p.cd = .25; if (p.noEnT <= 0) { addText(p.x, p.y - 26, `Sin energía (necesitas ${cost})`, '#5aa4e8', 12); p.noEnT = 1.2; sfx(120, .08, 'square', .03); } return; }
+    if (!melee) { p.cd = .25; if (p.noEnT <= 0) { addText(p.x, p.y - 26, tr`Sin energía (necesitas ${cost})`, '#5aa4e8', 12); p.noEnT = 1.2; sfx(120, .08, 'square', .03); } return; }
     dmg = Math.max(1, Math.floor(dmg / 2));
   } else if (!STYLE[w.style].cobraAlLanzar) p.en -= cost;
   STYLE[w.style].ataque(p, w, { a, dmg, cost });

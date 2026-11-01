@@ -1,4 +1,5 @@
 // Escudo de púas
+import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -8,13 +9,13 @@ import { meleeHit } from '../11-jugador.js';
 import { shieldBash } from '../12-armas-con-estilo-propio.js';
 defWeapon('spiked', {
   orden: 37,
-  datos: { name: 'Escudo de púas', type: 'melee', style: 'shield', shape: 'shield', rarity: 'uncommon', dmg: 3, cd: .42, range: 48, arc: 1.6, en: 1, chg: 'bash', chgEn: 12 },
+  datos: { name: tr('Escudo de púas'), type: 'melee', style: 'shield', shape: 'shield', rarity: 'uncommon', dmg: 3, cd: .42, range: 48, arc: 1.6, en: 1, chg: 'bash', chgEn: 12 },
   familia: 'knight',
   potencia: .85,
   estilo: {
-    d: 'mientras atacas bloquea las balas de frente',
-    esp: { n: 'Placas', d: 'bloquea en un ángulo mayor; al nivel 3 devuelve las balas' },
-    el: { fire: 'Égida volcánica', water: 'Escudo de marea', air: 'Baluarte de viento', earth: 'Muralla de piedra' },
+    d: tr('mientras atacas bloquea las balas de frente'),
+    esp: { n: tr('Placas'), d: tr('bloquea en un ángulo mayor; al nivel 3 devuelve las balas') },
+    el: { fire: tr('Égida volcánica'), water: tr('Escudo de marea'), air: tr('Baluarte de viento'), earth: tr('Muralla de piedra') },
     // ataque normal
     ataque(p, w, { a, dmg }) {
       p.swing = { t: 0, dur: .14, a, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };

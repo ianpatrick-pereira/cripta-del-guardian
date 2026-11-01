@@ -9,5 +9,5 @@
     "noEmit": true,
     "strict": false
   },
-  "include": ["src/js/**/*.js", "src/datos/*.d.ts", "src/tipos/*.d.ts"]
+  "include": ["src/js/**/*.js", "src/datos/*.d.ts", "src/tipos/*.d.ts", "src/textos/*.d.ts"]
 }

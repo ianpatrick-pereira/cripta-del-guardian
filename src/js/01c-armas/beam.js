@@ -1,4 +1,5 @@
 // Rayo sostenido
+import { tr } from '../00b-textos.js';
 import { rand } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -7,14 +8,14 @@ import { shake } from '../09-efectos.js';
 import { beamHit, beamLen, espLv } from '../12-armas-con-estilo-propio.js';
 defWeapon('beam', {
   orden: 41,
-  datos: { name: 'Rayo sostenido', type: 'staff', style: 'beam', shape: 'rod', gem: '#ff6ad8', rarity: 'epic', dmg: 2, cd: .2, speed: 0, pierce: 0, shots: 1, en: 1, chg: 'ray', chgEn: 25 },
+  datos: { name: tr('Rayo sostenido'), type: 'staff', style: 'beam', shape: 'rod', gem: '#ff6ad8', rarity: 'epic', dmg: 2, cd: .2, speed: 0, pierce: 0, shots: 1, en: 1, chg: 'ray', chgEn: 25 },
   // sin familia: neutral para todas las clases
   familia: null,
   potencia: 1.2,
   estilo: {
-    d: 'haz continuo que gasta energía mientras lo mantienes',
-    esp: { n: 'Lente', d: '+15 % de alcance y un haz más ancho' },
-    el: { fire: 'Rayo solar', water: 'Rayo abisal', air: 'Rayo de tormenta', earth: 'Rayo telúrico' },
+    d: tr('haz continuo que gasta energía mientras lo mantienes'),
+    esp: { n: tr('Lente'), d: tr('+15 % de alcance y un haz más ancho') },
+    el: { fire: tr('Rayo solar'), water: tr('Rayo abisal'), air: tr('Rayo de tormenta'), earth: tr('Rayo telúrico') },
     // ataque normal
     ataque(p, w, { a, dmg }) {
       const len = beamLen(p, a, 320 * (1 + .15 * espLv(w))), wd = 10 + 3 * espLv(w);

@@ -1,4 +1,5 @@
 // Sala espejo
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { defRoom } from '../01a-registro.js';
 import { drawSpr } from '../02-pixel-art.js';
@@ -27,7 +28,7 @@ defRoom('mirror', {
     else { drawSpr(G.player.spr, it.x, it.y - 14, 1.6, { flip: true, alpha: .35 + .15 * Math.sin(G.time * 3) }); }
   },
   aviso(it, key) {
-    return [key + 'Tocar el espejo', 'Pelea contra tu reflejo: gana una copia de tu arma con +1★', '#c77dff'];
+    return [key + tr('Tocar el espejo'), tr('Pelea contra tu reflejo: gana una copia de tu arma con +1★'), '#c77dff'];
   }
 });
 
@@ -41,13 +42,13 @@ function touchMirror(it) {
   e.hp = e.max = Math.round(e.max * 5); e.shield = Math.round(e.max * .3); e.dmg += 1;
   G.enemies.push(e);
   r.type = 'combat'; r.cleared = false; r.locked = true; r.wave = r.waves = 1;
-  showBanner('Tu reflejo', '#c77dff', 'Vence a tu reflejo y obtén una copia mejorada de tu arma');
+  showBanner(tr('Tu reflejo'), '#c77dff', tr('Vence a tu reflejo y obtén una copia mejorada de tu arma'));
   shake(8); sfx(300, .6, 'sine', .06, -200); burst(it.x, it.y, '#c77dff', 30, 220);
 }
 function mirrorDefeated(e) {
   const st = Math.min(5, e.mw.stars + 1);
   G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: mkW(e.mw.id, st), bob: 0 });
-  showBanner('El reflejo se rompe', '#c77dff', `Copia de tu arma a ${st}★`);
+  showBanner(tr('El reflejo se rompe'), '#c77dff', tr`Copia de tu arma a ${st}★`);
 }
 
 export { mirrorDefeated };
