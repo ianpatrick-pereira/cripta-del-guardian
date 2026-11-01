@@ -1,0 +1,334 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Botín de enemigos, cajas y cofres",
+  "type": "object",
+  "properties": {
+    "rarezaArmas": {
+      "type": "object",
+      "properties": {
+        "common": {
+          "type": "number",
+          "minimum": 0,
+          "description": "peso de common"
+        },
+        "uncommon": {
+          "type": "number",
+          "minimum": 0,
+          "description": "peso de uncommon"
+        },
+        "rare": {
+          "type": "number",
+          "minimum": 0,
+          "description": "peso de rare"
+        },
+        "epic": {
+          "type": "number",
+          "minimum": 0,
+          "description": "peso de epic"
+        }
+      },
+      "required": [
+        "common",
+        "uncommon",
+        "rare",
+        "epic"
+      ],
+      "additionalProperties": false,
+      "description": "peso de cada rareza al sortear un arma"
+    },
+    "estrellas": {
+      "type": "object",
+      "properties": {
+        "enemigo": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 5,
+          "maxItems": 5,
+          "description": "peso de 1★, 2★, 3★, 4★ y 5★"
+        },
+        "cofre": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 5,
+          "maxItems": 5,
+          "description": "peso de 1★, 2★, 3★, 4★ y 5★"
+        },
+        "cofreDorado": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 5,
+          "maxItems": 5,
+          "description": "peso de 1★, 2★, 3★, 4★ y 5★"
+        },
+        "tienda": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 5,
+          "maxItems": 5,
+          "description": "peso de 1★, 2★, 3★, 4★ y 5★"
+        }
+      },
+      "required": [
+        "enemigo",
+        "cofre",
+        "cofreDorado",
+        "tienda"
+      ],
+      "additionalProperties": false,
+      "description": "peso de cada número de estrellas según de dónde sale"
+    },
+    "enemigo": {
+      "type": "object",
+      "properties": {
+        "monedas": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[mínimo, máximo] al azar"
+        },
+        "monedasElite": {
+          "type": "number",
+          "minimum": 0,
+          "description": "monedas extra si es élite"
+        },
+        "energia": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de energía"
+        },
+        "pocion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de poción"
+        },
+        "arma": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de arma"
+        }
+      },
+      "required": [
+        "monedas",
+        "monedasElite",
+        "energia",
+        "pocion",
+        "arma"
+      ],
+      "additionalProperties": false,
+      "description": "al morir un enemigo normal"
+    },
+    "elite": {
+      "type": "object",
+      "properties": {
+        "gema": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de gema"
+        },
+        "llave": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de llave"
+        }
+      },
+      "required": [
+        "gema",
+        "llave"
+      ],
+      "additionalProperties": false,
+      "description": "extra si era élite"
+    },
+    "caja": {
+      "type": "object",
+      "properties": {
+        "monedas": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de monedas"
+        },
+        "cuantasMonedas": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[mínimo, máximo] al azar"
+        },
+        "energia": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de energía"
+        },
+        "pocion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de poción"
+        },
+        "llave": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de llave"
+        }
+      },
+      "required": [
+        "monedas",
+        "cuantasMonedas",
+        "energia",
+        "pocion",
+        "llave"
+      ],
+      "additionalProperties": false,
+      "description": "al romper una caja"
+    },
+    "salaDespejada": {
+      "type": "object",
+      "properties": {
+        "cofreDorado": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de cofre dorado"
+        },
+        "cofre": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de cofre"
+        }
+      },
+      "required": [
+        "cofreDorado",
+        "cofre"
+      ],
+      "additionalProperties": false,
+      "description": "al despejar una sala de combate"
+    },
+    "cofre": {
+      "type": "object",
+      "properties": {
+        "monedas": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "[mínimo, máximo] al azar"
+        },
+        "pocion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de poción"
+        },
+        "armadura": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de armadura"
+        }
+      },
+      "required": [
+        "monedas",
+        "pocion",
+        "armadura"
+      ],
+      "additionalProperties": false,
+      "description": "al abrir un cofre"
+    },
+    "cofreDorado": {
+      "type": "object",
+      "properties": {
+        "armadura": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de armadura"
+        }
+      },
+      "required": [
+        "armadura"
+      ],
+      "additionalProperties": false,
+      "description": "el cofre dorado (necesita llave)"
+    },
+    "jefe": {
+      "type": "object",
+      "properties": {
+        "monedas": {
+          "type": "number",
+          "minimum": 0,
+          "description": "monedas"
+        },
+        "armadura": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de armadura"
+        }
+      },
+      "required": [
+        "monedas",
+        "armadura"
+      ],
+      "additionalProperties": false,
+      "description": "al vencer a un jefe"
+    },
+    "subjefe": {
+      "type": "object",
+      "properties": {
+        "monedas": {
+          "type": "number",
+          "minimum": 0,
+          "description": "monedas"
+        }
+      },
+      "required": [
+        "monedas"
+      ],
+      "additionalProperties": false,
+      "description": "al vencer a un subjefe"
+    }
+  },
+  "required": [
+    "rarezaArmas",
+    "estrellas",
+    "enemigo",
+    "elite",
+    "caja",
+    "salaDespejada",
+    "cofre",
+    "cofreDorado",
+    "jefe",
+    "subjefe"
+  ],
+  "additionalProperties": false
+}

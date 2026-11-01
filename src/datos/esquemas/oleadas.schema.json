@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Oleadas de las salas de combate",
+  "type": "object",
+  "properties": {
+    "oleadasPorSala": {
+      "type": "object",
+      "properties": {
+        "normal": {
+          "type": "number",
+          "minimum": 1,
+          "description": "oleadas de una sala normal"
+        },
+        "dificil": {
+          "type": "number",
+          "minimum": 1,
+          "description": "oleadas de una sala difícil"
+        },
+        "profundidadDificil": {
+          "type": "number",
+          "minimum": 0,
+          "description": "desde esta profundidad la sala es difícil"
+        }
+      },
+      "required": [
+        "normal",
+        "dificil",
+        "profundidadDificil"
+      ],
+      "additionalProperties": false,
+      "description": "cuántas oleadas tiene cada sala de combate"
+    },
+    "profundidadLejos": {
+      "type": "number",
+      "minimum": 0,
+      "description": "las salas con profundidad menor usan enemigosCerca; las demás, enemigosLejos"
+    },
+    "enemigos": {
+      "type": "object",
+      "properties": {
+        "base": {
+          "type": "number",
+          "minimum": 0,
+          "description": "base"
+        },
+        "porProfundidad": {
+          "type": "number",
+          "minimum": 0,
+          "description": "porProfundidad"
+        },
+        "profundidadMaxima": {
+          "type": "number",
+          "minimum": 0,
+          "description": "profundidadMaxima"
+        },
+        "porOleada": {
+          "type": "number",
+          "minimum": 0,
+          "description": "porOleada"
+        },
+        "porPiso": {
+          "type": "number",
+          "minimum": 0,
+          "description": "porPiso"
+        },
+        "minimo": {
+          "type": "number",
+          "minimum": 0,
+          "description": "minimo"
+        }
+      },
+      "required": [
+        "base",
+        "porProfundidad",
+        "profundidadMaxima",
+        "porOleada",
+        "porPiso",
+        "minimo"
+      ],
+      "additionalProperties": false,
+      "description": "enemigos de cada oleada = base + porProfundidad × profundidad + porOleada × oleada + porPiso × (piso − 1)"
+    },
+    "pisosDuros": {
+      "type": "object",
+      "properties": {
+        "desdePiso": {
+          "type": "number",
+          "minimum": 1,
+          "description": "desde este piso"
+        },
+        "factorCantidad": {
+          "type": "number",
+          "minimum": 0,
+          "description": "multiplica cuántos enemigos salen"
+        },
+        "factorVida": {
+          "type": "number",
+          "minimum": 0,
+          "description": "multiplica su vida"
+        }
+      },
+      "required": [
+        "desdePiso",
+        "factorCantidad",
+        "factorVida"
+      ],
+      "additionalProperties": false,
+      "description": "pisos con menos enemigos pero con más vida"
+    }
+  },
+  "required": [
+    "oleadasPorSala",
+    "profundidadLejos",
+    "enemigos",
+    "pisosDuros"
+  ],
+  "additionalProperties": false
+}

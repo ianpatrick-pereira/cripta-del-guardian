@@ -10,7 +10,9 @@
 //   ia(e, c)   su comportamiento cada fotograma (o el id de otro enemigo para copiar el suyo)
 //   forma(e, f), debajo(e, la), encima(e, la, white)   ajustes y detalles de dibujo
 //   alRecibir(e, daño, ang, o) → daño,  alMorir(e),  sinEmpuje
+/** @type {Record<string, import('../tipos/contenido').DefEnemigo>} */
 const ENEMIES = {};
+/** @param {string} id @param {import('../tipos/contenido').DefEnemigo} def */
 function defEnemy(id, def) { ENEMIES[id] = def; }
 const enemyList = () => Object.keys(ENEMIES).sort((a, b) => ENEMIES[a].orden - ENEMIES[b].orden);
 
@@ -24,7 +26,9 @@ const enemyList = () => Object.keys(ENEMIES).sort((a, b) => ENEMIES[a].orden - E
 //   potencia   corrección de daño para armas que golpean varias veces o en área (1 = normal)
 //   estilo     solo armas con estilo propio: d (texto), esp (mejora de forja), el (nombres elementales),
 //              ataque(p, w, { a, dmg, cost }) y cargado(p, w, { a, S, dm, col }) con S = estrellas
+/** @type {Record<string, import('../tipos/contenido').DefArma>} */
 const WEAPON_DEFS = {};
+/** @param {string} id @param {import('../tipos/contenido').DefArma} def */
 function defWeapon(id, def) { WEAPON_DEFS[id] = def; }
 const weaponList = () => Object.keys(WEAPON_DEFS).sort((a, b) => WEAPON_DEFS[a].orden - WEAPON_DEFS[b].orden);
 
@@ -38,7 +42,9 @@ const weaponList = () => Object.keys(WEAPON_DEFS).sort((a, b) => WEAPON_DEFS[a].
 //   dibujar(it, b)   cómo se dibuja el objeto (b = pequeño balanceo)
 //   aviso(it, key)   → [línea 1, línea 2, color] del cartel al acercarse
 //   actualizar(dt)   opcional: lógica de cada fotograma
+/** @type {Record<string, import('../tipos/contenido').DefSala>} */
 const ROOM_DEFS = {}, ROOM_OBJ = {};
+/** @param {string} id @param {import('../tipos/contenido').DefSala} def */
 function defRoom(id, def) { ROOM_DEFS[id] = def; ROOM_OBJ[def.objeto] = def; }
 const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden - ROOM_DEFS[b].orden);
 
@@ -51,7 +57,9 @@ const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden 
 //              p1, p2, p3: ataques que elige en cada fase (cada uno es un archivo de 01g-ataques-de-jefe/)
 //   logro      opcional: logro que se gana al derrotarlo
 //   aspecto(g, e, fill, ph2)   su dibujo, si no reutiliza el de otro con look
+/** @type {Record<string, import('../tipos/contenido').DefJefe>} */
 const BOSS_DEFS = {};
+/** @param {string} id @param {import('../tipos/contenido').DefJefe} def */
 function defBoss(id, def) { BOSS_DEFS[id] = def; }
 const bossList = () => Object.keys(BOSS_DEFS).sort((a, b) => BOSS_DEFS[a].orden - BOSS_DEFS[b].orden);
 
@@ -60,7 +68,9 @@ const bossList = () => Object.keys(BOSS_DEFS).sort((a, b) => BOSS_DEFS[a].orden 
 //   datos      name, spr y s (sprite y escala), r, hp, speed, tint, minion, want, pc (color de balas),
 //              p1, p2: ataques de cada fase (cada uno es un archivo de 01h-ataques-de-subjefe/)
 //   forma(e, f), encima(e, lift, p), alMorir(e), rompeAlCaminar   ajustes opcionales
+/** @type {Record<string, import('../tipos/contenido').DefSubjefe>} */
 const SUB_DEFS = {};
+/** @param {string} id @param {import('../tipos/contenido').DefSubjefe} def */
 function defSub(id, def) { SUB_DEFS[id] = def; }
 
 // Cada ataque de jefe o subjefe vive en su archivo (01g-ataques-de-jefe/, 01h-ataques-de-subjefe/).
@@ -70,8 +80,11 @@ function defSub(id, def) { SUB_DEFS[id] = def; }
 //                     del jefe (B, bcol) o del subjefe (S, move)
 //   aviso(e)          opcional: dibuja el aviso (línea roja, mira...) antes que el jefe
 // En vez de un objeto se puede dar el id de otro ataque para copiar el suyo.
+/** @type {Record<string, import('../tipos/contenido').DefAtaque>} */
 const BOSS_MOVES = {}, SUB_MOVES = {};
+/** @param {string} id @param {import('../tipos/contenido').DefAtaque | string} def  (o el id de otro ataque para copiarlo) */
 function defBossMove(id, def) { BOSS_MOVES[id] = typeof def === 'string' ? BOSS_MOVES[def] : def; }
+/** @param {string} id @param {import('../tipos/contenido').DefAtaque | string} def */
 function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOVES[def] : def; }
 
 export { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_DEFS, ROOM_OBJ, SUB_DEFS, SUB_MOVES, WEAPON_DEFS, bossList,

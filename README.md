@@ -9,6 +9,7 @@ npm install          # solo la primera vez (instala Playwright y las herramienta
 npx playwright install chromium
 npm run dev          # servidor de desarrollo: http://localhost:8000, se recarga solo al guardar
 npm run build        # une src/ en cripta.html
+npm run tipos        # revisión de tipos con TypeScript (menos de 1 segundo)
 npm test             # 32 pruebas automáticas (~1 minuto)
 ```
 
@@ -23,6 +24,7 @@ Desde la v0.32 cada jefe, subjefe y ataque de jefe también es un archivo propio
 Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/datos/`: se diseñan sin tocar código.
 Desde la v0.34 también la decoración de cada piso y los dos finales; y hay herramientas para medir el balance y el rendimiento.
 Desde la v0.38 cada archivo de `src/js/` es un módulo ES: declara con `import` lo que usa y con `export` lo que ofrece; y `npm run dev` recarga el juego al guardar.
+Desde la v0.39 hay revisión de tipos (TypeScript sobre el JavaScript) y esquemas para los archivos de datos.
 
 ```
 ./
@@ -50,12 +52,23 @@ Desde la v0.38 cada archivo de `src/js/` es un módulo ES: declara con `import` 
 
 1. Arranca `npm run dev` y abre http://localhost:8000. Edita el archivo que toca en `src/`: al guardar, el juego se recarga solo (si algo no cuadra, el error sale en el navegador).
 2. Ejecuta `node build.js` → regenera `cripta.html`.
-3. Ejecuta `node pruebas/probar.js` (1 minuto aprox.). No publiques si alguna prueba sale con ✗.
+3. Ejecuta `npm run tipos` y `node pruebas/probar.js` (1 minuto aprox.). No publiques si alguna prueba sale con ✗.
 4. Publica `cripta.html` como siempre.
 
 `node build.js --check` dice si `cripta.html` está al día con `src/`.
 
 `cripta.html` no trae `<!doctype>` ni `<head>` porque el visor de artifacts de Claude lo envuelve. Para servirlo suelto, `node build.js --web carpeta/index.html` escribe además la página completa, con la etiqueta *viewport* que necesitan los celulares (GitHub Pages usa esta).
+
+## Revisión de tipos y esquemas
+
+Atrapan errores antes de jugar, sin abrir el juego:
+
+- **Contenido (`npm run tipos`).** `src/tipos/contenido.d.ts` describe qué campos lleva un enemigo, un arma, una sala, un jefe, un subjefe o un ataque, y de qué tipo. TypeScript revisa cada archivo de `src/js/` contra esa descripción: si a un enemigo le falta `hp`, si un arma tiene `rarity: 'legendaria'` o si escribes `stast` en vez de `stats`, lo dice con archivo y línea (los mensajes de TypeScript están en inglés: `Property 'hp' is missing` = falta el campo hp). En VS Code se ve subrayado mientras escribes, y al poner el cursor sobre un campo aparece su explicación.
+- **Datos (`node build.js`).** Cada archivo de `src/datos/` tiene su esquema en `src/datos/esquemas/` (qué campos lleva, de qué tipo y entre qué valores). El build no deja pasar un dato mal puesto: una probabilidad mayor que 1, un color sin `#`, un campo mal escrito, un tipo de decoración que no existe... En VS Code el esquema da autocompletado y explicación de cada campo (`.vscode/settings.json`).
+- **Referencias (`node build.js`).** Que existan los ids a los que apunta el contenido: el `minion` de un jefe, los ataques de `p1`/`p2`/`p3`, el `look`, la `ia` copiada; que no haya dos archivos con el mismo id, ni dos subjefes en el mismo piso.
+- `src/datos/index.d.ts` lo genera el build a partir de los esquemas: así el editor sabe qué hay dentro de `DATOS`.
+- Para añadir un campo nuevo a un dato: añádelo al esquema (con su `description`) y ejecuta `node build.js`.
+- El jugador, los enemigos en juego y `G` todavía no tienen tipo (`any`): se pueden ir tipando poco a poco.
 
 ## Pruebas automáticas
 

@@ -10,7 +10,8 @@ import { setPause, togglePause } from './39-menus.js';
 const keys = new Set();
 const mouse = { x: 0, y: 0, down: false, right: false, moved: false };
 const touch = { on: false, stickId: null, ox: 0, oy: 0, x: 0, y: 0, atk: false, chg: false };
-let wantDash = false, wantSwap = 0, wantUse = false, wantAbil = false, wantElem = false;
+/** wantSwap: 1 = cambiar de arma, 'a' o 'b' = elegir una */
+let wantDash = false, /** @type {number | string} */ wantSwap = 0, wantUse = false, wantAbil = false, wantElem = false;
 
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();

@@ -228,7 +228,7 @@ function updateEnemy(e, dt) {
   c.done = (rest, cd) => { e.st = rest > 0 ? 'rest' : 'walk'; e.st_t = rest; e.tok = false; e.cd = cd; };
   if (e.st === 'rest') { e.st_t -= dt; if (e.st_t <= 0) e.st = 'walk'; }
   // cada enemigo decide qué hacer en su archivo de 01b-enemigos/ (función ia)
-  const ed = ENEMIES[e.type], ia = ed && (typeof ed.ia === 'string' ? ENEMIES[ed.ia].ia : ed.ia);
+  const ed = ENEMIES[e.type], ia = ed && /** @type {(e: any, c: any) => void} */ (typeof ed.ia === 'string' ? ENEMIES[ed.ia].ia : ed.ia);
   if (ia) ia(e, c);
   let vx = c.vx, vy = c.vy;
   // esquivar: los enemigos ágiles se apartan de tus disparos

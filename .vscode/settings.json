@@ -1,0 +1,11 @@
+{
+  // VS Code: usa los esquemas de src/datos/esquemas/ para autocompletar y revisar los archivos de datos mientras escribes
+  "json.schemas": [
+    { "fileMatch": ["src/datos/pisos/*.jsonc"], "url": "./src/datos/esquemas/piso.schema.json" },
+    { "fileMatch": ["src/datos/oleadas.jsonc"], "url": "./src/datos/esquemas/oleadas.schema.json" },
+    { "fileMatch": ["src/datos/botin.jsonc"], "url": "./src/datos/esquemas/botin.schema.json" },
+    { "fileMatch": ["src/datos/finales.jsonc"], "url": "./src/datos/esquemas/finales.schema.json" }
+  ],
+  // revisa los tipos de los .js (lo mismo que npm run tipos) mientras editas
+  "js/ts.implicitProjectConfig.checkJs": true
+}

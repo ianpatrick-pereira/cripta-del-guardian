@@ -20,7 +20,7 @@ function resumeRun(s) {
   G.crystals = { fire: 0, water: 0, air: 0, earth: 0, ...(s.crystals || {}) };
   p.armor = s.armor || 0;
   p.talents = (s.talents || []).slice(); p.spec = s.spec || ''; G.daily = s.daily || ''; p.subK = s.subK || 0; p.preK = s.preK || 0; p.cu = { ...(s.cu || {}) };
-  if (p.spec === 'paladin') { const L = subLv(p); p.maxSh += (L >= 2) + (L >= 4); }
+  if (p.spec === 'paladin') { const L = subLv(p); p.maxSh += Number(L >= 2) + Number(L >= 4); }
   if (tl('muro')) { p.maxSh++; p.sh++; }
   buildFloor(s.floor);
 }

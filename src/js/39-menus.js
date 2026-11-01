@@ -57,7 +57,7 @@ function renderMenu() {
     setSelChar(id); renderMenu();
   }));
   // compañeros
-  $('petCards').innerHTML = [['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)].map(([id, P]) => {
+  $('petCards').innerHTML = /** @type {[string, any][]} */ ([['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)]).map(([id, P]) => {
     const own = !id || SAVE.pets[id];
     return `<button class="card${SAVE.pet === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-p="${id}"><b style="color:${P.c}">${esc(P.n)}</b><span class="meta">${esc(P.d)}</span>${own ? (id ? '<span class="gems">Listo para la próxima partida</span>' : '') : `<span class="gems">Llevar · ${P.cost} gemas</span>`}</button>`;
   }).join('');

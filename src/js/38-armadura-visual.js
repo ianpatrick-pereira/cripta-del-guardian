@@ -249,7 +249,7 @@ function drawBoss(e) {
 
 function drawSub(e) {
   const p = G.player, white = e.flash > 0;
-  const mv = SUB_MOVES[e.st], sd = SUB_DEFS[e.sk] || {}; if (mv && mv.aviso) mv.aviso(e);
+  const mv = SUB_MOVES[e.st], sd = SUB_DEFS[e.sk] || /** @type {any} */ ({}); if (mv && mv.aviso) mv.aviso(e);
   drawShadow(e.x, e.y, e.r);
   const lift = e.lift || 0;
   ctx.globalAlpha = .16 + .08 * Math.sin(G.time * 5) + (e.phase === 2 ? .1 : 0); ctx.fillStyle = e.tint;
@@ -273,7 +273,7 @@ function drawEnemy(e) {
   if (e.mirror) { ctx.fillStyle = `rgba(199,125,255,${.16 + .08 * Math.sin(G.time * 5)})`; ctx.beginPath(); ctx.arc(e.x, e.y - 6, e.r + 12, 0, TAU); ctx.fill(); }
   const p = G.player, la = angTo(e, p), white = e.flash > 0;
   // cada enemigo ajusta su forma y dibuja sus detalles en su archivo de 01b-enemigos/
-  const ed = ENEMIES[e.type] || {}, f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
+  const ed = ENEMIES[e.type] || /** @type {any} */ ({}), f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
   if (ed.forma) ed.forma(e, f);
   if (ed.debajo) ed.debajo(e, la);
   if (e.shield > 0) { ctx.strokeStyle = `rgba(155,216,255,${.5 + .2 * Math.sin(G.time * 8)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 6, 0, TAU); ctx.stroke(); }
@@ -426,6 +426,7 @@ function drawMinimap(w) {
   return oy + GRID * (ch + gap) + pad;
 }
 
+/** @param {CanvasTextAlign} [align] */
 function hudText(txt, x, y, size = 13, color = '#ece4cf', align = 'left', weight = 600, font = 'Chakra Petch') {
   ctx.font = `${weight} ${size}px "${font}", ui-monospace, monospace`;
   ctx.textAlign = align; ctx.textBaseline = 'middle';
@@ -485,6 +486,7 @@ function drawWeaponBar(p, w, h) {
 }
 
 // texto que no se sale de su caja: achica la letra (hasta 8 px) y, si aún no cabe, lo corta con «…»
+/** @param {CanvasTextAlign} [align] */
 function fitText(txt, x, y, maxW, size, color, align = 'left', weight = 600) {
   let s = size;
   const f = () => { ctx.font = `${weight} ${s}px "Chakra Petch", ui-monospace, monospace`; return ctx.measureText(txt).width; };

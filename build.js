@@ -39,27 +39,82 @@ function leerDatos(f) {
 // ids que existen en una carpeta de contenido (lo que se registra con defEnemy('id', ...), etc.)
 const idsDe = (carpeta, fn) => new Set(fs.readdirSync(path.join(jsDir, carpeta)).flatMap(f =>
   [...fs.readFileSync(path.join(jsDir, carpeta, f), 'utf8').matchAll(new RegExp(fn + "\\('([\\w-]+)'", 'g'))].map(m => m[1])));
+// ---------- esquemas de los datos (src/datos/esquemas/*.schema.json) ----------
+// Dicen qué campos lleva cada archivo, de qué tipo y entre qué valores. El editor (VS Code) los usa para
+// autocompletar y subrayar errores mientras escribes; el build los usa para no dejar pasar un dato mal puesto.
+const esquema = n => JSON.parse(fs.readFileSync(path.join(datDir, 'esquemas', n + '.schema.json'), 'utf8'));
+const ESQUEMAS = { piso: 'pisos/*.jsonc', oleadas: 'oleadas.jsonc', botin: 'botin.jsonc', finales: 'finales.jsonc' };
+const tipoDe = v => Array.isArray(v) ? 'una lista' : v === null ? 'null' : typeof v === 'object' ? 'un objeto' : typeof v === 'string' ? 'un texto' : typeof v === 'number' ? 'un número' : typeof v === 'boolean' ? 'true o false' : typeof v;
+function validar(v, S, donde, fallos) {
+  const at = donde ? `"${donde}"` : 'el archivo', mal = m => fallos.push(`${at} ${m}`);
+  if (S.enum && !S.enum.includes(v)) return mal(`tiene que ser uno de: ${S.enum.join(', ')} (es ${JSON.stringify(v)})`);
+  const T = { object: x => x && typeof x === 'object' && !Array.isArray(x), array: Array.isArray, string: x => typeof x === 'string',
+    number: x => typeof x === 'number' && isFinite(x), integer: Number.isInteger, boolean: x => typeof x === 'boolean' };
+  const NOMBRE = { object: 'un objeto { }', array: 'una lista [ ]', string: 'un texto entre comillas', number: 'un número', integer: 'un número entero', boolean: 'true o false' };
+  if (S.type && !T[S.type](v)) return mal(`tiene que ser ${NOMBRE[S.type]} (es ${tipoDe(v)})`);
+  if (typeof v === 'number') {
+    if (S.minimum !== undefined && v < S.minimum) mal(`no puede ser menor que ${S.minimum} (es ${v})`);
+    if (S.maximum !== undefined && v > S.maximum) mal(`no puede ser mayor que ${S.maximum} (es ${v})`);
+  }
+  if (typeof v === 'string') {
+    if (S.minLength && v.length < S.minLength) mal('no puede estar vacío');
+    if (S.pattern && !new RegExp(S.pattern).test(v)) mal(`no tiene el formato correcto: ${S.description || S.pattern} (es "${v}")`);
+  }
+  if (Array.isArray(v)) {
+    if (S.minItems !== undefined && v.length < S.minItems) mal(S.minItems === S.maxItems ? `tiene que tener ${S.minItems} valores` : `tiene que tener al menos ${S.minItems} valor${S.minItems > 1 ? 'es' : ''}`);
+    else if (S.maxItems !== undefined && v.length > S.maxItems) mal(S.minItems === S.maxItems ? `tiene que tener ${S.maxItems} valores` : `no puede tener más de ${S.maxItems} valores`);
+    if (S.items) v.forEach((x, i) => validar(x, S.items, `${donde}[${i}]`, fallos));
+  }
+  if (T.object(v)) {
+    const props = S.properties || {};
+    for (const k of S.required || []) if (!(k in v)) fallos.push(`falta "${donde ? donde + '.' : ''}${k}"` + (props[k] && props[k].description ? ` (${props[k].description})` : ''));
+    for (const [k, x] of Object.entries(v)) {
+      const sub = donde ? donde + '.' + k : k;
+      if (S.propertyNames && S.propertyNames.enum && !S.propertyNames.enum.includes(k)) fallos.push(`"${sub}" no es válido aquí; tiene que ser uno de: ${S.propertyNames.enum.join(', ')}`);
+      else if (props[k]) validar(x, props[k], sub, fallos);
+      else if (S.additionalProperties === false) fallos.push(`"${sub}" no es un campo conocido (¿error de escritura?). Los campos son: ${Object.keys(props).join(', ')}`);
+      else if (typeof S.additionalProperties === 'object') validar(x, S.additionalProperties, sub, fallos);
+    }
+  }
+}
+// tipos de TypeScript a partir de los esquemas → src/datos/index.d.ts (así el editor sabe qué hay en DATOS)
+function tipoTs(S, ind) {
+  const sp = '  '.repeat(ind);
+  if (S.enum) return S.enum.map(x => JSON.stringify(x)).join(' | ');
+  if (S.type === 'array') { const t = tipoTs(S.items, ind); return S.minItems && S.minItems === S.maxItems && S.minItems <= 5 ? `[${Array(S.minItems).fill(t).join(', ')}]` : `${/[|]/.test(t) ? `(${t})` : t}[]`; }
+  if (S.type === 'object') {
+    if (!S.properties) return `Record<${S.propertyNames && S.propertyNames.enum ? S.propertyNames.enum.map(x => JSON.stringify(x)).join(' | ') : 'string'}, ${S.additionalProperties ? tipoTs(S.additionalProperties, ind) : 'any'}>`;
+    const req = new Set(S.required || []);
+    return '{\n' + Object.entries(S.properties).map(([k, x]) => (x.description ? `${sp}  /** ${x.description} */\n` : '') + `${sp}  ${k}${req.has(k) ? '' : '?'}: ${tipoTs(x, ind + 1)};\n`).join('') + sp + '}';
+  }
+  return { string: 'string', number: 'number', integer: 'number', boolean: 'boolean' }[S.type] || 'any';
+}
+function tiposDatos() {
+  const nom = { piso: 'Piso', oleadas: 'Oleadas', botin: 'Botin', finales: 'Finales' };
+  return '// GENERADO por build.js a partir de src/datos/esquemas/: no lo edites a mano.\n' +
+    '// Es el tipo de DATOS, para que el editor autocomplete DATOS.pisos[0].luz.clara, etc.\n\n' +
+    Object.entries(nom).map(([k, N]) => { const S = esquema(k); return `/** ${S.title} */\nexport interface ${N} ${tipoTs(S, 0)}\n\n`; }).join('') +
+    'export const DATOS: { pisos: Piso[]; oleadas: Oleadas; botin: Botin; finales: Finales };\n';
+}
+
 function datos() {
   const pisos = fs.readdirSync(path.join(datDir, 'pisos')).filter(f => f.endsWith('.jsonc')).sort()
     .map(f => ({ f: 'pisos/' + f, d: leerDatos('pisos/' + f) })).sort((a, b) => a.d.piso - b.d.piso);
   const enemigos = idsDe('01b-enemigos', 'defEnemy'), jefes = idsDe('01e-jefes', 'defBoss'), fallos = [];
+  const revisar = (f, d, S) => { const fs_ = []; validar(d, S, '', fs_); fs_.forEach(m => fallos.push(`src/datos/${f}: ${m}`)); };
+  const Spiso = esquema('piso');
   pisos.forEach(({ f, d }, i) => {
+    revisar(f, d, Spiso);
     if (d.piso !== i + 1) fallos.push(`src/datos/${f}: "piso" es ${d.piso}, pero tocaba el ${i + 1} (los pisos van del 1 al ${pisos.length} sin saltos)`);
-    for (const k of ['enemigosCerca', 'enemigosLejos']) {
-      if (!Array.isArray(d[k]) || !d[k].length) fallos.push(`src/datos/${f}: "${k}" tiene que ser una lista con al menos un enemigo`);
-      else for (const id of d[k]) if (!enemigos.has(id)) fallos.push(`src/datos/${f}: el enemigo "${id}" de "${k}" no existe en src/js/01b-enemigos/`);
-    }
-    if (!jefes.has(d.jefe)) fallos.push(`src/datos/${f}: el jefe "${d.jefe}" no existe en src/js/01e-jefes/`);
-    const A = d.ambiente || {}, COSAS = ["huesos", "velas", "cristales", "musgo", "hierba", "charcos", "runas", "hongos", "espinas", "escarcha", "lava", "flores", "vidrios", "rosas"], PART = ["polvo", "esporas", "brasas", "nieve", "luciernagas", "chispas", "petalos"];
-    if (!d.ambiente) fallos.push(`src/datos/${f}: falta el bloque "ambiente"`);
-    else {
-      if (!PART.includes(A.particulas)) fallos.push(`src/datos/${f}: "particulas" tiene que ser una de: ${PART.join(', ')}`);
-      for (const k of ['bordes', 'centro']) for (const c of Object.keys(A[k] || {})) if (!COSAS.includes(c)) fallos.push(`src/datos/${f}: "${c}" en "${k}" no es un tipo de decoración (${COSAS.join(', ')})`);
-    }
+    for (const k of ['enemigosCerca', 'enemigosLejos']) if (Array.isArray(d[k]))
+      for (const id of d[k]) if (!enemigos.has(id)) fallos.push(`src/datos/${f}: el enemigo "${id}" de "${k}" no existe en src/js/01b-enemigos/`);
+    if (typeof d.jefe === 'string' && !jefes.has(d.jefe)) fallos.push(`src/datos/${f}: el jefe "${d.jefe}" no existe en src/js/01e-jefes/`);
   });
   if (pisos.length !== 8) fallos.push(`src/datos/pisos/ tiene ${pisos.length} pisos; el juego necesita 8 (los subjefes y la historia van por piso)`);
+  const otros = {};
+  for (const k of ['oleadas', 'botin', 'finales']) { otros[k] = leerDatos(k + '.jsonc'); revisar(k + '.jsonc', otros[k], esquema(k)); }
   if (fallos.length) throw new Error('Datos con errores:\n  ' + fallos.join('\n  '));
-  return { pisos: pisos.map(p => p.d), oleadas: leerDatos('oleadas.jsonc'), botin: leerDatos('botin.jsonc'), finales: leerDatos('finales.jsonc') };
+  return { pisos: pisos.map(p => p.d), ...otros };
 }
 
 // ---------- módulos ----------
@@ -125,6 +180,7 @@ function modulos() {
     for (const v of ms.variables) if (v.defs.some(d => d.type === 'ImportBinding')) for (const r of v.references) if (r.isWrite())
       fallos.push(`${m.nombre}:${r.identifier.loc.start.line}: no se puede cambiar «${v.name}» desde otro archivo (un import es de solo lectura); usa la función set${v.name[0].toUpperCase() + v.name.slice(1)}() que exporta su archivo`);
   }
+  revisarContenido(info, fallos);
   if (fallos.length) throw new Error('Módulos con errores:\n  ' + fallos.join('\n  '));
   // quitar import/export dejando las mismas líneas
   return [...info.values()].map(m => {
@@ -137,6 +193,40 @@ function modulos() {
     for (const [a, b, r] of cortes.reverse()) t = t.slice(0, a) + r + t.slice(b);
     return { nombre: m.nombre, texto: t };
   });
+}
+
+// Lo que TypeScript no puede comprobar: que los ids a los que apunta el contenido existan
+// (el enemigo que invoca un jefe, los ataques de cada fase...) y que no haya dos con el mismo id.
+function revisarContenido(info, fallos) {
+  const defs = {}, DEF = ['defEnemy', 'defWeapon', 'defRoom', 'defBoss', 'defSub', 'defBossMove', 'defSubMove'];
+  DEF.forEach(k => defs[k] = new Map());
+  for (const m of info.values()) for (const n of m.ast.body) {
+    const c = n.type === 'ExpressionStatement' && n.expression.type === 'CallExpression' ? n.expression : null;
+    if (!c || c.callee.type !== 'Identifier' || !DEF.includes(c.callee.name) || !c.arguments[0] || c.arguments[0].type !== 'Literal') continue;
+    const id = c.arguments[0].value, def = c.arguments[1], linea = `${m.nombre}:${n.loc.start.line}`;
+    if (defs[c.callee.name].has(id)) fallos.push(`${linea}: ya hay un ${c.callee.name}('${id}') en ${defs[c.callee.name].get(id).linea.split(':')[0]}; cada id tiene que ser único`);
+    else defs[c.callee.name].set(id, { def, linea });
+  }
+  const prop = (o, k) => o && o.type === 'ObjectExpression' && (o.properties.find(p => p.key && (p.key.name || p.key.value) === k) || {}).value;
+  const texto = v => v && v.type === 'Literal' && typeof v.value === 'string' ? v.value : null;
+  const lista = v => v && v.type === 'ArrayExpression' ? v.elements.map(texto).filter(x => x !== null) : [];
+  const existe = (tipo, id, linea, campo, carpeta) => { if (id !== null && !defs[tipo].has(id)) fallos.push(`${linea}: "${campo}" apunta a '${id}', que no existe en src/js/${carpeta}/`); };
+  for (const [id, { def, linea }] of defs.defEnemy) existe('defEnemy', texto(prop(def, 'ia')), linea, 'ia', '01b-enemigos');
+  for (const [id, { def, linea }] of defs.defBoss) {
+    const d = prop(def, 'datos');
+    existe('defEnemy', texto(prop(d, 'minion')), linea, 'minion', '01b-enemigos');
+    existe('defBoss', texto(prop(d, 'look')), linea, 'look', '01e-jefes');
+    for (const f of ['p1', 'p2', 'p3']) for (const x of lista(prop(d, f))) existe('defBossMove', x, linea, f, '01g-ataques-de-jefe');
+  }
+  const pisos = new Map();
+  for (const [id, { def, linea }] of defs.defSub) {
+    const d = prop(def, 'datos'), piso = prop(def, 'piso');
+    existe('defEnemy', texto(prop(d, 'minion')), linea, 'minion', '01b-enemigos');
+    for (const f of ['p1', 'p2']) for (const x of lista(prop(d, f))) existe('defSubMove', x, linea, f, '01h-ataques-de-subjefe');
+    if (piso && piso.type === 'Literal') { if (pisos.has(piso.value)) fallos.push(`${linea}: el piso ${piso.value} ya tiene subjefe ('${pisos.get(piso.value)}'); hay uno por piso`); pisos.set(piso.value, id); }
+  }
+  for (const [k, carpeta] of [['defBossMove', '01g-ataques-de-jefe'], ['defSubMove', '01h-ataques-de-subjefe']])
+    for (const [id, { def, linea }] of defs[k]) existe(k, texto(def), linea, 'copia de', carpeta);
 }
 
 // las partes de cripta.html en orden: { nombre, texto } (pruebas/probar.js las usa para saber en qué archivo falló algo)
@@ -164,13 +254,16 @@ if (require.main === module) {
   try { h = html(); } catch (e) { console.error(e.message); process.exit(1); }
   const out = path.join(dir, 'cripta.html');
   if (process.argv.includes('--check')) {
-    const same = fs.existsSync(out) && fs.readFileSync(out, 'utf8') === h;
-    console.log(same ? 'cripta.html está al día' : 'cripta.html NO coincide con src/: ejecuta node build.js');
+    const dts = path.join(datDir, 'index.d.ts');
+    const same = fs.existsSync(out) && fs.readFileSync(out, 'utf8') === h && fs.existsSync(dts) && fs.readFileSync(dts, 'utf8') === tiposDatos();
+    console.log(same ? 'cripta.html está al día' : 'cripta.html o src/datos/index.d.ts NO coinciden con src/: ejecuta node build.js');
     process.exit(same ? 0 : 1);
   }
   // node build.js --web carpeta/index.html  → además, la versión de página completa (la usa GitHub Pages)
   const web = process.argv.indexOf('--web');
   if (web > 0) { const f = path.resolve(process.argv[web + 1]); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, paginaWeb(h)); console.log('página web completa:', f); }
   fs.writeFileSync(out, h);
+  const dts = path.join(datDir, 'index.d.ts'), t = tiposDatos();
+  if (!fs.existsSync(dts) || fs.readFileSync(dts, 'utf8') !== t) fs.writeFileSync(dts, t);
   console.log(`cripta.html: ${partes().length} partes, ${(h.match(/\n/g) || []).length} líneas, ${(Buffer.byteLength(h) / 1024).toFixed(1)} KB`);
 }
