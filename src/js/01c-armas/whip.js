@@ -1,4 +1,9 @@
 // Látigo de cadenas
+import { TAU } from '../01-utilidades.js';
+import { defWeapon } from '../01a-registro.js';
+import { G } from '../07-estado.js';
+import { later } from '../09-efectos.js';
+import { espLv, whipCircle, whipLash } from '../12-armas-con-estilo-propio.js';
 defWeapon('whip', {
   orden: 36,
   datos: { name: 'Látigo de cadenas', type: 'melee', style: 'whip', shape: 'whip', rarity: 'uncommon', dmg: 4, cd: .5, range: 130, arc: .4, en: 1, chg: 'lash', chgEn: 12 },

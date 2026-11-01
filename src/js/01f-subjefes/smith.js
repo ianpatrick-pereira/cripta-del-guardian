@@ -1,4 +1,5 @@
 // Subjefe del piso 5: Herrero Fundido
+import { defSub } from '../01a-registro.js';
 defSub('smith', {
   piso: 5,
   datos: { name: 'Herrero Fundido', spr: 'charger', s: 3.8, r: 26, hp: 750, speed: 66, tint: '#ff8a3a', minion: 'bomber', want: 0,

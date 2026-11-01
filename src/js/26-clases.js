@@ -1,4 +1,17 @@
 // ================= Clases: mecánicas, talentos y especialización =================
+import { ctx } from './00-inicio.js';
+import { TAU, TILE, angDiff, angTo, clamp, dist, rand } from './01-utilidades.js';
+import { CHARS, cu } from './03-datos-del-juego.js';
+import { SAVE, writeSave } from './04-guardado.js';
+import { noise, sfx } from './05-audio.js';
+import { G, randomRelics, rc, started } from './07-estado.js';
+import { solidAt } from './08-colisiones.js';
+import { addText, burst, explode, later, shake, showBanner } from './09-efectos.js';
+import { maxEnergy, nearestEnemy, reflect } from './11-jugador.js';
+import { hurtEnemy } from './14-enemigos.js';
+import { pact } from './27-pactos-de-piso.js';
+import { dareCount, dareFail } from './28-desafios-dentro-del-piso.js';
+import { openChoice } from './32-eleccion-de-reliquia.js';
 function tl(id) { return !!(G && G.player && G.player.talents && G.player.talents.includes(id)); }
 // daño de referencia del arma actual (normaliza armas muy rápidas o de varios proyectiles)
 function bestDmg(p) { const w = p.slots[p.cur]; return w.dmg * (w.shots || 1) * Math.max(1, .4 / w.cd); }
@@ -336,3 +349,6 @@ function drawClass() {
   }
 }
 
+export { SPECS, SUB_T, SUB_UNLOCK, TALENTS, bestDmg, classDash, classHit, classHurt, classKill, classRes,
+  drawClass, focusShot, gainTalent, offerSpec, offerTalent, parry, setSpec, shieldCharge, specAbility, subIs,
+  subLv, tl, updateClass };

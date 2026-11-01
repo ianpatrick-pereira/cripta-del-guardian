@@ -1,4 +1,12 @@
 // ================= Entrada =================
+import { $, cv } from './00-inicio.js';
+import { muted, setMuted } from './05-audio.js';
+import { G, started } from './07-estado.js';
+import { closeNote } from './20-historia.js';
+import { closeForge } from './24-forja.js';
+import { gamLeave, gamPick, gamPlace } from './30-sala-de-apuestas.js';
+import { pickChoice } from './32-eleccion-de-reliquia.js';
+import { setPause, togglePause } from './39-menus.js';
 const keys = new Set();
 const mouse = { x: 0, y: 0, down: false, right: false, moved: false };
 const touch = { on: false, stickId: null, ox: 0, oy: 0, x: 0, y: 0, atk: false, chg: false };
@@ -13,7 +21,7 @@ addEventListener('keydown', e => {
   if (!started) return;
   if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'tab'].includes(k)) e.preventDefault();
   if (k === 'escape' || k === 'p') { togglePause(); return; }
-  if (k === 'm') { muted = !muted; return; }
+  if (k === 'm') { setMuted(!muted); return; }
   if (e.repeat) return;
   keys.add(k);
   if (k === ' ' || k === 'shift') wantDash = true;
@@ -70,3 +78,12 @@ holdBtn('bEle', () => wantElem = true);
 holdBtn('bUse', () => wantUse = true);
 holdBtn('bPause', () => togglePause());
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setWantDash(v) { return (wantDash = v); }
+function setWantSwap(v) { return (wantSwap = v); }
+function setWantUse(v) { return (wantUse = v); }
+function setWantAbil(v) { return (wantAbil = v); }
+function setWantElem(v) { return (wantElem = v); }
+
+export { cssSize, keys, mouse, setWantAbil, setWantDash, setWantElem, setWantSwap, setWantUse, touch,
+  wantAbil, wantDash, wantElem, wantSwap, wantUse };

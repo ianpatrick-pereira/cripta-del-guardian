@@ -1,4 +1,14 @@
 // Guerrero encadenado
+import { ctx } from '../00-inicio.js';
+import { defRoom } from '../01a-registro.js';
+import { drawSpr } from '../02-pixel-art.js';
+import { SAVE } from '../04-guardado.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { addText, burst } from '../09-efectos.js';
+import { ach } from '../21-logros-y-bestiario.js';
+import { bestDmg } from '../26-clases.js';
+import { drawShadow } from '../36-mar-de-lava.js';
 defRoom('merc', {
   orden: 6,
   objeto: 'merc',

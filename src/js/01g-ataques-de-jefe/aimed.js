@@ -1,4 +1,8 @@
 // Ataque de jefe: aimed
+import { defBossMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { enemyShoot } from '../14-enemigos.js';
+import { bossIdle } from '../16-jefes.js';
 defBossMove('aimed', {
   hacer(e, dt, c) {
     const { a, ph2 } = c;

@@ -1,4 +1,23 @@
 // ================= Estado =================
+import { FLOOR, MW, TILE, pick, rand, randi, shuffle } from './01-utilidades.js';
+import { ROOM_DEFS, roomList } from './01a-registro.js';
+import { CHARS, CUR_CHAR, FLOORS, RELICS, UPG, WEAPONS, rollWeapon, setCUR_CHAR,
+  starterW } from './03-datos-del-juego.js';
+import { SAVE, writeSave } from './04-guardado.js';
+import { buildMap, generate } from './06-generacion.js';
+import { hitsWall } from './08-colisiones.js';
+import { later, showBanner } from './09-efectos.js';
+import { dropCoin } from './14-enemigos.js';
+import { mkPet } from './19-companeros.js';
+import { NARRATOR, noteFor } from './20-historia.js';
+import { ach } from './21-logros-y-bestiario.js';
+import { snapRun } from './22-guardar-partida.js';
+import { totemElement } from './23-elementos.js';
+import { updateAdapt } from './25-enemigos-que-se-adaptan.js';
+import { SUB_UNLOCK, offerSpec } from './26-clases.js';
+import { PACTS, offerPact } from './27-pactos-de-piso.js';
+import { DARES } from './28-desafios-dentro-del-piso.js';
+import { buildFloor } from './31-reto-diario.js';
 let G = null, paused = false, started = false;
 function rc(id) { return G ? G.player.relics.filter(r => r === id).length : 0; }
 
@@ -10,7 +29,7 @@ function startKit(ch) {
 }
 function newRun(charId) {
   const ch = CHARS[charId];
-  CUR_CHAR = charId;
+  setCUR_CHAR(charId);
   const p = {
     char: charId, spr: ch.spr, x: 0, y: 0, r: 11,
     hp: ch.hp + SAVE.upg.hp, maxHp: ch.hp + SAVE.upg.hp, sh: ch.sh, maxSh: ch.sh, shT: 0, shAcc: 0,
@@ -133,3 +152,8 @@ function randomRelics(n) {
   return shuffle(pool).slice(0, n);
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setPaused(v) { return (paused = v); }
+function setStarted(v) { return (started = v); }
+
+export { G, buildFloor0, freeSpot, newRun, paused, randomRelics, rc, setPaused, setStarted, started };

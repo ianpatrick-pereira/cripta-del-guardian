@@ -1,4 +1,7 @@
 // ================= Desafíos dentro del piso =================
+import { sfx } from './05-audio.js';
+import { G } from './07-estado.js';
+import { addText, showBanner } from './09-efectos.js';
 const DARES = {
   nohit:  { d: 'Despeja la sala sin recibir daño' },
   fast:   { d: 'Despeja la sala en menos de 30 s', t: 30 },
@@ -34,3 +37,4 @@ function dareText() {
   return 'Desafío: ' + D0.d + (D0.need ? ` (${Dg.n}/${D0.need})` : D0.t ? ` (${Math.max(0, Math.ceil(D0.t - Dg.t))} s)` : '') + (Dg.fail ? ' · fallido' : '');
 }
 
+export { DARES, dareClear, dareCount, dareFail, dareStart, dareText };

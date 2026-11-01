@@ -219,7 +219,7 @@ details.codex[open]{padding-bottom:12px}
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.37</p>
+      <p class="eyebrow">Prototipo jugable · v0.38</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -358,6 +358,7 @@ const ctx = cv.getContext('2d');
 const frame = document.getElementById('frame');
 const $ = id => document.getElementById(id);
 
+
 const DATOS = {"pisos":[{"piso":1,"nombre":"La Cripta","enemigosCerca":["slime","slime","bat","archer"],"enemigosLejos":["slime","bat","archer","archer","brute"],"jefe":"guardian","elites":0.1,"terror":false,"luz":{"clara":150,"hastaNoche":560,"oscuridad":0.72},"musica":{"nota":45,"tempo":96},"colores":{"sueloA":"#24222e","sueloB":"#272532","grietas":"#1c1a24","manchas":"#2d2a39","muroArriba":"#3f3852","muroFrente":"#2a2438","muroBorde":"#5a5070"},"ambiente":{"antorchas":"#ffb347","brillo":"#b98cff","estandartes":"#4a2a6a","plantas":["#2f4a34","#4f7a4a"],"flores":"#c9a6ff","charcos":"rgba(70,80,130,.32)","particulas":"polvo","vineta":"rgba(24,10,40,.55)","antorchaCada":5,"telaranas":0.6,"enredaderas":0.12,"densidadBordes":0.14,"densidadCentro":0.07,"bordes":{"huesos":2,"velas":1,"cristales":1,"musgo":2},"centro":{"hierba":2,"musgo":2,"charcos":1,"runas":0.4}}},{"piso":2,"nombre":"Catacumbas Pútridas","enemigosCerca":["toxic","spider","archer","mage"],"enemigosLejos":["toxic","spider","mage","archer","brute"],"jefe":"queen","elites":0.16,"terror":false,"luz":{"clara":130,"hastaNoche":470,"oscuridad":0.82},"musica":{"nota":40,"tempo":104},"colores":{"sueloA":"#1f2622","sueloB":"#222a25","grietas":"#171d19","manchas":"#29332c","muroArriba":"#38483b","muroFrente":"#26322a","muroBorde":"#55705a"},"ambiente":{"antorchas":"#d8ff7a","brillo":"#7aff9b","estandartes":"#2f4a28","plantas":["#3f5a2c","#6a8a3a"],"flores":"#e0d070","charcos":"rgba(90,140,60,.3)","particulas":"esporas","vineta":"rgba(8,24,12,.55)","antorchaCada":5,"telaranas":0.8,"enredaderas":0.3,"densidadBordes":0.17,"densidadCentro":0.1,"bordes":{"hongos":3,"huesos":2,"musgo":2},"centro":{"hierba":2,"musgo":3,"charcos":2,"hongos":1}}},{"piso":3,"nombre":"El Abismo","enemigosCerca":["wraith","eye","spider","bat"],"enemigosLejos":["wraith","eye","mage","brute","spider"],"jefe":"devourer","elites":0.22,"terror":true,"luz":{"clara":72,"hastaNoche":250,"oscuridad":0.97},"musica":{"nota":38,"tempo":76},"colores":{"sueloA":"#1d1517","sueloB":"#201719","grietas":"#140e10","manchas":"#2a1b1e","muroArriba":"#3a2228","muroFrente":"#26161a","muroBorde":"#5c2e36"},"ambiente":{"antorchas":"#ff4a3a","brillo":"#c04aff","estandartes":"#5a1018","plantas":["#3a1a22","#5a2430"],"flores":"#ff4a6a","charcos":"rgba(120,10,20,.38)","particulas":"brasas","vineta":"rgba(40,0,8,.62)","antorchaCada":8,"telaranas":0.5,"enredaderas":0,"densidadBordes":0.13,"densidadCentro":0.06,"bordes":{"huesos":3,"velas":1,"cristales":1},"centro":{"runas":1,"espinas":2,"charcos":1}}},{"piso":4,"nombre":"Osario Helado","enemigosCerca":["warden","archer","bat","sniper"],"enemigosLejos":["warden","sniper","brute","mage","spider"],"jefe":"ossuary","elites":0.18,"terror":false,"luz":{"clara":140,"hastaNoche":520,"oscuridad":0.8},"musica":{"nota":43,"tempo":92},"colores":{"sueloA":"#1c222c","sueloB":"#1f2631","grietas":"#141920","manchas":"#26303c","muroArriba":"#3a4a5e","muroFrente":"#243040","muroBorde":"#6a8aa8"},"ambiente":{"antorchas":"#ffc27a","brillo":"#8ad8ff","estandartes":"#2a4a6a","plantas":["#4a5e72","#8aaac8"],"flores":"#cfeaff","charcos":"rgba(150,200,255,.22)","particulas":"nieve","vineta":"rgba(6,18,36,.55)","antorchaCada":5,"telaranas":0.3,"enredaderas":0,"densidadBordes":0.15,"densidadCentro":0.08,"bordes":{"cristales":3,"huesos":3},"centro":{"escarcha":3,"charcos":1,"hierba":1}}},{"piso":5,"nombre":"Forja Hundida","enemigosCerca":["bomber","charger","brute","bat"],"enemigosLejos":["bomber","charger","warden","eye","mage"],"jefe":"forger","elites":0.2,"terror":false,"luz":{"clara":130,"hastaNoche":480,"oscuridad":0.85},"musica":{"nota":41,"tempo":112},"colores":{"sueloA":"#241a14","sueloB":"#281d16","grietas":"#1a120c","manchas":"#2e2018","muroArriba":"#4a3020","muroFrente":"#2e1e14","muroBorde":"#a0582a"},"ambiente":{"antorchas":"#ff7a2a","brillo":"#ff4a1a","estandartes":"#6a2a10","plantas":["#4a3020","#6a4426"],"flores":"#ffb070","charcos":"rgba(40,20,10,.4)","particulas":"brasas","vineta":"rgba(40,12,0,.55)","antorchaCada":4,"telaranas":0.2,"enredaderas":0,"densidadBordes":0.12,"densidadCentro":0.09,"bordes":{"huesos":2,"velas":1},"centro":{"lava":3,"hierba":0.5}}},{"piso":6,"nombre":"Jardín de Raíces","enemigosCerca":["splitter","burrower","spider","toxic"],"enemigosLejos":["splitter","burrower","priest","spider","charger"],"jefe":"rootmother","elites":0.22,"terror":false,"luz":{"clara":125,"hastaNoche":460,"oscuridad":0.86},"musica":{"nota":40,"tempo":98},"colores":{"sueloA":"#1a2116","sueloB":"#1d2519","grietas":"#121810","manchas":"#24301e","muroArriba":"#34442a","muroFrente":"#22301c","muroBorde":"#5a7a3a"},"ambiente":{"antorchas":"#ffe27a","brillo":"#c8ff7a","estandartes":"#3a5a2a","plantas":["#3f6a2a","#6aa040"],"flores":"#ff9ad8","charcos":"rgba(60,110,140,.3)","particulas":"luciernagas","vineta":"rgba(6,24,10,.5)","antorchaCada":6,"telaranas":0.3,"enredaderas":0.45,"densidadBordes":0.34,"densidadCentro":0.26,"bordes":{"hongos":2,"flores":3,"musgo":2,"hierba":2},"centro":{"hierba":5,"flores":4,"musgo":2,"charcos":1}}},{"piso":7,"nombre":"Catedral Hueca","enemigosCerca":["priest","phantom","sniper","wraith"],"enemigosLejos":["priest","phantom","sniper","warden","eye","bomber"],"jefe":"bishop","elites":0.25,"terror":true,"luz":{"clara":105,"hastaNoche":400,"oscuridad":0.92},"musica":{"nota":37,"tempo":84},"colores":{"sueloA":"#1e1a24","sueloB":"#221d28","grietas":"#15121a","manchas":"#2a2434","muroArriba":"#3e3450","muroFrente":"#2a2236","muroBorde":"#7a68a0"},"ambiente":{"antorchas":"#c77dff","brillo":"#ffd27a","estandartes":"#3a1a5a","plantas":["#3e3450","#5e4a78"],"flores":"#d8b8ff","charcos":"rgba(90,60,140,.3)","particulas":"chispas","vineta":"rgba(26,8,44,.6)","antorchaCada":6,"telaranas":0.7,"enredaderas":0.05,"densidadBordes":0.13,"densidadCentro":0.07,"bordes":{"velas":2,"cristales":1,"huesos":1},"centro":{"runas":2,"vidrios":2,"musgo":1}}},{"piso":8,"nombre":"Corazón de Elena","enemigosCerca":["phantom","burrower","charger","sniper","splitter"],"enemigosLejos":["phantom","burrower","charger","sniper","priest","warden","bomber","eye","wraith"],"jefe":"elena","elites":0.28,"terror":true,"luz":{"clara":72,"hastaNoche":260,"oscuridad":0.97},"musica":{"nota":36,"tempo":72},"colores":{"sueloA":"#200f12","sueloB":"#241114","grietas":"#16090b","manchas":"#2c1418","muroArriba":"#4a1a22","muroFrente":"#2e1016","muroBorde":"#8a2a3a"},"ambiente":{"antorchas":"#ff3a5a","brillo":"#c77dff","estandartes":"#6a0a1e","plantas":["#4a1a22","#7a2a3a"],"flores":"#ff5a7a","charcos":"rgba(120,10,30,.4)","particulas":"petalos","vineta":"rgba(44,0,14,.62)","antorchaCada":8,"telaranas":0.5,"enredaderas":0.15,"densidadBordes":0.15,"densidadCentro":0.08,"bordes":{"velas":2,"rosas":3,"huesos":1},"centro":{"rosas":2,"runas":1,"espinas":2,"charcos":1}}}],"oleadas":{"oleadasPorSala":{"normal":2,"dificil":3,"profundidadDificil":3},"profundidadLejos":2,"enemigos":{"base":3,"porProfundidad":1,"profundidadMaxima":4,"porOleada":1,"porPiso":1,"minimo":2},"pisosDuros":{"desdePiso":3,"factorCantidad":0.55,"factorVida":2.2}},"botin":{"rarezaArmas":{"common":46,"uncommon":34,"rare":15,"epic":5},"estrellas":{"enemigo":[64,27,7,1.6,0.4],"cofre":[33,34,20,9,4],"cofreDorado":[0,46,34,14,6],"tienda":[0,50,42,6,2]},"enemigo":{"monedas":[1,3],"monedasElite":3,"energia":0.25,"pocion":0.07,"arma":0.03},"elite":{"gema":0.5,"llave":0.3},"caja":{"monedas":0.35,"cuantasMonedas":[1,2],"energia":0.12,"pocion":0.05,"llave":0.04},"salaDespejada":{"cofreDorado":0.22,"cofre":0.38},"cofre":{"monedas":[3,6],"pocion":0.45,"armadura":0.12},"cofreDorado":{"armadura":0.3},"jefe":{"monedas":25,"armadura":0.4},"subjefe":{"monedas":12}},"finales":{"completo":{"etiqueta":"Final verdadero","titulo":"El círculo roto","texto":["Elena se deshace en polvo de seda, y por primera vez la cripta guarda silencio.","Abres el diario. Conoces cada página, porque cada página la escribiste tú: el hermano que baja, el Guardián que espera, la voz que llama desde abajo. La cripta no tiene fondo, solo tiene turnos.","Esta vez no ocupas el lugar del Guardián. Arrancas la primera página, la que empieza «Mi hermana bajó a la cripta hace tres lunas», y la quemas en la última antorcha.","Al subir, la luz del amanecer te quema los ojos. A tu lado camina alguien. No te atreves a mirarla todavía, pero conoces el ritmo de sus pasos.","Detrás de ustedes, la entrada de la cripta se cierra como un párpado cansado."]},"incompleto":{"etiqueta":"Final","titulo":"Otro turno","texto":["Elena cae, y la cripta suspira como quien se da la vuelta en la cama.","Subes las escaleras con el botín a cuestas. Fuera es de noche, y el pueblo parece más pequeño de lo que recordabas.","En el bolsillo encuentras un diario que no recuerdas haber guardado. La letra es la tuya. La primera línea dice: «Mi hermana bajó a la cripta hace tres lunas».","Mañana, piensas, volverás a bajar."]}}};
 // ================= Utilidades =================
 const TILE = 32, GRID = 5, CELL_W = 33, CELL_H = 27;
@@ -374,6 +375,8 @@ const angTo = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
 const angDiff = (a, b) => { let d = (b - a) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
 const hash = (x, y) => { let h = x * 374761393 + y * 668265263; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967295; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+
 
 // ================= Registro de contenido =================
 // Cada enemigo vive en su propio archivo dentro de 01b-enemigos/ y se registra con defEnemy.
@@ -450,6 +453,17 @@ function defSub(id, def) { SUB_DEFS[id] = def; }
 const BOSS_MOVES = {}, SUB_MOVES = {};
 function defBossMove(id, def) { BOSS_MOVES[id] = typeof def === 'string' ? BOSS_MOVES[def] : def; }
 function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOVES[def] : def; }
+
+
+
+
+
+
+
+
+
+
+
 defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
@@ -514,6 +528,10 @@ defEnemy('archer', {
       if (e.aiming) { const aa = e.aimA ?? la; ctx.strokeStyle = 'rgba(255,90,90,.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]); ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(aa) * 230, e.y + Math.sin(aa) * 230); ctx.stroke(); ctx.setLineDash([]); }
   }
 });
+
+
+
+
 defEnemy('bat', {
   orden: 4,
   stats: { hp: 3, r: 10, speed: 150, dmg: 1, spr: 'bat', s: 2 },
@@ -543,6 +561,13 @@ defEnemy('bat', {
   },
   forma(e, f) { f.sy = .7 + .3 * Math.abs(Math.sin(e.t * 22)); f.oy = -6; }
 });
+
+
+
+
+
+
+
 defEnemy('bomber', {
   orden: 12,
   stats: { hp: 10, r: 12, speed: 80, dmg: 1, spr: 'bomber', s: 2 },
@@ -572,6 +597,14 @@ defEnemy('bomber', {
   },
   encima(e, la, white) { if (e.st === 'tele') { ctx.fillStyle = '#2a2433'; ctx.beginPath(); ctx.arc(e.x, e.y - e.r - 8, 6, 0, TAU); ctx.fill(); ctx.fillStyle = '#ff8a3a'; ctx.fillRect(e.x - 1, e.y - e.r - 18, 2, 5); } }
 });
+
+
+
+
+
+
+
+
 defEnemy('brute', {
   orden: 6,
   stats: { hp: 15, r: 17, speed: 58, dmg: 2, spr: 'brute', s: 2.6 },
@@ -612,6 +645,12 @@ defEnemy('brute', {
   forma(e, f) { if (e.st === 'wind' && Math.floor(G.time * 16) % 2 === 0) f.sx = f.sy = 1.08; },
   encima(e, la, white) { if (e.st === 'wind') { ctx.globalAlpha = .25; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2; ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 140, e.y + Math.sin(e.ca) * 140); ctx.stroke(); ctx.globalAlpha = 1; } }
 });
+
+
+
+
+
+
 defEnemy('burrower', {
   orden: 15,
   stats: { hp: 14, r: 13, speed: 90, dmg: 1, spr: 'burrower', s: 2.2 },
@@ -640,6 +679,14 @@ defEnemy('burrower', {
   },
   forma(e, f) { f.alpha = e.alpha ?? 1; }
 });
+
+
+
+
+
+
+
+
 defEnemy('charger', {
   orden: 13,
   stats: { hp: 18, r: 16, speed: 70, dmg: 2, spr: 'charger', s: 2.4 },
@@ -668,6 +715,11 @@ defEnemy('charger', {
   },
   debajo(e, la) { if (e.st === 'wind') { ctx.globalAlpha = .25; ctx.strokeStyle = '#d4474b'; ctx.lineWidth = e.r * 2; ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.ca) * 320, e.y + Math.sin(e.ca) * 320); ctx.stroke(); ctx.globalAlpha = 1; } }
 });
+
+
+
+
+
 defEnemy('eye', {
   orden: 10,
   stats: { hp: 12, r: 13, speed: 0, dmg: 1, spr: 'eye', s: 2.2 },
@@ -699,6 +751,9 @@ defEnemy('eye', {
   },
   encima(e, la, white) { ctx.fillStyle = e.aiming ? '#ffffff' : '#000'; ctx.fillRect(e.x + Math.cos(la) * 5 - 2, e.y + Math.sin(la) * 5 - 4, 4, 8); }
 });
+
+
+
 defEnemy('mage', {
   orden: 8,
   stats: { hp: 8, r: 12, speed: 70, dmg: 1, spr: 'mage', s: 2 },
@@ -714,6 +769,7 @@ defEnemy('mage', {
   ia: 'archer',
   encima(e, la, white) { ctx.fillStyle = e.aiming ? '#ffffff' : '#9bff7a'; ctx.beginPath(); ctx.arc(e.x + (Math.cos(la) < 0 ? -13 : 13), e.y - 6 + Math.sin(e.t * 4) * 2, e.aiming ? 5 : 3.5, 0, TAU); ctx.fill(); }
 });
+
 defEnemy('mini', {
   orden: 3,
   stats: { hp: 2, r: 8, speed: 115, dmg: 1, spr: 'toxic', s: 1.3 },
@@ -722,6 +778,13 @@ defEnemy('mini', {
   ia: 'slime',
   forma(e, f) { const q = Math.sin(e.t * 6.4) * .12; f.sx = 1 + q; f.sy = 1 - q; }
 });
+
+
+
+
+
+
+
 defEnemy('phantom', {
   orden: 17,
   stats: { hp: 12, r: 12, speed: 100, dmg: 1, spr: 'phantom', s: 2.2 },
@@ -752,6 +815,12 @@ defEnemy('phantom', {
   },
   forma(e, f) { f.alpha = (e.alpha ?? 1) * (.7 + .2 * Math.sin(e.t * 5)); f.oy = Math.sin(e.t * 3) * 3 - 4; }
 });
+
+
+
+
+
+
 defEnemy('priest', {
   orden: 16,
   stats: { hp: 14, r: 12, speed: 72, dmg: 1, spr: 'priest', s: 2.2 },
@@ -780,6 +849,11 @@ defEnemy('priest', {
     }
   }
 });
+
+
+
+
+
 defEnemy('slime', {
   orden: 1,
   stats: { hp: 5, r: 13, speed: 75, dmg: 1, spr: 'slime', s: 2 },
@@ -811,6 +885,11 @@ defEnemy('slime', {
   },
   forma(e, f) { const q = Math.sin(e.t * 6.4) * .12; f.sx = 1 + q; f.sy = 1 - q; }
 });
+
+
+
+
+
 defEnemy('sniper', {
   orden: 18,
   stats: { hp: 9, r: 12, speed: 85, dmg: 1, spr: 'sniper', s: 2 },
@@ -836,6 +915,11 @@ defEnemy('sniper', {
   },
   debajo(e, la) { if (e.aiming && e.aimA !== undefined) { ctx.strokeStyle = e.st_t < .28 ? 'rgba(255,60,60,.9)' : 'rgba(255,90,90,.45)'; ctx.lineWidth = e.st_t < .28 ? 2.5 : 1.2; ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(e.aimA) * 700, e.y + Math.sin(e.aimA) * 700); ctx.stroke(); } }
 });
+
+
+
+
+
 defEnemy('spider', {
   orden: 7,
   stats: { hp: 6, r: 12, speed: 210, dmg: 1, spr: 'spider', s: 2 },
@@ -862,6 +946,11 @@ defEnemy('spider', {
     }
   }
 });
+
+
+
+
+
 defEnemy('splitter', {
   orden: 14,
   stats: { hp: 16, r: 17, speed: 62, dmg: 1, spr: 'splitter', s: 2.9 },
@@ -883,6 +972,10 @@ defEnemy('splitter', {
   // al morir se parte en limos
   alMorir(e) { for (let i = 0; i < (e.elite ? 4 : 3); i++) G.enemies.push(mkEnemy('slime', e.x + rand(-14, 14), e.y + rand(-14, 14), 1, false)); }
 });
+
+
+
+
 defEnemy('toxic', {
   orden: 2,
   stats: { hp: 7, r: 13, speed: 80, dmg: 1, spr: 'toxic', s: 2 },
@@ -898,6 +991,13 @@ defEnemy('toxic', {
   // al morir se divide en dos limitos
   alMorir(e) { for (let i = 0; i < 2; i++) G.enemies.push(mkEnemy('mini', e.x + rand(-10, 10), e.y + rand(-10, 10), 0, false)); }
 });
+
+
+
+
+
+
+
 defEnemy('warden', {
   orden: 11,
   stats: { hp: 22, r: 15, speed: 55, dmg: 1, spr: 'warden', s: 2.3 },
@@ -935,6 +1035,13 @@ defEnemy('warden', {
     return dmg;
   }
 });
+
+
+
+
+
+
+
 defEnemy('wraith', {
   orden: 9,
   stats: { hp: 8, r: 12, speed: 95, dmg: 1, spr: 'wraith', s: 2 },
@@ -972,12 +1079,19 @@ defEnemy('wraith', {
   forma(e, f) { f.alpha = (.55 + .2 * Math.sin(e.t * 4)) * e.alpha; f.oy = Math.sin(e.t * 3) * 3 - 4; }
 });
 // Hoja del Abismo
+
 defWeapon('abyss', {
   orden: 9,
   datos: { name: 'Hoja del Abismo', type: 'melee', shape: 'great', rarity: 'epic', dmg: 6, cd: .30, range: 64, arc: 2.4, en: 3, chg: 'spin', chgEn: 25, leech: true },
   familia: 'knight'
 });
 // Rayo sostenido
+
+
+
+
+
+
 defWeapon('beam', {
   orden: 41,
   datos: { name: 'Rayo sostenido', type: 'staff', style: 'beam', shape: 'rod', gem: '#ff6ad8', rarity: 'epic', dmg: 2, cd: .2, speed: 0, pierce: 0, shots: 1, en: 1, chg: 'ray', chgEn: 25 },
@@ -1009,12 +1123,14 @@ defWeapon('beam', {
   }
 });
 // Cerbatana
+
 defWeapon('blowgun', {
   orden: 30,
   datos: { name: 'Cerbatana', type: 'bow', shape: 'blowgun', rarity: 'uncommon', dmg: 3, cd: .5, speed: 760, pierce: 0, shots: 1, en: 2, chg: 'power', chgEn: 12, fx: 'poison', veil: .5, back: .5 },
   familia: 'rogue'
 });
 // Arco explosivo
+
 defWeapon('boom', {
   orden: 19,
   datos: { name: 'Arco explosivo', type: 'bow', shape: 'bow', rarity: 'epic', dmg: 5, cd: .60, speed: 560, pierce: 0, shots: 1, en: 8, chg: 'power', chgEn: 25, fx: 'explode' },
@@ -1022,6 +1138,10 @@ defWeapon('boom', {
   potencia: .8
 });
 // Bumerán
+
+
+
+
 defWeapon('boomer', {
   orden: 35,
   datos: { name: 'Bumerán', type: 'bow', style: 'boomer', shape: 'boomer', rarity: 'common', dmg: 3, cd: .35, speed: 520, pierce: 99, shots: 1, en: 1, chg: 'boomer', chgEn: 8 },
@@ -1052,24 +1172,28 @@ defWeapon('boomer', {
   }
 });
 // Garras de sombra
+
 defWeapon('claws', {
   orden: 32,
   datos: { name: 'Garras de sombra', type: 'melee', shape: 'claws', rarity: 'rare', dmg: 4, cd: .22, range: 46, arc: 2.0, en: 2, chg: 'lunge', chgEn: 18, back: .5, veil: .8, dodge: .1 },
   familia: 'rogue'
 });
 // Garrote
+
 defWeapon('club', {
   orden: 2,
   datos: { name: 'Garrote', type: 'melee', shape: 'hammer', rarity: 'common', dmg: 4, cd: .55, range: 46, arc: 2.2, en: 0, chg: 'quake', chgEn: 8 },
   familia: 'knight'
 });
 // Daga veloz
+
 defWeapon('dagger', {
   orden: 3,
   datos: { name: 'Daga veloz', type: 'melee', shape: 'dagger', rarity: 'uncommon', dmg: 2, cd: .16, range: 42, arc: 1.4, en: 1, chg: 'lunge', chgEn: 12 },
   familia: 'rogue'
 });
 // Bastón de fuego
+
 defWeapon('fire', {
   orden: 22,
   datos: { name: 'Bastón de fuego', type: 'staff', shape: 'staff', gem: '#ff8a3a', rarity: 'rare', dmg: 5, cd: .55, speed: 400, pierce: 0, shots: 1, en: 6, chg: 'nova', chgEn: 18, fx: 'explode' },
@@ -1078,24 +1202,28 @@ defWeapon('fire', {
   potencia: .85
 });
 // Espada flamígera
+
 defWeapon('flame', {
   orden: 10,
   datos: { name: 'Espada flamígera', type: 'melee', shape: 'sword', rarity: 'epic', dmg: 7, cd: .34, range: 60, arc: 2.2, en: 3, chg: 'spin', chgEn: 25, fx: 'burn', tint: '#ff8a3a' },
   familia: 'knight'
 });
 // Hoja de escarcha
+
 defWeapon('frost', {
   orden: 8,
   datos: { name: 'Hoja de escarcha', type: 'melee', shape: 'sword', rarity: 'rare', dmg: 5, cd: .36, range: 58, arc: 2.1, en: 2, chg: 'spin', chgEn: 18, fx: 'slow', tint: '#9bd8ff' },
   familia: 'knight'
 });
 // Arco de escarcha
+
 defWeapon('frostbow', {
   orden: 17,
   datos: { name: 'Arco de escarcha', type: 'bow', shape: 'bow', rarity: 'rare', dmg: 4, cd: .42, speed: 640, pierce: 1, shots: 1, en: 5, chg: 'volley', chgEn: 18, fx: 'slow' },
   familia: 'archer'
 });
 // Bastón del vendaval
+
 defWeapon('gale', {
   orden: 25,
   datos: { name: 'Bastón del vendaval', type: 'staff', shape: 'staff', gem: '#c8f0e0', rarity: 'rare', dmg: 3, cd: .22, speed: 700, pierce: 2, shots: 1, en: 4, chg: 'nova', chgEn: 18, fx: 'push' },
@@ -1103,6 +1231,7 @@ defWeapon('gale', {
   familia: null
 });
 // Mandoble
+
 defWeapon('great', {
   orden: 6,
   datos: { name: 'Mandoble', type: 'melee', shape: 'great', rarity: 'rare', dmg: 7, cd: .62, range: 70, arc: 2.6, en: 2, chg: 'spin', chgEn: 18 },
@@ -1110,6 +1239,12 @@ defWeapon('great', {
   potencia: .95
 });
 // Grimorio de huesos
+
+
+
+
+
+
 defWeapon('grimoire', {
   orden: 40,
   datos: { name: 'Grimorio de huesos', type: 'staff', style: 'grimoire', shape: 'book', gem: '#d8d0b8', rarity: 'epic', dmg: 4, cd: 1.1, speed: 420, pierce: 0, shots: 1, en: 7, chg: 'legion', chgEn: 25 },
@@ -1136,6 +1271,7 @@ defWeapon('grimoire', {
   }
 });
 // Martillo de guerra
+
 defWeapon('hammer', {
   orden: 7,
   datos: { name: 'Martillo de guerra', type: 'melee', shape: 'hammer', rarity: 'rare', dmg: 9, cd: .80, range: 62, arc: 2.8, en: 2, chg: 'quake', chgEn: 18 },
@@ -1143,30 +1279,42 @@ defWeapon('hammer', {
   potencia: .95
 });
 // Espada de hierro
+
 defWeapon('iron', {
   orden: 4,
   datos: { name: 'Espada de hierro', type: 'melee', shape: 'sword', rarity: 'uncommon', dmg: 4, cd: .34, range: 54, arc: 2.0, en: 1, chg: 'spin', chgEn: 12 },
   familia: 'knight'
 });
 // Katar
+
 defWeapon('katar', {
   orden: 29,
   datos: { name: 'Katar', type: 'melee', shape: 'katar', rarity: 'uncommon', dmg: 3, cd: .2, range: 40, arc: 1.2, en: 1, chg: 'lunge', chgEn: 12, spd: .1, dodge: .15 },
   familia: 'rogue'
 });
 // Kunais
+
 defWeapon('kunai', {
   orden: 28,
   datos: { name: 'Kunais', type: 'bow', shape: 'kunai', rarity: 'common', dmg: 2, cd: .3, speed: 620, pierce: 0, shots: 1, en: 1, chg: 'volley', chgEn: 8, spd: .08, back: .5 },
   familia: 'rogue'
 });
 // Arco largo
+
 defWeapon('long', {
   orden: 14,
   datos: { name: 'Arco largo', type: 'bow', shape: 'bow', rarity: 'uncommon', dmg: 4, cd: .52, speed: 720, pierce: 1, shots: 1, en: 3, chg: 'power', chgEn: 12 },
   familia: 'archer'
 });
 // Mosquete
+
+
+
+
+
+
+
+
 defWeapon('musket', {
   orden: 38,
   datos: { name: 'Mosquete', type: 'bow', style: 'musket', shape: 'musket', rarity: 'rare', dmg: 13, cd: 1.35, speed: 1150, pierce: 99, shots: 1, en: 4, chg: 'blast', chgEn: 18 },
@@ -1197,12 +1345,14 @@ defWeapon('musket', {
   }
 });
 // Filo nocturno
+
 defWeapon('night', {
   orden: 34,
   datos: { name: 'Filo nocturno', type: 'melee', shape: 'sword', rarity: 'epic', dmg: 6, cd: .24, range: 56, arc: 2.0, en: 2, chg: 'lunge', chgEn: 25, tint: '#8a84a0', spd: .12, veil: 1, back: 1 },
   familia: 'rogue'
 });
 // Bastón de roca
+
 defWeapon('rock', {
   orden: 23,
   datos: { name: 'Bastón de roca', type: 'staff', shape: 'staff', gem: '#c09060', rarity: 'uncommon', dmg: 4, cd: .60, speed: 300, pierce: 0, shots: 1, en: 3, chg: 'nova', chgEn: 12, fx: 'stun' },
@@ -1210,12 +1360,14 @@ defWeapon('rock', {
   familia: null
 });
 // Espada oxidada
+
 defWeapon('rusty', {
   orden: 1,
   datos: { name: 'Espada oxidada', type: 'melee', shape: 'sword', rarity: 'common', dmg: 3, cd: .38, range: 50, arc: 1.9, en: 0, chg: 'spin', chgEn: 8 },
   familia: 'knight'
 });
 // Guadaña sangrienta
+
 defWeapon('scythe', {
   orden: 11,
   datos: { name: 'Guadaña sangrienta', type: 'melee', shape: 'scythe', rarity: 'epic', dmg: 8, cd: .50, range: 80, arc: 3.4, en: 3, chg: 'spin', chgEn: 25, leech: true },
@@ -1223,24 +1375,31 @@ defWeapon('scythe', {
   potencia: .9
 });
 // Arco de las Sombras
+
 defWeapon('shadow', {
   orden: 18,
   datos: { name: 'Arco de las Sombras', type: 'bow', shape: 'bow', rarity: 'epic', dmg: 3, cd: .18, speed: 680, pierce: 1, shots: 1, en: 6, chg: 'volley', chgEn: 25 },
   familia: 'rogue'
 });
 // Arco corto
+
 defWeapon('short', {
   orden: 13,
   datos: { name: 'Arco corto', type: 'bow', shape: 'bow', rarity: 'common', dmg: 2, cd: .34, speed: 520, pierce: 0, shots: 1, en: 1, chg: 'power', chgEn: 8 },
   familia: 'archer'
 });
 // Shurikens
+
 defWeapon('shuriken', {
   orden: 33,
   datos: { name: 'Shurikens', type: 'bow', shape: 'shuriken', rarity: 'rare', dmg: 2, cd: .4, speed: 600, pierce: 1, shots: 3, en: 3, chg: 'volley', chgEn: 18, spd: .06, dodge: .2 },
   familia: 'rogue'
 });
 // Hoz arrojadiza
+
+
+
+
 defWeapon('sickle', {
   orden: 39,
   datos: { name: 'Hoz arrojadiza', type: 'bow', style: 'sickle', shape: 'sickle', rarity: 'rare', dmg: 3, cd: .6, speed: 480, pierce: 99, shots: 1, en: 3, chg: 'reap', chgEn: 18 },
@@ -1271,18 +1430,27 @@ defWeapon('sickle', {
   }
 });
 // Honda
+
 defWeapon('sling', {
   orden: 12,
   datos: { name: 'Honda', type: 'bow', shape: 'sling', rarity: 'common', dmg: 2, cd: .28, speed: 480, pierce: 0, shots: 1, en: 1, chg: 'power', chgEn: 8 },
   familia: 'archer'
 });
 // Lanza de guardia
+
 defWeapon('spear', {
   orden: 5,
   datos: { name: 'Lanza de guardia', type: 'melee', shape: 'spear', rarity: 'uncommon', dmg: 5, cd: .42, range: 88, arc: .7, en: 1, chg: 'lunge', chgEn: 12 },
   familia: 'knight'
 });
 // Escudo de púas
+
+
+
+
+
+
+
 defWeapon('spiked', {
   orden: 37,
   datos: { name: 'Escudo de púas', type: 'melee', style: 'shield', shape: 'shield', rarity: 'uncommon', dmg: 3, cd: .42, range: 48, arc: 1.6, en: 1, chg: 'bash', chgEn: 12 },
@@ -1311,6 +1479,7 @@ defWeapon('spiked', {
   }
 });
 // Bastón del rayo
+
 defWeapon('storm', {
   orden: 26,
   datos: { name: 'Bastón del rayo', type: 'staff', shape: 'staff', gem: '#ffe27a', rarity: 'epic', dmg: 5, cd: .40, speed: 620, pierce: 0, shots: 1, en: 8, chg: 'nova', chgEn: 25, fx: 'chain' },
@@ -1319,6 +1488,7 @@ defWeapon('storm', {
   potencia: .85
 });
 // Bastón de marea
+
 defWeapon('tide', {
   orden: 24,
   datos: { name: 'Bastón de marea', type: 'staff', shape: 'staff', gem: '#4ab0e8', rarity: 'rare', dmg: 4, cd: .45, speed: 380, pierce: 1, shots: 1, en: 5, chg: 'nova', chgEn: 18, fx: 'slow' },
@@ -1326,24 +1496,28 @@ defWeapon('tide', {
   familia: null
 });
 // Arco triple
+
 defWeapon('triple', {
   orden: 15,
   datos: { name: 'Arco triple', type: 'bow', shape: 'bow', rarity: 'rare', dmg: 2, cd: .45, speed: 560, pierce: 0, shots: 3, en: 5, chg: 'volley', chgEn: 18 },
   familia: 'archer'
 });
 // Dagas gemelas
+
 defWeapon('twin', {
   orden: 31,
   datos: { name: 'Dagas gemelas', type: 'melee', shape: 'twin', rarity: 'rare', dmg: 3, cd: .13, range: 42, arc: 1.6, en: 1, chg: 'lunge', chgEn: 18, spd: .12, veil: .6 },
   familia: 'rogue'
 });
 // Bastón de la ciénaga
+
 defWeapon('venom', {
   orden: 21,
   datos: { name: 'Bastón de la ciénaga', type: 'staff', shape: 'staff', gem: '#9be05a', rarity: 'uncommon', dmg: 3, cd: .45, speed: 360, pierce: 1, shots: 1, en: 3, chg: 'nova', chgEn: 12, fx: 'poison' },
   familia: 'rogue'
 });
 // Orbe del vacío
+
 defWeapon('void', {
   orden: 27,
   datos: { name: 'Orbe del vacío', type: 'staff', shape: 'staff', gem: '#c77dff', rarity: 'epic', dmg: 4, cd: .70, speed: 220, pierce: 99, shots: 1, en: 10, chg: 'nova', chgEn: 25, fx: 'slow', big: true },
@@ -1352,6 +1526,7 @@ defWeapon('void', {
   potencia: .7
 });
 // Varita de aprendiz
+
 defWeapon('wand', {
   orden: 20,
   datos: { name: 'Varita de aprendiz', type: 'staff', shape: 'staff', gem: '#9bd0ff', rarity: 'common', dmg: 2, cd: .40, speed: 380, pierce: 0, shots: 1, en: 2, chg: 'nova', chgEn: 8, fx: 'homing' },
@@ -1359,6 +1534,11 @@ defWeapon('wand', {
   familia: null
 });
 // Látigo de cadenas
+
+
+
+
+
 defWeapon('whip', {
   orden: 36,
   datos: { name: 'Látigo de cadenas', type: 'melee', style: 'whip', shape: 'whip', rarity: 'uncommon', dmg: 4, cd: .5, range: 130, arc: .4, en: 1, chg: 'lash', chgEn: 12 },
@@ -1382,6 +1562,7 @@ defWeapon('whip', {
   }
 });
 // Ballesta pesada
+
 defWeapon('xbow', {
   orden: 16,
   datos: { name: 'Ballesta pesada', type: 'bow', shape: 'xbow', rarity: 'rare', dmg: 7, cd: .80, speed: 820, pierce: 2, shots: 1, en: 6, chg: 'power', chgEn: 18 },
@@ -1389,6 +1570,14 @@ defWeapon('xbow', {
   potencia: .9
 });
 // Sala de desafío
+
+
+
+
+
+
+
+
 defRoom('challenge', {
   orden: 1,
   objeto: 'trial',
@@ -1432,6 +1621,14 @@ defRoom('challenge', {
   }
 });
 // Altar maldito
+
+
+
+
+
+
+
+
 defRoom('curse', {
   orden: 2,
   objeto: 'cursed',
@@ -1461,6 +1658,13 @@ defRoom('curse', {
   }
 });
 // Sala de apuestas
+
+
+
+
+
+
+
 defRoom('gamble', {
   orden: 5,
   objeto: 'gamble',
@@ -1484,6 +1688,13 @@ defRoom('gamble', {
   }
 });
 // Sala de palancas
+
+
+
+
+
+
+
 defRoom('levers', {
   orden: 4,
   objeto: 'lever',
@@ -1527,6 +1738,16 @@ function pullLever(it) {
   }
 }
 // Guerrero encadenado
+
+
+
+
+
+
+
+
+
+
 defRoom('merc', {
   orden: 6,
   objeto: 'merc',
@@ -1559,6 +1780,14 @@ function freeMerc(it) {
   burst(it.x, it.y, '#9be0c8', 18, 160); sfx(700, .3, 'triangle', .04, 400);
 }
 // Sala espejo
+
+
+
+
+
+
+
+
 defRoom('mirror', {
   orden: 7,
   objeto: 'mirror',
@@ -1601,7 +1830,20 @@ function mirrorDefeated(e) {
   G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: mkW(e.mw.id, st), bob: 0 });
   showBanner('El reflejo se rompe', '#c77dff', `Copia de tu arma a ${st}★`);
 }
+
+
 // Prisionero
+
+
+
+
+
+
+
+
+
+
+
 defRoom('prisoner', {
   orden: 3,
   objeto: 'prisoner',
@@ -1629,12 +1871,16 @@ defRoom('prisoner', {
   }
 });
 // Jefe del piso 7: El Obispo Hueco
+
 defBoss('bishop', {
   orden: 7,
   datos: { name: 'El Obispo Hueco', hp: 2900, r: 32, minion: 'phantom', look: 'devourer', tint: '#a07ad8', col: '#d8b0ff', want: 220, scale: 1.12,
            p1: ['teleport', 'laser', 'spiral', 'summon'], p2: ['teleport', 'laser', 'dark', 'spiral', 'gapring', 'summon', 'predict'], p3: ['teleport', 'laser', 'dark', 'rain', 'gapring', 'predict', 'burst', 'spiral'] }
 });
 // Jefe del piso 3: El Devorador de Luz
+
+
+
 defBoss('devourer', {
   orden: 3,
   datos: { name: 'El Devorador de Luz', hp: 1250, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,
@@ -1654,18 +1900,22 @@ defBoss('devourer', {
   }
 });
 // Jefe del piso 8: Elena, Corazón de la Cripta
+
 defBoss('elena', {
   orden: 8,
   datos: { name: 'Elena, Corazón de la Cripta', hp: 3500, r: 34, minion: 'phantom', look: 'devourer', tint: '#ffd0d8', col: '#ff8aa0', want: 190, scale: 1.25,
            p1: ['laser', 'web', 'charge', 'spiral', 'summon'], p2: ['laser', 'web', 'leap', 'dark', 'gapring', 'rain', 'summon', 'teleport'], p3: ['laser', 'dark', 'leap', 'charge', 'gapring', 'rain', 'predict', 'spiral', 'burst', 'web'] }
 });
 // Jefe del piso 5: La Forjadora
+
 defBoss('forger', {
   orden: 5,
   datos: { name: 'La Forjadora', hp: 2000, r: 32, minion: 'bomber', look: 'queen', tint: '#ff8a3a', col: '#ffb070', want: 170, scale: 1.12,
            p1: ['leap', 'burst', 'aimed', 'rain'], p2: ['leap', 'charge', 'rain', 'gapring', 'summon', 'burst'], p3: ['leap', 'charge', 'rain', 'gapring', 'laser', 'predict', 'burst'] }
 });
 // Jefe del piso 1: El Guardián de la Cripta
+
+
 defBoss('guardian', {
   orden: 1,
   datos: { name: 'El Guardián de la Cripta', hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,
@@ -1682,12 +1932,15 @@ defBoss('guardian', {
   }
 });
 // Jefe del piso 4: El Señor del Osario
+
 defBoss('ossuary', {
   orden: 4,
   datos: { name: 'El Señor del Osario', hp: 1600, r: 32, minion: 'warden', look: 'guardian', tint: '#9bd8ff', col: '#bfe8ff', want: 150, scale: 1.1,
            p1: ['burst', 'aimed', 'charge', 'rain'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring', 'web'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict', 'web', 'burst'] }
 });
 // Jefe del piso 2: La Reina Tejedora
+
+
 defBoss('queen', {
   orden: 2,
   datos: { name: 'La Reina Tejedora', hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,
@@ -1708,18 +1961,23 @@ defBoss('queen', {
   }
 });
 // Jefe del piso 6: La Raíz Madre
+
 defBoss('rootmother', {
   orden: 6,
   datos: { name: 'La Raíz Madre', hp: 2400, r: 34, minion: 'splitter', look: 'queen', tint: '#7ac04a', col: '#b8f080', want: 200, scale: 1.18,
            p1: ['web', 'summon', 'spiral', 'rain'], p2: ['web', 'leap', 'spiral', 'summon', 'rain', 'gapring'], p3: ['web', 'leap', 'spiral', 'rain', 'gapring', 'predict', 'burst'] }
 });
 // Subjefe del piso 7: Obispo de Ceniza
+
 defSub('ashbishop', {
   piso: 7,
   datos: { name: 'Obispo de Ceniza', spr: 'priest', s: 3.6, r: 22, hp: 1050, speed: 80, tint: '#c77dff', minion: 'phantom', want: 220,
            p1: ['volley', 'retreat', 'gust', 'fan'], p2: ['volley', 'retreat', 'gust', 'fan', 'summon', 'wave', 'rain'] }
 });
 // Subjefe del piso 1: Capitán Hueso
+
+
+
 defSub('captain', {
   piso: 1,
   datos: { name: 'Capitán Hueso', spr: 'skel', s: 3.4, r: 22, hp: 140, speed: 85, tint: '#e3a24a', minion: 'archer', want: 210,
@@ -1728,6 +1986,7 @@ defSub('captain', {
   encima(e, lift, p) { if (!e.cheat) drawWeapon({ type: 'bow', rarity: 'rare', id: 'long' }, e.x, e.y - lift, e.aimA ?? angTo(e, p), 1.4); }
 });
 // Subjefe del piso 3: El Verdugo
+
 defSub('executioner', {
   piso: 3,
   datos: { name: 'El Verdugo', spr: 'brute', s: 3.6, r: 26, hp: 450, speed: 72, tint: '#d4474b', minion: 'wraith', want: 0,
@@ -1736,6 +1995,10 @@ defSub('executioner', {
   rompeAlCaminar: true
 });
 // Subjefe del piso 2: Matriarca del Limo
+
+
+
+
 defSub('matriarch', {
   piso: 2,
   datos: { name: 'Matriarca del Limo', spr: 'toxic', s: 4.4, r: 26, hp: 290, speed: 62, tint: '#9be05a', minion: 'toxic', want: 120,
@@ -1746,30 +2009,38 @@ defSub('matriarch', {
   alMorir(e) { for (let i = 0; i < 3; i++) G.enemies.push(mkEnemy('toxic', e.x + rand(-20, 20), e.y + rand(-20, 20), 1, false)); }
 });
 // Subjefe del piso 6: Madre Espina
+
 defSub('rootqueen', {
   piso: 6,
   datos: { name: 'Madre Espina', spr: 'splitter', s: 4.6, r: 26, hp: 900, speed: 60, tint: '#9be05a', minion: 'splitter', want: 120,
            p1: ['hop', 'spit', 'whirl'], p2: ['bighop', 'spit', 'whirl', 'summon', 'fan'] }
 });
 // Subjefe del piso 4: Centinela Escarchado
+
 defSub('sentinel', {
   piso: 4,
   datos: { name: 'Centinela Escarchado', spr: 'warden', s: 3.6, r: 24, hp: 600, speed: 72, tint: '#9bd8ff', minion: 'warden', want: 150,
            p1: ['volley', 'charge3', 'rain'], p2: ['volley', 'charge3', 'rain', 'summon', 'wave'] }
 });
 // Subjefe del piso 5: Herrero Fundido
+
 defSub('smith', {
   piso: 5,
   datos: { name: 'Herrero Fundido', spr: 'charger', s: 3.8, r: 26, hp: 750, speed: 66, tint: '#ff8a3a', minion: 'bomber', want: 0,
            p1: ['slam', 'charge3', 'rain'], p2: ['slam', 'charge3', 'rain', 'summon', 'fan'] }
 });
 // Subjefe del piso 8: El Gemelo de Aldric
+
 defSub('twin', {
   piso: 8,
   datos: { name: 'El Gemelo de Aldric', spr: 'phantom', s: 3.6, r: 22, hp: 1250, speed: 105, tint: '#ffb0c8', minion: 'phantom', want: 160,
            p1: ['charge3', 'fan', 'retreat', 'wave'], p2: ['charge3', 'fan', 'retreat', 'summon', 'whirl', 'gust', 'bighop'] }
 });
 // Ataque de jefe: aimed
+
+
+
+
 defBossMove('aimed', {
   hacer(e, dt, c) {
     const { a, ph2 } = c;
@@ -1780,6 +2051,10 @@ defBossMove('aimed', {
   }
 });
 // Ataque de jefe: burst
+
+
+
+
 defBossMove('burst', {
   hacer(e, dt, c) {
     const { ph2, bcol } = c;
@@ -1790,6 +2065,13 @@ defBossMove('burst', {
   }
 });
 // Ataque de jefe: charge
+
+
+
+
+
+
+
 defBossMove('charge', {
   hacer(e, dt, c) {
     const { ph2, ph3, bcol } = c;
@@ -1817,6 +2099,12 @@ defBossMove('charge', {
   }
 });
 // Ataque de jefe: dark
+
+
+
+
+
+
 defBossMove('dark', {
   hacer(e, dt, c) {
     const { a } = c;
@@ -1827,6 +2115,11 @@ defBossMove('dark', {
   }
 });
 // Ataque de jefe: gapring
+
+
+
+
+
 defBossMove('gapring', {
   hacer(e, dt, c) {
     const { ph3, bcol } = c;
@@ -1842,6 +2135,14 @@ defBossMove('gapring', {
   }
 });
 // Ataque de jefe: laser
+
+
+
+
+
+
+
+
 defBossMove('laser', {
   hacer(e, dt, c) {
     const { p, a, ph2, ph3 } = c;
@@ -1862,6 +2163,16 @@ defBossMove('laser', {
   }
 });
 // Ataque de jefe: leap
+
+
+
+
+
+
+
+
+
+
 defBossMove('leap', {
   hacer(e, dt, c) {
     const { p, ph2, ph3, bcol } = c;
@@ -1880,6 +2191,10 @@ defBossMove('leap', {
   }
 });
 // Ataque de jefe: predict
+
+
+
+
 defBossMove('predict', {
   hacer(e, dt, c) {
     const { ph3 } = c;
@@ -1890,6 +2205,11 @@ defBossMove('predict', {
   }
 });
 // Ataque de jefe: rain
+
+
+
+
+
 defBossMove('rain', {
   hacer(e, dt, c) {
     const { p, ph3, bcol } = c;
@@ -1904,6 +2224,11 @@ defBossMove('rain', {
   }
 });
 // Ataque de jefe: spiral
+
+
+
+
+
 defBossMove('spiral', {
   hacer(e, dt, c) {
     e.timer += dt;
@@ -1917,6 +2242,12 @@ defBossMove('spiral', {
   }
 });
 // Ataque de jefe: summon
+
+
+
+
+
+
 defBossMove('summon', {
   hacer(e, dt, c) {
     const { B } = c;
@@ -1932,6 +2263,10 @@ defBossMove('summon', {
   }
 });
 // Ataque de jefe: teleport
+
+
+
+
 defBossMove('teleport', {
   hacer(e, dt, c) {
     const { p, ph2, bcol } = c;
@@ -1942,6 +2277,10 @@ defBossMove('teleport', {
   }
 });
 // Ataque de jefe: web
+
+
+
+
 defBossMove('web', {
   hacer(e, dt, c) {
     const { a, ph2 } = c;
@@ -1952,6 +2291,14 @@ defBossMove('web', {
   }
 });
 // Ataque de subjefe: charge3
+
+
+
+
+
+
+
+
 defSubMove('charge3', {
   hacer(e, dt, c) {
     const { ph2 } = c;
@@ -1983,6 +2330,10 @@ defSubMove('charge3', {
   }
 });
 // Ataque de subjefe: fan
+
+
+
+
 defSubMove('fan', {
   hacer(e, dt, c) {
     const { S, a } = c;
@@ -1994,6 +2345,11 @@ defSubMove('fan', {
   }
 });
 // Ataque de subjefe: gust
+
+
+
+
+
 defSubMove('gust', {
   hacer(e, dt, c) {
     const { p, S } = c;
@@ -2009,6 +2365,15 @@ defSubMove('gust', {
   }
 });
 // Ataque de subjefe: hop (y su versión bighop, con hop2 entre saltos)
+
+
+
+
+
+
+
+
+
 defSubMove('hop', {
   hacer(e, dt, c) {
     const { p, S, ph2 } = c;
@@ -2035,6 +2400,11 @@ defSubMove('hop2', {
   }
 });
 // Ataque de subjefe: rain
+
+
+
+
+
 defSubMove('rain', {
   hacer(e, dt, c) {
     const { p, S, ph2 } = c;
@@ -2049,6 +2419,11 @@ defSubMove('rain', {
   }
 });
 // Ataque de subjefe: retreat
+
+
+
+
+
 defSubMove('retreat', {
   hacer(e, dt, c) {
     const { S, a, ph2, move } = c;
@@ -2059,6 +2434,9 @@ defSubMove('retreat', {
   }
 });
 // Ataque de subjefe: slam
+
+
+
 defSubMove('slam', {
   hacer(e, dt, c) {
     const { S, ph2 } = c;
@@ -2068,6 +2446,10 @@ defSubMove('slam', {
   }
 });
 // Ataque de subjefe: spit
+
+
+
+
 defSubMove('spit', {
   hacer(e, dt, c) {
     const { S, ph2 } = c;
@@ -2078,6 +2460,12 @@ defSubMove('spit', {
   }
 });
 // Ataque de subjefe: summon
+
+
+
+
+
+
 defSubMove('summon', {
   hacer(e, dt, c) {
     const { S } = c;
@@ -2090,6 +2478,11 @@ defSubMove('summon', {
   }
 });
 // Ataque de subjefe: volley
+
+
+
+
+
 defSubMove('volley', {
   hacer(e, dt, c) {
     const { S, ph2 } = c;
@@ -2106,6 +2499,13 @@ defSubMove('volley', {
   }
 });
 // Ataque de subjefe: wave
+
+
+
+
+
+
+
 defSubMove('wave', {
   hacer(e, dt, c) {
     const { p, S, ph2 } = c;
@@ -2124,6 +2524,12 @@ defSubMove('wave', {
   }
 });
 // Ataque de subjefe: whirl
+
+
+
+
+
+
 defSubMove('whirl', {
   hacer(e, dt, c) {
     const { p, S } = c;
@@ -2138,6 +2544,8 @@ defSubMove('whirl', {
   }
 });
 // ================= Pixel art =================
+
+
 const MAPS = {
   knight: ['.....oo.....', '....kook....', '...kssssk...', '..kssssssk..', '..ksvvvvsk..', '..kssssssk..', '...kkkkkk...',
            '..kaaaaaak..', '.rkaabbaakr.', '.rkaaaaaakr.', '..kaaaaaak..', '...kl..lk...', '...kl..lk...', '...kk..kk...'],
@@ -2196,7 +2604,14 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   ctx.restore();
 }
 
+
 // ================= Datos del juego =================
+
+
+
+
+
+
 const RARITY = {
   common:   { n: 'Común',      c: '#bdb6a8' },
   uncommon: { n: 'Poco común', c: '#6cc46a' },
@@ -2377,7 +2792,14 @@ const OLEADAS = DATOS.oleadas, BOTIN = DATOS.botin;
 const BOSSES = {};
 for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setCUR_CHAR(v) { return (CUR_CHAR = v); }
+
+
+
+
 // ================= Guardado =================
+
 const SAVE_KEY = 'cripta-guardian-v1';
 // Versión del formato del guardado. Súbela cuando cambie la forma de lo que se guarda
 // y añade en SAVE_MIGRA el paso que convierte la versión anterior en la nueva.
@@ -2410,7 +2832,15 @@ function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)
 let SAVE = loadSave();
 let selChar = 'knight';
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setSelChar(v) { return (selChar = v); }
+
+
 // ================= Audio =================
+
+
+
+
 let AC = null, muted = false, noiseBuf = null;
 function sfx(f, d = .08, type = 'square', v = .04, slide = 0) {
   if (!AC || muted) return;
@@ -2457,7 +2887,15 @@ function musicTick() {
   }
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setAC(v) { return (AC = v); }
+function setMuted(v) { return (muted = v); }
+
+
 // ================= Generación =================
+
+
+
 function generate() {
   for (let attempt = 0; attempt < 400; attempt++) {
     const cells = new Map(), list = [], edges = [];
@@ -2624,7 +3062,27 @@ function buildMap(layout) {
   return { tiles, doorRoom };
 }
 
+
 // ================= Estado =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 let G = null, paused = false, started = false;
 function rc(id) { return G ? G.player.relics.filter(r => r === id).length : 0; }
 
@@ -2636,7 +3094,7 @@ function startKit(ch) {
 }
 function newRun(charId) {
   const ch = CHARS[charId];
-  CUR_CHAR = charId;
+  setCUR_CHAR(charId);
   const p = {
     char: charId, spr: ch.spr, x: 0, y: 0, r: 11,
     hp: ch.hp + SAVE.upg.hp, maxHp: ch.hp + SAVE.upg.hp, sh: ch.sh, maxSh: ch.sh, shT: 0, shAcc: 0,
@@ -2759,7 +3217,14 @@ function randomRelics(n) {
   return shuffle(pool).slice(0, n);
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setPaused(v) { return (paused = v); }
+function setStarted(v) { return (started = v); }
+
+
 // ================= Colisiones =================
+
+
 function solidAt(tx, ty) {
   if (tx < 0 || ty < 0 || tx >= MW || ty >= MH) return true;
   const i = ty * MW + tx, t = G.tiles[i];
@@ -2806,7 +3271,15 @@ function roomAt(x, y) {
   return null;
 }
 
+
 // ================= Efectos =================
+
+
+
+
+
+
+
 function burst(x, y, color, n = 8, sp = 140, size = 3, life = .45) {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * TAU, s = rand(sp * .3, sp);
@@ -2861,7 +3334,16 @@ function damageProp(o, d) {
   if (Math.random() < BC.llave) G.pickups.push({ kind: 'key', x: o.x, y: o.y });
 }
 
+
 // ================= Entrada =================
+
+
+
+
+
+
+
+
 const keys = new Set();
 const mouse = { x: 0, y: 0, down: false, right: false, moved: false };
 const touch = { on: false, stickId: null, ox: 0, oy: 0, x: 0, y: 0, atk: false, chg: false };
@@ -2876,7 +3358,7 @@ addEventListener('keydown', e => {
   if (!started) return;
   if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'tab'].includes(k)) e.preventDefault();
   if (k === 'escape' || k === 'p') { togglePause(); return; }
-  if (k === 'm') { muted = !muted; return; }
+  if (k === 'm') { setMuted(!muted); return; }
   if (e.repeat) return;
   keys.add(k);
   if (k === ' ' || k === 'shift') wantDash = true;
@@ -2933,7 +3415,36 @@ holdBtn('bEle', () => wantElem = true);
 holdBtn('bUse', () => wantUse = true);
 holdBtn('bPause', () => togglePause());
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setWantDash(v) { return (wantDash = v); }
+function setWantSwap(v) { return (wantSwap = v); }
+function setWantUse(v) { return (wantUse = v); }
+function setWantAbil(v) { return (wantAbil = v); }
+function setWantElem(v) { return (wantElem = v); }
+
+
+
 // ================= Jugador =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function nearestEnemy(p, maxD) {
   let best = null, bd = maxD;
   for (const e of G.enemies) { if (e.air) continue; const d = dist(p, e); if (d < bd) { bd = d; best = e; } }
@@ -2988,7 +3499,7 @@ function updatePlayer(dt) {
     classDash(p);
     if (rc('polvora')) { const bx = p.x, by = p.y; G.parts.push({ x: bx, y: by, vx: 0, vy: 0, life: .8, max: .8, color: '#2a2433', size: 10 }); later(.8, () => explode(bx, by, 70, 8, true)); }
   }
-  wantDash = false;
+  setWantDash(false);
   const speedMul = (1 + .15 * rc('botas') + (tl('frio') ? .1 : 0) + (p.slots[p.cur].spd || 0) + .03 * cu('r_veil') + (subIs('shade') ? .04 * subLv(p) : 0)) * (p.shadowT > 0 ? 1.25 : 1) * (p.rageT > 0 ? 1.2 : 1) * (pact('frenzy') ? 1.2 : 1) * (p.slow > 0 ? .55 : 1) * (p.charge > 0 ? .55 : 1);
   if (p.dashT > 0) {
     p.dashT -= dt;
@@ -3028,7 +3539,7 @@ function updatePlayer(dt) {
     p.cur = wantSwap === 'a' ? 0 : wantSwap === 'b' ? 1 : 1 - p.cur;
     if (p.cur !== prev) { p.cd = Math.max(p.cd, .12); p.charge = 0; sfx(520, .05, 'triangle', .03); }
   }
-  wantSwap = 0;
+  setWantSwap(0);
   p.cd -= dt;
   const charging = touch.on ? touch.chg : mouse.right;
   if (charging && !G.over) { p.charge += dt; if (p.charge >= .55 && p.charge - dt < .55) sfx(900, .08, 'sine', .03); }
@@ -3042,9 +3553,9 @@ function updatePlayer(dt) {
   if ((p.comboT -= dt) <= 0) p.combo = 0;
   if (p.revUsed) { p.revenge = 0; p.revUsed = false; }
   if (wantAbil && p.abilCd <= 0 && !G.over) useAbility(p);
-  wantAbil = false;
+  setWantAbil(false);
   if (wantElem && !G.over) elemAbility(p);
-  wantElem = false;
+  setWantElem(false);
   if (touch.on) $('bEle').hidden = !(p.slots[p.cur] && p.slots[p.cur].elOn);
 
   p.en = Math.min(maxEnergy(p), p.en + (3 + 3 * rc('bateria')) * dt);
@@ -3056,7 +3567,7 @@ function updatePlayer(dt) {
   if (touch.on) bu.hidden = !it;
   if (it) bu.textContent = { chest: 'ABRIR', shop: 'COMPRAR', portal: 'BAJAR', altar: 'ELEGIR', note: 'LEER', totem: 'LUCHAR', armor: 'EQUIPAR', prisoner: 'LIBERAR', merc: 'LIBERAR', lever: 'PALANCA', gamble: 'APOSTAR', mirror: 'TOCAR', exit: 'SALIR', cursed: 'PACTO', trial: 'ACEPTAR', forge: 'FORJA' }[it.kind] || 'TOMAR';
   if (wantUse && it) interact(p, it);
-  wantUse = false;
+  setWantUse(false);
 
   p.inv -= dt;
   p.shT += dt;
@@ -3227,9 +3738,25 @@ function chargedAttack(p) {
     }
   }
 }
+
+
 // ================= Armas con estilo propio =================
 // cada una ataca a su manera, tiene su mejora de forja propia y su ataque elemental
 // el texto, la mejora de forja y los ataques de cada arma con estilo viven en su archivo de 01c-armas/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
 const EL_PROC = { fire: 'quema y estalla', water: 'empapa y frena', air: 'empuja lejos', earth: 'aturde' };
@@ -3437,8 +3964,31 @@ function drawStyles() {
   }
 }
 
+
+
+
 // ================= Armadura =================
 // una sola armadura por ahora: su protección sube con las estrellas; no se forja ni usa cristales
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const ARMOR = { n: 'Coraza del Guardián', sh: [1, 1, 2, 2, 3], block: [0, .08, .12, .18, .25], red: [0, 0, 0, 1, 1] };
 const armorSh = p => p.armor ? ARMOR.sh[p.armor - 1] : 0;
 function armorDesc(s) {
@@ -3571,7 +4121,27 @@ function hurtPlayer(d, por) {
   return true;
 }
 
+
 // ================= Enemigos =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   const fm = 1 + .6 * (G.floor - 1);
@@ -3801,8 +4371,20 @@ function updateEnemy(e, dt) {
   const f = Math.exp(-10 * dt); e.kx *= f; e.ky *= f;
 }
 
+
+
 // ================= Subjefes =================
 // cada subjefe vive en su archivo de 01f-subjefes/; SUBS los ordena por piso
+
+
+
+
+
+
+
+
+
+
 const SUBS = {};
 for (const id of Object.keys(SUB_DEFS)) SUBS[SUB_DEFS[id].piso] = { sk: id, ...SUB_DEFS[id].datos };
 function mkSub(floor, x, y) {
@@ -3862,7 +4444,21 @@ function subDefeated(e) {
   if (sd && sd.alMorir) sd.alMorir(e);
 }
 
+
 // ================= Jefes =================
+
+
+
+
+
+
+
+
+
+
+
+
+
 function bossIdle(e) { e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.05 : e.phase === 2 ? .6 : .38) / D().rate / enemyPace(); }
 function bossRing(e, n, sp, color, off = 0, r = 7) { for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, sp, r, color); }
 function updateBoss(e, dt) {
@@ -3937,7 +4533,19 @@ function bossDefeated(e) {
   }));
 }
 
+
 // ================= Salas =================
+
+
+
+
+
+
+
+
+
+
+
 function spawnWave(room) {
   const fl = FLOORS[G.fi];
   // las cantidades se ajustan en src/datos/oleadas.jsonc
@@ -4035,7 +4643,13 @@ function updateRooms(dt) {
   }
 }
 
+
 // ================= Sinergias =================
+
+
+
+
+
 const hasFx = f => G.player.slots.some(w => w.fx === f);
 const SYNERGIES = [
   { id: 'infierno', n: 'Infierno',            c: '#ff8a3a', r: 'Arma de fuego + Pólvora negra',            d: 'Los enemigos en llamas explotan al morir.',                 ok: () => hasFx('burn') && rc('polvora') },
@@ -4057,7 +4671,18 @@ function updateSyn() {
   G.syn = now;
 }
 
+
 // ================= Compañeros =================
+
+
+
+
+
+
+
+
+
+
 const PETS = {
   owl:   { n: 'Búho vigía',   d: 'Vuela a tu lado y dispara a los enemigos cercanos.', cost: 3, c: '#c9a46a' },
   wolf:  { n: 'Lobo sombrío', d: 'Persigue y muerde a los enemigos de la sala.',       cost: 5, c: '#a8a0c0' },
@@ -4118,7 +4743,17 @@ function drawPet() {
   }
 }
 
+
 // ================= Historia: notas del diario =================
+
+
+
+
+
+
+
+
+
 const NOTES = [
   { t: 'Diario de Aldric · día 1', b: 'Mi hermana Elena bajó a la cripta hace tres lunas. En el pueblo dicen que nadie vuelve. Yo volveré, y la traeré conmigo.' },
   { t: 'Garabato en la pared', b: 'EL GUARDIÁN NO PROTEGE LA CRIPTA. PROTEGE AL MUNDO DE LO QUE HAY ABAJO.' },
@@ -4160,7 +4795,14 @@ function openEpilogue() {
 function closeEpilogue() { $('ovEpi').hidden = true; showEnd(); }
 function closeNote() { if (G.choice && G.choice.note) G.choice = null; $('ovNote').hidden = true; }
 
+
 // ================= Logros y bestiario =================
+
+
+
+
+
+
 const ACH = {
   first:     { n: 'Primera sangre',       d: 'Derrota a tu primer enemigo.', g: 1 },
   sub:       { n: 'Cazador de capitanes', d: 'Derrota a un subjefe.', g: 2 },
@@ -4192,15 +4834,21 @@ function ach(id) {
 const BEAST = {};
 for (const id of enemyList()) BEAST[id] = ENEMIES[id].bestiario;
 
+
 // ================= Guardar partida =================
 // se guarda al empezar cada piso; al continuar, se reanuda al inicio de ese piso
+
+
+
+
+
 function snapRun() {
   const p = G.player;
   return { floor: G.floor, char: p.char, diff: G.diff, hp: p.hp, maxHp: p.maxHp, en: p.en, maxEn: p.maxEn, relics: p.relics.slice(), cur: p.cur,
     slots: p.slots.map(w => ({ id: w.id, stars: w.stars, up: { ...w.up }, el: w.el, elC: w.elC, elLv: w.elLv, starter: !!w.starter })), crystals: { ...G.crystals }, pet: G.petKind, armor: p.armor || 0, talents: p.talents.slice(), spec: p.spec || '', subK: p.subK || 0, preK: p.preK || 0, cu: { ...p.cu }, daily: DAILY ? DAILY.date : '', coins: G.coins, keys: G.keys, gems: G.gems, kills: G.kills, time: G.time, wonOnce: !!G.wonOnce };
 }
 function resumeRun(s) {
-  selChar = s.char; newRun(s.char);
+  setSelChar(s.char); newRun(s.char);
   G.petKind = s.pet || ''; G.pet = null;
   Object.assign(G, { diff: s.diff, coins: s.coins, keys: s.keys, gems: s.gems, kills: s.kills, time: s.time, wonOnce: s.wonOnce });
   const p = G.player;
@@ -4214,7 +4862,20 @@ function resumeRun(s) {
   buildFloor(s.floor);
 }
 
+
 // ================= Elementos =================
+
+
+
+
+
+
+
+
+
+
+
+
 const ELEMS = {
   fire:  { n: 'Fuego',  c: '#ff6a3a', ab: 'Lanzallamas', abd: 'Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.',
            hitd: 'te quema y deja el suelo ardiendo',
@@ -4393,7 +5054,21 @@ function drawCrystal(x, y, c, s = 1) {
   ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillRect(x - 1.5 * s, y - 5 * s, 2 * s, 4 * s);
 }
 
+
+
 // ================= Forja =================
+
+
+
+
+
+
+
+
+
+
+
+
 const FORGE = {
   dmg:  { n: 'Filo',       d: '+8 % de daño' },
   rate: { n: 'Cadencia',   d: 'ataca un 10 % más rápido' },
@@ -4464,8 +5139,12 @@ function forgeBuy(i, k) {
 function closeForge() { if (G.choice && G.choice.forge) G.choice = null; $('ovForge').hidden = true; updateAdapt(false); }
 $('btnForgeClose').addEventListener('click', closeForge);
 
+
 // ================= Enemigos que se adaptan a tu arsenal =================
 // cuanto más fuerte tu mejor arma respecto a lo esperado en el piso, más duros los enemigos
+
+
+
 const EXPECT = [0, 2.0, 2.8, 3.6];
 function arsenalPower() {
   let best = 0;
@@ -4482,7 +5161,21 @@ function updateAdapt(announce) {
   if (announce && lvl > old + .3) addText(G.player.x, G.player.y - 40, 'Los enemigos se adaptan a tu arsenal', '#d4474b', 13);
 }
 
+
 // ================= Clases: mecánicas, talentos y especialización =================
+
+
+
+
+
+
+
+
+
+
+
+
+
 function tl(id) { return !!(G && G.player && G.player.talents && G.player.talents.includes(id)); }
 // daño de referencia del arma actual (normaliza armas muy rápidas o de varios proyectiles)
 function bestDmg(p) { const w = p.slots[p.cur]; return w.dmg * (w.shots || 1) * Math.max(1, .4 / w.cd); }
@@ -4820,7 +5513,15 @@ function drawClass() {
   }
 }
 
+
+
+
 // ================= Pactos de piso: una maldición a cambio de una bendición =================
+
+
+
+
+
 const PACTS = {
   volatile: { n: 'Cadáveres volátiles', c: '#ff8a3a', d: 'Maldición: los enemigos explotan al morir (cuidado con estar cerca). Bendición: +50 % de oro.' },
   glass:    { n: 'Cuerpo de cristal',   c: '#9bd8ff', d: 'Maldición: no tienes escudo en este piso. Bendición: el doble de probabilidad de crítico.' },
@@ -4851,7 +5552,11 @@ function pactOnDescend() {
   if (pact('fasting')) { p.maxHp += 2; p.hp += 2; }
 }
 
+
 // ================= Desafíos dentro del piso =================
+
+
+
 const DARES = {
   nohit:  { d: 'Despeja la sala sin recibir daño' },
   fast:   { d: 'Despeja la sala en menos de 30 s', t: 30 },
@@ -4887,10 +5592,21 @@ function dareText() {
   return 'Desafío: ' + D0.d + (D0.need ? ` (${Dg.n}/${D0.need})` : D0.t ? ` (${Math.max(0, Math.ceil(D0.t - Dg.t))} s)` : '') + (Dg.fail ? ' · fallido' : '');
 }
 
+
 // ================= Salas nuevas =================
 // cada sala de evento vive ahora en su archivo de 01d-salas/
 // ================= Sala de apuestas: el juego de las tres cartas =================
 // la cámara se acerca a la mesa, eliges 1 de 3 cartas boca abajo y solo una gana
+
+
+
+
+
+
+
+
+
+
 const GAM_LINES = {
   hello: ['¿Te atreves a apostar, mortal?', 'Siéntate… la casa te esperaba', 'Tu oro huele delicioso…'],
   pick:  ['Es hora de escoger…', 'Elige… si te atreves', 'Una carta. Solo una vive…'],
@@ -5072,7 +5788,11 @@ const GAM_SVG = {
   back: `<svg viewBox="0 0 100 140" aria-hidden="true"><rect x="0" y="0" width="100" height="140" rx="8" fill="#170f22"/><rect x="5" y="5" width="90" height="130" rx="5" fill="none" stroke="#7a3fbf" stroke-width="1.5"/><rect x="9" y="9" width="82" height="122" rx="3" fill="none" stroke="#3a2456" stroke-width="1"/><g fill="#0b0712" stroke="#4a2e70" stroke-width="1"><path d="M14 132V108a8 8 0 0 1 16 0v24z"/><path d="M34 132V104a8 8 0 0 1 16 0v28z"/><path d="M54 132V104a8 8 0 0 1 16 0v28z"/><path d="M74 132V108a8 8 0 0 1 12 0v24z"/><path d="M22 96V80a6 6 0 0 1 12 0v16z"/><path d="M44 96V78a6 6 0 0 1 12 0v18z"/><path d="M66 96V80a6 6 0 0 1 12 0v16z"/></g><g fill="#9b6dd6" opacity=".7"><circle cx="42" cy="118" r="2.2"/><circle cx="62" cy="118" r="2.2"/><circle cx="50" cy="88" r="1.8"/><circle cx="28" cy="88" r="1.6"/><circle cx="72" cy="88" r="1.6"/></g><text x="50" y="34" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Cripta del</text><text x="50" y="52" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Guardián</text><path d="M30 60h40" stroke="#7a3fbf" stroke-width="1"/><path d="M50 56l3 4-3 4-3-4z" fill="#b98cff"/></svg>`,
 };
 
+
+
 // ================= Reto diario =================
+
+
 let DAILY = null;
 const todayStr = () => new Date().toISOString().slice(0, 10);
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -5090,12 +5810,24 @@ function startDaily() {
   // el reto es igual para todos: sin mejoras del altar, compañero ni arma inicial, en dificultad normal
   const keep = { upg: SAVE.upg, pet: SAVE.pet, startW: SAVE.startW, diff: SAVE.diff };
   Object.assign(SAVE, { upg: { hp: 0, coin: 0, en: 0 }, pet: '', startW: '', diff: 'normal' });
-  selChar = I.char; newRun(I.char);
+  setSelChar(I.char); newRun(I.char);
   Object.assign(SAVE, keep);
   G.daily = I.date;
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setDAILY(v) { return (DAILY = v); }
+
+
 // ================= Elección de reliquia =================
+
+
+
+
+
+
+
+
 function openChoice(eyebrow, title, ids, done, kind = 'relic') {
   ids = ids.filter(Boolean);
   if (!ids.length) { done(); return; }
@@ -5118,7 +5850,33 @@ function pickChoice(i) {
   c.done();
 }
 
+
 // ================= Bucle =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -5342,7 +6100,13 @@ function update(dt) {
   G.cam.x += (tx - G.cam.x) * k; G.cam.y += (ty - G.cam.y) * k;
 }
 
+
 // ================= Dibujo =================
+
+
+
+
+
 let dpr = 1, zoom = 1;
 // calidad gráfica: 2 alta (pantallas retina a resolución completa), 1 media, 0 baja (se dibuja a 3/4 y el navegador lo estira).
 // En «auto» empieza en alta (en media si la pantalla es táctil: los celulares tienen muchos píxeles y poca
@@ -5396,9 +6160,23 @@ function drawElemRooms(vx0, vy0, vx1, vy1) {
     }
   }
 }
+
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setZoom(v) { return (zoom = v); }
+function setQL(v) { return (QL = v); }
+function setPerfEma(v) { return (perfEma = v); }
+function setSlowT(v) { return (slowT = v); }
+
+
+
 // ================= Ambiente: decoración, vegetación y luces =================
 // cada piso tiene su paleta de luz, plantas y objetos; edge = junto a los muros, open = en el centro de la sala
 // la decoración de cada piso se diseña en src/datos/pisos/ (bloque "ambiente"); aquí se traduce al formato del motor
+
+
+
+
+
 const AMB_COSAS = { huesos: 'bones', velas: 'candles', cristales: 'crystal', musgo: 'moss', hierba: 'grass', charcos: 'puddle', runas: 'rune', hongos: 'mushroom', espinas: 'thorn', escarcha: 'frost', lava: 'lava', flores: 'flowers', vidrios: 'glass', rosas: 'roses' };
 const AMB_PART = { polvo: 'dust', esporas: 'spore', brasas: 'ember', nieve: 'snow', luciernagas: 'firefly', chispas: 'spark', petalos: 'petal' };
 const AMB = DATOS.pisos.map(({ ambiente: d }) => {
@@ -5720,8 +6498,15 @@ function drawMotesGlow() {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 
+
 // ================= Mar de lava: lo que rodea la mazmorra =================
 // textura de 256 px que se repite sin costuras; se dibuja una vez y luego solo se desplaza
+
+
+
+
+
+
 const LAVA_T = 256;
 const lavaTex = (() => {
   const c = document.createElement('canvas'); c.width = c.height = LAVA_T;
@@ -5981,8 +6766,16 @@ function drawTiles(vx0, vy0, vx1, vy1) {
 }
 function drawShadow(x, y, r) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x, y + r * .8, r * .9, r * .35, 0, 0, TAU); ctx.fill(); }
 
+
 // ================= Armas: diseño por estrellas, efecto elemental y estelas =================
 // punta del arma (TIP) y dónde empieza la parte que corta o brilla (BASE), en coordenadas del arma
+
+
+
+
+
+
+
 const W_TIP = { sword: 38, dagger: 30, great: 46, spear: 46, hammer: 30, scythe: 44, staff: 47, boomer: 16, whip: 26, shield: 18, musket: 40, sickle: 24, book: 20, rod: 40, kunai: 20, katar: 26, twin: 22, claws: 20, shuriken: 20, blowgun: 31, sling: 12, xbow: 22, bow: 16 };
 const W_BASE = { sword: 9, dagger: 9, great: 9, spear: 34, hammer: 20, scythe: 24, staff: 35, boomer: 2, whip: 10, shield: 2, musket: 10, sickle: 8, book: 2, rod: 24, kunai: 8, katar: 8, twin: 5, claws: 6, shuriken: 2, blowgun: 2, sling: 6, xbow: 4, bow: 0 };
 const STAR_COL = ['#bdb6a8', '#6cc46a', '#5aa4e8', '#bb7cf0', '#ffb03a'];
@@ -6164,7 +6957,37 @@ function swingTrail(p, w, s, prog) {
   if (S === 5 && Math.random() < .6) { const r = rand(R * .4, R * .9), an = rand(a0, a1); G.parts.push({ x: p.x + Math.cos(an) * r, y: p.y + Math.sin(an) * r, vx: 0, vy: -30, life: .4, max: .4, color: '#ffd27a', size: 2 }); }
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setWREACT(v) { return (WREACT = v); }
+
+
 // ================= Armadura: el personaje cambia de color y brilla según las estrellas =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const ARMOR_PARTS = { knight: ['a', 's'], archer: ['t', 'g'], rogue: ['c', 'd'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
 function buildArmorSprites() {
@@ -6342,13 +7165,13 @@ function drawPlayer(p) {
       }
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
   };
-  WREACT = 1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0);
+  setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
   armorAura(p);
   const spr = p.armor && SPR[p.spr + '_A' + p.armor] ? p.spr + '_A' + p.armor : p.spr;
   if (back) drawW();
   if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1 });
   if (!back) drawW();
-  WREACT = 1;
+  setWREACT(1);
   drawAbilityFx(p);
   if (p.rageT > 0) { ctx.strokeStyle = `rgba(212,71,75,${.45 + .3 * Math.sin(G.time * 16)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, TAU); ctx.stroke(); }
   if (p.charge > 0) {
@@ -6982,9 +7805,9 @@ function loop(now) {
   const raw = now - last, dt = Math.min(.033, raw / 1000); last = now;
   // (los fotogramas muy lentos también cuentan: antes, si pasaban de 200 ms, la calidad nunca bajaba)
   if (started && !paused && G && raw < 1000 && (SAVE.opt.gfx || 'auto') === 'auto' && QL > 0) {
-    perfEma = perfEma * .94 + Math.min(raw, 100) * .06;
-    slowT = perfEma > 24 ? slowT + raw / 1000 : 0;
-    if (slowT > 2.5) { QL--; slowT = 0; perfEma = 16; resize(); }
+    setPerfEma(perfEma * .94 + Math.min(raw, 100) * .06);
+    setSlowT(perfEma > 24 ? slowT + raw / 1000 : 0);
+    if (slowT > 2.5) { setQL(QL - 1); setSlowT(0); setPerfEma(16); resize(); }
   }
   if (started && !paused && G) update(dt);
   if (started && G && G.gam) gamTick(dt);
@@ -7011,13 +7834,19 @@ requestAnimationFrame(loop);
 function render() {
   if (!G || !G.gam) { render0(); return; }
   const e = gamEase(), it = G.gam.it, z0 = zoom, cx = G.cam.x, cy = G.cam.y;
-  zoom = z0 * (1 + 1.5 * e); G.cam.x = cx + (it.x - cx) * e; G.cam.y = cy + (it.y - 18 - cy) * e;
-  try { render0(); } finally { zoom = z0; G.cam.x = cx; G.cam.y = cy; }
+  setZoom(z0 * (1 + 1.5 * e)); G.cam.x = cx + (it.x - cx) * e; G.cam.y = cy + (it.y - 18 - cy) * e;
+  try { render0(); } finally { setZoom(z0); G.cam.x = cx; G.cam.y = cy; }
 }
+
 
 // ================= Historial de partidas =================
 // Al terminar cada partida se guarda un resumen (las últimas 50). El menú muestra patrones:
 // en qué piso caes con cada clase y qué te mata más.
+
+
+
+
+
 const HIST_MAX = 50;
 function saveHistory(won) {
   const p = G.player, w = p.slots[p.cur];
@@ -7045,9 +7874,41 @@ function renderHistory() {
   for (const x of H.slice(0, 8)) out.push(`<div class="${x.gano ? '' : 'off'}"><b>${x.gano ? '✓ ' : ''}${esc(CHARS[x.clase] ? CHARS[x.clase].name : x.clase)} · piso ${x.piso}</b>${mmss(x.tiempo)} · ${x.bajas} bajas${x.arma ? ' · ' + esc(x.arma) : ''}${x.causa ? ' · te derrotó: ' + esc(x.causa) : ''}</div>`);
   $('histList').innerHTML = out.join('');
 }
+
+
 // ================= Menús =================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function renderMenu() {
-  CUR_CHAR = selChar;
+  setCUR_CHAR(selChar);
   $('charCards').innerHTML = Object.entries(CHARS).map(([id, c]) => {
     const own = SAVE.chars[id];
     return `<button class="card${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
@@ -7071,7 +7932,7 @@ function renderMenu() {
     // las mejoras de clase de otro personaje se devuelven al cambiar
     for (const [k, u] of Object.entries(UPG)) if (u.cls && u.cls !== id && SAVE.upg[k]) { SAVE.gems += u.cost.slice(0, SAVE.upg[k]).reduce((a, b) => a + b, 0); SAVE.upg[k] = 0; }
     writeSave();
-    selChar = id; renderMenu();
+    setSelChar(id); renderMenu();
   }));
   // compañeros
   $('petCards').innerHTML = [['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)].map(([id, P]) => {
@@ -7145,14 +8006,14 @@ function renderOpts(id) {
     <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
     <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
-    if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = QL0; slowT = 0; resize(); }
+    if (inp.tagName === 'SELECT') { o.gfx = inp.value; setQL(QL0); setSlowT(0); resize(); }
     else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
   }));
 }
 function setPause(v) {
   if (!started || !G || G.over || G.choice) return;
-  paused = v; $('ovPause').hidden = !v;
+  setPaused(v); $('ovPause').hidden = !v;
   keys.clear(); mouse.down = mouse.right = false; touch.atk = touch.chg = false;
   if (v) {
     renderOpts('pauseOpts');
@@ -7166,21 +8027,21 @@ function togglePause() { setPause(!paused); }
 function toMenu() {
   if (G && started && !G.keepRun) SAVE.run = null;
   if (G && started && !G.gemsBanked) { SAVE.gems += Math.round(G.gems * D().gem); SAVE.best = Math.max(SAVE.best, G.floor); writeSave(); }
-  $('ovEnd').hidden = true; $('ovEpi').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; paused = false; started = false;
+  $('ovEnd').hidden = true; $('ovEpi').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; setPaused(false); setStarted(false);
   $('touch').hidden = true;
   newRun(selChar);
   renderMenu(); $('ovStart').hidden = false; $('ovStart').scrollTop = 0;
 }
 $('btnStart').addEventListener('click', () => {
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch (_) { AC = null; }
-  $('ovStart').hidden = true; started = true; paused = false;
+  try { setAC(AC || new (window.AudioContext || window.webkitAudioContext)()); AC.resume && AC.resume(); } catch (_) { setAC(null); }
+  $('ovStart').hidden = true; setStarted(true); setPaused(false);
   if (touch.on) $('touch').hidden = false;
-  DAILY = null; newRun(selChar);
+  setDAILY(null); newRun(selChar);
   SAVE.upg = { hp: 0, coin: 0, en: 0 }; SAVE.pet = ''; SAVE.pets = {}; SAVE.startW = ''; writeSave();
 });
 $('btnDaily').addEventListener('click', () => {
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch (_) { AC = null; }
-  $('ovStart').hidden = true; started = true; paused = false;
+  try { setAC(AC || new (window.AudioContext || window.webkitAudioContext)()); AC.resume && AC.resume(); } catch (_) { setAC(null); }
+  $('ovStart').hidden = true; setStarted(true); setPaused(false);
   if (touch.on) $('touch').hidden = false;
   startDaily();
   SAVE.run = G.snap; writeSave();
@@ -7190,10 +8051,10 @@ $('btnMenu').addEventListener('click', toMenu);
 $('btnSaveQuit').addEventListener('click', () => { if (!G || !G.snap) return; SAVE.run = G.snap; G.keepRun = true; G.gemsBanked = true; writeSave(); toMenu(); });
 $('btnContinue').addEventListener('click', () => {
   if (!SAVE.run) return;
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch (_) { AC = null; }
-  $('ovStart').hidden = true; started = true; paused = false;
+  try { setAC(AC || new (window.AudioContext || window.webkitAudioContext)()); AC.resume && AC.resume(); } catch (_) { setAC(null); }
+  $('ovStart').hidden = true; setStarted(true); setPaused(false);
   if (touch.on) $('touch').hidden = false;
-  DAILY = SAVE.run.daily ? dailyInfo(SAVE.run.daily) : null;
+  setDAILY(SAVE.run.daily ? dailyInfo(SAVE.run.daily) : null);
   // si la partida guardada no se puede reanudar, se descarta sin tocar las gemas ni el progreso
   try { resumeRun(SAVE.run); } catch (err) { console.warn('Partida guardada incompatible, se descarta', err); SAVE.run = null; writeSave(); if (G) { G.keepRun = true; G.gemsBanked = true; } toMenu(); }
 });
@@ -7228,7 +8089,7 @@ window.__cripta = {
   starter: id => starterW(id),
   totem(el) { const p = G.player; G.pickups.push({ kind: 'totem', el, x: p.x, y: p.y + 40, rise: 1 }); },
   crystals(n) { for (const el of EL_ORDER) G.crystals[el] = n; },
-  run(id) { DAILY = null; selChar = id; newRun(id); },
+  run(id) { setDAILY(null); setSelChar(id); newRun(id); },
   hit(e, d, a) { hurtEnemy(e, d, a, 0, { src: G.player.slots[G.player.cur], melee: true }); },
   hurt(d) { return hurtPlayer(d); },
   stats: w => weaponStats(w),
@@ -7253,9 +8114,9 @@ window.__cripta = {
   bot(o) {
     touch.on = true; touch.atk = !!o.atk; touch.chg = !!o.chg;
     if (o.mv) { touch.stickId = 1; touch.ox = touch.oy = 0; touch.x = o.mv[0] * 46; touch.y = o.mv[1] * 46; } else touch.stickId = null;
-    if (o.dash) wantDash = true;
-    if (o.abil) wantAbil = true;
-    if (o.elem) wantElem = true;
+    if (o.dash) setWantDash(true);
+    if (o.abil) setWantAbil(true);
+    if (o.elem) setWantElem(true);
   },
   // cierra cualquier elección abierta tomando la primera opción, para que el bot siga jugando
   resolve() {
@@ -7269,5 +8130,7 @@ window.__cripta = {
   roomIds: () => roomList(),
   flags: () => ({ paused, started }),
 };
+
+
 })();
 </script>

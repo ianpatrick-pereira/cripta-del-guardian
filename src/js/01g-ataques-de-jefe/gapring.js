@@ -1,4 +1,9 @@
 // Ataque de jefe: gapring
+import { TAU, angDiff, rand } from '../01-utilidades.js';
+import { defBossMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { enemyShoot } from '../14-enemigos.js';
+import { bossIdle } from '../16-jefes.js';
 defBossMove('gapring', {
   hacer(e, dt, c) {
     const { ph3, bcol } = c;

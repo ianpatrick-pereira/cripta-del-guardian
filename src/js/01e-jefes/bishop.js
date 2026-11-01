@@ -1,4 +1,5 @@
 // Jefe del piso 7: El Obispo Hueco
+import { defBoss } from '../01a-registro.js';
 defBoss('bishop', {
   orden: 7,
   datos: { name: 'El Obispo Hueco', hp: 2900, r: 32, minion: 'phantom', look: 'devourer', tint: '#a07ad8', col: '#d8b0ff', want: 220, scale: 1.12,

@@ -30,6 +30,10 @@ jobs:
       url: ${{ steps.despliegue.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
       - name: Preparar la web
         run: |
           # página completa (con <!doctype> y la etiqueta viewport para celulares)

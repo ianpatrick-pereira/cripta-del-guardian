@@ -1,4 +1,5 @@
 // ================= Guardado =================
+import { CHARS, STAR_MUL, WEAPONS } from './03-datos-del-juego.js';
 const SAVE_KEY = 'cripta-guardian-v1';
 // Versión del formato del guardado. Súbela cuando cambie la forma de lo que se guarda
 // y añade en SAVE_MIGRA el paso que convierte la versión anterior en la nueva.
@@ -31,3 +32,7 @@ function writeSave() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)
 let SAVE = loadSave();
 let selChar = 'knight';
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setSelChar(v) { return (selChar = v); }
+
+export { SAVE, selChar, setSelChar, writeSave };

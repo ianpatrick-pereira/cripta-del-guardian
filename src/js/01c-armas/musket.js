@@ -1,4 +1,12 @@
 // Mosquete
+import { rand } from '../01-utilidades.js';
+import { defWeapon } from '../01a-registro.js';
+import { noise, sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { moveEnt } from '../08-colisiones.js';
+import { shake } from '../09-efectos.js';
+import { shootPlayer } from '../11-jugador.js';
+import { espLv } from '../12-armas-con-estilo-propio.js';
 defWeapon('musket', {
   orden: 38,
   datos: { name: 'Mosquete', type: 'bow', style: 'musket', shape: 'musket', rarity: 'rare', dmg: 13, cd: 1.35, speed: 1150, pierce: 99, shots: 1, en: 4, chg: 'blast', chgEn: 18 },

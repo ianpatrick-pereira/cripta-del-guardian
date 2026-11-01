@@ -1,4 +1,10 @@
 // Ataque de subjefe: summon
+import { TAU, pick, rand } from '../01-utilidades.js';
+import { defSubMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hitsWall } from '../08-colisiones.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('summon', {
   hacer(e, dt, c) {
     const { S } = c;

@@ -1,3 +1,10 @@
+import { ctx } from '../00-inicio.js';
+import { angDiff, angTo, clamp, rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { addText } from '../09-efectos.js';
+import { enemyShoot, flankPoint, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('warden', {
   orden: 11,
   stats: { hp: 22, r: 15, speed: 55, dmg: 1, spr: 'warden', s: 2.3 },

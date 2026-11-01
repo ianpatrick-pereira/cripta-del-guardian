@@ -1,3 +1,10 @@
+import { ctx } from '../00-inicio.js';
+import { TAU, rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { D } from '../03-datos-del-juego.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hazard, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('bomber', {
   orden: 12,
   stats: { hp: 10, r: 12, speed: 80, dmg: 1, spr: 'bomber', s: 2 },

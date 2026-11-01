@@ -1,5 +1,15 @@
 // ================= Subjefes =================
 // cada subjefe vive en su archivo de 01f-subjefes/; SUBS los ordena por piso
+import { angTo, dist, pick, rand } from './01-utilidades.js';
+import { SUB_DEFS, SUB_MOVES } from './01a-registro.js';
+import { BOTIN, D } from './03-datos-del-juego.js';
+import { sfx } from './05-audio.js';
+import { G } from './07-estado.js';
+import { moveEnt, pushOutProps } from './08-colisiones.js';
+import { addText, burst, damageProp, later, shake, showBanner } from './09-efectos.js';
+import { dropCoin } from './14-enemigos.js';
+import { ELEMS } from './23-elementos.js';
+import { offerTalent } from './26-clases.js';
 const SUBS = {};
 for (const id of Object.keys(SUB_DEFS)) SUBS[SUB_DEFS[id].piso] = { sk: id, ...SUB_DEFS[id].datos };
 function mkSub(floor, x, y) {
@@ -59,3 +69,4 @@ function subDefeated(e) {
   if (sd && sd.alMorir) sd.alMorir(e);
 }
 
+export { SUBS, enemyPace, mkSub, subDefeated, subIdle, updateSub };

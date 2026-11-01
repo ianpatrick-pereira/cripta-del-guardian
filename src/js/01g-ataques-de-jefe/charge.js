@@ -1,4 +1,11 @@
 // Ataque de jefe: charge
+import { ctx } from '../00-inicio.js';
+import { defBossMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { moveEnt, pushOutProps } from '../08-colisiones.js';
+import { burst, damageProp, shake } from '../09-efectos.js';
+import { leadAng } from '../14-enemigos.js';
+import { bossIdle, bossRing } from '../16-jefes.js';
 defBossMove('charge', {
   hacer(e, dt, c) {
     const { ph2, ph3, bcol } = c;

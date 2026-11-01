@@ -1,4 +1,9 @@
 // Ataque de jefe: rain
+import { rand } from '../01-utilidades.js';
+import { defBossMove } from '../01a-registro.js';
+import { G } from '../07-estado.js';
+import { hazard } from '../14-enemigos.js';
+import { bossIdle } from '../16-jefes.js';
 defBossMove('rain', {
   hacer(e, dt, c) {
     const { p, ph3, bcol } = c;

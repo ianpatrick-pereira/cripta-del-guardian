@@ -1,4 +1,5 @@
 // Subjefe del piso 3: El Verdugo
+import { defSub } from '../01a-registro.js';
 defSub('executioner', {
   piso: 3,
   datos: { name: 'El Verdugo', spr: 'brute', s: 3.6, r: 26, hp: 450, speed: 72, tint: '#d4474b', minion: 'wraith', want: 0,

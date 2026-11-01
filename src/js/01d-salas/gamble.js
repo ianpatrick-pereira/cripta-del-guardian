@@ -1,4 +1,11 @@
 // Sala de apuestas
+import { ctx } from '../00-inicio.js';
+import { TAU } from '../01-utilidades.js';
+import { defRoom } from '../01a-registro.js';
+import { drawSpr } from '../02-pixel-art.js';
+import { G } from '../07-estado.js';
+import { startGamble } from '../30-sala-de-apuestas.js';
+import { drawShadow } from '../36-mar-de-lava.js';
 defRoom('gamble', {
   orden: 5,
   objeto: 'gamble',

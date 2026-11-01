@@ -1,4 +1,17 @@
 // ================= Jefes =================
+import { TAU, angTo, dist, pick, rand } from './01-utilidades.js';
+import { BOSS_DEFS, BOSS_MOVES } from './01a-registro.js';
+import { BOSSES, BOTIN, D } from './03-datos-del-juego.js';
+import { SAVE, writeSave } from './04-guardado.js';
+import { sfx } from './05-audio.js';
+import { G, randomRelics } from './07-estado.js';
+import { moveEnt, pushOutProps } from './08-colisiones.js';
+import { addText, burst, damageProp, later, shake, showBanner } from './09-efectos.js';
+import { dropArmor } from './13-armadura.js';
+import { dropCoin, enemyShoot } from './14-enemigos.js';
+import { enemyPace } from './15-subjefes.js';
+import { ach } from './21-logros-y-bestiario.js';
+import { openChoice } from './32-eleccion-de-reliquia.js';
 function bossIdle(e) { e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.05 : e.phase === 2 ? .6 : .38) / D().rate / enemyPace(); }
 function bossRing(e, n, sp, color, off = 0, r = 7) { for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, sp, r, color); }
 function updateBoss(e, dt) {
@@ -73,3 +86,4 @@ function bossDefeated(e) {
   }));
 }
 
+export { bossDefeated, bossIdle, bossRing, updateBoss };

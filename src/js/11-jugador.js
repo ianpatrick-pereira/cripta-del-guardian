@@ -1,4 +1,24 @@
 // ================= Jugador =================
+import { $ } from './00-inicio.js';
+import { TAU, angDiff, angTo, dist, rand } from './01-utilidades.js';
+import { ROOM_OBJ } from './01a-registro.js';
+import { CHARS, FLOORS, RARITY, chgName, cu } from './03-datos-del-juego.js';
+import { noise, sfx } from './05-audio.js';
+import { G, rc } from './07-estado.js';
+import { moveEnt, pushOutProps } from './08-colisiones.js';
+import { addText, breakCracks, burst, damageProp, explode, later, shake } from './09-efectos.js';
+import { cssSize, keys, mouse, setWantAbil, setWantDash, setWantElem, setWantSwap, setWantUse, touch,
+  wantAbil, wantDash, wantElem, wantSwap, wantUse } from './10-entrada.js';
+import { styleAttack, styleCharge } from './12-armas-con-estilo-propio.js';
+import { armorSh, interact } from './13-armadura.js';
+import { hurtEnemy } from './14-enemigos.js';
+import { syn } from './18-sinergias.js';
+import { elemAbility } from './23-elementos.js';
+import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs, subLv,
+  tl } from './26-clases.js';
+import { pact } from './27-pactos-de-piso.js';
+import { endGame } from './33-bucle.js';
+import { zoom } from './34-dibujo.js';
 function nearestEnemy(p, maxD) {
   let best = null, bd = maxD;
   for (const e of G.enemies) { if (e.air) continue; const d = dist(p, e); if (d < bd) { bd = d; best = e; } }
@@ -53,7 +73,7 @@ function updatePlayer(dt) {
     classDash(p);
     if (rc('polvora')) { const bx = p.x, by = p.y; G.parts.push({ x: bx, y: by, vx: 0, vy: 0, life: .8, max: .8, color: '#2a2433', size: 10 }); later(.8, () => explode(bx, by, 70, 8, true)); }
   }
-  wantDash = false;
+  setWantDash(false);
   const speedMul = (1 + .15 * rc('botas') + (tl('frio') ? .1 : 0) + (p.slots[p.cur].spd || 0) + .03 * cu('r_veil') + (subIs('shade') ? .04 * subLv(p) : 0)) * (p.shadowT > 0 ? 1.25 : 1) * (p.rageT > 0 ? 1.2 : 1) * (pact('frenzy') ? 1.2 : 1) * (p.slow > 0 ? .55 : 1) * (p.charge > 0 ? .55 : 1);
   if (p.dashT > 0) {
     p.dashT -= dt;
@@ -93,7 +113,7 @@ function updatePlayer(dt) {
     p.cur = wantSwap === 'a' ? 0 : wantSwap === 'b' ? 1 : 1 - p.cur;
     if (p.cur !== prev) { p.cd = Math.max(p.cd, .12); p.charge = 0; sfx(520, .05, 'triangle', .03); }
   }
-  wantSwap = 0;
+  setWantSwap(0);
   p.cd -= dt;
   const charging = touch.on ? touch.chg : mouse.right;
   if (charging && !G.over) { p.charge += dt; if (p.charge >= .55 && p.charge - dt < .55) sfx(900, .08, 'sine', .03); }
@@ -107,9 +127,9 @@ function updatePlayer(dt) {
   if ((p.comboT -= dt) <= 0) p.combo = 0;
   if (p.revUsed) { p.revenge = 0; p.revUsed = false; }
   if (wantAbil && p.abilCd <= 0 && !G.over) useAbility(p);
-  wantAbil = false;
+  setWantAbil(false);
   if (wantElem && !G.over) elemAbility(p);
-  wantElem = false;
+  setWantElem(false);
   if (touch.on) $('bEle').hidden = !(p.slots[p.cur] && p.slots[p.cur].elOn);
 
   p.en = Math.min(maxEnergy(p), p.en + (3 + 3 * rc('bateria')) * dt);
@@ -121,7 +141,7 @@ function updatePlayer(dt) {
   if (touch.on) bu.hidden = !it;
   if (it) bu.textContent = { chest: 'ABRIR', shop: 'COMPRAR', portal: 'BAJAR', altar: 'ELEGIR', note: 'LEER', totem: 'LUCHAR', armor: 'EQUIPAR', prisoner: 'LIBERAR', merc: 'LIBERAR', lever: 'PALANCA', gamble: 'APOSTAR', mirror: 'TOCAR', exit: 'SALIR', cursed: 'PACTO', trial: 'ACEPTAR', forge: 'FORJA' }[it.kind] || 'TOMAR';
   if (wantUse && it) interact(p, it);
-  wantUse = false;
+  setWantUse(false);
 
   p.inv -= dt;
   p.shT += dt;
@@ -292,3 +312,5 @@ function chargedAttack(p) {
     }
   }
 }
+
+export { critChance, dmgMul, maxEnergy, meleeHit, nearestEnemy, reflect, shootPlayer, updatePlayer };

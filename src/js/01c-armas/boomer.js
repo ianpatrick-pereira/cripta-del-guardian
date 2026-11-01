@@ -1,4 +1,8 @@
 // Bumerán
+import { TAU } from '../01-utilidades.js';
+import { defWeapon } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { throwIt, thrownOut } from '../12-armas-con-estilo-propio.js';
 defWeapon('boomer', {
   orden: 35,
   datos: { name: 'Bumerán', type: 'bow', style: 'boomer', shape: 'boomer', rarity: 'common', dmg: 3, cd: .35, speed: 520, pierce: 99, shots: 1, en: 1, chg: 'boomer', chgEn: 8 },

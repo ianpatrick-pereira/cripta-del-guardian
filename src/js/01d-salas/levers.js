@@ -1,4 +1,11 @@
 // Sala de palancas
+import { ctx } from '../00-inicio.js';
+import { TAU } from '../01-utilidades.js';
+import { defRoom } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G, randomRelics } from '../07-estado.js';
+import { shake, showBanner } from '../09-efectos.js';
+import { dropCoin } from '../14-enemigos.js';
 defRoom('levers', {
   orden: 4,
   objeto: 'lever',

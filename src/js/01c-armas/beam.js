@@ -1,4 +1,10 @@
 // Rayo sostenido
+import { rand } from '../01-utilidades.js';
+import { defWeapon } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { shake } from '../09-efectos.js';
+import { beamHit, beamLen, espLv } from '../12-armas-con-estilo-propio.js';
 defWeapon('beam', {
   orden: 41,
   datos: { name: 'Rayo sostenido', type: 'staff', style: 'beam', shape: 'rod', gem: '#ff6ad8', rarity: 'epic', dmg: 2, cd: .2, speed: 0, pierce: 0, shots: 1, en: 1, chg: 'ray', chgEn: 25 },

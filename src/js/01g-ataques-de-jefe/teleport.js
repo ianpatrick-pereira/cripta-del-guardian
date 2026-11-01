@@ -1,4 +1,8 @@
 // Ataque de jefe: teleport
+import { defBossMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G, freeSpot } from '../07-estado.js';
+import { bossIdle, bossRing } from '../16-jefes.js';
 defBossMove('teleport', {
   hacer(e, dt, c) {
     const { p, ph2, bcol } = c;

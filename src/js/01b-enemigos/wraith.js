@@ -1,3 +1,10 @@
+import { TAU, rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hitsWall, roomAt } from '../08-colisiones.js';
+import { burst } from '../09-efectos.js';
+import { leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('wraith', {
   orden: 9,
   stats: { hp: 8, r: 12, speed: 95, dmg: 1, spr: 'wraith', s: 2 },

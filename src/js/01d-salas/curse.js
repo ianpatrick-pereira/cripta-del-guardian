@@ -1,4 +1,12 @@
 // Altar maldito
+import { ctx } from '../00-inicio.js';
+import { TAU } from '../01-utilidades.js';
+import { defRoom } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G, randomRelics } from '../07-estado.js';
+import { addText, burst, shake } from '../09-efectos.js';
+import { ach } from '../21-logros-y-bestiario.js';
+import { openChoice } from '../32-eleccion-de-reliquia.js';
 defRoom('curse', {
   orden: 2,
   objeto: 'cursed',

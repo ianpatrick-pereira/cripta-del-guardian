@@ -1,4 +1,6 @@
 // ================= Colisiones =================
+import { DOOR, FLOOR, MH, MW, TILE, clamp } from './01-utilidades.js';
+import { G } from './07-estado.js';
 function solidAt(tx, ty) {
   if (tx < 0 || ty < 0 || tx >= MW || ty >= MH) return true;
   const i = ty * MW + tx, t = G.tiles[i];
@@ -45,3 +47,4 @@ function roomAt(x, y) {
   return null;
 }
 
+export { hitsWall, moveEnt, pushOutProps, roomAt, solidAt };

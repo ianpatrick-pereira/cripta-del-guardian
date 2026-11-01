@@ -1,6 +1,20 @@
 // ================= Armas con estilo propio =================
 // cada una ataca a su manera, tiene su mejora de forja propia y su ataque elemental
 // el texto, la mejora de forja y los ataques de cada arma con estilo viven en su archivo de 01c-armas/
+import { ctx } from './00-inicio.js';
+import { TAU, TILE, angDiff, angTo, dist, rand } from './01-utilidades.js';
+import { WEAPON_DEFS, weaponList } from './01a-registro.js';
+import { drawSpr } from './02-pixel-art.js';
+import { RARITY } from './03-datos-del-juego.js';
+import { noise, sfx } from './05-audio.js';
+import { G } from './07-estado.js';
+import { hitsWall, moveEnt, roomAt, solidAt } from './08-colisiones.js';
+import { addText, breakCracks, burst, damageProp, shake } from './09-efectos.js';
+import { maxEnergy, meleeHit, reflect } from './11-jugador.js';
+import { hurtEnemy } from './14-enemigos.js';
+import { ELEMS, elemBlast } from './23-elementos.js';
+import { drawClass } from './26-clases.js';
+import { drawShadow } from './36-mar-de-lava.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
 const EL_PROC = { fire: 'quema y estalla', water: 'empapa y frena', air: 'empuja lejos', earth: 'aturde' };
@@ -208,3 +222,6 @@ function drawStyles() {
   }
 }
 
+export { STYLE, beamHit, beamLen, drawStyles, elAbDesc, elAbName, elemProc, espLv, maxBones, shieldBash,
+  shieldBlock, styleAttack, styleCharge, styleElem, summonBones, throwIt, thrownOut, updateStyles,
+  updateThrown, whipCircle, whipLash };

@@ -1,4 +1,7 @@
 // ================= Generación =================
+import { CELL_H, CELL_W, CRACK, DOOR, FLOOR, GRID, MH, MW, TAU, TILE, VOID, WALL, pick,
+  randi } from './01-utilidades.js';
+import { OLEADAS } from './03-datos-del-juego.js';
 function generate() {
   for (let attempt = 0; attempt < 400; attempt++) {
     const cells = new Map(), list = [], edges = [];
@@ -165,3 +168,4 @@ function buildMap(layout) {
   return { tiles, doorRoom };
 }
 
+export { buildMap, generate };

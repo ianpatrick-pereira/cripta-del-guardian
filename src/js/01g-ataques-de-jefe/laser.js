@@ -1,4 +1,12 @@
 // Ataque de jefe: laser
+import { TAU } from '../01-utilidades.js';
+import { defBossMove } from '../01a-registro.js';
+import { noise, sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hurtPlayer } from '../13-armadura.js';
+import { quien } from '../14-enemigos.js';
+import { bossIdle } from '../16-jefes.js';
+import { shredShield } from '../23-elementos.js';
 defBossMove('laser', {
   hacer(e, dt, c) {
     const { p, a, ph2, ph3 } = c;

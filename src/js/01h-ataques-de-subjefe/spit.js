@@ -1,4 +1,8 @@
 // Ataque de subjefe: spit
+import { defSubMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { enemyShoot, leadAng } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('spit', {
   hacer(e, dt, c) {
     const { S, ph2 } = c;

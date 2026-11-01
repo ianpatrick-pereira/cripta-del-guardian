@@ -1,4 +1,13 @@
 // Ataque de subjefe: hop (y su versión bighop, con hop2 entre saltos)
+import { TAU, clamp, rand } from '../01-utilidades.js';
+import { defSubMove } from '../01a-registro.js';
+import { D } from '../03-datos-del-juego.js';
+import { noise, sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hitsWall, roomAt } from '../08-colisiones.js';
+import { burst, shake } from '../09-efectos.js';
+import { enemyShoot, hazard } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('hop', {
   hacer(e, dt, c) {
     const { p, S, ph2 } = c;

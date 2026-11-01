@@ -1,4 +1,10 @@
 // ================= Logros y bestiario =================
+import { ENEMIES, enemyList } from './01a-registro.js';
+import { SAVE, writeSave } from './04-guardado.js';
+import { sfx } from './05-audio.js';
+import { G, started } from './07-estado.js';
+import { later } from './09-efectos.js';
+import { NOTES } from './20-historia.js';
 const ACH = {
   first:     { n: 'Primera sangre',       d: 'Derrota a tu primer enemigo.', g: 1 },
   sub:       { n: 'Cazador de capitanes', d: 'Derrota a un subjefe.', g: 2 },
@@ -30,3 +36,4 @@ function ach(id) {
 const BEAST = {};
 for (const id of enemyList()) BEAST[id] = ENEMIES[id].bestiario;
 
+export { ACH, BEAST, ach };

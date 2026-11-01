@@ -1,6 +1,11 @@
 // ================= Ambiente: decoración, vegetación y luces =================
 // cada piso tiene su paleta de luz, plantas y objetos; edge = junto a los muros, open = en el centro de la sala
 // la decoración de cada piso se diseña en src/datos/pisos/ (bloque "ambiente"); aquí se traduce al formato del motor
+import { DATOS } from '../datos/index.js';
+import { ctx } from './00-inicio.js';
+import { CRACK, DOOR, FLOOR, MH, MW, TAU, TILE, VOID, WALL, clamp, hash, rand } from './01-utilidades.js';
+import { FLOORS } from './03-datos-del-juego.js';
+import { G } from './07-estado.js';
 const AMB_COSAS = { huesos: 'bones', velas: 'candles', cristales: 'crystal', musgo: 'moss', hierba: 'grass', charcos: 'puddle', runas: 'rune', hongos: 'mushroom', espinas: 'thorn', escarcha: 'frost', lava: 'lava', flores: 'flowers', vidrios: 'glass', rosas: 'roses' };
 const AMB_PART = { polvo: 'dust', esporas: 'spore', brasas: 'ember', nieve: 'snow', luciernagas: 'firefly', chispas: 'spark', petalos: 'petal' };
 const AMB = DATOS.pisos.map(({ ambiente: d }) => {
@@ -322,3 +327,4 @@ function drawMotesGlow() {
   ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
 }
 
+export { AMB, drawDecor, drawMotesFlat, drawMotesGlow, flame, hexA, tickMotes };

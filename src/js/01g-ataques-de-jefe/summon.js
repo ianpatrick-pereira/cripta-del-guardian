@@ -1,4 +1,10 @@
 // Ataque de jefe: summon
+import { TAU, rand } from '../01-utilidades.js';
+import { defBossMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hitsWall } from '../08-colisiones.js';
+import { bossIdle } from '../16-jefes.js';
 defBossMove('summon', {
   hacer(e, dt, c) {
     const { B } = c;

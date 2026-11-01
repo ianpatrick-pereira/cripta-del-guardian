@@ -1,3 +1,6 @@
+import { ctx } from '../00-inicio.js';
+import { TAU } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
 defEnemy('mage', {
   orden: 8,
   stats: { hp: 8, r: 12, speed: 70, dmg: 1, spr: 'mage', s: 2 },

@@ -1,12 +1,17 @@
 // ================= Guardar partida =================
 // se guarda al empezar cada piso; al continuar, se reanuda al inicio de ese piso
+import { applyW, mkW } from './03-datos-del-juego.js';
+import { selChar, setSelChar } from './04-guardado.js';
+import { G, newRun } from './07-estado.js';
+import { subLv, tl } from './26-clases.js';
+import { DAILY, buildFloor } from './31-reto-diario.js';
 function snapRun() {
   const p = G.player;
   return { floor: G.floor, char: p.char, diff: G.diff, hp: p.hp, maxHp: p.maxHp, en: p.en, maxEn: p.maxEn, relics: p.relics.slice(), cur: p.cur,
     slots: p.slots.map(w => ({ id: w.id, stars: w.stars, up: { ...w.up }, el: w.el, elC: w.elC, elLv: w.elLv, starter: !!w.starter })), crystals: { ...G.crystals }, pet: G.petKind, armor: p.armor || 0, talents: p.talents.slice(), spec: p.spec || '', subK: p.subK || 0, preK: p.preK || 0, cu: { ...p.cu }, daily: DAILY ? DAILY.date : '', coins: G.coins, keys: G.keys, gems: G.gems, kills: G.kills, time: G.time, wonOnce: !!G.wonOnce };
 }
 function resumeRun(s) {
-  selChar = s.char; newRun(s.char);
+  setSelChar(s.char); newRun(s.char);
   G.petKind = s.pet || ''; G.pet = null;
   Object.assign(G, { diff: s.diff, coins: s.coins, keys: s.keys, gems: s.gems, kills: s.kills, time: s.time, wonOnce: s.wonOnce });
   const p = G.player;
@@ -20,3 +25,4 @@ function resumeRun(s) {
   buildFloor(s.floor);
 }
 
+export { resumeRun, snapRun };

@@ -1,4 +1,30 @@
 // ================= Armadura: el personaje cambia de color y brilla según las estrellas =================
+import { $, ctx, cv } from './00-inicio.js';
+import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
+import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
+import { MAPS, SPR, SPR_DEFS, drawSpr } from './02-pixel-art.js';
+import { BOSSES, CHARS, FLOORS, RARITY, RELICS, weaponStats } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { musicTick } from './05-audio.js';
+import { G, paused, rc, started } from './07-estado.js';
+import { cssSize, touch } from './10-entrada.js';
+import { maxEnergy } from './11-jugador.js';
+import { drawStyles, elAbName } from './12-armas-con-estilo-propio.js';
+import { ARMOR, armorDesc, armorSh, drawArmor } from './13-armadura.js';
+import { SYNERGIES } from './18-sinergias.js';
+import { drawPet } from './19-companeros.js';
+import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
+import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
+import { PACTS, pact } from './27-pactos-de-piso.js';
+import { dareText } from './28-desafios-dentro-del-piso.js';
+import { drawCheatForm, drawCheatRoom, gamEase, gamTick } from './30-sala-de-apuestas.js';
+import { dailyScore } from './31-reto-diario.js';
+import { update } from './33-bucle.js';
+import { QL, dpr, drawElemRooms, gfxLevel, perfEma, resize, setPerfEma, setQL, setSlowT, setZoom, slowT,
+  zoom } from './34-dibujo.js';
+import { drawDecor, drawMotesFlat, drawMotesGlow, hexA, tickMotes } from './35-ambiente.js';
+import { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles } from './36-mar-de-lava.js';
+import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco } from './37-armas-visual.js';
 const ARMOR_PARTS = { knight: ['a', 's'], archer: ['t', 'g'], rogue: ['c', 'd'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
 function buildArmorSprites() {
@@ -176,13 +202,13 @@ function drawPlayer(p) {
       }
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
   };
-  WREACT = 1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0);
+  setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
   armorAura(p);
   const spr = p.armor && SPR[p.spr + '_A' + p.armor] ? p.spr + '_A' + p.armor : p.spr;
   if (back) drawW();
   if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1 });
   if (!back) drawW();
-  WREACT = 1;
+  setWREACT(1);
   drawAbilityFx(p);
   if (p.rageT > 0) { ctx.strokeStyle = `rgba(212,71,75,${.45 + .3 * Math.sin(G.time * 16)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, TAU); ctx.stroke(); }
   if (p.charge > 0) {
@@ -816,9 +842,9 @@ function loop(now) {
   const raw = now - last, dt = Math.min(.033, raw / 1000); last = now;
   // (los fotogramas muy lentos también cuentan: antes, si pasaban de 200 ms, la calidad nunca bajaba)
   if (started && !paused && G && raw < 1000 && (SAVE.opt.gfx || 'auto') === 'auto' && QL > 0) {
-    perfEma = perfEma * .94 + Math.min(raw, 100) * .06;
-    slowT = perfEma > 24 ? slowT + raw / 1000 : 0;
-    if (slowT > 2.5) { QL--; slowT = 0; perfEma = 16; resize(); }
+    setPerfEma(perfEma * .94 + Math.min(raw, 100) * .06);
+    setSlowT(perfEma > 24 ? slowT + raw / 1000 : 0);
+    if (slowT > 2.5) { setQL(QL - 1); setSlowT(0); setPerfEma(16); resize(); }
   }
   if (started && !paused && G) update(dt);
   if (started && G && G.gam) gamTick(dt);
@@ -845,7 +871,8 @@ requestAnimationFrame(loop);
 function render() {
   if (!G || !G.gam) { render0(); return; }
   const e = gamEase(), it = G.gam.it, z0 = zoom, cx = G.cam.x, cy = G.cam.y;
-  zoom = z0 * (1 + 1.5 * e); G.cam.x = cx + (it.x - cx) * e; G.cam.y = cy + (it.y - 18 - cy) * e;
-  try { render0(); } finally { zoom = z0; G.cam.x = cx; G.cam.y = cy; }
+  setZoom(z0 * (1 + 1.5 * e)); G.cam.x = cx + (it.x - cx) * e; G.cam.y = cy + (it.y - 18 - cy) * e;
+  try { render0(); } finally { setZoom(z0); G.cam.x = cx; G.cam.y = cy; }
 }
 
+export { drawWeapon, render };

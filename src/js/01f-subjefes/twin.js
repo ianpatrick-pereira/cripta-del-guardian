@@ -1,4 +1,5 @@
 // Subjefe del piso 8: El Gemelo de Aldric
+import { defSub } from '../01a-registro.js';
 defSub('twin', {
   piso: 8,
   datos: { name: 'El Gemelo de Aldric', spr: 'phantom', s: 3.6, r: 22, hp: 1250, speed: 105, tint: '#ffb0c8', minion: 'phantom', want: 160,

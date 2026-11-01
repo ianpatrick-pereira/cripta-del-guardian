@@ -1,3 +1,11 @@
+import { ctx } from '../00-inicio.js';
+import { angTo } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { moveEnt } from '../08-colisiones.js';
+import { burst, shake } from '../09-efectos.js';
+import { flankPoint, leadAng, takeToken } from '../14-enemigos.js';
 defEnemy('charger', {
   orden: 13,
   stats: { hp: 18, r: 16, speed: 70, dmg: 2, spr: 'charger', s: 2.4 },

@@ -1,4 +1,9 @@
 // ================= Dibujo =================
+import { ctx, cv, frame } from './00-inicio.js';
+import { FLOOR, MW, TAU, TILE, WALL, clamp, hash, rand } from './01-utilidades.js';
+import { SAVE } from './04-guardado.js';
+import { G } from './07-estado.js';
+import { ELEMS } from './23-elementos.js';
 let dpr = 1, zoom = 1;
 // calidad gráfica: 2 alta (pantallas retina a resolución completa), 1 media, 0 baja (se dibuja a 3/4 y el navegador lo estira).
 // En «auto» empieza en alta (en media si la pantalla es táctil: los celulares tienen muchos píxeles y poca
@@ -52,3 +57,12 @@ function drawElemRooms(vx0, vy0, vx1, vy1) {
     }
   }
 }
+
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setZoom(v) { return (zoom = v); }
+function setQL(v) { return (QL = v); }
+function setPerfEma(v) { return (perfEma = v); }
+function setSlowT(v) { return (slowT = v); }
+
+export { GFX_NAME, QL, QL0, dpr, drawElemRooms, gfxLevel, perfEma, resize, setPerfEma, setQL, setSlowT,
+  setZoom, slowT, zoom };
