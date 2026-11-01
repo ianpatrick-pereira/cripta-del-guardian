@@ -1,9 +1,11 @@
 // ================= Dibujo =================
 let dpr = 1, zoom = 1;
 // calidad gráfica: 2 alta (pantallas retina a resolución completa), 1 media, 0 baja (se dibuja a 3/4 y el navegador lo estira).
-// En «auto» empieza en alta y baja un nivel si el juego va lento varios segundos seguidos.
+// En «auto» empieza en alta (en media si la pantalla es táctil: los celulares tienen muchos píxeles y poca
+// potencia) y baja un nivel si el juego va lento varios segundos seguidos.
 const GFX_DPR = [.75, 1, 2], GFX_NAME = { auto: 'Automática', 2: 'Alta', 1: 'Media', 0: 'Baja' };
-let QL = 2, perfEma = 16, slowT = 0;
+const QL0 = window.matchMedia && matchMedia('(pointer: coarse)').matches ? 1 : 2;
+let QL = QL0, perfEma = 16, slowT = 0;
 const gfxLevel = () => SAVE.opt.gfx === 'auto' || SAVE.opt.gfx === undefined ? QL : +SAVE.opt.gfx;
 function resize() {
   const r = frame.getBoundingClientRect();

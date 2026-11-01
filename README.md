@@ -52,6 +52,8 @@ Desde la v0.34 también la decoración de cada piso y los dos finales; y hay her
 
 `node build.js --check` dice si `cripta.html` está al día con `src/`.
 
+`cripta.html` no trae `<!doctype>` ni `<head>` porque el visor de artifacts de Claude lo envuelve. Para servirlo suelto, `node build.js --web carpeta/index.html` escribe además la página completa, con la etiqueta *viewport* que necesitan los celulares (GitHub Pages usa esta).
+
 ## Pruebas automáticas
 
 `node pruebas/probar.js` abre el juego en un navegador sin ventana y juega solo, con el azar fijado (la misma semilla da siempre la misma partida). Hace 32 pruebas:

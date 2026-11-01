@@ -98,7 +98,7 @@ function renderOpts(id) {
     <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
     <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
-    if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = 2; slowT = 0; resize(); }
+    if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = QL0; slowT = 0; resize(); }
     else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
   }));

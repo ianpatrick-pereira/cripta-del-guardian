@@ -194,7 +194,7 @@ details.codex[open]{padding-bottom:12px}
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.34</p>
+      <p class="eyebrow">Prototipo jugable · v0.35</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -1224,7 +1224,7 @@ defWeapon('sickle', {
   estilo: {
     // cobra la energía en ataque() al lanzar, no antes
     cobraAlLanzar: true,
-    d: 'la lanzas, gira en el sitio y vuelve',
+    d: 'la lanzas, se clava girando en el primer enemigo y vuelve',
     esp: { n: 'Filo giratorio', d: '+0,4 s girando en el sitio' },
     el: { fire: 'Hoz flamígera', water: 'Hoz de espuma', air: 'Hoz del vendaval', earth: 'Hoz de obsidiana' },
     // ataque normal
@@ -3231,6 +3231,7 @@ function updateThrown(pr, dt) {
     else if (pr.t > pr.outT) { pr.ph = 'spin'; pr.vx = pr.vy = 0; pr.st = 0; }
   } else if (pr.ph === 'spin') {
     pr.st += dt; pr.tick = (pr.tick || 0) - dt;
+    if (pr.stick) { if (pr.stick.dead) pr.stick = null; else { pr.x = pr.stick.x; pr.y = pr.stick.y; } }
     if (pr.tick <= 0) { pr.tick = .26; pr.hit = new Set(); }
     if (pr.st > pr.spinT) { pr.ph = 'back'; pr.hit = new Set(); }
   }
@@ -5249,6 +5250,8 @@ function update(dt) {
         hurtEnemy(e, pr.dmg, Math.atan2(pr.vy, pr.vx), pr.kb || (pr.kind === 'power' ? 300 : 140), { src: pr.src, fx: pr.fx });
         if (pr.fx === 'chain') chainHit(e, pr.dmg);
         if (pr.split) splitShot(pr);
+        // la hoz se clava en el primer enemigo que toca y gira ahí y lo sigue mientras gira (antes pasaba de largo y giraba en el vacío)
+        if (pr.thrown === 'sickle' && pr.ph === 'out') { pr.ph = 'spin'; pr.vx = pr.vy = 0; pr.st = 0; pr.tick = .26; pr.stick = e; }
         if (pr.fx === 'explode' || pr.boom) { explode(pr.x, pr.y, pr.boom || 55, pr.dmg, true); pr.life = 0; break; }
         if (pr.pierce-- <= 0) { pr.life = 0; break; }
       }
@@ -5315,9 +5318,11 @@ function update(dt) {
 // ================= Dibujo =================
 let dpr = 1, zoom = 1;
 // calidad gráfica: 2 alta (pantallas retina a resolución completa), 1 media, 0 baja (se dibuja a 3/4 y el navegador lo estira).
-// En «auto» empieza en alta y baja un nivel si el juego va lento varios segundos seguidos.
+// En «auto» empieza en alta (en media si la pantalla es táctil: los celulares tienen muchos píxeles y poca
+// potencia) y baja un nivel si el juego va lento varios segundos seguidos.
 const GFX_DPR = [.75, 1, 2], GFX_NAME = { auto: 'Automática', 2: 'Alta', 1: 'Media', 0: 'Baja' };
-let QL = 2, perfEma = 16, slowT = 0;
+const QL0 = window.matchMedia && matchMedia('(pointer: coarse)').matches ? 1 : 2;
+let QL = QL0, perfEma = 16, slowT = 0;
 const gfxLevel = () => SAVE.opt.gfx === 'auto' || SAVE.opt.gfx === undefined ? QL : +SAVE.opt.gfx;
 function resize() {
   const r = frame.getBoundingClientRect();
@@ -6546,7 +6551,7 @@ function drawHUD(w, h) {
   const bar = (y, val, max, col, label, seg) => {
     ctx.fillStyle = '#2a2638'; ctx.fillRect(52, y, 148, 11);
     ctx.fillStyle = col; ctx.fillRect(52, y, 148 * clamp(val / max, 0, 1), 11);
-    if (seg) for (let i = 1; i < max; i++) { ctx.fillStyle = 'rgba(12,11,17,.8)'; ctx.fillRect(52 + 148 * i / max - 1, y, 2, 11); }
+    if (seg && max <= 60) for (let i = 1; i < max; i++) { ctx.fillStyle = 'rgba(12,11,17,.8)'; ctx.fillRect(52 + 148 * i / max - 1, y, 2, 11); }
     hudText(label, 18, y + 6, 10, '#9d95ab');
     hudText(`${Math.floor(val)}/${max}`, 196, y + 6, 10, '#ece4cf', 'right');
   };
@@ -6885,8 +6890,9 @@ function render0() {
 let last = performance.now();
 function loop(now) {
   const raw = now - last, dt = Math.min(.033, raw / 1000); last = now;
-  if (started && !paused && G && raw < 200 && (SAVE.opt.gfx || 'auto') === 'auto' && QL > 0) {
-    perfEma = perfEma * .94 + raw * .06;
+  // (los fotogramas muy lentos también cuentan: antes, si pasaban de 200 ms, la calidad nunca bajaba)
+  if (started && !paused && G && raw < 1000 && (SAVE.opt.gfx || 'auto') === 'auto' && QL > 0) {
+    perfEma = perfEma * .94 + Math.min(raw, 100) * .06;
     slowT = perfEma > 24 ? slowT + raw / 1000 : 0;
     if (slowT > 2.5) { QL--; slowT = 0; perfEma = 16; resize(); }
   }
@@ -7049,7 +7055,7 @@ function renderOpts(id) {
     <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
     <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
-    if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = 2; slowT = 0; resize(); }
+    if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = QL0; slowT = 0; resize(); }
     else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
   }));

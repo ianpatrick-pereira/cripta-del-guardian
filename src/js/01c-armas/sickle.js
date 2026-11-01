@@ -7,7 +7,7 @@ defWeapon('sickle', {
   estilo: {
     // cobra la energía en ataque() al lanzar, no antes
     cobraAlLanzar: true,
-    d: 'la lanzas, gira en el sitio y vuelve',
+    d: 'la lanzas, se clava girando en el primer enemigo y vuelve',
     esp: { n: 'Filo giratorio', d: '+0,4 s girando en el sitio' },
     el: { fire: 'Hoz flamígera', water: 'Hoz de espuma', air: 'Hoz del vendaval', earth: 'Hoz de obsidiana' },
     // ataque normal

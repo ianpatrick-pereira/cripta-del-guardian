@@ -73,7 +73,12 @@ function html() {
   const css = read('estilos.css').replace(/\n$/, '');
   return read('pagina.html').replace('@@CSS@@', () => css).replace('@@JS@@', () => js);
 }
-module.exports = { partes };
+// cripta.html no trae <!doctype> ni <head>: el visor de artifacts de Claude lo envuelve en una página completa.
+// Para servirlo suelto (GitHub Pages) hace falta ese envoltorio; sin la etiqueta viewport, un celular dibuja la
+// página como si midiera 980 px de ancho: todo se ve diminuto y el juego pinta varias veces más píxeles.
+const ENVOLTORIO = '<!doctype html>\n<html lang="es">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n';
+const paginaWeb = h => ENVOLTORIO + h;
+module.exports = { partes, paginaWeb };
 
 if (require.main === module) {
   let h;
@@ -84,6 +89,9 @@ if (require.main === module) {
     console.log(same ? 'cripta.html está al día' : 'cripta.html NO coincide con src/: ejecuta node build.js');
     process.exit(same ? 0 : 1);
   }
+  // node build.js --web carpeta/index.html  → además, la versión de página completa (la usa GitHub Pages)
+  const web = process.argv.indexOf('--web');
+  if (web > 0) { const f = path.resolve(process.argv[web + 1]); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, paginaWeb(h)); console.log('página web completa:', f); }
   fs.writeFileSync(out, h);
   console.log(`cripta.html: ${partes().length} partes, ${(h.match(/\n/g) || []).length} líneas, ${(Buffer.byteLength(h) / 1024).toFixed(1)} KB`);
 }

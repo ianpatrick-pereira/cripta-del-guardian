@@ -413,7 +413,7 @@ function drawHUD(w, h) {
   const bar = (y, val, max, col, label, seg) => {
     ctx.fillStyle = '#2a2638'; ctx.fillRect(52, y, 148, 11);
     ctx.fillStyle = col; ctx.fillRect(52, y, 148 * clamp(val / max, 0, 1), 11);
-    if (seg) for (let i = 1; i < max; i++) { ctx.fillStyle = 'rgba(12,11,17,.8)'; ctx.fillRect(52 + 148 * i / max - 1, y, 2, 11); }
+    if (seg && max <= 60) for (let i = 1; i < max; i++) { ctx.fillStyle = 'rgba(12,11,17,.8)'; ctx.fillRect(52 + 148 * i / max - 1, y, 2, 11); }
     hudText(label, 18, y + 6, 10, '#9d95ab');
     hudText(`${Math.floor(val)}/${max}`, 196, y + 6, 10, '#ece4cf', 'right');
   };
@@ -752,8 +752,9 @@ function render0() {
 let last = performance.now();
 function loop(now) {
   const raw = now - last, dt = Math.min(.033, raw / 1000); last = now;
-  if (started && !paused && G && raw < 200 && (SAVE.opt.gfx || 'auto') === 'auto' && QL > 0) {
-    perfEma = perfEma * .94 + raw * .06;
+  // (los fotogramas muy lentos también cuentan: antes, si pasaban de 200 ms, la calidad nunca bajaba)
+  if (started && !paused && G && raw < 1000 && (SAVE.opt.gfx || 'auto') === 'auto' && QL > 0) {
+    perfEma = perfEma * .94 + Math.min(raw, 100) * .06;
     slowT = perfEma > 24 ? slowT + raw / 1000 : 0;
     if (slowT > 2.5) { QL--; slowT = 0; perfEma = 16; resize(); }
   }
