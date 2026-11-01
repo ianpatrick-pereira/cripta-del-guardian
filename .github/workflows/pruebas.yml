@@ -16,3 +16,26 @@ jobs:
         run: npm run check
       - name: Pruebas automáticas
         run: npm test
+
+  # Solo en main y solo si las pruebas pasaron: publica cripta.html en GitHub Pages
+  publicar:
+    needs: pruebas
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar la web
+        run: |
+          mkdir web
+          cp cripta.html web/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+      - id: despliegue
+        uses: actions/deploy-pages@v4
