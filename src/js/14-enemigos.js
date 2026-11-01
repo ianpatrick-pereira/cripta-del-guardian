@@ -94,10 +94,17 @@ function chainHit(from, dmg) {
   }
   if (targets.length) sfx(1500, .08, 'sawtooth', .02, -900);
 }
+// nombre de quien te golpea, para el historial de partidas («te derrotó…»)
+function quien(e) {
+  if (!e) return null;
+  if (e.isBoss) return BOSSES[e.kind].name;
+  if (e.isSub) return e.name;
+  return BEAST[e.type] ? BEAST[e.type].n : null;
+}
 function enemyShoot(e, a, speed, r = 5, color = '#e86a8a', dmg = 1, kind = 'orb') {
   const S = G.elSrc;
   G.proj.push({ x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null });
+    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) });
 }
 
 // ---- herramientas de IA ----
@@ -144,7 +151,7 @@ function threat(e) {
 }
 function hazard(x, y, r, t, dmg = 1, color = '#d4474b', o = {}) {
   const S = G.elSrc;
-  G.hazards.push({ x, y, r, t, max: t, dmg: S ? Math.max(dmg, S.dmg) : dmg, color, src: S, el: S ? S.elem : null, ...o });
+  G.hazards.push({ x, y, r, t, max: t, dmg: S ? Math.max(dmg, S.dmg) : dmg, color, src: S, el: S ? S.elem : null, por: quien(o.owner) || quien(G.actor), ...o });
 }
 // efecto del elemento cuando un Elemental te alcanza
 function elemHit(el, from) {

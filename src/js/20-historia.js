@@ -27,5 +27,16 @@ function openNote(id) {
   $('noteTitle').textContent = N.t; $('noteText').textContent = N.b;
   $('ovNote').hidden = false; sfx(300, .6, 'sine', .03, -100);
 }
+// ---------- los dos finales (textos en src/datos/finales.jsonc) ----------
+// con todas las notas del diario: el final verdadero; si falta alguna, el otro
+function openEpilogue() {
+  const faltan = NOTES.length - Object.keys(SAVE.notes).length, F = faltan <= 0 ? DATOS.finales.completo : DATOS.finales.incompleto;
+  if (faltan <= 0) ach('truth');
+  $('epiEyebrow').textContent = F.etiqueta; $('epiTitle').textContent = F.titulo;
+  $('epiText').innerHTML = F.texto.map(t => `<p class="lead">${esc(t)}</p>`).join('');
+  $('epiHint').textContent = faltan > 0 ? `Te ${faltan === 1 ? 'falta 1 página' : `faltan ${faltan} páginas`} del diario para conocer la verdad.` : '';
+  $('ovEpi').hidden = false; sfx(180, 1.2, 'sine', .04, -60);
+}
+function closeEpilogue() { $('ovEpi').hidden = true; showEnd(); }
 function closeNote() { if (G.choice && G.choice.note) G.choice = null; $('ovNote').hidden = true; }
 

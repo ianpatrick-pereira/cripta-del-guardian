@@ -23,7 +23,7 @@
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.33</p>
+      <p class="eyebrow">Prototipo jugable · v0.34</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -38,6 +38,7 @@
       <details class="codex"><summary>Logros <span id="achCount"></span></summary><div class="clist" id="achList"></div></details>
       <details class="codex"><summary>Bestiario <span id="beastCount"></span></summary><div class="clist" id="beastList"></div></details>
       <details class="codex"><summary>Diario <span id="noteCount"></span></summary><div class="clist" id="noteList"></div></details>
+      <details class="codex"><summary>Historial <span id="histCount"></span></summary><div class="clist" id="histList"></div></details>
       <details class="codex"><summary>Sinergias <span id="synCount"></span></summary><div class="clist" id="synList"></div></details>
       <details class="codex"><summary>Opciones</summary><div class="opts" id="menuOpts"></div></details>
       <div class="keys">
@@ -113,6 +114,16 @@
       <p class="hint" id="forgeCoins"></p>
       <div id="forgeList"></div>
       <div class="row"><button class="primary" id="btnForgeClose" type="button">Volver a la mazmorra</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ovEpi" hidden>
+    <div class="panel note">
+      <p class="eyebrow" id="epiEyebrow">Final</p>
+      <h2 id="epiTitle"></h2>
+      <div id="epiText"></div>
+      <p class="hint" id="epiHint"></p>
+      <div class="row"><button class="primary" id="btnEpiClose" type="button">Continuar</button></div>
     </div>
   </div>
 

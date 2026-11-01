@@ -64,6 +64,7 @@ function renderMenu() {
   $('noteList').innerHTML = NOTES.map((N, i) => SAVE.notes[i] ? `<div><b>${esc(N.t)}</b>${esc(N.b)}</div>` : `<div class="off"><b>Página perdida</b>Sigue explorando la cripta.</div>`).join('');
   $('synCount').textContent = `· ${SYNERGIES.filter(S => SAVE.syn[S.id]).length}/${SYNERGIES.length}`;
   $('synList').innerHTML = SYNERGIES.map(S => `<div class="${SAVE.syn[S.id] ? '' : 'off'}"><b style="color:${SAVE.syn[S.id] ? S.c : 'inherit'}">${esc(S.n)}</b>${esc(S.r)}: ${esc(S.d)}</div>`).join('');
+  renderHistory();
   renderOpts('menuOpts');
   $('btnContinue').hidden = !SAVE.run;
   if (SAVE.run) $('btnContinue').textContent = `Continuar · piso ${SAVE.run.floor} (${CHARS[SAVE.run.char].name})`;
@@ -94,10 +95,11 @@ function renderOpts(id) {
   $(id).innerHTML = `<label>Música <input type="range" min="0" max="1" step=".05" value="${o.music}" data-o="music"></label>
     <label>Efectos <input type="range" min="0" max="1" step=".05" value="${o.sfx}" data-o="sfx"></label>
     <label><input type="checkbox" data-o="shake" ${o.shake < 1 ? 'checked' : ''}> Reducir la sacudida de pantalla</label>
+    <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
     <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
     if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = 2; slowT = 0; resize(); }
-    else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
+    else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
   }));
 }
@@ -117,7 +119,7 @@ function togglePause() { setPause(!paused); }
 function toMenu() {
   if (G && started && !G.keepRun) SAVE.run = null;
   if (G && started && !G.gemsBanked) { SAVE.gems += Math.round(G.gems * D().gem); SAVE.best = Math.max(SAVE.best, G.floor); writeSave(); }
-  $('ovEnd').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; paused = false; started = false;
+  $('ovEnd').hidden = true; $('ovEpi').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; paused = false; started = false;
   $('touch').hidden = true;
   newRun(selChar);
   renderMenu(); $('ovStart').hidden = false; $('ovStart').scrollTop = 0;
@@ -149,6 +151,7 @@ $('btnContinue').addEventListener('click', () => {
   try { resumeRun(SAVE.run); } catch (err) { console.warn('Partida guardada incompatible, se descarta', err); SAVE.run = null; writeSave(); if (G) { G.keepRun = true; G.gemsBanked = true; } toMenu(); }
 });
 $('btnNoteClose').addEventListener('click', closeNote);
+$('btnEpiClose').addEventListener('click', closeEpilogue);
 $('gamCards').querySelectorAll('.gcard').forEach(c => { c.querySelector('.gback').innerHTML = GAM_SVG.back; c.addEventListener('click', () => gamPick(+c.dataset.i)); });
 $('gamMinus').addEventListener('click', () => gamStep(-10));
 $('gamPlus').addEventListener('click', () => gamStep(10));
@@ -169,6 +172,7 @@ window.__cripta = {
   armor(st) { G.pickups.push({ kind: 'armor', stars: st, x: G.player.x + 30, y: G.player.y }); },
   weapon(id, st = 1) { G.player.slots[G.player.cur] = mkW(id, st); },
   weapons: () => WEAPONS.map(w => w.id),
+  weaponInfo: () => WEAPONS.map(w => ({ id: w.id, n: w.name, r: w.rarity, t: w.type, fam: (WEAPON_DEFS[w.id] || {}).familia || null })),
   roll: src => rollWeapon(src),
   spawn(t, x, y) { G.enemies.push(mkEnemy(t, x, y, 1, false)); },
   toEvent(k) { const r = G.rooms.find(r => r.ev === k); if (!r) return false; G.player.x = r.cx; G.player.y = r.cy + 60; G.cam.x = r.cx; G.cam.y = r.cy; return true; },

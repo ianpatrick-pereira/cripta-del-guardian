@@ -45,10 +45,16 @@ function datos() {
       else for (const id of d[k]) if (!enemigos.has(id)) fallos.push(`src/datos/${f}: el enemigo "${id}" de "${k}" no existe en src/js/01b-enemigos/`);
     }
     if (!jefes.has(d.jefe)) fallos.push(`src/datos/${f}: el jefe "${d.jefe}" no existe en src/js/01e-jefes/`);
+    const A = d.ambiente || {}, COSAS = ["huesos", "velas", "cristales", "musgo", "hierba", "charcos", "runas", "hongos", "espinas", "escarcha", "lava", "flores", "vidrios", "rosas"], PART = ["polvo", "esporas", "brasas", "nieve", "luciernagas", "chispas", "petalos"];
+    if (!d.ambiente) fallos.push(`src/datos/${f}: falta el bloque "ambiente"`);
+    else {
+      if (!PART.includes(A.particulas)) fallos.push(`src/datos/${f}: "particulas" tiene que ser una de: ${PART.join(', ')}`);
+      for (const k of ['bordes', 'centro']) for (const c of Object.keys(A[k] || {})) if (!COSAS.includes(c)) fallos.push(`src/datos/${f}: "${c}" en "${k}" no es un tipo de decoración (${COSAS.join(', ')})`);
+    }
   });
   if (pisos.length !== 8) fallos.push(`src/datos/pisos/ tiene ${pisos.length} pisos; el juego necesita 8 (los subjefes y la historia van por piso)`);
   if (fallos.length) throw new Error('Datos con errores:\n  ' + fallos.join('\n  '));
-  return { pisos: pisos.map(p => p.d), oleadas: leerDatos('oleadas.jsonc'), botin: leerDatos('botin.jsonc') };
+  return { pisos: pisos.map(p => p.d), oleadas: leerDatos('oleadas.jsonc'), botin: leerDatos('botin.jsonc'), finales: leerDatos('finales.jsonc') };
 }
 
 // las partes de cripta.html en orden: { nombre, texto } (pruebas/probar.js las usa para saber en qué archivo falló algo)

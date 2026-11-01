@@ -11,7 +11,7 @@ defBossMove('leap', {
       if (!hitsWall(e.tgt.x, e.tgt.y, e.r)) { e.x = e.tgt.x; e.y = e.tgt.y; }
       shake(14); noise(.3, .1, 500); burst(e.x, e.y, '#5a4a5a', 22, 220, 5);
       bossRing(e, ph2 ? 18 : 12, 170, bcol);
-      if (dist(e, p) < e.r + p.r + 10) hurtPlayer(2);
+      if (dist(e, p) < e.r + p.r + 10) hurtPlayer(2, quien(e));
     }
     if (e.timer > 1.5) { if (--e.reps > 0) { e.k = 0; e.timer = .2; } else bossIdle(e); }
   }

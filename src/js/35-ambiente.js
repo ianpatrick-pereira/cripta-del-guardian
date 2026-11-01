@@ -1,23 +1,13 @@
 // ================= Ambiente: decoración, vegetación y luces =================
 // cada piso tiene su paleta de luz, plantas y objetos; edge = junto a los muros, open = en el centro de la sala
-const AMB = [
-  { torch: '#ffb347', glow: '#b98cff', banner: '#4a2a6a', plant: ['#2f4a34', '#4f7a4a'], flower: '#c9a6ff', puddle: 'rgba(70,80,130,.32)', mote: 'dust', gap: 5, web: .6, vine: .12,
-    vig: 'rgba(24,10,40,.55)', pe: .14, po: .07, edge: { bones: 2, candles: 1, crystal: 1, moss: 2 }, open: { grass: 2, moss: 2, puddle: 1, rune: .4 } },
-  { torch: '#d8ff7a', glow: '#7aff9b', banner: '#2f4a28', plant: ['#3f5a2c', '#6a8a3a'], flower: '#e0d070', puddle: 'rgba(90,140,60,.3)', mote: 'spore', gap: 5, web: .8, vine: .3,
-    vig: 'rgba(8,24,12,.55)', pe: .17, po: .1, edge: { mushroom: 3, bones: 2, moss: 2 }, open: { grass: 2, moss: 3, puddle: 2, mushroom: 1 } },
-  { torch: '#ff4a3a', glow: '#c04aff', banner: '#5a1018', plant: ['#3a1a22', '#5a2430'], flower: '#ff4a6a', puddle: 'rgba(120,10,20,.38)', mote: 'ember', gap: 8, web: .5, vine: 0,
-    vig: 'rgba(40,0,8,.62)', pe: .13, po: .06, edge: { bones: 3, candles: 1, crystal: 1 }, open: { rune: 1, thorn: 2, puddle: 1 } },
-  { torch: '#ffc27a', glow: '#8ad8ff', banner: '#2a4a6a', plant: ['#4a5e72', '#8aaac8'], flower: '#cfeaff', puddle: 'rgba(150,200,255,.22)', mote: 'snow', gap: 5, web: .3, vine: 0,
-    vig: 'rgba(6,18,36,.55)', pe: .15, po: .08, edge: { crystal: 3, bones: 3 }, open: { frost: 3, puddle: 1, grass: 1 } },
-  { torch: '#ff7a2a', glow: '#ff4a1a', banner: '#6a2a10', plant: ['#4a3020', '#6a4426'], flower: '#ffb070', puddle: 'rgba(40,20,10,.4)', mote: 'ember', gap: 4, web: .2, vine: 0,
-    vig: 'rgba(40,12,0,.55)', pe: .12, po: .09, edge: { bones: 2, candles: 1 }, open: { lava: 3, grass: .5 } },
-  { torch: '#ffe27a', glow: '#c8ff7a', banner: '#3a5a2a', plant: ['#3f6a2a', '#6aa040'], flower: '#ff9ad8', puddle: 'rgba(60,110,140,.3)', mote: 'firefly', gap: 6, web: .3, vine: .45,
-    vig: 'rgba(6,24,10,.5)', pe: .34, po: .26, edge: { mushroom: 2, flowers: 3, moss: 2, grass: 2 }, open: { grass: 5, flowers: 4, moss: 2, puddle: 1 } },
-  { torch: '#c77dff', glow: '#ffd27a', banner: '#3a1a5a', plant: ['#3e3450', '#5e4a78'], flower: '#d8b8ff', puddle: 'rgba(90,60,140,.3)', mote: 'spark', gap: 6, web: .7, vine: .05,
-    vig: 'rgba(26,8,44,.6)', pe: .13, po: .07, edge: { candles: 2, crystal: 1, bones: 1 }, open: { rune: 2, glass: 2, moss: 1 } },
-  { torch: '#ff3a5a', glow: '#c77dff', banner: '#6a0a1e', plant: ['#4a1a22', '#7a2a3a'], flower: '#ff5a7a', puddle: 'rgba(120,10,30,.4)', mote: 'petal', gap: 8, web: .5, vine: .15,
-    vig: 'rgba(44,0,14,.62)', pe: .15, po: .08, edge: { candles: 2, roses: 3, bones: 1 }, open: { roses: 2, rune: 1, thorn: 2, puddle: 1 } },
-];
+// la decoración de cada piso se diseña en src/datos/pisos/ (bloque "ambiente"); aquí se traduce al formato del motor
+const AMB_COSAS = { huesos: 'bones', velas: 'candles', cristales: 'crystal', musgo: 'moss', hierba: 'grass', charcos: 'puddle', runas: 'rune', hongos: 'mushroom', espinas: 'thorn', escarcha: 'frost', lava: 'lava', flores: 'flowers', vidrios: 'glass', rosas: 'roses' };
+const AMB_PART = { polvo: 'dust', esporas: 'spore', brasas: 'ember', nieve: 'snow', luciernagas: 'firefly', chispas: 'spark', petalos: 'petal' };
+const AMB = DATOS.pisos.map(({ ambiente: d }) => {
+  const tipos = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [AMB_COSAS[k], v]));
+  return { torch: d.antorchas, glow: d.brillo, banner: d.estandartes, plant: d.plantas, flower: d.flores, puddle: d.charcos, mote: AMB_PART[d.particulas],
+    gap: d.antorchaCada, web: d.telaranas, vine: d.enredaderas, vig: d.vineta, pe: d.densidadBordes, po: d.densidadCentro, edge: tipos(d.bordes), open: tipos(d.centro) };
+});
 const GLOW_MOTES = { firefly: 1, ember: 1, spark: 1, spore: 1 };
 function pickW(obj, h) { let s = 0; for (const k in obj) s += obj[k]; let v = h * s; for (const k in obj) { v -= obj[k]; if (v <= 0) return k; } return Object.keys(obj)[0]; }
 function hexA(c, a) { const n = parseInt(c.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }

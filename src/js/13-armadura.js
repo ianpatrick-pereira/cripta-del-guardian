@@ -104,9 +104,10 @@ function gainRelic(id) {
   sfx(520, .15, 'triangle', .05, 300); later(.12, () => sfx(780, .2, 'triangle', .05, 300));
 }
 
-function hurtPlayer(d) {
+function hurtPlayer(d, por) {
   const p = G.player;
   if (p.inv > 0 || G.over) return false;
+  G.hitBy = por || 'un golpe';
   if (p.char === 'knight' && p.parryT > 0 && p.parryCd <= 0) { parry(p); return false; }
   d += G.floor >= 11 ? 3 : G.floor >= 7 ? 2 : G.floor >= 3 ? 1 : 0;
   if (pact('fragile')) d += 1;

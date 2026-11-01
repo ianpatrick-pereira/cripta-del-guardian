@@ -6,6 +6,7 @@ function endGame(won) {
   G.gemGain = Math.round(G.gems * D().gem);
   SAVE.gems += G.gemGain; SAVE.best = Math.max(SAVE.best, G.floor); if (won && !G.wonOnce) SAVE.wins++;
   SAVE.run = null;
+  saveHistory(won);
   if (G.daily) {
     G.dailyPts = dailyScore();
     if (!SAVE.daily || SAVE.daily.date !== G.daily) SAVE.daily = { date: G.daily, best: 0 };
@@ -15,13 +16,17 @@ function endGame(won) {
   if (won && G.floor === 8) showBanner('¡La cripta ha caído!', '#e3a24a');
 }
 function showEnd() {
+  if (!$('ovEpi').hidden) return;
   const won = G.won;
+  // al salir victorioso tras vencer a Elena, primero el final de la historia
+  if (won && G.wonOnce && !G.epiShown) { G.epiShown = true; openEpilogue(); return; }
   $('endEyebrow').textContent = won ? 'Victoria' : G.wonOnce ? 'Fin del descenso' : 'Derrota';
   $('endTitle').textContent = won ? (G.floor > 8 ? `Saliste del Abismo en el piso ${G.floor}` : 'Has conquistado la cripta') : G.wonOnce ? `El Abismo te reclamó en el piso ${G.floor}` : `Caíste en el piso ${G.floor}`;
   $('endText').textContent = won || G.wonOnce
     ? 'La victoria quedó registrada. Las gemas que juntaste ya están en el altar para desbloquear personajes, mejoras y compañeros.'
     : 'Las gemas que juntaste se guardaron. Úsalas en el Altar de almas para volver más fuerte.';
   if (G.daily) $('endText').textContent = `Reto diario del ${G.daily}: ${G.dailyPts} puntos${G.dailyRec ? ' · ¡nuevo récord!' : ` · tu récord: ${SAVE.daily.best}`}. Puntos: 1000 por piso superado, 10 por baja y 1 por moneda (+3000 si ganas).`;
+  if (!won && G.hitBy) $('endText').textContent += ` Te derrotó: ${G.hitBy}.`;
   const s = Math.floor(G.time);
   $('stFloor').textContent = G.floor;
   $('stTime').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -72,7 +77,7 @@ function update(dt) {
     if (h.t <= 0) {
       h.gone = true;
       const pl = G.player;
-      if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg) && h.el) elemHit(h.el, h); }
+      if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg, h.por) && h.el) elemHit(h.el, h); }
       burst(h.x, h.y, h.color, 12, 190, 4, .4); shake(4); noise(.12, .05, 700);
       if (h.el === 'fire') { if (!G.flames) G.flames = []; G.flames.push({ x: h.x, y: h.y, r: h.r * .9, t: 3.2, fight: true }); }
       const prevSrc = G.elSrc; G.elSrc = h.src || null;
@@ -98,8 +103,8 @@ function update(dt) {
   const p = G.player;
   for (const e of [...G.enemies]) {
     if (e.dead) continue;
-    updateEnemy(e, dt);
-    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg) && e.elem) elemHit(e.elem, e); }
+    G.actor = e; updateEnemy(e, dt); G.actor = null;
+    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg, quien(e)) && e.elem) elemHit(e.elem, e); }
   }
   const es = G.enemies;
   for (let i = 0; i < es.length; i++) for (let j = i + 1; j < es.length; j++) {
@@ -158,7 +163,7 @@ function update(dt) {
     } else if (!G.over && dist(pr, p) < p.r + pr.r - 2) {
       if (p.blockT > 0 && shieldBlock(p, pr)) { /* bloqueada por el escudo */ }
       else if (p.bulwarkT > 0) reflect(pr, angTo(p, pr), 3);
-      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, 'Atrapado', '#e8e8d8', 12); } pr.life = 0; }
+      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, 'Atrapado', '#e8e8d8', 12); } pr.life = 0; }
     }
   }
   G.proj = G.proj.filter(pr => pr.life > 0);

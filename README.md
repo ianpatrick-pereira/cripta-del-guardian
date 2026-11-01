@@ -20,6 +20,7 @@ Desde la v0.30 cada enemigo, arma y sala de evento es un archivo propio.
 Desde la v0.31 hay pruebas automáticas en `pruebas/`.
 Desde la v0.32 cada jefe, subjefe y ataque de jefe también es un archivo propio.
 Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/datos/`: se diseñan sin tocar código.
+Desde la v0.34 también la decoración de cada piso y los dos finales; y hay herramientas para medir el balance y el rendimiento.
 
 ```
 ./
@@ -29,7 +30,7 @@ Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/
 └── src/
     ├── pagina.html   HTML de los menús y pantallas, con @@CSS@@ y @@JS@@ como huecos
     ├── estilos.css   estilos
-    ├── datos/        diseño sin código: pisos/ (uno por piso), oleadas.jsonc y botin.jsonc
+    ├── datos/        diseño sin código: pisos/ (uno por piso), oleadas.jsonc, botin.jsonc y finales.jsonc
     └── js/
         ├── 01a-registro.js   defEnemy, defWeapon, defRoom, defBoss, defSub...: qué campos lleva cada archivo
         ├── 01b-enemigos/     un archivo por enemigo (18): datos, sprite, bestiario, IA y dibujo
@@ -53,12 +54,13 @@ Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/
 
 ## Pruebas automáticas
 
-`node pruebas/probar.js` abre el juego en un navegador sin ventana y juega solo, con el azar fijado (la misma semilla da siempre la misma partida). Hace 30 pruebas:
+`node pruebas/probar.js` abre el juego en un navegador sin ventana y juega solo, con el azar fijado (la misma semilla da siempre la misma partida). Hace 32 pruebas:
 
 - **clases** (24): Caballero, Tirador y Asesino en cada uno de los 8 pisos. Un bot despeja las salas de combate, el subjefe y el jefe con mandos táctiles (que apuntan solos), ataque cargado, esquiva, habilidad F y, desde el piso 3, la habilidad elemental R. Es inmortal para poder llegar al final; si no termina una sala a tiempo, se rematan los enemigos que queden y se comprueba que la sala se abre igual.
 - **armas** (1): las 41 armas a 1★, 3★ y 5★, con ataque normal y cargado; cada combinación tiene que hacer daño.
 - **salas** (1): genera pisos hasta ver las 7 salas de evento y las usa todas.
 - **guardado** (4): partida vieja, arma que ya no existe, guardado de una versión futura y sin guardado.
+- **finales** (2): sale el final verdadero con el diario completo y el otro si faltan notas.
 
 Una prueba sale con ✗ si hay un error de JavaScript (el informe dice en qué archivo de `src/` y en qué línea), una posición o vida imposible (NaN), una sala que no se termina, un arma que no hace daño o un guardado que no se comporta como debe.
 
@@ -68,7 +70,7 @@ Además, cada partida se compara con `pruebas/referencia.json`. «Cambió respec
 node pruebas/probar.js --referencia
 ```
 
-Para ir más rápido se puede probar un solo grupo: `node pruebas/probar.js armas` (o `clases`, `salas`, `guardado`).
+Para ir más rápido se puede probar un solo grupo: `node pruebas/probar.js armas` (o `clases`, `salas`, `guardado`, `finales`).
 
 Necesita Node.js y Playwright (`npm install playwright` y `npx playwright install chromium` si no están).
 
@@ -79,8 +81,16 @@ Necesita Node.js y Playwright (`npm install playwright` y `npx playwright instal
 - **`pisos/1-la-cripta.jsonc` … `8-corazon-de-elena.jsonc`**: nombre, qué enemigos salen cerca y lejos de la entrada, el jefe, cuántos élites, si es un piso de terror, la luz, la música y los colores.
 - **`oleadas.jsonc`**: cuántas oleadas tiene cada sala y cuántos enemigos salen en cada una.
 - **`botin.jsonc`**: qué sueltan los enemigos, las cajas, los cofres, los jefes y los subjefes, y con qué probabilidad sale cada rareza de arma y cada número de estrellas.
+- **`finales.jsonc`**: los textos de los dos finales. Al «Salir victorioso» tras vencer a Elena sale el final verdadero si el diario tiene todas las notas; si no, el otro, que dice cuántas páginas faltan.
+- Dentro de cada piso, el bloque **`ambiente`** decide la decoración: colores de antorchas y plantas, partículas, telarañas y qué objetos hay por el suelo.
 
 Al ejecutar `build.js` se comprueban: si falta una coma, dice el archivo y la línea; si un piso usa un enemigo o un jefe que no existe, dice cuál. Un cambio en estos archivos cambia cómo se juega, así que las pruebas dirán «cambió respecto a la referencia»: es lo esperado. Si todas salen ✓, guarda la nueva referencia con `--referencia`.
+
+## Medir el balance y el rendimiento
+
+- `node pruebas/balance.js` (unos 6 minutos) escribe `pruebas/informe-balance.md`: cuántas vidas necesita un bot inmortal para terminar cada piso con cada clase, quién hace más daño y el daño por segundo de cada arma a 3★ (contra un blanco y contra un grupo). El bot juega peor que una persona: sirve para comparar, no como dificultad real. `node pruebas/balance.js 12` juega más partidas; `node pruebas/balance.js armas` solo mide las armas.
+- `node pruebas/rendimiento.js` mide los milisegundos por fotograma en el piso 8 con 20, 40 y 80 enemigos y contra el jefe, en escritorio y en un celular simulado, con calidad alta, media y baja. Sin tarjeta gráfica el dibujo sale más lento que en un aparato real: para la cifra real, activa en el juego *Opciones → Mostrar FPS*.
+- En el menú, **Historial** guarda las últimas 50 partidas: piso, tiempo, arma y qué te derrotó, con un resumen por clase.
 
 ## Añadir contenido
 

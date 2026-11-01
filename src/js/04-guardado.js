@@ -2,12 +2,13 @@
 const SAVE_KEY = 'cripta-guardian-v1';
 // Versión del formato del guardado. Súbela cuando cambie la forma de lo que se guarda
 // y añade en SAVE_MIGRA el paso que convierte la versión anterior en la nueva.
-const SAVE_VER = 2;
+const SAVE_VER = 3;
 const SAVE_MIGRA = {
-  2: s => s   // v1 → v2: mismo formato; solo empieza a llevar número de versión
+  2: s => s,  // v1 → v2: mismo formato; solo empieza a llevar número de versión
+  3: s => ({ ...s, hist: Array.isArray(s.hist) ? s.hist : [] })   // v3: historial de partidas
 };
 const defaultSave = () => ({ ver: SAVE_VER, gems: 0, chars: { knight: true, archer: false, rogue: false }, upg: { hp: 0, coin: 0, en: 0 }, best: 0, wins: 0, diff: 'normal',
-  ach: {}, kills: {}, found: {}, notes: {}, syn: {}, pets: {}, pet: '', startW: '', forged: 0, rescued: 0, run: null,
+  ach: {}, kills: {}, found: {}, notes: {}, syn: {}, pets: {}, pet: '', startW: '', forged: 0, rescued: 0, run: null, hist: [],
   opt: { music: .8, sfx: .8, shake: 1, gfx: 'auto' } });
 // la partida en curso solo se conserva si todo lo que nombra sigue existiendo en esta versión
 function runValid(r) {

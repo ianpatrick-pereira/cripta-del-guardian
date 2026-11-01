@@ -12,7 +12,7 @@ defBossMove('laser', {
       for (const b of G.beams) { b.on = true; b.x = e.x; b.y = e.y; if (ph2) b.a += dt * .9; }
       for (const b of G.beams) {
         const dx = p.x - b.x, dy = p.y - b.y, along = dx * Math.cos(b.a) + dy * Math.sin(b.a), perp = Math.abs(-dx * Math.sin(b.a) + dy * Math.cos(b.a));
-        if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1); }
+        if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1, quien(e)); }
       }
       if (e.timer > act) { G.beams = []; bossIdle(e); }
     }

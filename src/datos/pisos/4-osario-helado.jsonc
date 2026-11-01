@@ -20,5 +20,18 @@
   "colores": {
     "sueloA": "#1c222c", "sueloB": "#1f2631", "grietas": "#141920", "manchas": "#26303c",
     "muroArriba": "#3a4a5e", "muroFrente": "#243040", "muroBorde": "#6a8aa8"
+  },
+  // decoración: colores de antorchas, brillos, estandartes, plantas (oscura y clara), flores y charcos;
+  // partículas que flotan (polvo, esporas, brasas, nieve, luciernagas, chispas o petalos) y la viñeta de los bordes
+  "ambiente": {
+    "antorchas": "#ffc27a", "brillo": "#8ad8ff", "estandartes": "#2a4a6a", "plantas": ["#4a5e72", "#8aaac8"],
+    "flores": "#cfeaff", "charcos": "rgba(150,200,255,.22)", "particulas": "nieve", "vineta": "rgba(6,18,36,.55)",
+    // cada cuántas casillas hay una antorcha en el muro de arriba; probabilidad de telarañas y de enredaderas
+    "antorchaCada": 5, "telaranas": 0.3, "enredaderas": 0,
+    // cuánta decoración hay junto a los muros y en el resto del suelo (0 a 1), y de qué tipo (más peso = más frecuente).
+    // tipos: huesos, velas, cristales, musgo, hierba, charcos, runas, hongos, espinas, escarcha, lava, flores, vidrios, rosas
+    "densidadBordes": 0.15, "densidadCentro": 0.08,
+    "bordes": { "cristales": 3, "huesos": 3 },
+    "centro": { "escarcha": 3, "charcos": 1, "hierba": 1 }
   }
 }
