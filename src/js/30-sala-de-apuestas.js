@@ -1,5 +1,6 @@
 // ================= Sala de apuestas: el juego de las tres cartas =================
 // la cámara se acerca a la mesa, eliges 1 de 3 cartas boca abajo y solo una gana
+import { tr } from './00b-textos.js';
 import { $, ctx } from './00-inicio.js';
 import { TAU, TILE, pick, rand, randi } from './01-utilidades.js';
 import { SPR } from './02-pixel-art.js';
@@ -11,12 +12,12 @@ import { dropCoin } from './14-enemigos.js';
 import { SUBS, mkSub } from './15-subjefes.js';
 import { offerTalent } from './26-clases.js';
 const GAM_LINES = {
-  hello: ['¿Te atreves a apostar, mortal?', 'Siéntate… la casa te esperaba', 'Tu oro huele delicioso…'],
-  pick:  ['Es hora de escoger…', 'Elige… si te atreves', 'Una carta. Solo una vive…'],
-  lose:  ['Jajajaja… has perdido', 'Jajaja… tu oro ahora es mío', 'Jejeje… la cripta siempre gana'],
-  win:   ['Grrr… la suerte te sonríe… por ahora', 'Tómalo… disfrútalo mientras dure', 'Hmm… otra vez no tendrás tanta suerte'],
-  cheat: ['¡Tramposo! Nadie le gana a la casa… ¡pagarás!', '¡¡¿OTRA VEZ?!! ¡¡TRAMPOSO!! ¡Esta vez no me contendré!', '¡¡¡SUFICIENTE!!! ¡CONTEMPLA MI VERDADERA FORMA!'],
-  broke: ['Sin oro no hay juego… lárgate'],
+  hello: [tr('¿Te atreves a apostar, mortal?'), tr('Siéntate… la casa te esperaba'), tr('Tu oro huele delicioso…')],
+  pick:  [tr('Es hora de escoger…'), tr('Elige… si te atreves'), tr('Una carta. Solo una vive…')],
+  lose:  [tr('Jajajaja… has perdido'), tr('Jajaja… tu oro ahora es mío'), tr('Jejeje… la cripta siempre gana')],
+  win:   [tr('Grrr… la suerte te sonríe… por ahora'), tr('Tómalo… disfrútalo mientras dure'), tr('Hmm… otra vez no tendrás tanta suerte')],
+  cheat: [tr('¡Tramposo! Nadie le gana a la casa… ¡pagarás!'), tr('¡¡¿OTRA VEZ?!! ¡¡TRAMPOSO!! ¡Esta vez no me contendré!'), tr('¡¡¡SUFICIENTE!!! ¡CONTEMPLA MI VERDADERA FORMA!')],
+  broke: [tr('Sin oro no hay juego… lárgate')],
 };
 function startGamble(it) {
   if (it.gone || it.fight) return;
@@ -50,7 +51,7 @@ function gamShow() {
   $('gamCards').querySelectorAll('.gcard').forEach(c => { c.classList.remove('flip', 'win', 'lose', 'dim'); c.disabled = true; });
   const max = Math.floor(G.coins / 5) * 5;
   $('gamBet').value = Math.max(5, Math.min(10, max));
-  $('gamPlays').textContent = `Partida ${g.it.plays + 1} de 3 · aciertas: ganas el doble`;
+  $('gamPlays').textContent = tr`Partida ${g.it.plays + 1} de 3 · aciertas: ganas el doble`;
   gamCoins(); gamControls(true);
   $('ovGamble').hidden = false;
   if (max < 5) { gamSay(GAM_LINES.broke[0]); $('gamGo').disabled = true; }
@@ -105,22 +106,22 @@ function gamLeave() { const g = G.gam; if (!g || g.ph !== 'bet') return; g.ph = 
 function gamAfter(it) {
   if (it.last === 'win') gamTransform(it, it.wins);
   else if (it.losses >= 3 || it.plays >= 3) gamClose(it);
-  else addText(it.x, it.y - 50, `Quedan ${3 - it.plays} partidas`, '#b98cff', 12);
+  else addText(it.x, it.y - 50, tr`Quedan ${3 - it.plays} partidas`, '#b98cff', 12);
 }
 function gamClose(it) {
   {
     it.gone = true; burst(it.x, it.y - 20, '#7a3fbf', 30, 160, 6, .9); burst(it.x, it.y - 20, '#1a0f24', 20, 120, 7, 1);
-    addText(it.x, it.y - 50, it.losses >= 3 ? 'El crupier se desvanece entre risas…' : 'La casa cierra… por hoy', '#b98cff', 13);
+    addText(it.x, it.y - 50, it.losses >= 3 ? tr('El crupier se desvanece entre risas…') : tr('La casa cierra… por hoy'), '#b98cff', 13);
     sfx(60, 1, 'sine', .06, -20);
   }
 }
 // cada victoria despierta una forma más fuerte del crupier
 const CHEAT_FORMS = [
-  { n: 'Crupier Tramposo', sub: 'Forma base', tint: '#9b5cff', s: 3.4, r: 22, hp: .8, speed: 82, dmg: 0, cards: 1, want: 170, minion: 'wraith',
+  { n: tr('Crupier Tramposo'), sub: tr('Forma base'), tint: '#9b5cff', s: 3.4, r: 22, hp: .8, speed: 82, dmg: 0, cards: 1, want: 170, minion: 'wraith',
     p1: ['volley', 'retreat', 'fan'], p2: ['volley', 'fan', 'rain', 'retreat'] },
-  { n: 'Crupier Enojado', sub: 'Forma enojada', tint: '#d04cff', s: 4.2, r: 25, hp: 1.15, speed: 98, dmg: 1, cards: 3, want: 130, minion: 'wraith',
+  { n: tr('Crupier Enojado'), sub: tr('Forma enojada'), tint: '#d04cff', s: 4.2, r: 25, hp: 1.15, speed: 98, dmg: 1, cards: 3, want: 130, minion: 'wraith',
     p1: ['volley', 'charge3', 'fan'], p2: ['volley', 'charge3', 'rain', 'fan', 'summon'] },
-  { n: 'Señor de la Banca', sub: 'Forma final', tint: '#ff3af0', s: 5.2, r: 28, hp: 1.7, speed: 108, dmg: 2, cards: 5, want: 90, minion: 'phantom',
+  { n: tr('Señor de la Banca'), sub: tr('Forma final'), tint: '#ff3af0', s: 5.2, r: 28, hp: 1.7, speed: 108, dmg: 2, cards: 5, want: 90, minion: 'phantom',
     p1: ['charge3', 'rain', 'fan', 'volley'], p2: ['charge3', 'slam', 'rain', 'fan', 'summon', 'wave'] },
 ];
 function gamTransform(it, st) {
@@ -134,7 +135,7 @@ function gamTransform(it, st) {
   const p = G.player; p.x = it.x; p.y = Math.min(it.y + 110, r.cy + r.h * TILE / 2 - 40); p.inv = Math.max(p.inv || 0, 1.2);
   r.type = 'combat'; r.cleared = false; r.locked = true; r.wave = r.waves = 1; r.sub = st >= 3;
   G.cheatSt = st;
-  showBanner(st >= 3 ? '¡¡¡TRAMPOSO!!!' : st === 2 ? '¡¡Tramposo!!' : '¡Tramposo!', F.tint, F.n + ' · ' + F.sub);
+  showBanner(st >= 3 ? tr('¡¡¡TRAMPOSO!!!') : st === 2 ? tr('¡¡Tramposo!!') : tr('¡Tramposo!'), F.tint, F.n + ' · ' + F.sub);
   shake(10 + st * 5); G.hitstop = .15 + .05 * st; burst(it.x, it.y, F.tint, 40 + st * 15, 300, 6, 1); burst(it.x, it.y, '#120818', 30, 200, 7, 1);
   sfx(60 - st * 8, 1.2, 'sawtooth', .07, -10);
 }
@@ -144,13 +145,13 @@ function cheatDefeated(e) {
   if (st >= 2) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });
   G.pickups.push({ kind: 'potion', x: e.x + 20, y: e.y });
   burst(e.x, e.y, F.tint, 40, 260, 6, 1);
-  if (st >= 3) { showBanner('La banca ha caído', F.tint, 'El crupier no volverá a hacer trampas'); later(.9, offerTalent); }
-  else showBanner(F.n + ' huye', F.tint, 'Vuelve a su mesa… más furioso');
+  if (st >= 3) { showBanner(tr('La banca ha caído'), F.tint, tr('El crupier no volverá a hacer trampas')); later(.9, offerTalent); }
+  else showBanner(F.n + tr(' huye'), F.tint, tr('Vuelve a su mesa… más furioso'));
   if (!it) return;
   if (st >= 3 || it.plays >= 3 || it.losses >= 3) { later(1.2, () => { if (!it.gone) gamClose(it); }); return; }
   later(1.4, () => {
     it.fight = false; burst(it.x, it.y - 20, '#7a3fbf', 24, 140, 6, .8);
-    addText(it.x, it.y - 56, `"Esto no ha terminado…" · quedan ${3 - it.plays} partidas`, '#b98cff', 13);
+    addText(it.x, it.y - 56, tr`"Esto no ha terminado…" · quedan ${3 - it.plays} partidas`, '#b98cff', 13);
   });
 }
 // cartas que flotan alrededor del crupier: una por forma
@@ -188,7 +189,7 @@ function drawCheatRoom(w, h, camX, camY, zoom) {
 const GAM_SVG = {
   skull: `<svg viewBox="0 0 100 140" aria-hidden="true"><defs><radialGradient id="gsk" cx="50%" cy="45%"><stop offset="0" stop-color="#3a1f5a"/><stop offset="1" stop-color="#0d0814"/></radialGradient></defs><rect x="0" y="0" width="100" height="140" rx="8" fill="url(#gsk)"/><g fill="#b98cff" opacity=".92"><path d="M50 34c-17 0-28 12-28 27 0 9 4 15 10 19v12h36V80c6-4 10-10 10-19 0-15-11-27-28-27z"/></g><g fill="#120a1c"><ellipse cx="39" cy="62" rx="7" ry="8"/><ellipse cx="61" cy="62" rx="7" ry="8"/><path d="M50 70l-4 8h8z"/><rect x="40" y="84" width="3" height="8"/><rect x="48.5" y="84" width="3" height="8"/><rect x="57" y="84" width="3" height="8"/></g><circle cx="39" cy="62" r="2" fill="#e8c8ff"/><circle cx="61" cy="62" r="2" fill="#e8c8ff"/><text x="50" y="122" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="13" fill="#b98cff">pierdes</text></svg>`,
   gold: `<svg viewBox="0 0 100 140" aria-hidden="true"><defs><radialGradient id="ggd" cx="50%" cy="55%"><stop offset="0" stop-color="#5a3d10"/><stop offset="1" stop-color="#160e04"/></radialGradient></defs><rect x="0" y="0" width="100" height="140" rx="8" fill="url(#ggd)"/><g stroke="#8a5a10" stroke-width="1.5"><ellipse cx="50" cy="96" rx="30" ry="8" fill="#e3a24a"/><ellipse cx="50" cy="88" rx="27" ry="7" fill="#f0c040"/><ellipse cx="50" cy="80" rx="23" ry="6" fill="#e3a24a"/><ellipse cx="50" cy="72" rx="19" ry="5" fill="#f0c040"/><ellipse cx="50" cy="64" rx="14" ry="4" fill="#ffd27a"/><ellipse cx="33" cy="50" rx="8" ry="8" fill="#f0c040"/><ellipse cx="68" cy="46" rx="7" ry="7" fill="#ffd27a"/></g><g fill="#fff6d0"><circle cx="30" cy="47" r="2"/><circle cx="66" cy="43" r="1.6"/><circle cx="44" cy="62" r="1.4"/></g><text x="50" y="124" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="13" fill="#ffd27a">¡ganas!</text></svg>`,
-  back: `<svg viewBox="0 0 100 140" aria-hidden="true"><rect x="0" y="0" width="100" height="140" rx="8" fill="#170f22"/><rect x="5" y="5" width="90" height="130" rx="5" fill="none" stroke="#7a3fbf" stroke-width="1.5"/><rect x="9" y="9" width="82" height="122" rx="3" fill="none" stroke="#3a2456" stroke-width="1"/><g fill="#0b0712" stroke="#4a2e70" stroke-width="1"><path d="M14 132V108a8 8 0 0 1 16 0v24z"/><path d="M34 132V104a8 8 0 0 1 16 0v28z"/><path d="M54 132V104a8 8 0 0 1 16 0v28z"/><path d="M74 132V108a8 8 0 0 1 12 0v24z"/><path d="M22 96V80a6 6 0 0 1 12 0v16z"/><path d="M44 96V78a6 6 0 0 1 12 0v18z"/><path d="M66 96V80a6 6 0 0 1 12 0v16z"/></g><g fill="#9b6dd6" opacity=".7"><circle cx="42" cy="118" r="2.2"/><circle cx="62" cy="118" r="2.2"/><circle cx="50" cy="88" r="1.8"/><circle cx="28" cy="88" r="1.6"/><circle cx="72" cy="88" r="1.6"/></g><text x="50" y="34" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Cripta del</text><text x="50" y="52" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Guardián</text><path d="M30 60h40" stroke="#7a3fbf" stroke-width="1"/><path d="M50 56l3 4-3 4-3-4z" fill="#b98cff"/></svg>`,
+  back: `<svg viewBox="0 0 100 140" aria-hidden="true"><rect x="0" y="0" width="100" height="140" rx="8" fill="#170f22"/><rect x="5" y="5" width="90" height="130" rx="5" fill="none" stroke="#7a3fbf" stroke-width="1.5"/><rect x="9" y="9" width="82" height="122" rx="3" fill="none" stroke="#3a2456" stroke-width="1"/><g fill="#0b0712" stroke="#4a2e70" stroke-width="1"><path d="M14 132V108a8 8 0 0 1 16 0v24z"/><path d="M34 132V104a8 8 0 0 1 16 0v28z"/><path d="M54 132V104a8 8 0 0 1 16 0v28z"/><path d="M74 132V108a8 8 0 0 1 12 0v24z"/><path d="M22 96V80a6 6 0 0 1 12 0v16z"/><path d="M44 96V78a6 6 0 0 1 12 0v18z"/><path d="M66 96V80a6 6 0 0 1 12 0v16z"/></g><g fill="#9b6dd6" opacity=".7"><circle cx="42" cy="118" r="2.2"/><circle cx="62" cy="118" r="2.2"/><circle cx="50" cy="88" r="1.8"/><circle cx="28" cy="88" r="1.6"/><circle cx="72" cy="88" r="1.6"/></g><text x="50" y="34" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Cripta del</text><text x="50" y="52" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">${tr('Guardián')}</text><path d="M30 60h40" stroke="#7a3fbf" stroke-width="1"/><path d="M50 56l3 4-3 4-3-4z" fill="#b98cff"/></svg>`,
 };
 
 export { GAM_SVG, cheatDefeated, drawCheatForm, drawCheatRoom, gamBetVal, gamEase, gamLeave, gamPick,

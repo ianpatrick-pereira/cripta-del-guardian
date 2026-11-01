@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { angTo, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
@@ -9,7 +10,7 @@ import { drawWeapon } from '../38-armadura-visual.js';
 defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
-  bestiario: { n: 'Esqueleto arquero', d: 'Busca línea de tiro y alterna disparo simple y abanico.' },
+  bestiario: { n: tr('Esqueleto arquero'), d: tr('Busca línea de tiro y alterna disparo simple y abanico.') },
   sprite: {
     clave: 'skel',
     mapa: ['...kkkkkk...', '..kbbbbbbk..', '.kbbbbbbbbk.', '.kbeebbeebk.', '.kbbbkkbbbk.', '..kbbbbbbk..', '...kbkbkk...',

@@ -1,9 +1,10 @@
 // Jefe del piso 1: El Guardián de la Cripta
+import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defBoss } from '../01a-registro.js';
 defBoss('guardian', {
   orden: 1,
-  datos: { name: 'El Guardián de la Cripta', hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,
+  datos: { name: tr('El Guardián de la Cripta'), hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,
            p1: ['burst', 'aimed', 'charge'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict'] },
   logro: 'boss1',
   // su dibujo (a media resolución; los jefes con look: 'guardian' lo reutilizan con otro color)

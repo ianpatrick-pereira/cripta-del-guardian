@@ -1,4 +1,5 @@
 // Mosquete
+import { tr } from '../00b-textos.js';
 import { rand } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
 import { noise, sfx } from '../05-audio.js';
@@ -9,13 +10,13 @@ import { shootPlayer } from '../11-jugador.js';
 import { espLv } from '../12-armas-con-estilo-propio.js';
 defWeapon('musket', {
   orden: 38,
-  datos: { name: 'Mosquete', type: 'bow', style: 'musket', shape: 'musket', rarity: 'rare', dmg: 13, cd: 1.35, speed: 1150, pierce: 99, shots: 1, en: 4, chg: 'blast', chgEn: 18 },
+  datos: { name: tr('Mosquete'), type: 'bow', style: 'musket', shape: 'musket', rarity: 'rare', dmg: 13, cd: 1.35, speed: 1150, pierce: 99, shots: 1, en: 4, chg: 'blast', chgEn: 18 },
   familia: 'archer',
   potencia: .9,
   estilo: {
-    d: 'recarga lenta; la bala atraviesa todo',
-    esp: { n: 'Calibre', d: 'la bala estalla al chocar, más grande por nivel' },
-    el: { fire: 'Bala incendiaria', water: 'Disparo de géiser', air: 'Bala huracán', earth: 'Bala de granito' },
+    d: tr('recarga lenta; la bala atraviesa todo'),
+    esp: { n: tr('Calibre'), d: tr('la bala estalla al chocar, más grande por nivel') },
+    el: { fire: tr('Bala incendiaria'), water: tr('Disparo de géiser'), air: tr('Bala huracán'), earth: tr('Bala de granito') },
     // ataque normal
     ataque(p, w, { a, dmg }) {
       shootPlayer(p, w, a, dmg, { kind: 'ball', r: 5, pierce: 99, life: .9, color: '#ffe6a0', bounce: 0, boom: espLv(w) ? 26 + 16 * espLv(w) : 0 });

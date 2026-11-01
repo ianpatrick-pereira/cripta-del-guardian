@@ -1,4 +1,5 @@
 // ================= Salas =================
+import { tr } from './00b-textos.js';
 import { FLOOR, MH, MW, TAU, TILE, pick, rand } from './01-utilidades.js';
 import { BOSSES, BOTIN, D, ENEMY, FLOORS, OLEADAS } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
@@ -30,7 +31,7 @@ function startEncounter(room) {
   sfx(110, .25, 'square', .05, -40); shake(4);
   if (room.type === 'boss') {
     G.markers.push({ x: room.cx, y: room.cy - 40, t: 1.6, type: 'boss', depth: 5 });
-    showBanner(BOSSES[FLOORS[G.fi].boss].name, '#d4474b', `Jefe del piso ${G.floor}`);
+    showBanner(BOSSES[FLOORS[G.fi].boss].name, '#d4474b', tr`Jefe del piso ${G.floor}`);
   } else if (room.sub) {
     const S = SUBS[room.subK || G.fi + 1];
     room.wave = room.waves;
@@ -39,14 +40,14 @@ function startEncounter(room) {
       const pos = freeSpot(room, 2, 20, G.player, 150);
       if (pos) G.markers.push({ x: pos.x, y: pos.y, t: 1.2 + i * .1, type: S.minion, depth: 1 });
     }
-    showBanner(S.name, '#e3a24a', 'Subjefe');
+    showBanner(S.name, '#e3a24a', tr('Subjefe'));
   } else { G.waveDelay = .5; dareStart(room); }
 }
 function clearRoom(room) {
   room.locked = false; room.cleared = true; G.roomsCleared++;
   dareClear(room);
   sfx(520, .3, 'triangle', .05, 400);
-  addText(G.player.x, G.player.y - 30, 'Sala despejada', '#e3a24a', 15);
+  addText(G.player.x, G.player.y - 30, tr('Sala despejada'), '#e3a24a', 15);
   let x = room.cx, y = room.cy;
   if (Math.hypot(G.player.x - x, G.player.y - y) < 50) y -= 70;
   if (!G.keyGiven) { G.keyGiven = true; G.pickups.push({ kind: 'key', x: x + 34, y }); }
@@ -57,9 +58,9 @@ function clearRoom(room) {
     const tx = room.cx, ty = room.cy + 70;
     G.pickups.push({ kind: 'totem', el: room.totemEl, x: tx, y: ty, rise: 0 });
     room.totemEl = null;
-    later(.6, () => { shake(6); noise(.6, .07, 300); addText(tx, ty - 60, 'Un tótem emerge de la tierra…', '#c77dff', 13); });
+    later(.6, () => { shake(6); noise(.6, .07, 300); addText(tx, ty - 60, tr('Un tótem emerge de la tierra…'), '#c77dff', 13); });
   }
-  if (G.pet && G.pet.kind === 'fairy' && G.player.hp < G.player.maxHp) { G.player.hp++; addText(G.player.x, G.player.y - 44, '+1 vida (hada)', '#ffe27a', 12); }
+  if (G.pet && G.pet.kind === 'fairy' && G.player.hp < G.player.maxHp) { G.player.hp++; addText(G.player.x, G.player.y - 44, tr('+1 vida (hada)'), '#ffe27a', 12); }
   if (room.sub) {
     G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' }, { kind: 'key', x: x - 34, y });
     const n1 = noteFor(1); if (n1 >= 0) G.pickups.push({ kind: 'note', id: n1, x: x + 60, y: y + 40 });
@@ -95,8 +96,8 @@ function updateRooms(dt) {
   const room = roomAt(p.x, p.y);
   if (room && room !== G.cur) {
     G.cur = room;
-    if (room.type === 'secret' && !room.visited) { showBanner('Sala secreta', '#c77dff'); sfx(600, .4, 'triangle', .04, 400); }
-    if (room.type === 'shop' && !room.visited) addText(room.cx, room.cy - 104, '¡Bienvenido, viajero!', '#e3a24a', 14);
+    if (room.type === 'secret' && !room.visited) { showBanner(tr('Sala secreta'), '#c77dff'); sfx(600, .4, 'triangle', .04, 400); }
+    if (room.type === 'shop' && !room.visited) addText(room.cx, room.cy - 104, tr('¡Bienvenido, viajero!'), '#e3a24a', 14);
     room.visited = true;
     if (!room.cleared && !room.locked) startEncounter(room);
   }

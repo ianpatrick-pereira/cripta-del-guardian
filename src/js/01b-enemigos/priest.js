@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { dist, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -7,7 +8,7 @@ import { enemyShoot, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('priest', {
   orden: 16,
   stats: { hp: 14, r: 12, speed: 72, dmg: 1, spr: 'priest', s: 2.2 },
-  bestiario: { n: 'Sacerdote hueco', d: 'Da escudos y cura a sus aliados. Mátalo primero.' },
+  bestiario: { n: tr('Sacerdote hueco'), d: tr('Da escudos y cura a sus aliados. Mátalo primero.') },
   sprite: {
     clave: 'priest',
     mapa: 'mage',

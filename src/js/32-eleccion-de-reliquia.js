@@ -1,4 +1,5 @@
 // ================= Elección de reliquia =================
+import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { esc } from './01-utilidades.js';
 import { RELICS } from './03-datos-del-juego.js';
@@ -15,7 +16,7 @@ function openChoice(eyebrow, title, ids, done, kind = 'relic') {
   $('choiceEyebrow').textContent = eyebrow; $('choiceTitle').textContent = title;
   $('choiceCards').innerHTML = ids.map((id, i) => {
     const R = (kind === 'talent' ? TALENTS : kind === 'spec' ? SPECS : kind === 'pact' ? PACTS : RELICS)[id], n = kind === 'relic' ? G.player.relics.filter(x => x === id).length : 0;
-    const extra = kind === 'spec' ? `<span class="abil">F · ${esc(R.abil)}: ${esc(R.abilDesc)}</span><span class="meta">Al subir de nivel (Nv1 a Nv5): ${esc(R.grow)}</span>` : n ? `<span class="abil">Ya tienes ${n}</span>` : '';
+    const extra = kind === 'spec' ? tr`<span class="abil">F · ${esc(R.abil)}: ${esc(R.abilDesc)}</span><span class="meta">Al subir de nivel (Nv1 a Nv5): ${esc(R.grow)}</span>` : n ? tr`<span class="abil">Ya tienes ${n}</span>` : '';
     return `<button class="card choice" type="button" data-i="${i}" style="border-color:${R.c}"><span class="key">${i + 1}</span><b style="color:${R.c}">${esc(R.n)}</b><span class="meta">${esc(R.d)}</span>${extra}</button>`;
   }).join('');
   $('choiceCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => pickChoice(+b.dataset.i)));

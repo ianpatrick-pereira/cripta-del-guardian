@@ -1,4 +1,5 @@
 // ================= Clases: mecánicas, talentos y especialización =================
+import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, rand } from './01-utilidades.js';
 import { CHARS, cu } from './03-datos-del-juego.js';
@@ -17,63 +18,63 @@ function tl(id) { return !!(G && G.player && G.player.talents && G.player.talent
 function bestDmg(p) { const w = p.slots[p.cur]; return w.dmg * (w.shots || 1) * Math.max(1, .4 / w.cd); }
 
 const TALENTS = {
-  vigor:     { cls: 'knight', n: 'Vigor',             c: '#d4474b', d: '+2 de vida máxima y te cura 2.' },
-  muro:      { cls: 'knight', n: 'Muro de acero',     c: '#8fb7d9', d: '+1 de escudo máximo.' },
-  furia:     { cls: 'knight', n: 'Rencor',            c: '#d4474b', d: 'La Represalia hace +100 % en vez de +50 %.' },
-  egida:     { cls: 'knight', n: 'Égida',             c: '#ffd27a', d: 'La ventana de desvío dura más y se recarga en 1 s (antes 2,5 s).' },
-  contra:    { cls: 'knight', n: 'Contragolpe',       c: '#ffd27a', d: 'El contraataque del desvío es más grande, hace más daño y aturde.' },
-  puas:      { cls: 'knight', n: 'Púas de hierro',    c: '#7a9a5a', d: 'Al recibir daño, dañas a los enemigos que tienes al lado.' },
-  embestida: { cls: 'knight', n: 'Embestida',         c: '#e3a24a', d: 'La carga con escudo hace el triple de daño y aturde.' },
-  aguante:   { cls: 'knight', n: 'Aguante',           c: '#8fb7d9', d: 'Tu escudo empieza a recargarse antes y el doble de rápido.' },
-  sed:       { cls: 'knight', n: 'Sed de batalla',    c: '#b0303a', d: 'Cada 12 bajas cuerpo a cuerpo recuperas 1 de vida.' },
-  ojo2:      { cls: 'archer', n: 'Ojo de halcón',     c: '#ffd27a', d: '+15 % de probabilidad de crítico.' },
-  rafaga:    { cls: 'archer', n: 'Ráfaga',            c: '#ffd27a', d: 'La concentración se llena un 60 % más rápido.' },
-  perfora:   { cls: 'archer', n: 'Puntas perforantes', c: '#c9a46a', d: 'Tus flechas atraviesan 1 enemigo más.' },
-  cazador:   { cls: 'archer', n: 'Cazador',           c: '#6cc46a', d: '+30 % de daño a enemigos lejanos.' },
-  hielo:     { cls: 'archer', n: 'Flecha helada',     c: '#9bd8ff', d: 'La flecha dorada ralentiza a todo lo que atraviesa.' },
-  rebote2:   { cls: 'archer', n: 'Rebote',            c: '#e3a24a', d: 'Tus flechas rebotan una vez más en las paredes.' },
-  carcaj2:   { cls: 'archer', n: 'Carcaj doble',      c: '#c9a46a', d: 'Los arcos disparan 1 flecha más.' },
-  voltereta: { cls: 'archer', n: 'Voltereta de tiro', c: '#e3a24a', d: 'Al esquivar disparas un abanico de 5 flechas.' },
-  frio:      { cls: 'archer', n: 'Sangre fría',       c: '#9bd8ff', d: 'Recibir daño solo vacía la mitad de la concentración y vas un 10 % más rápido.' },
-  verdugo:   { cls: 'rogue',  n: 'Verdugo',           c: '#d4474b', d: '+60 % de daño a enemigos con menos del 30 % de vida.' },
-  toxina:    { cls: 'rogue',  n: 'Toxina',            c: '#9be05a', d: 'Todos tus golpes envenenan.' },
-  frenesi:   { cls: 'rogue',  n: 'Frenesí',           c: '#bb7cf0', d: 'El combo llega hasta +100 % y tarda más en perderse.' },
-  sombra:    { cls: 'rogue',  n: 'Paso sombrío',      c: '#8a84a0', d: 'La invisibilidad del parpadeo dura 1,2 s.' },
-  sangre:    { cls: 'rogue',  n: 'Sed de sangre',     c: '#b0303a', d: 'Cada 8 golpes por la espalda recuperas 1 de vida.' },
-  filo:      { cls: 'rogue',  n: 'Puñalada',          c: '#bb7cf0', d: 'Los golpes por la espalda hacen ×3 en vez de ×2.' },
-  humo:      { cls: 'rogue',  n: 'Bomba de humo',     c: '#8a84a0', d: 'Al matar, el humo ralentiza a los enemigos cercanos.' },
-  punales:   { cls: 'rogue',  n: 'Puñales',           c: '#d8e0ff', d: 'Al esquivar lanzas 6 puñales a tu alrededor.' },
-  acecho:    { cls: 'rogue',  n: 'Acecho',            c: '#ffd27a', d: 'El primer golpe a un enemigo intacto hace ×2,5.' },
+  vigor:     { cls: 'knight', n: tr('Vigor'),             c: '#d4474b', d: tr('+2 de vida máxima y te cura 2.') },
+  muro:      { cls: 'knight', n: tr('Muro de acero'),     c: '#8fb7d9', d: tr('+1 de escudo máximo.') },
+  furia:     { cls: 'knight', n: tr('Rencor'),            c: '#d4474b', d: tr('La Represalia hace +100 % en vez de +50 %.') },
+  egida:     { cls: 'knight', n: tr('Égida'),             c: '#ffd27a', d: tr('La ventana de desvío dura más y se recarga en 1 s (antes 2,5 s).') },
+  contra:    { cls: 'knight', n: tr('Contragolpe'),       c: '#ffd27a', d: tr('El contraataque del desvío es más grande, hace más daño y aturde.') },
+  puas:      { cls: 'knight', n: tr('Púas de hierro'),    c: '#7a9a5a', d: tr('Al recibir daño, dañas a los enemigos que tienes al lado.') },
+  embestida: { cls: 'knight', n: tr('Embestida'),         c: '#e3a24a', d: tr('La carga con escudo hace el triple de daño y aturde.') },
+  aguante:   { cls: 'knight', n: tr('Aguante'),           c: '#8fb7d9', d: tr('Tu escudo empieza a recargarse antes y el doble de rápido.') },
+  sed:       { cls: 'knight', n: tr('Sed de batalla'),    c: '#b0303a', d: tr('Cada 12 bajas cuerpo a cuerpo recuperas 1 de vida.') },
+  ojo2:      { cls: 'archer', n: tr('Ojo de halcón'),     c: '#ffd27a', d: tr('+15 % de probabilidad de crítico.') },
+  rafaga:    { cls: 'archer', n: tr('Ráfaga'),            c: '#ffd27a', d: tr('La concentración se llena un 60 % más rápido.') },
+  perfora:   { cls: 'archer', n: tr('Puntas perforantes'), c: '#c9a46a', d: tr('Tus flechas atraviesan 1 enemigo más.') },
+  cazador:   { cls: 'archer', n: tr('Cazador'),           c: '#6cc46a', d: tr('+30 % de daño a enemigos lejanos.') },
+  hielo:     { cls: 'archer', n: tr('Flecha helada'),     c: '#9bd8ff', d: tr('La flecha dorada ralentiza a todo lo que atraviesa.') },
+  rebote2:   { cls: 'archer', n: tr('Rebote'),            c: '#e3a24a', d: tr('Tus flechas rebotan una vez más en las paredes.') },
+  carcaj2:   { cls: 'archer', n: tr('Carcaj doble'),      c: '#c9a46a', d: tr('Los arcos disparan 1 flecha más.') },
+  voltereta: { cls: 'archer', n: tr('Voltereta de tiro'), c: '#e3a24a', d: tr('Al esquivar disparas un abanico de 5 flechas.') },
+  frio:      { cls: 'archer', n: tr('Sangre fría'),       c: '#9bd8ff', d: tr('Recibir daño solo vacía la mitad de la concentración y vas un 10 % más rápido.') },
+  verdugo:   { cls: 'rogue',  n: tr('Verdugo'),           c: '#d4474b', d: tr('+60 % de daño a enemigos con menos del 30 % de vida.') },
+  toxina:    { cls: 'rogue',  n: tr('Toxina'),            c: '#9be05a', d: tr('Todos tus golpes envenenan.') },
+  frenesi:   { cls: 'rogue',  n: tr('Frenesí'),           c: '#bb7cf0', d: tr('El combo llega hasta +100 % y tarda más en perderse.') },
+  sombra:    { cls: 'rogue',  n: tr('Paso sombrío'),      c: '#8a84a0', d: tr('La invisibilidad del parpadeo dura 1,2 s.') },
+  sangre:    { cls: 'rogue',  n: tr('Sed de sangre'),     c: '#b0303a', d: tr('Cada 8 golpes por la espalda recuperas 1 de vida.') },
+  filo:      { cls: 'rogue',  n: tr('Puñalada'),          c: '#bb7cf0', d: tr('Los golpes por la espalda hacen ×3 en vez de ×2.') },
+  humo:      { cls: 'rogue',  n: tr('Bomba de humo'),     c: '#8a84a0', d: tr('Al matar, el humo ralentiza a los enemigos cercanos.') },
+  punales:   { cls: 'rogue',  n: tr('Puñales'),           c: '#d8e0ff', d: tr('Al esquivar lanzas 6 puñales a tu alrededor.') },
+  acecho:    { cls: 'rogue',  n: tr('Acecho'),            c: '#ffd27a', d: tr('El primer golpe a un enemigo intacto hace ×2,5.') },
 };
 // subclases: se eligen al entrar a la cripta y suben de nivel (Nv1 a Nv5) con cada enemigo que matas
 const SPECS = {
-  paladin:   { cls: 'knight', n: 'Paladín',       c: '#ffe27a', d: 'Protección y curación.', abil: 'Juicio', cd: 15,
-               abilDesc: 'Te cura, te vuelve invulnerable 1,5 s y un anillo sagrado daña y empuja a todo lo cercano.',
-               grow: 'el anillo es más grande y cura más; +1 escudo máximo en Nv2 y Nv4; te curas 1 cada pocas bajas.' },
-  berserker: { cls: 'knight', n: 'Berserker',     c: '#d4474b', d: 'Fuerza bruta.', abil: 'Furia', cd: 16,
-               abilDesc: 'Unos segundos con más daño, +20 % de velocidad y ataques un 30 % más rápidos.',
-               grow: '+5 % de daño por nivel; la Furia dura más y pega más; desde Nv3 cada baja en Furia te cura.' },
-  guardian:  { cls: 'knight', n: 'Guardián',      c: '#8fb7d9', d: 'Defensa y contraataque.', abil: 'Baluarte', cd: 14,
-               abilDesc: 'Invulnerable unos segundos; las balas que te tocan rebotan.',
-               grow: 'el Desvío se recarga antes y su contraataque pega más; el Baluarte dura más.' },
-  sniper:    { cls: 'archer', n: 'Francotirador', c: '#ffd27a', d: 'Precisión a distancia.', abil: 'Disparo mortal', cd: 10,
-               abilDesc: 'Un rayo que cruza la sala y daña a todo lo que toca.',
-               grow: '+6 % de daño a enemigos lejanos por nivel; el Disparo mortal pasa de ×7 a ×11.' },
-  trapper:   { cls: 'archer', n: 'Trampero',      c: '#c9a46a', d: 'Control del terreno.', abil: 'Trampas', cd: 9,
-               abilDesc: 'Coloca trampas que explotan y ralentizan al pisarlas.',
-               grow: 'más trampas y más daño; al matar puede quedar una trampa en el suelo.' },
-  ranger:    { cls: 'archer', n: 'Explorador',    c: '#6cc46a', d: 'Cadencia y movimiento.', abil: 'Lluvia de flechas', cd: 10,
-               abilDesc: 'Oleadas de flechas en todas direcciones.',
-               grow: '+4 % de cadencia y +10 % de Concentración por nivel; una oleada más por nivel.' },
-  shade:     { cls: 'rogue',  n: 'Danzante',      c: '#bb7cf0', d: 'Velocidad.', abil: 'Danza de sombras', cd: 12,
-               abilDesc: 'Saltas a la espalda de varios enemigos cercanos y los apuñalas.',
-               grow: '+4 % de velocidad y esquiva −6 % por nivel; la Danza alcanza a un enemigo más por nivel.' },
-  poisoner:  { cls: 'rogue',  n: 'Envenenador',   c: '#9be05a', d: 'Veneno.', abil: 'Nube tóxica', cd: 11,
-               abilDesc: 'Lanza una nube venenosa que daña y ralentiza.',
-               grow: 'todos tus golpes envenenan y el veneno pega más por nivel; la nube es más grande y dura más.' },
-  ghost:     { cls: 'rogue',  n: 'Espectro',      c: '#8a84a0', d: 'Invisibilidad.', abil: 'Sombra', cd: 12,
-               abilDesc: 'Invisible, más rápido y todo golpe es crítico.',
-               grow: 'el parpadeo te oculta más tiempo; golpear invisible hace más daño por nivel; la Sombra dura más.' },
+  paladin:   { cls: 'knight', n: tr('Paladín'),       c: '#ffe27a', d: tr('Protección y curación.'), abil: tr('Juicio'), cd: 15,
+               abilDesc: tr('Te cura, te vuelve invulnerable 1,5 s y un anillo sagrado daña y empuja a todo lo cercano.'),
+               grow: tr('el anillo es más grande y cura más; +1 escudo máximo en Nv2 y Nv4; te curas 1 cada pocas bajas.') },
+  berserker: { cls: 'knight', n: tr('Berserker'),     c: '#d4474b', d: tr('Fuerza bruta.'), abil: tr('Furia'), cd: 16,
+               abilDesc: tr('Unos segundos con más daño, +20 % de velocidad y ataques un 30 % más rápidos.'),
+               grow: tr('+5 % de daño por nivel; la Furia dura más y pega más; desde Nv3 cada baja en Furia te cura.') },
+  guardian:  { cls: 'knight', n: tr('Guardián'),      c: '#8fb7d9', d: tr('Defensa y contraataque.'), abil: tr('Baluarte'), cd: 14,
+               abilDesc: tr('Invulnerable unos segundos; las balas que te tocan rebotan.'),
+               grow: tr('el Desvío se recarga antes y su contraataque pega más; el Baluarte dura más.') },
+  sniper:    { cls: 'archer', n: tr('Francotirador'), c: '#ffd27a', d: tr('Precisión a distancia.'), abil: tr('Disparo mortal'), cd: 10,
+               abilDesc: tr('Un rayo que cruza la sala y daña a todo lo que toca.'),
+               grow: tr('+6 % de daño a enemigos lejanos por nivel; el Disparo mortal pasa de ×7 a ×11.') },
+  trapper:   { cls: 'archer', n: tr('Trampero'),      c: '#c9a46a', d: tr('Control del terreno.'), abil: tr('Trampas'), cd: 9,
+               abilDesc: tr('Coloca trampas que explotan y ralentizan al pisarlas.'),
+               grow: tr('más trampas y más daño; al matar puede quedar una trampa en el suelo.') },
+  ranger:    { cls: 'archer', n: tr('Explorador'),    c: '#6cc46a', d: tr('Cadencia y movimiento.'), abil: tr('Lluvia de flechas'), cd: 10,
+               abilDesc: tr('Oleadas de flechas en todas direcciones.'),
+               grow: tr('+4 % de cadencia y +10 % de Concentración por nivel; una oleada más por nivel.') },
+  shade:     { cls: 'rogue',  n: tr('Danzante'),      c: '#bb7cf0', d: tr('Velocidad.'), abil: tr('Danza de sombras'), cd: 12,
+               abilDesc: tr('Saltas a la espalda de varios enemigos cercanos y los apuñalas.'),
+               grow: tr('+4 % de velocidad y esquiva −6 % por nivel; la Danza alcanza a un enemigo más por nivel.') },
+  poisoner:  { cls: 'rogue',  n: tr('Envenenador'),   c: '#9be05a', d: tr('Veneno.'), abil: tr('Nube tóxica'), cd: 11,
+               abilDesc: tr('Lanza una nube venenosa que daña y ralentiza.'),
+               grow: tr('todos tus golpes envenenan y el veneno pega más por nivel; la nube es más grande y dura más.') },
+  ghost:     { cls: 'rogue',  n: tr('Espectro'),      c: '#8a84a0', d: tr('Invisibilidad.'), abil: tr('Sombra'), cd: 12,
+               abilDesc: tr('Invisible, más rápido y todo golpe es crítico.'),
+               grow: tr('el parpadeo te oculta más tiempo; golpear invisible hace más daño por nivel; la Sombra dura más.') },
 };
 const SUB_UNLOCK = 30;            // bajas para poder elegir subclase
 const SUB_T = [15, 40, 80, 140];   // bajas para Nv2, Nv3, Nv4 y Nv5
@@ -86,8 +87,8 @@ function offerTalent() {
   if (G.choice) { later(1, offerTalent); return; }
   const p = G.player;
   const pool = Object.keys(TALENTS).filter(k => TALENTS[k].cls === p.char && !p.talents.includes(k)).sort(() => Math.random() - .5);
-  if (!pool.length) { openChoice('Subjefe derrotado', 'Elige una reliquia', randomRelics(3), () => {}); return; }
-  openChoice(`Talento de ${CHARS[p.char].name}`, 'Elige un talento', pool.slice(0, 3), () => {}, 'talent');
+  if (!pool.length) { openChoice(tr('Subjefe derrotado'), tr('Elige una reliquia'), randomRelics(3), () => {}); return; }
+  openChoice(tr`Talento de ${CHARS[p.char].name}`, tr('Elige un talento'), pool.slice(0, 3), () => {}, 'talent');
 }
 function gainTalent(id) {
   const p = G.player, T = TALENTS[id];
@@ -95,7 +96,7 @@ function gainTalent(id) {
   p.talents.push(id);
   if (id === 'vigor') { p.maxHp += 2; p.hp = Math.min(p.maxHp, p.hp + 2); }
   if (id === 'muro') { p.maxSh++; p.sh++; }
-  showBanner(T.n, T.c, 'Talento');
+  showBanner(T.n, T.c, tr('Talento'));
   burst(p.x, p.y, T.c, 20, 180);
   sfx(440, .15, 'triangle', .05, 300); later(.12, () => sfx(660, .2, 'triangle', .05, 300));
 }
@@ -103,7 +104,7 @@ function offerSpec() {
   if (!G || G.over || G.player.spec) return;
   if (G.choice) { later(1, offerSpec); return; }
   const ids = Object.keys(SPECS).filter(k => SPECS[k].cls === G.player.char);
-  openChoice('Subclase · la barra azul crece con cada enemigo que mates', `${CHARS[G.player.char].name}: elige tu camino`, ids, () => {}, 'spec');
+  openChoice(tr('Subclase · la barra azul crece con cada enemigo que mates'), tr`${CHARS[G.player.char].name}: elige tu camino`, ids, () => {}, 'spec');
 }
 function setSpec(id) {
   const p = G.player, S = SPECS[id];
@@ -111,7 +112,7 @@ function setSpec(id) {
   p.spec = id; p.abilCd = 0;
   if (G.snap) G.snap.spec = id;
   if (started && SAVE.run) { SAVE.run.spec = id; writeSave(); }
-  showBanner(S.n, S.c, `Nueva habilidad F: ${S.abil}`);
+  showBanner(S.n, S.c, tr`Nueva habilidad F: ${S.abil}`);
   burst(p.x, p.y, S.c, 30, 220);
   sfx(330, .3, 'triangle', .06, 400);
 }
@@ -121,13 +122,13 @@ function specAbility(p) {
   if (sp === 'paladin') {
     const R = 130 + 15 * L, heal = 1 + Math.floor(L / 2);
     p.hp = Math.min(p.maxHp, p.hp + heal); p.inv = Math.max(p.inv, 1.5);
-    addText(p.x, p.y - 30, `+${heal} vida`, '#6cc46a', 13);
+    addText(p.x, p.y - 30, tr`+${heal} vida`, '#6cc46a', 13);
     for (const e of G.enemies) if (!e.dead && !e.air && dist(e, p) < R + e.r) hurtEnemy(e, Math.round(base * (2.5 + .5 * L)), angTo(p, e), 420, { cls: true, explosion: true });
     G.proj = G.proj.filter(pr => pr.owner === 'player' || dist(pr, p) > R);
     C.fx.push({ ring: true, x: p.x, y: p.y, r: R, t: .45, max: .45, c: '#ffe27a' });
     shake(8); sfx(600, .5, 'triangle', .06, 500);
   } else if (sp === 'berserker') {
-    p.rageT = 4 + L; p.rageMul = 1.4 + .08 * L; addText(p.x, p.y - 30, '¡Furia!', '#d4474b', 15); shake(6);
+    p.rageT = 4 + L; p.rageMul = 1.4 + .08 * L; addText(p.x, p.y - 30, tr('¡Furia!'), '#d4474b', 15); shake(6);
     burst(p.x, p.y, '#d4474b', 24, 200); sfx(90, .5, 'sawtooth', .06, 60);
   } else if (sp === 'guardian') {
     const t = 2 + .5 * L;
@@ -161,7 +162,7 @@ function specAbility(p) {
     });
   } else if (sp === 'shade') {
     const tg = G.enemies.filter(e => !e.dead && !e.air && dist(e, p) < 340).sort((a, b) => dist(a, p) - dist(b, p)).slice(0, 2 + L);
-    if (!tg.length) { p.abilCd = 1; addText(p.x, p.y - 26, 'No hay nadie cerca', '#9d95ab', 12); return; }
+    if (!tg.length) { p.abilCd = 1; addText(p.x, p.y - 26, tr('No hay nadie cerca'), '#9d95ab', 12); return; }
     p.inv = Math.max(p.inv, tg.length * .14 + .3); p.veilT = Math.max(p.veilT, tg.length * .14 + .4);
     tg.forEach((e, i) => later(i * .14, () => {
       if (e.dead || G.over) return;
@@ -184,13 +185,13 @@ function specAbility(p) {
 function subKill(p, e) {
   if (!p.spec) {
     p.preK = (p.preK || 0) + 1;
-    if (p.preK === SUB_UNLOCK) { showBanner('Subclase desbloqueada', '#4a7dff', 'Elige tu camino'); later(1, offerSpec); }
+    if (p.preK === SUB_UNLOCK) { showBanner(tr('Subclase desbloqueada'), '#4a7dff', tr('Elige tu camino')); later(1, offerSpec); }
     return;
   }
   const before = subLv(p); p.subK = (p.subK || 0) + 1;
   const L = subLv(p), S = SPECS[p.spec];
   if (L > before) {
-    showBanner(`${S.n} Nv${L}`, S.c, `${S.abil} y tu pasiva se vuelven más fuertes`);
+    showBanner(tr`${S.n} Nv${L}`, S.c, tr`${S.abil} y tu pasiva se vuelven más fuertes`);
     burst(p.x, p.y, S.c, 26, 200); sfx(520, .2, 'triangle', .05, 400);
     if (p.spec === 'paladin' && (L === 2 || L === 4)) { p.maxSh++; p.sh++; }
   }
@@ -200,7 +201,7 @@ function subKill(p, e) {
 }
 // esquiva propia de cada clase
 function classDash(p) {
-  if (G.dare && G.dare.kind === 'nodash') dareFail('esquivaste');
+  if (G.dare && G.dare.kind === 'nodash') dareFail(tr('esquivaste'));
   if (p.char === 'archer' && tl('voltereta')) for (let i = 0; i < 5; i++) {
     const a = p.aim + (i - 2) * .2;
     G.proj.push({ x: p.x, y: p.y, vx: Math.cos(a) * 560, vy: Math.sin(a) * 560, r: 4, dmg: Math.max(1, Math.round(bestDmg(p) * .5)), owner: 'player', kind: 'arrow', pierce: 0, hit: new Set(), life: .7, color: '#e3a24a' });
@@ -231,7 +232,7 @@ function focusShot(p, w) {
     p.focus = 0;
     const a = p.aim, dmg = Math.max(3, Math.round(bestDmg(p) * (3 + .4 * cu('a_gold'))));
     G.proj.push({ x: p.x + Math.cos(a) * 14, y: p.y + Math.sin(a) * 14, vx: Math.cos(a) * 900, vy: Math.sin(a) * 900, r: 6, dmg, owner: 'player', kind: 'power', pierce: 99, hit: new Set(), life: 1.2, color: '#ffd27a', src: w, fx: tl('hielo') ? 'slow' : undefined, focus: true });
-    addText(p.x, p.y - 30, 'Disparo concentrado', '#ffd27a', 12);
+    addText(p.x, p.y - 30, tr('Disparo concentrado'), '#ffd27a', 12);
     burst(p.x, p.y, '#ffd27a', 10, 160); sfx(1000, .12, 'triangle', .05, -400);
   } else p.focus = Math.min(100, p.focus + 12 * clamp(w.cd / .4, .5, 2.5) * (tl('rafaga') ? 1.6 : 1) * (1 + .1 * cu('a_focus') + (subIs('ranger') ? .1 * subLv(p) : 0)));
 }
@@ -243,7 +244,7 @@ function parry(p) {
   for (const e of G.enemies) if (!e.dead && !e.air && dist(e, p) < R + e.r) { hurtEnemy(e, dmg, angTo(p, e), 380, { cls: true, melee: true }); if (big && !e.isBoss) e.slowT = Math.max(e.slowT || 0, 1.2); }
   for (const pr of G.proj) if (pr.owner === 'enemy' && dist(pr, p) < R) reflect(pr, angTo(p, pr), dmg);
   CLS().fx.push({ ring: true, x: p.x, y: p.y, r: R, t: .3, max: .3, c: '#ffd27a' });
-  addText(p.x, p.y - 30, '¡Desvío!', '#ffd27a', 14); shake(5); sfx(1400, .08, 'square', .04, -600);
+  addText(p.x, p.y - 30, tr('¡Desvío!'), '#ffd27a', 14); shake(5); sfx(1400, .08, 'square', .04, -600);
 }
 function classHurt(p) {
   if (p.char === 'knight') {
@@ -257,7 +258,7 @@ function classHit(e, dmg, ang, o) {
   if (!o.src && !o.cls) return dmg;
   const p = G.player;
   let k = 1;
-  if (p.revenge && o.melee) { k *= (tl('furia') ? 2 : 1.5) + .1 * cu('k_bash'); if (!p.revUsed) addText(e.x, e.y - e.r - 20, 'Represalia', '#d4474b', 11); p.revUsed = true; }
+  if (p.revenge && o.melee) { k *= (tl('furia') ? 2 : 1.5) + .1 * cu('k_bash'); if (!p.revUsed) addText(e.x, e.y - e.r - 20, tr('Represalia'), '#d4474b', 11); p.revUsed = true; }
   if (p.rageT > 0) k *= p.rageMul || 1.6;
   const SL = subLv(p);
   if (subIs('berserker')) k *= 1 + .05 * SL;
@@ -272,7 +273,7 @@ function classHit(e, dmg, ang, o) {
     if (behind) {
       const m = (tl('filo') ? 3 : 2) + bw + .2 * cu('r_back');
       k *= e.isBoss || e.isSub ? 1 + (m - 1) / 2 : m;
-      addText(e.x, e.y - e.r - 20, 'Espalda', '#bb7cf0', 10); dareCount('back');
+      addText(e.x, e.y - e.r - 20, tr('Espalda'), '#bb7cf0', 10); dareCount('back');
       if (tl('sangre') && ++p.backN % 8 === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); }
     }
     if (tl('acecho') && e.hp >= e.max) k *= 2.5;
@@ -291,13 +292,13 @@ function classKill(e, src) {
     p.dashCd = 0;
     if (tl('humo')) { burst(e.x, e.y, '#6b6480', 14, 120, 6, .8); for (const o of G.enemies) if (!o.dead && o !== e && dist(o, e) < 90) o.slowT = Math.max(o.slowT || 0, 1.5); }
   }
-  if (p.char === 'knight' && tl('sed') && src && src.type === 'melee' && ++p.meleeKills % 12 === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1 vida', '#b0303a'); }
+  if (p.char === 'knight' && tl('sed') && src && src.type === 'melee' && ++p.meleeKills % 12 === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, tr('+1 vida'), '#b0303a'); }
 }
 // recurso de clase que se muestra bajo la habilidad
 function classRes(p) {
-  if (p.char === 'knight') return p.revenge ? { t: 'Represalia lista', c: '#d4474b' } : p.parryCd > 0 ? { t: `Desvío ${Math.ceil(p.parryCd)} s`, c: '#6b6480' } : { t: 'Desvío listo', c: '#ffd27a' };
+  if (p.char === 'knight') return p.revenge ? { t: tr('Represalia lista'), c: '#d4474b' } : p.parryCd > 0 ? { t: tr`Desvío ${Math.ceil(p.parryCd)} s`, c: '#6b6480' } : { t: tr('Desvío listo'), c: '#ffd27a' };
   if (p.char === 'archer') return { k: p.focus / 100, c: p.focus >= 100 ? '#ffd27a' : '#c9a46a' };
-  if (p.char === 'rogue' && p.combo) return { t: `Combo +${p.combo * 5} %`, c: '#bb7cf0' };
+  if (p.char === 'rogue' && p.combo) return { t: tr`Combo +${p.combo * 5} %`, c: '#bb7cf0' };
   return null;
 }
 

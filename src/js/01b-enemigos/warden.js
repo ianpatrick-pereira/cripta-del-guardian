@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { angDiff, angTo, clamp, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
@@ -8,7 +9,7 @@ import { enemyShoot, flankPoint, takeToken, telegraph } from '../14-enemigos.js'
 defEnemy('warden', {
   orden: 11,
   stats: { hp: 22, r: 15, speed: 55, dmg: 1, spr: 'warden', s: 2.3 },
-  bestiario: { n: 'Escudero', d: 'Su escudo frena casi todo el daño de frente: flanquéalo. Empuja con el escudo.' },
+  bestiario: { n: tr('Escudero'), d: tr('Su escudo frena casi todo el daño de frente: flanquéalo. Empuja con el escudo.') },
   sprite: {
     clave: 'warden',
     mapa: 'knight',
@@ -37,7 +38,7 @@ defEnemy('warden', {
   // casi no recibe daño de frente: hay que flanquearlo
   alRecibir(e, dmg, ang, o) {
     if (!o.explosion && Math.abs(angDiff(ang, (e.face ?? angTo(e, G.player)) + Math.PI)) < 1.1) {
-      dmg = Math.max(1, Math.round(dmg * .2)); if (Math.random() < .3) addText(e.x, e.y - e.r - 8, 'Bloqueado', '#9bd8ff', 10); sfx(1300, .03, 'square', .015);
+      dmg = Math.max(1, Math.round(dmg * .2)); if (Math.random() < .3) addText(e.x, e.y - e.r - 8, tr('Bloqueado'), '#9bd8ff', 10); sfx(1300, .03, 'square', .015);
     }
     return dmg;
   }

@@ -1,4 +1,5 @@
 // Sala de apuestas
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { TAU } from '../01-utilidades.js';
 import { defRoom } from '../01a-registro.js';
@@ -25,6 +26,6 @@ defRoom('gamble', {
     { ctx.fillStyle = '#f0c040'; ctx.fillRect(it.x + 18, it.y - 2 + b * .5, 5, 6); }
   },
   aviso(it, key) {
-    return [key + `Jugar a las tres cartas · quedan ${3 - it.plays} partidas`, 'Elige 1 de 3 cartas boca abajo: si aciertas ganas el doble de tu apuesta', '#b98cff'];
+    return [key + tr`Jugar a las tres cartas · quedan ${3 - it.plays} partidas`, tr('Elige 1 de 3 cartas boca abajo: si aciertas ganas el doble de tu apuesta'), '#b98cff'];
   }
 });

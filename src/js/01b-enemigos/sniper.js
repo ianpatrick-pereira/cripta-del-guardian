@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
@@ -6,7 +7,7 @@ import { enemyShoot, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('sniper', {
   orden: 18,
   stats: { hp: 9, r: 12, speed: 85, dmg: 1, spr: 'sniper', s: 2 },
-  bestiario: { n: 'Tirador', d: 'Apunta con un láser y dispara una bala muy rápida. Muévete cuando el láser se fije.' },
+  bestiario: { n: tr('Tirador'), d: tr('Apunta con un láser y dispara una bala muy rápida. Muévete cuando el láser se fije.') },
   sprite: {
     clave: 'sniper',
     mapa: 'archer',

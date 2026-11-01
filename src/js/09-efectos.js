@@ -1,4 +1,5 @@
 // ================= Efectos =================
+import { tr } from './00b-textos.js';
 import { CRACK, FLOOR, MH, MW, TAU, TILE, angTo, dist, rand, randi } from './01-utilidades.js';
 import { BOTIN } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
@@ -23,7 +24,7 @@ function explode(x, y, R, dmg, fromPlayer) {
   shake(11); noise(.45, .12, 700); sfx(70, .35, 'sawtooth', .05, -30);
   for (const e of G.enemies) if (!e.dead && dist(e, { x, y }) < R + e.r) hurtEnemy(e, dmg, angTo({ x, y }, e), 320, { explosion: true });
   const p = G.player;
-  if (!fromPlayer && !rc('polvora') && dist(p, { x, y }) < R + p.r) hurtPlayer(2, 'una explosión');
+  if (!fromPlayer && !rc('polvora') && dist(p, { x, y }) < R + p.r) hurtPlayer(2, tr('una explosión'));
   for (const o of G.props) if (!o.dead && o.kind !== 'merchant' && dist(o, { x, y }) < R + o.r) damageProp(o, 99);
   breakCracks(x, y, R + 10);
 }
@@ -43,7 +44,7 @@ function breakCracks(x, y, R) {
       const tx = i % MW, ty = Math.floor(i / MW);
       if (Math.hypot((tx + .5) * TILE - x, (ty + .5) * TILE - y) < R + 80) G.tiles[i] = FLOOR;
     }
-    addText(x, y - 20, '¡Pasaje secreto!', '#c77dff', 16); sfx(300, .6, 'triangle', .05, 600); shake(8);
+    addText(x, y - 20, tr('¡Pasaje secreto!'), '#c77dff', 16); sfx(300, .6, 'triangle', .05, 600); shake(8);
   }
 }
 function damageProp(o, d) {

@@ -1,4 +1,5 @@
 // Guerrero encadenado
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { defRoom } from '../01a-registro.js';
 import { drawSpr } from '../02-pixel-art.js';
@@ -26,17 +27,17 @@ defRoom('merc', {
     ctx.beginPath(); ctx.moveTo(it.x - 10, it.y + 2); ctx.lineTo(it.x - 22, it.y - 30); ctx.moveTo(it.x + 10, it.y + 2); ctx.lineTo(it.x + 22, it.y - 30); ctx.stroke();
   },
   aviso(it, key) {
-    return [key + (it.room.cleared ? 'Liberar al guerrero' : 'Guerrero encadenado'), it.room.cleared ? 'Peleará a tu lado hasta que bajes de piso' : 'Despeja la sala primero', '#9be0c8'];
+    return [key + (it.room.cleared ? tr('Liberar al guerrero') : tr('Guerrero encadenado')), it.room.cleared ? tr('Peleará a tu lado hasta que bajes de piso') : tr('Despeja la sala primero'), '#9be0c8'];
   }
 });
 
 // aliado prisionero: pelea contigo hasta que bajes de piso
 function freeMerc(it) {
   const p = G.player;
-  if (!it.room.cleared) { addText(it.x, it.y - 34, 'Despeja la sala para liberarlo', '#e3a24a', 12); return; }
+  if (!it.room.cleared) { addText(it.x, it.y - 34, tr('Despeja la sala para liberarlo'), '#e3a24a', 12); return; }
   it.gone = true; SAVE.rescued++; ach('rescue');
   if (!G.allies) G.allies = [];
   G.allies.push({ x: it.x, y: it.y, r: 12, big: true, merc: true, t: 99999, cd: .4, dmg: Math.max(2, Math.round(bestDmg(p) * .9)), w: null, flip: false, rise: 0 });
-  addText(it.x, it.y - 34, '¡Lucharé a tu lado hasta el próximo piso!', '#9be0c8', 13);
+  addText(it.x, it.y - 34, tr('¡Lucharé a tu lado hasta el próximo piso!'), '#9be0c8', 13);
   burst(it.x, it.y, '#9be0c8', 18, 160); sfx(700, .3, 'triangle', .04, 400);
 }

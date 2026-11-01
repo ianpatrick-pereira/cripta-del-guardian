@@ -1,4 +1,5 @@
 // ================= Armadura: el personaje cambia de color y brilla según las estrellas =================
+import { tr } from './00b-textos.js';
 import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
@@ -355,7 +356,7 @@ function drawPickup(it) {
         if (s.t === 'relic') drawRelicIcon(s.relic, it.x, it.y - 10 + b);
         if (s.t === 'weapon') { drawWeapon(s.weapon, it.x - 10, it.y - 8 + b, -.6, .9); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
         ctx.font = '600 11px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = G.coins >= s.price ? '#f0c040' : '#9d95ab'; ctx.fillText(s.price + ' mon.', it.x, it.y + 30);
+        ctx.fillStyle = G.coins >= s.price ? '#f0c040' : '#9d95ab'; ctx.fillText(s.price + tr(' mon.'), it.x, it.y + 30);
       }
       break;
     }
@@ -445,7 +446,7 @@ function drawWeaponBar(p, w, h) {
     ctx.fillStyle = act ? 'rgba(42,36,56,.92)' : 'rgba(12,11,17,.72)'; ctx.fillRect(x, sy, sw, H);
     ctx.strokeStyle = act ? RARITY[wpn.rarity].c : '#2e2a3c'; ctx.lineWidth = act ? 2 : 1; ctx.strokeRect(x + .5, sy + .5, sw - 1, H - 1);
     const stars = '★'.repeat(wpn.stars || 1) + (wpn.up && (wpn.up.dmg + wpn.up.rate + wpn.up.chg + wpn.up.en) ? ' +' + (wpn.up.dmg + wpn.up.rate + wpn.up.chg + wpn.up.en) : '');
-    const cost = `${wpn.dmg} daño · ${wpn.en ? wpn.en + ' en.' : 'gratis'}`, costCol = p.en < (wpn.en || 0) ? '#d4474b' : '#9d95ab';
+    const cost = tr`${wpn.dmg} daño · ${wpn.en ? wpn.en + tr(' en.') : tr('gratis')}`, costCol = p.en < (wpn.en || 0) ? '#d4474b' : '#9d95ab';
     if (vert) {
       // nombre arriba; abajo, daño y estrellas a la izquierda y el dibujo del arma a la derecha
       const elTag = wpn.el && wpn.elOn && act;
@@ -459,12 +460,12 @@ function drawWeaponBar(p, w, h) {
     drawWeapon(wpn, x + 12, sy + 27, -.5, .9);
     const right = touch.on ? 8 : 20;
     fitText(wpn.name, x + 46, sy + 18, sw - 46 - right, small ? 11 : 12, RARITY[wpn.rarity].c);
-    fitText(cost + (sw >= 150 ? ` · carga ${wpn.chgEn}` : ''), x + 46, sy + 36, sw - 54, 10, costCol, 'left', 400);
+    fitText(cost + (sw >= 150 ? tr` · carga ${wpn.chgEn}` : ''), x + 46, sy + 36, sw - 54, 10, costCol, 'left', 400);
     if (!touch.on) hudText(String(i + 1), x + sw - 10, sy + 12, 10, '#6b6480', 'right');
     hudText(stars, x + 46, sy + 48, 9, RARITY[wpn.rarity].c, 'left', 600);
     if (wpn.el) {
       const E = ELEMS[wpn.el], ready = p.elCd <= 0;
-      const txt = wpn.elOn ? `${touch.on || !act ? '' : 'R · '}${elAbName(wpn)} ${act && !ready ? Math.ceil(p.elCd) + ' s' : 'Nv' + wpn.elLv}` : `${E.n} ${wpn.elC}/3`;
+      const txt = wpn.elOn ? `${touch.on || !act ? '' : 'R · '}${elAbName(wpn)} ${act && !ready ? Math.ceil(p.elCd) + ' s' : tr('Nv') + wpn.elLv}` : `${E.n} ${wpn.elC}/3`;
       hudText(txt, x + sw - 8, sy + 48, 9, wpn.elOn && act && ready ? E.c : '#9d95ab', 'right', 600);
     }
   }
@@ -475,8 +476,8 @@ function drawWeaponBar(p, w, h) {
   ctx.strokeStyle = ready ? '#c77dff' : '#2e2a3c'; ctx.lineWidth = ready ? 2 : 1; ctx.strokeRect(ax + .5, sy + .5, sw - 1, H - 1);
   const SL = subLv(p);
   const ty = vert ? [11, 26, 38] : [18, 36, 48], pad = vert ? 7 : 10;
-  fitText(ch.abil + (SL ? ` Nv${SL}` : ''), ax + pad, sy + ty[0], sw - pad * 2, vert ? 11 : small ? 11 : 12, ready ? '#c77dff' : '#9d95ab');
-  hudText((ready ? (touch.on ? 'Lista' : 'F · Lista') : `${Math.ceil(p.abilCd)} s`), ax + pad, sy + ty[1], vert ? 9 : 10, '#9d95ab', 'left', 400);
+  fitText(ch.abil + (SL ? tr` Nv${SL}` : ''), ax + pad, sy + ty[0], sw - pad * 2, vert ? 11 : small ? 11 : 12, ready ? '#c77dff' : '#9d95ab');
+  hudText((ready ? (touch.on ? tr('Lista') : tr('F · Lista')) : `${Math.ceil(p.abilCd)} s`), ax + pad, sy + ty[1], vert ? 9 : 10, '#9d95ab', 'left', 400);
   const cr = classRes(p);
   if (cr) {
     if (cr.k !== undefined) { ctx.fillStyle = '#2e2a3c'; ctx.fillRect(ax + pad, sy + ty[2] - 4, sw - pad * 2, 4); ctx.fillStyle = cr.c; ctx.fillRect(ax + pad, sy + ty[2] - 4, (sw - pad * 2) * cr.k, 4); }
@@ -507,26 +508,26 @@ function drawHUD(w, h) {
     hudText(label, 18, y + 6, 10, '#9d95ab');
     hudText(`${Math.floor(val)}/${max}`, 196, y + 6, 10, '#ece4cf', 'right');
   };
-  bar(18, p.hp, p.maxHp, '#d4474b', 'VIDA', true);
-  bar(34, p.sh, p.maxSh + rc('escudo') + armorSh(p), '#8fb7d9', 'ESC.', true);
-  bar(50, p.en, maxEnergy(p), '#5aa4e8', 'ENER.', false);
+  bar(18, p.hp, p.maxHp, '#d4474b', tr('VIDA'), true);
+  bar(34, p.sh, p.maxSh + rc('escudo') + armorSh(p), '#8fb7d9', tr('ESC.'), true);
+  bar(50, p.en, maxEnergy(p), '#5aa4e8', tr('ENER.'), false);
   {
     // barra de subclase: gris hasta desbloquearla, azul cuando crece con las bajas
     const SL = subLv(p), S = p.spec ? SPECS[p.spec] : null;
     let k, txt, col;
     if (!S) { k = Math.min(1, (p.preK || 0) / SUB_UNLOCK); txt = `${p.preK || 0}/${SUB_UNLOCK}`; col = '#6b6480'; }
-    else if (SL >= 5) { k = 1; txt = 'MÁX'; col = '#4a7dff'; }
+    else if (SL >= 5) { k = 1; txt = tr('MÁX'); col = '#4a7dff'; }
     else { const lo = SL > 1 ? SUB_T[SL - 2] : 0, hi = SUB_T[SL - 1]; k = (p.subK - lo) / (hi - lo); txt = `${p.subK}/${hi}`; col = '#4a7dff'; }
     ctx.fillStyle = '#2a2638'; ctx.fillRect(52, 66, 148, 11);
     ctx.fillStyle = col; ctx.fillRect(52, 66, 148 * clamp(k, 0, 1), 11);
     if (S) { ctx.fillStyle = `rgba(160,190,255,${.25 + .15 * Math.sin(G.time * 4)})`; ctx.fillRect(52, 66, 148 * clamp(k, 0, 1), 3); }
-    hudText(S ? `Nv${SL}` : 'SUBC.', 18, 72, 10, S ? '#8fb0ff' : '#9d95ab');
+    hudText(S ? tr`Nv${SL}` : tr('SUBC.'), 18, 72, 10, S ? '#8fb0ff' : '#9d95ab');
     hudText(txt, 196, 72, 10, '#ece4cf', 'right');
   }
   ctx.fillStyle = '#f0c040'; ctx.fillRect(18, 91, 8, 10); hudText(String(G.coins), 30, 96, 13);
   drawKey(80, 96); hudText(String(G.keys), 94, 96, 13);
   drawGem(132, 96); hudText(String(G.gems), 142, 96, 13, '#c77dff');
-  hudText(`${G.kills} bajas`, 196, 96, 10, '#9d95ab', 'right');
+  hudText(tr`${G.kills} bajas`, 196, 96, 10, '#9d95ab', 'right');
   if (p.armor) { drawArmor(176, 114, p.armor, .5); hudText('★'.repeat(p.armor), 166, 114, 9, RARITY['s' + p.armor].c, 'right'); }
   { let cx = 18; for (const el of EL_ORDER) if (G.crystals[el]) { drawCrystal(cx + 4, 114, ELEMS[el].c, .8); hudText(String(G.crystals[el]), cx + 12, 114, 11, ELEMS[el].c); cx += 34; } }
   const rel = p.relics;
@@ -550,18 +551,18 @@ function drawHUD(w, h) {
 
   const mmBottom = drawMinimap(w);
   const r = G.cur;
-  let status = `Piso ${G.floor} · ${FLOORS[G.fi].name} · enemigos Nv${G.floor}`, sc = '#9d95ab';
-  if (G.elFight) { status = `Elemental de ${ELEMS[G.elFight.el].n.toLowerCase()}`; sc = ELEMS[G.elFight.el].c; }
-  else if (G.chal) { status = `Desafío: ${Math.ceil(G.chal.t)} s`; sc = '#ff8a3a'; }
-  else if (r && r.locked && r.type === 'combat' && r.sub) { status = 'Subjefe'; sc = '#d4474b'; }
-  else if (r && r.locked && r.type === 'combat') { status = `Oleada ${Math.max(1, r.wave)}/${r.waves}`; sc = '#e3a24a'; }
-  else if (r && r.locked && r.type === 'boss') { status = 'Sala del jefe'; sc = '#d4474b'; }
+  let status = tr`Piso ${G.floor} · ${FLOORS[G.fi].name} · enemigos Nv${G.floor}`, sc = '#9d95ab';
+  if (G.elFight) { status = tr`Elemental de ${ELEMS[G.elFight.el].n.toLowerCase()}`; sc = ELEMS[G.elFight.el].c; }
+  else if (G.chal) { status = tr`Desafío: ${Math.ceil(G.chal.t)} s`; sc = '#ff8a3a'; }
+  else if (r && r.locked && r.type === 'combat' && r.sub) { status = tr('Subjefe'); sc = '#d4474b'; }
+  else if (r && r.locked && r.type === 'combat') { status = tr`Oleada ${Math.max(1, r.wave)}/${r.waves}`; sc = '#e3a24a'; }
+  else if (r && r.locked && r.type === 'boss') { status = tr('Sala del jefe'); sc = '#d4474b'; }
   hudText(status, w - 12, mmBottom + 8, 11, sc, 'right');
   let hy = mmBottom + 24;
-  if (G.threat > .05) { hudText(`Amenaza +${Math.round(G.threat * 16)} %`, w - 12, hy, 10, '#d4474b', 'right', 600); hy += 16; }
+  if (G.threat > .05) { hudText(tr`Amenaza +${Math.round(G.threat * 16)} %`, w - 12, hy, 10, '#d4474b', 'right', 600); hy += 16; }
   if (G.dare) { hudText(dareText(), w - 12, hy, 10, G.dare.fail ? '#6b6480' : '#ffd27a', 'right', 600); hy += 16; }
-  if (G.pact) { hudText('Pacto: ' + PACTS[G.pact].n, w - 12, hy, 10, PACTS[G.pact].c, 'right', 600); hy += 16; }
-  if (G.daily) hudText(`Reto diario · ${dailyScore()} pts`, w - 12, hy, 10, '#9be0c8', 'right', 600);
+  if (G.pact) { hudText(tr('Pacto: ') + PACTS[G.pact].n, w - 12, hy, 10, PACTS[G.pact].c, 'right', 600); hy += 16; }
+  if (G.daily) hudText(tr`Reto diario · ${dailyScore()} pts`, w - 12, hy, 10, '#9be0c8', 'right', 600);
 
   const B = G.enemies.find(e => e.isBoss) || G.enemies.find(e => e.isSub);
   if (B) {
@@ -615,10 +616,10 @@ function render0() {
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(236,228,207,.22)';
     ctx.font = '800 26px "Grenze Gotisch", Georgia, serif';
-    ctx.fillText('Cripta del Guardián', s.cx, s.cy - 120);
+    ctx.fillText(tr('Cripta del Guardián'), s.cx, s.cy - 120);
     ctx.font = '600 12px "Chakra Petch", ui-monospace, monospace';
-    ctx.fillText(touch.on ? 'CARGA: mantén y suelta para un ataque potente' : 'Clic derecho: mantén y suelta para un ataque cargado', s.cx, s.cy - 92);
-    ctx.fillText('Los muros agrietados esconden salas secretas', s.cx, s.cy - 74);
+    ctx.fillText(touch.on ? tr('CARGA: mantén y suelta para un ataque potente') : tr('Clic derecho: mantén y suelta para un ataque cargado'), s.cx, s.cy - 92);
+    ctx.fillText(tr('Los muros agrietados esconden salas secretas'), s.cx, s.cy - 74);
   }
 
   for (const it of G.pickups) if (it.kind !== 'coin') drawPickup(it);
@@ -770,21 +771,21 @@ function render0() {
     const it = G.interact;
     const key = touch.on ? '' : 'E · ';
     let line1 = '', line2 = '', col = '#ece4cf';
-    if (it.kind === 'chest') { line1 = key + 'Abrir cofre'; if (it.gold) { line2 = G.keys > 0 ? 'Cofre dorado: usa 1 llave' : 'Cofre dorado: necesitas una llave'; col = '#e3a24a'; } }
-    else if (it.kind === 'weapon') { line1 = key + 'Tomar ' + it.weapon.name; line2 = RARITY[it.weapon.rarity].n + ' · ' + weaponStats(it.weapon); col = RARITY[it.weapon.rarity].c; }
-    else if (it.kind === 'armor') { line1 = key + `Equipar ${ARMOR.n} ${'★'.repeat(it.stars)}`; line2 = armorDesc(it.stars) + (G.player.armor ? ` · ahora llevas ${'★'.repeat(G.player.armor)}` : ''); col = RARITY['s' + it.stars].c; }
-    else if (it.kind === 'relic') { line1 = key + 'Tomar ' + RELICS[it.relic].n; line2 = RELICS[it.relic].d; col = RELICS[it.relic].c; }
-    else if (it.kind === 'altar') { line1 = key + 'Elegir una reliquia'; col = '#c77dff'; }
-    else if (it.kind === 'totem') { const E = ELEMS[it.el]; line1 = key + `Tótem de ${E.n.toLowerCase()}: desafiar al Elemental`; line2 = `Muy difícil · ${E.hitd} · suelta 1 cristal`; col = E.c; }
-    else if (it.kind === 'note') { line1 = key + 'Leer nota'; line2 = SAVE.notes[it.id] ? 'Ya está en tu diario' : 'Una página del diario'; col = '#d8c8a8'; }
-    else if (it.kind === 'exit') { line1 = key + 'Salir victorioso'; line2 = `Terminar la partida en el piso ${G.floor}`; col = '#ffd27a'; }
-    else if (it.kind === 'forge') { line1 = key + 'Forja: mejorar armas'; line2 = 'Daño, cadencia, carga y energía (armas de 1★ a 4★)'; col = '#ff8a3a'; }
+    if (it.kind === 'chest') { line1 = key + tr('Abrir cofre'); if (it.gold) { line2 = G.keys > 0 ? tr('Cofre dorado: usa 1 llave') : tr('Cofre dorado: necesitas una llave'); col = '#e3a24a'; } }
+    else if (it.kind === 'weapon') { line1 = key + tr('Tomar ') + it.weapon.name; line2 = RARITY[it.weapon.rarity].n + ' · ' + weaponStats(it.weapon); col = RARITY[it.weapon.rarity].c; }
+    else if (it.kind === 'armor') { line1 = key + tr`Equipar ${ARMOR.n} ${'★'.repeat(it.stars)}`; line2 = armorDesc(it.stars) + (G.player.armor ? tr` · ahora llevas ${'★'.repeat(G.player.armor)}` : ''); col = RARITY['s' + it.stars].c; }
+    else if (it.kind === 'relic') { line1 = key + tr('Tomar ') + RELICS[it.relic].n; line2 = RELICS[it.relic].d; col = RELICS[it.relic].c; }
+    else if (it.kind === 'altar') { line1 = key + tr('Elegir una reliquia'); col = '#c77dff'; }
+    else if (it.kind === 'totem') { const E = ELEMS[it.el]; line1 = key + tr`Tótem de ${E.n.toLowerCase()}: desafiar al Elemental`; line2 = tr`Muy difícil · ${E.hitd} · suelta 1 cristal`; col = E.c; }
+    else if (it.kind === 'note') { line1 = key + tr('Leer nota'); line2 = SAVE.notes[it.id] ? tr('Ya está en tu diario') : tr('Una página del diario'); col = '#d8c8a8'; }
+    else if (it.kind === 'exit') { line1 = key + tr('Salir victorioso'); line2 = tr`Terminar la partida en el piso ${G.floor}`; col = '#ffd27a'; }
+    else if (it.kind === 'forge') { line1 = key + tr('Forja: mejorar armas'); line2 = tr('Daño, cadencia, carga y energía (armas de 1★ a 4★)'); col = '#ff8a3a'; }
     else if (ROOM_OBJ[it.kind]) [line1, line2, col] = ROOM_OBJ[it.kind].aviso(it, key);
-    else if (it.kind === 'portal') { line1 = key + `Descender al piso ${G.floor + 1}`; col = '#c77dff'; }
+    else if (it.kind === 'portal') { line1 = key + tr`Descender al piso ${G.floor + 1}`; col = '#c77dff'; }
     else if (it.kind === 'shop') {
       const s = it.item;
-      const nm = s.t === 'potion' ? 'Poción (+3 vida)' : s.t === 'key' ? 'Llave' : s.t === 'relic' ? RELICS[s.relic].n : s.weapon.name;
-      line1 = key + `Comprar ${nm} · ${s.price} monedas`;
+      const nm = s.t === 'potion' ? tr('Poción (+3 vida)') : s.t === 'key' ? tr('Llave') : s.t === 'relic' ? RELICS[s.relic].n : s.weapon.name;
+      line1 = key + tr`Comprar ${nm} · ${s.price} monedas`;
       line2 = s.t === 'relic' ? RELICS[s.relic].d : s.t === 'weapon' ? RARITY[s.weapon.rarity].n + ' · ' + weaponStats(s.weapon) : '';
       col = G.coins >= s.price ? '#f0c040' : '#9d95ab';
     }
@@ -864,7 +865,7 @@ function drawFps(raw) {
   ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(4, 4, 96, 18);
   ctx.font = '600 12px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   ctx.fillStyle = fps >= 55 ? '#6cc46a' : fps >= 30 ? '#e3a24a' : '#d4474b';
-  ctx.fillText(`${fps} FPS · Q${gfxLevel()}`, 9, 13);
+  ctx.fillText(tr`${fps} FPS · Q${gfxLevel()}`, 9, 13);
   ctx.restore();
 }
 requestAnimationFrame(loop);

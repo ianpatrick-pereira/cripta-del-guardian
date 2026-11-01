@@ -1,4 +1,5 @@
 // ================= Jefes =================
+import { tr } from './00b-textos.js';
 import { TAU, angTo, dist, pick, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES } from './01a-registro.js';
 import { BOSSES, BOTIN, D } from './03-datos-del-juego.js';
@@ -20,9 +21,9 @@ function updateBoss(e, dt) {
   e.tele = (e.tele || 0) - dt;
   if ((e.phase === 1 && e.hp <= e.max * .5) || (e.phase === 2 && e.hp <= e.max * .25)) {
     e.phase++; e.st = 'enrage'; e.st_t = 1.5; e.invuln = true;
-    const heal = Math.round(e.max * (e.phase === 2 ? .15 : .12)); e.hp = Math.min(e.max, e.hp + heal); addText(e.x, e.y - 70, `+${heal} vida`, '#6cc46a', 16); e.speed = e.phase === 3 ? 82 : 62; e.air = false; e.fade = 1; e.reps = 0;
+    const heal = Math.round(e.max * (e.phase === 2 ? .15 : .12)); e.hp = Math.min(e.max, e.hp + heal); addText(e.x, e.y - 70, tr`+${heal} vida`, '#6cc46a', 16); e.speed = e.phase === 3 ? 82 : 62; e.air = false; e.fade = 1; e.reps = 0;
     G.proj = G.proj.filter(pr => pr.owner === 'player'); G.beams = []; G.hazards = [];
-    showBanner(e.phase === 3 ? '¡Fase 3! Furia' : '¡Fase 2!', '#d4474b', e.phase === 2 ? 'Algunos de sus ataques rompen tu escudo' : B.name);
+    showBanner(e.phase === 3 ? tr('¡Fase 3! Furia') : tr('¡Fase 2!'), '#d4474b', e.phase === 2 ? tr('Algunos de sus ataques rompen tu escudo') : B.name);
     shake(14); sfx(60, .8, 'sawtooth', .06, 40);
     return;
   }
@@ -77,11 +78,11 @@ function bossDefeated(e) {
   SAVE.kills['boss:' + e.kind] = (SAVE.kills['boss:' + e.kind] || 0) + 1;
   if (G.floor === 8 && !G.wonOnce) {
     G.wonOnce = true; SAVE.wins++; ach('win'); if (G.diff === 'hard') ach('nightmare'); writeSave();
-    showBanner('¡La cripta ha caído!', '#e3a24a', 'Sal victorioso o desciende al Abismo eterno');
-  } else showBanner(BOSSES[e.kind].name + ' cae', '#e3a24a', `Piso ${G.floor} superado`);
-  later(1.4, () => openChoice('Recompensa del jefe', 'Elige una reliquia', randomRelics(3), () => {
+    showBanner(tr('¡La cripta ha caído!'), '#e3a24a', tr('Sal victorioso o desciende al Abismo eterno'));
+  } else showBanner(BOSSES[e.kind].name + tr(' cae'), '#e3a24a', tr`Piso ${G.floor} superado`);
+  later(1.4, () => openChoice(tr('Recompensa del jefe'), tr('Elige una reliquia'), randomRelics(3), () => {
     G.pickups.push({ kind: 'portal', x: room.cx, y: room.cy });
-    addText(room.cx, room.cy - 40, G.floor >= 8 ? 'El portal baja al Abismo eterno' : 'Se abre un portal', '#c77dff', 15);
+    addText(room.cx, room.cy - 40, G.floor >= 8 ? tr('El portal baja al Abismo eterno') : tr('Se abre un portal'), '#c77dff', 15);
     if (G.floor >= 8) G.pickups.push({ kind: 'exit', x: room.cx + 100, y: room.cy });
   }));
 }

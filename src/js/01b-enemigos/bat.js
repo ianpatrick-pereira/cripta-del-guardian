@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { angTo, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -5,7 +6,7 @@ import { leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('bat', {
   orden: 4,
   stats: { hp: 3, r: 10, speed: 150, dmg: 1, spr: 'bat', s: 2 },
-  bestiario: { n: 'Murciélago', d: 'Te rodea en círculo y se lanza en picada.' },
+  bestiario: { n: tr('Murciélago'), d: tr('Te rodea en círculo y se lanza en picada.') },
   sprite: {
     clave: 'bat',
     mapa: ['k............k', 'wk....kk....kw', 'wwk..kppk..kww', 'wwwkkpyypkkwww', '.wwwkppppkwww.', '..ww.kppk.ww..', '......kk......'],

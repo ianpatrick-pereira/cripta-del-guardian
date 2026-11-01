@@ -1,4 +1,5 @@
 // ================= Dibujo =================
+import { tr } from './00b-textos.js';
 import { ctx, cv, frame } from './00-inicio.js';
 import { FLOOR, MW, TAU, TILE, WALL, clamp, hash, rand } from './01-utilidades.js';
 import { SAVE } from './04-guardado.js';
@@ -8,7 +9,7 @@ let dpr = 1, zoom = 1;
 // calidad gráfica: 2 alta (pantallas retina a resolución completa), 1 media, 0 baja (se dibuja a 3/4 y el navegador lo estira).
 // En «auto» empieza en alta (en media si la pantalla es táctil: los celulares tienen muchos píxeles y poca
 // potencia) y baja un nivel si el juego va lento varios segundos seguidos.
-const GFX_DPR = [.75, 1, 2], GFX_NAME = { auto: 'Automática', 2: 'Alta', 1: 'Media', 0: 'Baja' };
+const GFX_DPR = [.75, 1, 2], GFX_NAME = { auto: tr('Automática'), 2: tr('Alta'), 1: tr('Media'), 0: tr('Baja') };
 const QL0 = window.matchMedia && matchMedia('(pointer: coarse)').matches ? 1 : 2;
 let QL = QL0, perfEma = 16, slowT = 0;
 const gfxLevel = () => SAVE.opt.gfx === 'auto' || SAVE.opt.gfx === undefined ? QL : +SAVE.opt.gfx;

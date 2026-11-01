@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { angTo } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
@@ -9,7 +10,7 @@ import { flankPoint, leadAng, takeToken } from '../14-enemigos.js';
 defEnemy('charger', {
   orden: 13,
   stats: { hp: 18, r: 16, speed: 70, dmg: 2, spr: 'charger', s: 2.4 },
-  bestiario: { n: 'Embestidor', d: 'Apunta y carga varias veces; si choca con un muro queda aturdido.' },
+  bestiario: { n: tr('Embestidor'), d: tr('Apunta y carga varias veces; si choca con un muro queda aturdido.') },
   sprite: {
     clave: 'charger',
     mapa: 'brute',

@@ -1,3 +1,4 @@
+import { tr } from '../00b-textos.js';
 import { TAU, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
@@ -8,7 +9,7 @@ import { leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('wraith', {
   orden: 9,
   stats: { hp: 8, r: 12, speed: 95, dmg: 1, spr: 'wraith', s: 2 },
-  bestiario: { n: 'Espectro', d: 'Se esfuma y reaparece a tu espalda.' },
+  bestiario: { n: tr('Espectro'), d: tr('Se esfuma y reaparece a tu espalda.') },
   sprite: {
     clave: 'wraith',
     mapa: ['....kkkk....', '...kwwwwk...', '..kwwwwwwk..', '..kwewwewk..', '..kwwwwwwk..', '..kwwkkwwk..', '.kwwwwwwwwk.',

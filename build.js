@@ -117,12 +117,66 @@ function datos() {
   return { pisos: pisos.map(p => p.d), ...otros };
 }
 
+// ---------- textos e idiomas (src/textos/<idioma>.jsonc) ----------
+// Cada archivo de idioma es { "texto en español": "traducción" }. Las claves salen del código:
+// tr('...') y tr`...${x}...` (con {0}, {1}... en lugar de los valores), de los textos de pagina.html
+// y de los nombres de los pisos y los finales.
+const normaliza = t => t.replace(/\s+/g, ' ').trim();
+function clavesTexto() {
+  const claves = new Map();   // clave → dónde aparece
+  const add = (k, donde) => { if (!claves.has(k)) claves.set(k, donde); };
+  for (const f of archivosJs()) {
+    const nombre = 'src/js/' + f.split(path.sep).join('/');
+    const ast = acorn.parse(fs.readFileSync(path.join(jsDir, f), 'utf8'), { ecmaVersion: 'latest', sourceType: 'module', locations: true });
+    (function walk(n) {
+      if (!n || typeof n.type !== 'string') return;
+      if (n.type === 'CallExpression' && n.callee.type === 'Identifier' && n.callee.name === 'tr' && n.arguments[0]) {
+        const a = n.arguments[0];
+        if (a.type === 'Literal' && typeof a.value === 'string') add(a.value, `${nombre}:${n.loc.start.line}`);
+      }
+      if (n.type === 'TaggedTemplateExpression' && n.tag.type === 'Identifier' && n.tag.name === 'tr')
+        add(n.quasi.quasis.map((q, i) => (i ? `{${i - 1}}` : '') + q.value.cooked).join(''), `${nombre}:${n.loc.start.line}`);
+      for (const k in n) { const c = n[k]; if (Array.isArray(c)) c.forEach(walk); else if (c && typeof c.type === 'string') walk(c); }
+    })(ast);
+  }
+  const pag = read('pagina.html').replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>|@@\w+@@/g, '');
+  for (const m of pag.matchAll(/>([^<>]+)</g)) { const k = normaliza(m[1]); if (/[A-Za-zÁÉÍÓÚáéíóúñÑ]{2,}/.test(k)) add(k, 'src/pagina.html'); }
+  for (const m of pag.matchAll(/\s(?:title|placeholder|aria-label)="([^"]+)"/g)) add(m[1].trim(), 'src/pagina.html');
+  const d = datos();
+  for (const p of d.pisos) add(p.nombre, 'src/datos/pisos/');
+  for (const f of Object.values(d.finales)) [f.etiqueta, f.titulo, ...f.texto].forEach(x => add(x, 'src/datos/finales.jsonc'));
+  return claves;
+}
+function textos() {
+  const dic = {}, avisos = [], fallos = [];
+  const claves = clavesTexto();
+  const marcas = t => (t.match(/\{\d+\}/g) || []).sort().join(' ');
+  for (const f of fs.existsSync(textDir) ? fs.readdirSync(textDir).filter(f => f.endsWith('.jsonc')).sort() : []) {
+    const l = f.replace('.jsonc', ''), nombre = `src/textos/${f}`;
+    let t;
+    try { t = JSON.parse(sinComentarios(fs.readFileSync(path.join(textDir, f), 'utf8'))); }
+    catch (e) { const m = /position (\d+)/.exec(e.message); throw new Error(`${nombre}: ${e.message}. Revisa comas, comillas y llaves.`); }
+    for (const [k, v] of Object.entries(t)) {
+      if (typeof v !== 'string') fallos.push(`${nombre}: la traducción de "${k}" tiene que ser un texto`);
+      else if (marcas(k) !== marcas(v)) fallos.push(`${nombre}: "${k}" tiene ${marcas(k) || 'ningún {n}'} y su traducción ${marcas(v) || 'ninguno'}: tienen que llevar los mismos`);
+    }
+    const faltan = [...claves].filter(([k]) => !(k in t)), sobran = Object.keys(t).filter(k => !claves.has(k));
+    if (faltan.length) avisos.push(`${nombre}: faltan ${faltan.length} traducciones:\n    ` + faltan.slice(0, 15).map(([k, d]) => `${JSON.stringify(k)}  (${d})`).join('\n    ') + (faltan.length > 15 ? `\n    …y ${faltan.length - 15} más` : ''));
+    if (sobran.length) avisos.push(`${nombre}: ${sobran.length} traducciones ya no se usan (se puede borrar): ` + sobran.slice(0, 8).map(k => JSON.stringify(k)).join(', ') + (sobran.length > 8 ? '…' : ''));
+    dic[l] = Object.fromEntries(Object.entries(t).filter(([k]) => claves.has(k)));
+  }
+  if (fallos.length) throw new Error('Traducciones con errores:\n  ' + fallos.join('\n  '));
+  return { dic, avisos, claves };
+}
+
 // ---------- módulos ----------
 const acorn = require('acorn'), escope = require('eslint-scope');
 // lo que el código puede usar sin importarlo porque lo da el navegador (si usas algo nuevo del navegador, añádelo aquí)
 const GLOBALES = new Set(('Array Boolean Date Error JSON Map Math Number Object ResizeObserver Set String Uint8Array ' +
-  'addEventListener console document localStorage matchMedia parseInt performance requestAnimationFrame setTimeout undefined window').split(' '));
-const DATOS_MOD = path.join(datDir, 'index.js');   // no existe en disco: es el módulo «virtual» con DATOS
+  'WeakMap NodeFilter addEventListener console document localStorage location matchMedia navigator parseInt performance requestAnimationFrame setTimeout undefined window').split(' '));
+// módulos «virtuales»: no existen en disco; el build los crea con los datos y las traducciones
+const textDir = path.join(src, 'textos');
+const VIRTUALES = new Map([[path.join(datDir, 'index.js'), 'DATOS'], [path.join(textDir, 'index.js'), 'TEXTOS']]);
 
 function archivosJs() {
   const files = [];
@@ -162,7 +216,7 @@ function modulos() {
       for (const sp of n.specifiers) {
         if (sp.type !== 'ImportSpecifier' || sp.imported.name !== sp.local.name) { fallos.push(`${m.nombre}:${n.loc.start.line}: usa «import { nombre } from '...'» (sin «as», default ni *)`); continue; }
         const nom = sp.imported.name;
-        if (destino === DATOS_MOD) { if (nom !== 'DATOS') fallos.push(`${m.nombre}:${n.loc.start.line}: '${n.source.value}' solo exporta DATOS`); continue; }
+        if (VIRTUALES.has(destino)) { if (nom !== VIRTUALES.get(destino)) fallos.push(`${m.nombre}:${n.loc.start.line}: '${n.source.value}' solo exporta ${VIRTUALES.get(destino)}`); continue; }
         const otro = info.get(destino);
         if (!otro) fallos.push(`${m.nombre}:${n.loc.start.line}: el archivo '${n.source.value}' no existe`);
         else if (!otro.exports.has(nom)) fallos.push(`${m.nombre}:${n.loc.start.line}: ${otro.nombre} no exporta «${nom}»` + ([...info.values()].find(o => o.exports.has(nom)) ? ` (lo exporta ${[...info.values()].find(o => o.exports.has(nom)).nombre})` : ''));
@@ -175,7 +229,7 @@ function modulos() {
       const n = r.identifier.name;
       if (GLOBALES.has(n) || vistos.has(n)) continue; vistos.add(n);
       const quien = [...info.values()].find(o => o.exports.has(n));
-      fallos.push(`${m.nombre}:${r.identifier.loc.start.line}: usas «${n}» sin importarlo` + (quien ? ` (añade «${n}» al import de '${path.relative(path.dirname(abs), path.join(src, '..', quien.nombre)).split(path.sep).join('/').replace(/^(?!\.)/, './')}')` : n === 'DATOS' ? ` (import { DATOS } from '${path.relative(path.dirname(abs), DATOS_MOD).split(path.sep).join('/')}')` : ' (no existe en ningún archivo: ¿un error de escritura?)'));
+      fallos.push(`${m.nombre}:${r.identifier.loc.start.line}: usas «${n}» sin importarlo` + (quien ? ` (añade «${n}» al import de '${path.relative(path.dirname(abs), path.join(src, '..', quien.nombre)).split(path.sep).join('/').replace(/^(?!\.)/, './')}')` : [...VIRTUALES.values()].includes(n) ? ` (import { ${n} } from '${path.relative(path.dirname(abs), [...VIRTUALES].find(x => x[1] === n)[0]).split(path.sep).join('/')}')` : ' (no existe en ningún archivo: ¿un error de escritura?)'));
     }
     for (const v of ms.variables) if (v.defs.some(d => d.type === 'ImportBinding')) for (const r of v.references) if (r.isWrite())
       fallos.push(`${m.nombre}:${r.identifier.loc.start.line}: no se puede cambiar «${v.name}» desde otro archivo (un import es de solo lectura); usa la función set${v.name[0].toUpperCase() + v.name.slice(1)}() que exporta su archivo`);
@@ -233,7 +287,8 @@ function revisarContenido(info, fallos) {
 function partes() {
   const out = modulos();
   out.unshift({ nombre: 'build.js (inicio del juego)', texto: "(() => {\n'use strict';\n" });
-  out.splice(2, 0, { nombre: 'src/datos/ (generado)', texto: `const DATOS = ${JSON.stringify(datos())};\n` });
+  out.splice(2, 0, { nombre: 'src/datos/ (generado)', texto: `const DATOS = ${JSON.stringify(datos())};\n` },
+    { nombre: 'src/textos/ (generado)', texto: `const TEXTOS = ${JSON.stringify(textos().dic)};\n` });
   out.push({ nombre: 'build.js (fin del juego)', texto: '})();\n' });
   return out;
 }
@@ -247,7 +302,7 @@ function html() {
 // página como si midiera 980 px de ancho: todo se ve diminuto y el juego pinta varias veces más píxeles.
 const ENVOLTORIO = '<!doctype html>\n<html lang="es">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n';
 const paginaWeb = h => ENVOLTORIO + h;
-module.exports = { partes, paginaWeb, html };
+module.exports = { partes, paginaWeb, html, textos };
 
 if (require.main === module) {
   let h;
@@ -257,7 +312,10 @@ if (require.main === module) {
     const dts = path.join(datDir, 'index.d.ts');
     const same = fs.existsSync(out) && fs.readFileSync(out, 'utf8') === h && fs.existsSync(dts) && fs.readFileSync(dts, 'utf8') === tiposDatos();
     console.log(same ? 'cripta.html está al día' : 'cripta.html o src/datos/index.d.ts NO coinciden con src/: ejecuta node build.js');
-    process.exit(same ? 0 : 1);
+    // en --check, una traducción que falta es un error (en el build normal solo es un aviso)
+    const faltan = textos().avisos.filter(a => /faltan/.test(a));
+    faltan.forEach(a => console.log('✗ ' + a));
+    process.exit(same && !faltan.length ? 0 : 1);
   }
   // node build.js --web carpeta/index.html  → además, la versión de página completa (la usa GitHub Pages)
   const web = process.argv.indexOf('--web');
@@ -265,5 +323,6 @@ if (require.main === module) {
   fs.writeFileSync(out, h);
   const dts = path.join(datDir, 'index.d.ts'), t = tiposDatos();
   if (!fs.existsSync(dts) || fs.readFileSync(dts, 'utf8') !== t) fs.writeFileSync(dts, t);
+  for (const a of textos().avisos) console.log('aviso: ' + a);
   console.log(`cripta.html: ${partes().length} partes, ${(h.match(/\n/g) || []).length} líneas, ${(Buffer.byteLength(h) / 1024).toFixed(1)} KB`);
 }

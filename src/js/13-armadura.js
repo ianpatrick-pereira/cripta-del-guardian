@@ -1,5 +1,6 @@
 // ================= Armadura =================
 // una sola armadura por ahora: su protección sube con las estrellas; no se forja ni usa cristales
+import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, rand, randi } from './01-utilidades.js';
 import { ROOM_OBJ } from './01a-registro.js';
@@ -20,12 +21,12 @@ import { dareFail } from './28-desafios-dentro-del-piso.js';
 import { buildFloor } from './31-reto-diario.js';
 import { openChoice } from './32-eleccion-de-reliquia.js';
 import { endGame } from './33-bucle.js';
-const ARMOR = { n: 'Coraza del Guardián', sh: [1, 1, 2, 2, 3], block: [0, .08, .12, .18, .25], red: [0, 0, 0, 1, 1] };
+const ARMOR = { n: tr('Coraza del Guardián'), sh: [1, 1, 2, 2, 3], block: [0, .08, .12, .18, .25], red: [0, 0, 0, 1, 1] };
 const armorSh = p => p.armor ? ARMOR.sh[p.armor - 1] : 0;
 function armorDesc(s) {
-  const A = ARMOR, i = s - 1, parts = [`+${A.sh[i]} de escudo`];
-  if (A.block[i]) parts.push(`${Math.round(A.block[i] * 100)} % de bloquear un golpe`);
-  if (A.red[i]) parts.push('los golpes fuertes quitan 1 menos');
+  const A = ARMOR, i = s - 1, parts = [tr`+${A.sh[i]} de escudo`];
+  if (A.block[i]) parts.push(tr`${Math.round(A.block[i] * 100)} % de bloquear un golpe`);
+  if (A.red[i]) parts.push(tr('los golpes fuertes quitan 1 menos'));
   return parts.join(' · ');
 }
 function dropArmor(x, y, src) { G.pickups.push({ kind: 'armor', stars: rollStars(src), x, y }); }
@@ -67,7 +68,7 @@ function interact(p, it) {
     sfx(660, .09, 'triangle', .04, 300);
   } else if (it.kind === 'chest') {
     if (it.gold) {
-      if (G.keys <= 0) { addText(it.x, it.y - 30, 'Necesitas una llave', '#e3a24a', 12); sfx(120, .1, 'square', .03); return; }
+      if (G.keys <= 0) { addText(it.x, it.y - 30, tr('Necesitas una llave'), '#e3a24a', 12); sfx(120, .1, 'square', .03); return; }
       G.keys--;
     }
     it.opened = true;
@@ -81,10 +82,10 @@ function interact(p, it) {
     sfx(400, .2, 'triangle', .05, 500);
   } else if (it.kind === 'shop') {
     const s = it.item;
-    if (G.coins < s.price) { addText(it.x, it.y - 34, `Faltan ${s.price - G.coins} monedas`, '#d4474b', 12); sfx(120, .1, 'square', .03); return; }
+    if (G.coins < s.price) { addText(it.x, it.y - 34, tr`Faltan ${s.price - G.coins} monedas`, '#d4474b', 12); sfx(120, .1, 'square', .03); return; }
     G.coins -= s.price; it.gone = true;
-    if (s.t === 'potion') { p.hp = Math.min(p.maxHp, p.hp + 3); addText(p.x, p.y - 24, '+3 vida', '#ff7a7e', 14); }
-    if (s.t === 'key') { G.keys++; addText(p.x, p.y - 24, '+1 llave', '#e3a24a', 14); }
+    if (s.t === 'potion') { p.hp = Math.min(p.maxHp, p.hp + 3); addText(p.x, p.y - 24, tr('+3 vida'), '#ff7a7e', 14); }
+    if (s.t === 'key') { G.keys++; addText(p.x, p.y - 24, tr('+1 llave'), '#e3a24a', 14); }
     if (s.t === 'relic') gainRelic(s.relic);
     if (s.t === 'weapon') G.pickups.push({ kind: 'weapon', x: it.x, y: it.y, weapon: s.weapon, bob: 0 });
     sfx(1000, .1, 'sine', .04); later(.08, () => sfx(1400, .12, 'sine', .04));
@@ -101,7 +102,7 @@ function interact(p, it) {
     it.gone = true; gainRelic(it.relic);
   } else if (it.kind === 'altar') {
     it.used = true;
-    openChoice('Altar del tesoro', 'Elige una reliquia', randomRelics(3), () => {});
+    openChoice(tr('Altar del tesoro'), tr('Elige una reliquia'), randomRelics(3), () => {});
   } else if (ROOM_OBJ[it.kind]) {
     ROOM_OBJ[it.kind].usar(p, it);   // salas de 01d-salas/
   } else if (it.kind === 'portal') {
@@ -118,7 +119,7 @@ function gainRelic(id) {
   if (id === 'corazon') { p.maxHp += 2; p.hp += 2; }
   if (id === 'bateria') p.en += 40;
   if (id === 'escudo') p.sh++;
-  showBanner(R.n, R.c, 'Reliquia');
+  showBanner(R.n, R.c, tr('Reliquia'));
   addText(p.x, p.y - 28, R.d, R.c, 11);
   burst(p.x, p.y, R.c, 20, 180);
   sfx(520, .15, 'triangle', .05, 300); later(.12, () => sfx(780, .2, 'triangle', .05, 300));
@@ -127,19 +128,19 @@ function gainRelic(id) {
 function hurtPlayer(d, por) {
   const p = G.player;
   if (p.inv > 0 || G.over) return false;
-  G.hitBy = por || 'un golpe';
+  G.hitBy = por || tr('un golpe');
   if (p.char === 'knight' && p.parryT > 0 && p.parryCd <= 0) { parry(p); return false; }
   d += G.floor >= 11 ? 3 : G.floor >= 7 ? 2 : G.floor >= 3 ? 1 : 0;
   if (pact('fragile')) d += 1;
   if (p.armor) {
     const i = p.armor - 1;
-    if (Math.random() < ARMOR.block[i]) { p.inv = .4; addText(p.x, p.y - 26, '¡Bloqueado!', RARITY['s' + p.armor].c, 12); sfx(1100, .06, 'square', .03, -500); burst(p.x, p.y, '#d8d0b8', 6, 120); return false; }
+    if (Math.random() < ARMOR.block[i]) { p.inv = .4; addText(p.x, p.y - 26, tr('¡Bloqueado!'), RARITY['s' + p.armor].c, 12); sfx(1100, .06, 'square', .03, -500); burst(p.x, p.y, '#d8d0b8', 6, 120); return false; }
     if (d >= 2) d -= ARMOR.red[i];
   }
   const absorbed = Math.min(p.sh, d); p.sh -= absorbed; d -= absorbed;
   p.hp -= d; p.inv = .8; p.shT = 0; p.shAcc = 0;
   classHurt(p);
-  if (G.dare && G.dare.kind === 'nohit') dareFail('te golpearon');
+  if (G.dare && G.dare.kind === 'nohit') dareFail(tr('te golpearon'));
   shake(7); G.hurtFlash = .35;
   burst(p.x, p.y, d > 0 ? '#d4474b' : '#8fb7d9', 8, 130);
   sfx(d > 0 ? 120 : 300, .15, 'square', .05, -60);
