@@ -11,11 +11,6 @@ defEnemy('charger', {
   orden: 13,
   stats: { hp: 18, r: 16, speed: 70, dmg: 2, spr: 'charger', s: 2.4 },
   bestiario: { n: tr('Embestidor'), d: tr('Apunta y carga varias veces; si choca con un muro queda aturdido.') },
-  sprite: {
-    clave: 'charger',
-    mapa: 'brute',
-    paleta: { k: '#14100e', h: '#c0c8d0', r: '#7a8a9a', e: '#ff4a2a', d: '#3a3a44' }
-  },
   // Embestidor: apunta (línea roja) y carga muy rápido; si choca con un muro queda aturdido
   ia(e, c) {
     const { dt, cdt, hidden, tgt, d, go } = c;

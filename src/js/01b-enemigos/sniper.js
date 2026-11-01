@@ -8,11 +8,6 @@ defEnemy('sniper', {
   orden: 18,
   stats: { hp: 9, r: 12, speed: 85, dmg: 1, spr: 'sniper', s: 2 },
   bestiario: { n: tr('Tirador'), d: tr('Apunta con un láser y dispara una bala muy rápida. Muévete cuando el láser se fije.') },
-  sprite: {
-    clave: 'sniper',
-    mapa: 'archer',
-    paleta: { k: '#141019', g: '#2a2a3a', f: '#d8d5bd', t: '#3a3a4a', b: '#6b4a2a', l: '#2a2a3a' }
-  },
   esquiva: true,
   // Tirador: se aleja, apunta con un láser (deja de seguirte justo antes) y dispara una bala muy rápida
   ia(e, c) {

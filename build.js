@@ -169,6 +169,35 @@ function textos() {
   return { dic, avisos, claves };
 }
 
+// ---------- dibujos (src/sprites/<clave>.png) ----------
+// Cada PNG se convierte en filas de letras + paleta, el formato con el que el juego pinta sus píxeles.
+const { leerPng } = require('./herramientas/png.js');
+const LETRAS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function sprites() {
+  const out = {};
+  for (const f of fs.readdirSync(sprDir).filter(f => f.endsWith('.png')).sort()) {
+    const clave = f.slice(0, -4), nombre = `src/sprites/${f}`;
+    if (!/^[a-z][a-z0-9_]*$/.test(clave)) throw new Error(`${nombre}: el nombre tiene que ir en minúsculas, sin espacios ni acentos (es el id que usa el juego)`);
+    const { ancho, alto, rgba } = leerPng(fs.readFileSync(path.join(sprDir, f)), nombre);
+    if (ancho > 64 || alto > 64) throw new Error(`${nombre}: mide ${ancho}×${alto}; el máximo es 64×64 (el juego lo agranda al dibujarlo)`);
+    const color = new Map(), filas = [];
+    for (let y = 0; y < alto; y++) {
+      let fila = '';
+      for (let x = 0; x < ancho; x++) {
+        const i = (y * ancho + x) * 4, a = rgba[i + 3];
+        if (!a) { fila += '.'; continue; }
+        const hex = '#' + [rgba[i], rgba[i + 1], rgba[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
+        const c = a === 255 ? hex : `rgba(${rgba[i]},${rgba[i + 1]},${rgba[i + 2]},${+(a / 255).toFixed(3)})`;
+        if (!color.has(c)) { if (color.size >= LETRAS.length) throw new Error(`${nombre}: usa más de ${LETRAS.length} colores`); color.set(c, LETRAS[color.size]); }
+        fila += color.get(c);
+      }
+      filas.push(fila);
+    }
+    out[clave] = [filas, Object.fromEntries([...color].map(([c, l]) => [l, c]))];
+  }
+  return out;
+}
+
 // ---------- módulos ----------
 const acorn = require('acorn'), escope = require('eslint-scope');
 // lo que el código puede usar sin importarlo porque lo da el navegador (si usas algo nuevo del navegador, añádelo aquí)
@@ -176,7 +205,8 @@ const GLOBALES = new Set(('Array Boolean Date Error JSON Map Math Number Object 
   'WeakMap NodeFilter addEventListener console document localStorage location matchMedia navigator parseInt performance requestAnimationFrame setTimeout undefined window').split(' '));
 // módulos «virtuales»: no existen en disco; el build los crea con los datos y las traducciones
 const textDir = path.join(src, 'textos');
-const VIRTUALES = new Map([[path.join(datDir, 'index.js'), 'DATOS'], [path.join(textDir, 'index.js'), 'TEXTOS']]);
+const sprDir = path.join(src, 'sprites');
+const VIRTUALES = new Map([[path.join(datDir, 'index.js'), 'DATOS'], [path.join(textDir, 'index.js'), 'TEXTOS'], [path.join(sprDir, 'index.js'), 'SPRITES']]);
 
 function archivosJs() {
   const files = [];
@@ -265,7 +295,10 @@ function revisarContenido(info, fallos) {
   const texto = v => v && v.type === 'Literal' && typeof v.value === 'string' ? v.value : null;
   const lista = v => v && v.type === 'ArrayExpression' ? v.elements.map(texto).filter(x => x !== null) : [];
   const existe = (tipo, id, linea, campo, carpeta) => { if (id !== null && !defs[tipo].has(id)) fallos.push(`${linea}: "${campo}" apunta a '${id}', que no existe en src/js/${carpeta}/`); };
-  for (const [id, { def, linea }] of defs.defEnemy) existe('defEnemy', texto(prop(def, 'ia')), linea, 'ia', '01b-enemigos');
+  const dibujos = new Set(fs.readdirSync(sprDir).filter(f => f.endsWith('.png')).map(f => f.slice(0, -4)));
+  const dibujo = (id, linea) => { if (id !== null && !dibujos.has(id)) fallos.push(`${linea}: "spr" es '${id}', pero no existe src/sprites/${id}.png`); };
+  for (const [id, { def, linea }] of defs.defEnemy) { existe('defEnemy', texto(prop(def, 'ia')), linea, 'ia', '01b-enemigos'); dibujo(texto(prop(prop(def, 'stats'), 'spr')), linea); }
+  for (const [id, { def, linea }] of defs.defSub) dibujo(texto(prop(prop(def, 'datos'), 'spr')), linea);
   for (const [id, { def, linea }] of defs.defBoss) {
     const d = prop(def, 'datos');
     existe('defEnemy', texto(prop(d, 'minion')), linea, 'minion', '01b-enemigos');
@@ -288,7 +321,8 @@ function partes() {
   const out = modulos();
   out.unshift({ nombre: 'build.js (inicio del juego)', texto: "(() => {\n'use strict';\n" });
   out.splice(2, 0, { nombre: 'src/datos/ (generado)', texto: `const DATOS = ${JSON.stringify(datos())};\n` },
-    { nombre: 'src/textos/ (generado)', texto: `const TEXTOS = ${JSON.stringify(textos().dic)};\n` });
+    { nombre: 'src/textos/ (generado)', texto: `const TEXTOS = ${JSON.stringify(textos().dic)};\n` },
+    { nombre: 'src/sprites/ (generado)', texto: `const SPRITES = ${JSON.stringify(sprites())};\n` });
   out.push({ nombre: 'build.js (fin del juego)', texto: '})();\n' });
   return out;
 }
@@ -302,7 +336,7 @@ function html() {
 // página como si midiera 980 px de ancho: todo se ve diminuto y el juego pinta varias veces más píxeles.
 const ENVOLTORIO = '<!doctype html>\n<html lang="es">\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n';
 const paginaWeb = h => ENVOLTORIO + h;
-module.exports = { partes, paginaWeb, html, textos };
+module.exports = { partes, paginaWeb, html, textos, sprites };
 
 if (require.main === module) {
   let h;

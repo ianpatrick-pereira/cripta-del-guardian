@@ -26,13 +26,14 @@ import { QL, dpr, drawElemRooms, gfxLevel, perfEma, resize, setPerfEma, setQL, s
 import { drawDecor, drawMotesFlat, drawMotesGlow, hexA, tickMotes } from './35-ambiente.js';
 import { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles } from './36-mar-de-lava.js';
 import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco } from './37-armas-visual.js';
-const ARMOR_PARTS = { knight: ['a', 's'], archer: ['t', 'g'], rogue: ['c', 'd'] };
+// colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí)
+const ARMOR_PARTS = { knight: ['#9a97a8', '#c9c3b4'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
     const [mapName, pal] = SPR_DEFS[ch], rows = MAPS[mapName], h = rows.length, wd = rows[0].length;
     for (let s = 1; s <= 5; s++) {
-      const P = { ...pal }; ARMOR_PARTS[ch].forEach((k, i) => { P[k] = ARMOR_COLS[s - 1][i]; });
+      const P = { ...pal }; for (const k in P) { const i = ARMOR_PARTS[ch].indexOf(P[k].toLowerCase()); if (i >= 0) P[k] = ARMOR_COLS[s - 1][i]; }
       const mk = white => {
         const c = document.createElement('canvas'); c.width = wd; c.height = h; const g = c.getContext('2d');
         for (let y = 0; y < h; y++) for (let x = 0; x < wd; x++) { const k = rows[y][x]; if (k === '.' || !P[k]) continue; g.fillStyle = white ? '#fff' : P[k]; g.fillRect(x, y, 1, 1); }

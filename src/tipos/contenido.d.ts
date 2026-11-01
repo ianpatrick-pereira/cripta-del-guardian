@@ -8,12 +8,10 @@ type Fn = (...args: any[]) => any;
 export interface DefEnemigo {
   /** posición en el bestiario */
   orden: number;
-  /** vida, radio, velocidad, daño, sprite y escala */
+  /** vida, radio, velocidad, daño, dibujo (spr: nombre de un PNG de src/sprites/) y escala */
   stats: { hp: number; r: number; speed: number; dmg: number; spr: string; s: number };
   /** nombre y descripción que ve el jugador en el bestiario */
   bestiario: { n: string; d: string };
-  /** píxeles del dibujo: filas de letras (o el nombre de otro mapa) y el color de cada letra */
-  sprite?: { clave: string; mapa: string[] | string; paleta: Record<string, string> };
   /** true si se aparta de tus disparos */
   esquiva?: boolean;
   /** comportamiento cada fotograma, o el id de otro enemigo para copiar el suyo */

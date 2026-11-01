@@ -7,11 +7,6 @@ defEnemy('bat', {
   orden: 4,
   stats: { hp: 3, r: 10, speed: 150, dmg: 1, spr: 'bat', s: 2 },
   bestiario: { n: tr('Murciélago'), d: tr('Te rodea en círculo y se lanza en picada.') },
-  sprite: {
-    clave: 'bat',
-    mapa: ['k............k', 'wk....kk....kw', 'wwk..kppk..kww', 'wwwkkpyypkkwww', '.wwwkppppkwww.', '..ww.kppk.ww..', '......kk......'],
-    paleta: { k: '#1a1024', w: '#4f3870', p: '#8d6cbf', y: '#ffe27a' }
-  },
   esquiva: true,
   // Murciélagos: te rodean en círculo, se detienen un instante (aviso) y se lanzan en picada
   ia(e, c) {

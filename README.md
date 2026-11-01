@@ -26,6 +26,7 @@ Desde la v0.34 también la decoración de cada piso y los dos finales; y hay her
 Desde la v0.38 cada archivo de `src/js/` es un módulo ES: declara con `import` lo que usa y con `export` lo que ofrece; y `npm run dev` recarga el juego al guardar.
 Desde la v0.39 hay revisión de tipos (TypeScript sobre el JavaScript) y esquemas para los archivos de datos.
 Desde la v0.40 el juego está en español e inglés: los textos visibles pasan por `tr()` y las traducciones viven en `src/textos/`.
+Desde la v0.41 los dibujos de personajes, enemigos y objetos son imágenes PNG en `src/sprites/`.
 
 ```
 ./
@@ -36,10 +37,12 @@ Desde la v0.40 el juego está en español e inglés: los textos visibles pasan p
 └── src/
     ├── pagina.html   HTML de los menús y pantallas, con @@CSS@@ y @@JS@@ como huecos
     ├── estilos.css   estilos
+    ├── sprites/      dibujos de personajes, enemigos y objetos: un PNG por cada uno
+    ├── textos/       traducciones (en.jsonc)
     ├── datos/        diseño sin código: pisos/ (uno por piso), oleadas.jsonc, botin.jsonc y finales.jsonc
     └── js/
         ├── 01a-registro.js   defEnemy, defWeapon, defRoom, defBoss, defSub...: qué campos lleva cada archivo
-        ├── 01b-enemigos/     un archivo por enemigo (18): datos, sprite, bestiario, IA y dibujo
+        ├── 01b-enemigos/     un archivo por enemigo (18): datos, bestiario, IA y detalles de dibujo
         ├── 01c-armas/        un archivo por arma (41): datos, familia y, si tiene estilo propio, sus ataques
         ├── 01d-salas/        un archivo por sala de evento (7): cómo se coloca, se usa, se dibuja y su cartel
         ├── 01e-jefes/        un archivo por jefe (8): datos, ataques de cada fase y dibujo
@@ -70,6 +73,17 @@ Atrapan errores antes de jugar, sin abrir el juego:
 - `src/datos/index.d.ts` lo genera el build a partir de los esquemas: así el editor sabe qué hay dentro de `DATOS`.
 - Para añadir un campo nuevo a un dato: añádelo al esquema (con su `description`) y ejecuta `node build.js`.
 - El jugador, los enemigos en juego y `G` todavía no tienen tipo (`any`): se pueden ir tipando poco a poco.
+
+## Dibujos (sprites)
+
+Los personajes, los enemigos y los objetos (cofres, cajas, barriles, poción) son imágenes PNG pequeñas en `src/sprites/`, una por dibujo: `knight.png`, `slime.png`, `chest.png`... El nombre del archivo es el id que usa el juego.
+
+- **Cambiar un dibujo:** ábrelo en un editor de pixel art (Aseprite, Piskel, LibreSprite o incluso Paint), píntalo y guárdalo como PNG. Al guardar, `npm run dev` recarga el juego con el dibujo nuevo. Cada píxel del PNG es un píxel del juego; el juego lo agranda (la `s` de `stats` es la escala).
+- **Dibujo nuevo para un enemigo:** guarda `src/sprites/mi_enemigo.png` y pon `spr: 'mi_enemigo'` en los `stats` de su archivo de `01b-enemigos/`. El build avisa si un `spr` apunta a un PNG que no existe.
+- Lo transparente del PNG es transparente en el juego. Máximo 64×64 píxeles y 62 colores por dibujo; vale cualquier formato de PNG salvo «entrelazado».
+- El build convierte cada PNG en filas de píxeles y una paleta (`herramientas/png.js` los lee, sin dependencias), así que el juego sigue siendo un solo `cripta.html`.
+- La armadura tiñe dos colores de cada clase (por ejemplo, el gris de la cota del caballero). Están en `ARMOR_PARTS`, en `38-armadura-visual.js`: si cambias esos colores en el PNG, cámbialos también ahí.
+- Las armas, los jefes y los efectos se dibujan con código (formas y degradados), no con píxeles.
 
 ## Idiomas
 
@@ -131,7 +145,7 @@ Al ejecutar `build.js` se comprueban: si falta una coma, dice el archivo y la l�
 
 ## Añadir contenido
 
-- **Enemigo nuevo:** copia un archivo de `01b-enemigos/` parecido, cambia el id, los datos, el sprite y la IA, y añade el id a la lista de enemigos de algún piso (`src/datos/pisos/`). Sale en el bestiario solo.
+- **Enemigo nuevo:** copia un archivo de `01b-enemigos/` parecido, cambia el id, los datos y la IA (y su dibujo en `stats.spr`, ver «Dibujos»), y añade el id a la lista de enemigos de algún piso (`src/datos/pisos/`). Sale en el bestiario solo.
 - **Arma nueva:** copia un archivo de `01c-armas/` parecido y cambia el id y los datos. Entra sola en el sorteo de botín según su rareza; dale un `orden` mayor que el de la última.
 - **Sala de evento nueva:** copia un archivo de `01d-salas/` y cambia el id, el objeto y sus funciones. Entra sola en el sorteo de salas de cada piso.
 - **Jefe nuevo:** copia un archivo de `01e-jefes/`, cambia el id, los datos y sus listas de ataques (p1, p2, p3), y ponlo como `jefe` de un piso en `src/datos/pisos/`. Puede reutilizar el dibujo de otro con `look` y cambiarle el color con `tint`, o traer su propio `aspecto`.

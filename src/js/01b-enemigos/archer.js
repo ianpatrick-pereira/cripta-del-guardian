@@ -11,12 +11,6 @@ defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
   bestiario: { n: tr('Esqueleto arquero'), d: tr('Busca línea de tiro y alterna disparo simple y abanico.') },
-  sprite: {
-    clave: 'skel',
-    mapa: ['...kkkkkk...', '..kbbbbbbk..', '.kbbbbbbbbk.', '.kbeebbeebk.', '.kbbbkkbbbk.', '..kbbbbbbk..', '...kbkbkk...',
-      '....kbbk....', '..kkbbbbkk..', '.kb.kbbk.bk.', '...kbbbbk...', '...kb..bk...', '...kb..bk...', '...kk..kk...'],
-    paleta: { k: '#2a2433', b: '#ddd5bd', e: '#2a2433' }
-  },
   esquiva: true,
   // Arqueros: buscan línea de tiro, mantienen distancia, apuntan anticipando y alternan disparo simple y abanico
   ia(e, c) {

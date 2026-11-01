@@ -8,11 +8,6 @@ defEnemy('slime', {
   orden: 1,
   stats: { hp: 5, r: 13, speed: 75, dmg: 1, spr: 'slime', s: 2 },
   bestiario: { n: tr('Limo'), d: tr('Se encoge y salta hacia donde vas a estar.') },
-  sprite: {
-    clave: 'slime',
-    mapa: ['....kkkk....', '...kghggk...', '..kghggggk..', '.kggggggggk.', '.kggeggeggk.', '.kggeggeggk.', 'kggggggggggk', 'kggggggggggk', '.kkkkkkkkkk.'],
-    paleta: { k: '#13301a', g: '#74c477', h: '#c8f0c0', e: '#13301a' }
-  },
   // Limos: se acercan por su flanco, se encogen (aviso) y saltan hacia donde vas a estar
   ia(e, c) {
     const { dt, cdt, hidden, tgt, d, go, done } = c;

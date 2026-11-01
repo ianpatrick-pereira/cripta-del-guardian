@@ -6,12 +6,6 @@ defEnemy('mage', {
   orden: 8,
   stats: { hp: 8, r: 12, speed: 70, dmg: 1, spr: 'mage', s: 2 },
   bestiario: { n: tr('Mago'), d: tr('Se teletransporta si te acercas y lanza runas bajo tus pies.') },
-  sprite: {
-    clave: 'mage',
-    mapa: ['....kkkk....', '...kppppk...', '..kppppppk..', '..kpkkkkpk..', '..kpkgkgpk..', '..kppkkppk..', '..kppppppk..',
-      '.kppppppppk.', '.kppbppbppk.', '.kppppppppk.', 'kppppppppppk', 'kppppppppppk', '.kkkkkkkkkk.'],
-    paleta: { k: '#0f0a14', p: '#4a2f6a', g: '#9bff7a', b: '#9bff7a' }
-  },
   esquiva: true,
   // usa la misma IA que 'archer'
   ia: 'archer',

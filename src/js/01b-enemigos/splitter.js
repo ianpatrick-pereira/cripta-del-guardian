@@ -8,11 +8,6 @@ defEnemy('splitter', {
   orden: 14,
   stats: { hp: 16, r: 17, speed: 62, dmg: 1, spr: 'splitter', s: 2.9 },
   bestiario: { n: tr('Limo madre'), d: tr('Suelta anillos de ácido y al morir se parte en limos.') },
-  sprite: {
-    clave: 'splitter',
-    mapa: 'slime',
-    paleta: { k: '#2a1030', g: '#c06ad8', h: '#f0c8ff', e: '#2a1030' }
-  },
   // Limo madre: lento y grande; al morir se parte en limos
   ia(e, c) {
     const { cdt, hidden, tgt, d, go } = c;
