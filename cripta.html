@@ -219,7 +219,7 @@ details.codex[open]{padding-bottom:12px}
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.38</p>
+      <p class="eyebrow">Prototipo jugable · v0.39</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -353,9 +353,11 @@ details.codex[open]{padding-bottom:12px}
 <script>
 (() => {
 'use strict';
-const cv = document.getElementById('cv');
+const cv = /** @type {HTMLCanvasElement} */ (document.getElementById('cv'));
 const ctx = cv.getContext('2d');
 const frame = document.getElementById('frame');
+// devuelve `any` para poder usar .value, .checked, .width... sin avisos de tipo
+/** @type {(id: string) => any} */
 const $ = id => document.getElementById(id);
 
 
@@ -390,7 +392,9 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 //   ia(e, c)   su comportamiento cada fotograma (o el id de otro enemigo para copiar el suyo)
 //   forma(e, f), debajo(e, la), encima(e, la, white)   ajustes y detalles de dibujo
 //   alRecibir(e, daño, ang, o) → daño,  alMorir(e),  sinEmpuje
+/** @type {Record<string, import('../tipos/contenido').DefEnemigo>} */
 const ENEMIES = {};
+/** @param {string} id @param {import('../tipos/contenido').DefEnemigo} def */
 function defEnemy(id, def) { ENEMIES[id] = def; }
 const enemyList = () => Object.keys(ENEMIES).sort((a, b) => ENEMIES[a].orden - ENEMIES[b].orden);
 
@@ -404,7 +408,9 @@ const enemyList = () => Object.keys(ENEMIES).sort((a, b) => ENEMIES[a].orden - E
 //   potencia   corrección de daño para armas que golpean varias veces o en área (1 = normal)
 //   estilo     solo armas con estilo propio: d (texto), esp (mejora de forja), el (nombres elementales),
 //              ataque(p, w, { a, dmg, cost }) y cargado(p, w, { a, S, dm, col }) con S = estrellas
+/** @type {Record<string, import('../tipos/contenido').DefArma>} */
 const WEAPON_DEFS = {};
+/** @param {string} id @param {import('../tipos/contenido').DefArma} def */
 function defWeapon(id, def) { WEAPON_DEFS[id] = def; }
 const weaponList = () => Object.keys(WEAPON_DEFS).sort((a, b) => WEAPON_DEFS[a].orden - WEAPON_DEFS[b].orden);
 
@@ -418,7 +424,9 @@ const weaponList = () => Object.keys(WEAPON_DEFS).sort((a, b) => WEAPON_DEFS[a].
 //   dibujar(it, b)   cómo se dibuja el objeto (b = pequeño balanceo)
 //   aviso(it, key)   → [línea 1, línea 2, color] del cartel al acercarse
 //   actualizar(dt)   opcional: lógica de cada fotograma
+/** @type {Record<string, import('../tipos/contenido').DefSala>} */
 const ROOM_DEFS = {}, ROOM_OBJ = {};
+/** @param {string} id @param {import('../tipos/contenido').DefSala} def */
 function defRoom(id, def) { ROOM_DEFS[id] = def; ROOM_OBJ[def.objeto] = def; }
 const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden - ROOM_DEFS[b].orden);
 
@@ -431,7 +439,9 @@ const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden 
 //              p1, p2, p3: ataques que elige en cada fase (cada uno es un archivo de 01g-ataques-de-jefe/)
 //   logro      opcional: logro que se gana al derrotarlo
 //   aspecto(g, e, fill, ph2)   su dibujo, si no reutiliza el de otro con look
+/** @type {Record<string, import('../tipos/contenido').DefJefe>} */
 const BOSS_DEFS = {};
+/** @param {string} id @param {import('../tipos/contenido').DefJefe} def */
 function defBoss(id, def) { BOSS_DEFS[id] = def; }
 const bossList = () => Object.keys(BOSS_DEFS).sort((a, b) => BOSS_DEFS[a].orden - BOSS_DEFS[b].orden);
 
@@ -440,7 +450,9 @@ const bossList = () => Object.keys(BOSS_DEFS).sort((a, b) => BOSS_DEFS[a].orden 
 //   datos      name, spr y s (sprite y escala), r, hp, speed, tint, minion, want, pc (color de balas),
 //              p1, p2: ataques de cada fase (cada uno es un archivo de 01h-ataques-de-subjefe/)
 //   forma(e, f), encima(e, lift, p), alMorir(e), rompeAlCaminar   ajustes opcionales
+/** @type {Record<string, import('../tipos/contenido').DefSubjefe>} */
 const SUB_DEFS = {};
+/** @param {string} id @param {import('../tipos/contenido').DefSubjefe} def */
 function defSub(id, def) { SUB_DEFS[id] = def; }
 
 // Cada ataque de jefe o subjefe vive en su archivo (01g-ataques-de-jefe/, 01h-ataques-de-subjefe/).
@@ -450,8 +462,11 @@ function defSub(id, def) { SUB_DEFS[id] = def; }
 //                     del jefe (B, bcol) o del subjefe (S, move)
 //   aviso(e)          opcional: dibuja el aviso (línea roja, mira...) antes que el jefe
 // En vez de un objeto se puede dar el id de otro ataque para copiar el suyo.
+/** @type {Record<string, import('../tipos/contenido').DefAtaque>} */
 const BOSS_MOVES = {}, SUB_MOVES = {};
+/** @param {string} id @param {import('../tipos/contenido').DefAtaque | string} def  (o el id de otro ataque para copiarlo) */
 function defBossMove(id, def) { BOSS_MOVES[id] = typeof def === 'string' ? BOSS_MOVES[def] : def; }
+/** @param {string} id @param {import('../tipos/contenido').DefAtaque | string} def */
 function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOVES[def] : def; }
 
 
@@ -3347,7 +3362,8 @@ function damageProp(o, d) {
 const keys = new Set();
 const mouse = { x: 0, y: 0, down: false, right: false, moved: false };
 const touch = { on: false, stickId: null, ox: 0, oy: 0, x: 0, y: 0, atk: false, chg: false };
-let wantDash = false, wantSwap = 0, wantUse = false, wantAbil = false, wantElem = false;
+/** wantSwap: 1 = cambiar de arma, 'a' o 'b' = elegir una */
+let wantDash = false, /** @type {number | string} */ wantSwap = 0, wantUse = false, wantAbil = false, wantElem = false;
 
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
@@ -4352,7 +4368,7 @@ function updateEnemy(e, dt) {
   c.done = (rest, cd) => { e.st = rest > 0 ? 'rest' : 'walk'; e.st_t = rest; e.tok = false; e.cd = cd; };
   if (e.st === 'rest') { e.st_t -= dt; if (e.st_t <= 0) e.st = 'walk'; }
   // cada enemigo decide qué hacer en su archivo de 01b-enemigos/ (función ia)
-  const ed = ENEMIES[e.type], ia = ed && (typeof ed.ia === 'string' ? ENEMIES[ed.ia].ia : ed.ia);
+  const ed = ENEMIES[e.type], ia = ed && /** @type {(e: any, c: any) => void} */ (typeof ed.ia === 'string' ? ENEMIES[ed.ia].ia : ed.ia);
   if (ia) ia(e, c);
   let vx = c.vx, vy = c.vy;
   // esquivar: los enemigos ágiles se apartan de tus disparos
@@ -4396,7 +4412,7 @@ function mkSub(floor, x, y) {
 const enemyPace = () => Math.min(1.4, 1 + .05 * (G.floor - 1));
 function subIdle(e) { e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.1 : .7) / D().rate / (e.elem ? 1 + .12 * (G.floor - 1) : enemyPace()); }
 function updateSub(e, dt) {
-  const p = G.player, S = e.def || SUBS[G.fi + 1], sd = SUB_DEFS[e.sk] || {}, a = angTo(e, p), d = dist(e, p), ph2 = e.phase === 2;
+  const p = G.player, S = e.def || SUBS[G.fi + 1], sd = SUB_DEFS[e.sk] || /** @type {any} */ ({}), a = angTo(e, p), d = dist(e, p), ph2 = e.phase === 2;
   const sm = e.slowT > 0 ? .7 : 1;
   e.st_t -= dt; e.tele = (e.tele || 0) - dt;
   if (e.phase === 1 && e.hp <= e.max * (G.diff === 'hard' ? .6 : .5)) {
@@ -4857,7 +4873,7 @@ function resumeRun(s) {
   G.crystals = { fire: 0, water: 0, air: 0, earth: 0, ...(s.crystals || {}) };
   p.armor = s.armor || 0;
   p.talents = (s.talents || []).slice(); p.spec = s.spec || ''; G.daily = s.daily || ''; p.subK = s.subK || 0; p.preK = s.preK || 0; p.cu = { ...(s.cu || {}) };
-  if (p.spec === 'paladin') { const L = subLv(p); p.maxSh += (L >= 2) + (L >= 4); }
+  if (p.spec === 'paladin') { const L = subLv(p); p.maxSh += Number(L >= 2) + Number(L >= 4); }
   if (tl('muro')) { p.maxSh++; p.sh++; }
   buildFloor(s.floor);
 }
@@ -7212,7 +7228,7 @@ function drawBoss(e) {
 
 function drawSub(e) {
   const p = G.player, white = e.flash > 0;
-  const mv = SUB_MOVES[e.st], sd = SUB_DEFS[e.sk] || {}; if (mv && mv.aviso) mv.aviso(e);
+  const mv = SUB_MOVES[e.st], sd = SUB_DEFS[e.sk] || /** @type {any} */ ({}); if (mv && mv.aviso) mv.aviso(e);
   drawShadow(e.x, e.y, e.r);
   const lift = e.lift || 0;
   ctx.globalAlpha = .16 + .08 * Math.sin(G.time * 5) + (e.phase === 2 ? .1 : 0); ctx.fillStyle = e.tint;
@@ -7236,7 +7252,7 @@ function drawEnemy(e) {
   if (e.mirror) { ctx.fillStyle = `rgba(199,125,255,${.16 + .08 * Math.sin(G.time * 5)})`; ctx.beginPath(); ctx.arc(e.x, e.y - 6, e.r + 12, 0, TAU); ctx.fill(); }
   const p = G.player, la = angTo(e, p), white = e.flash > 0;
   // cada enemigo ajusta su forma y dibuja sus detalles en su archivo de 01b-enemigos/
-  const ed = ENEMIES[e.type] || {}, f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
+  const ed = ENEMIES[e.type] || /** @type {any} */ ({}), f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
   if (ed.forma) ed.forma(e, f);
   if (ed.debajo) ed.debajo(e, la);
   if (e.shield > 0) { ctx.strokeStyle = `rgba(155,216,255,${.5 + .2 * Math.sin(G.time * 8)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 6, 0, TAU); ctx.stroke(); }
@@ -7389,6 +7405,7 @@ function drawMinimap(w) {
   return oy + GRID * (ch + gap) + pad;
 }
 
+/** @param {CanvasTextAlign} [align] */
 function hudText(txt, x, y, size = 13, color = '#ece4cf', align = 'left', weight = 600, font = 'Chakra Petch') {
   ctx.font = `${weight} ${size}px "${font}", ui-monospace, monospace`;
   ctx.textAlign = align; ctx.textBaseline = 'middle';
@@ -7448,6 +7465,7 @@ function drawWeaponBar(p, w, h) {
 }
 
 // texto que no se sale de su caja: achica la letra (hasta 8 px) y, si aún no cabe, lo corta con «…»
+/** @param {CanvasTextAlign} [align] */
 function fitText(txt, x, y, maxW, size, color, align = 'left', weight = 600) {
   let s = size;
   const f = () => { ctx.font = `${weight} ${s}px "Chakra Petch", ui-monospace, monospace`; return ctx.measureText(txt).width; };
@@ -7935,7 +7953,7 @@ function renderMenu() {
     setSelChar(id); renderMenu();
   }));
   // compañeros
-  $('petCards').innerHTML = [['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)].map(([id, P]) => {
+  $('petCards').innerHTML = /** @type {[string, any][]} */ ([['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)]).map(([id, P]) => {
     const own = !id || SAVE.pets[id];
     return `<button class="card${SAVE.pet === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-p="${id}"><b style="color:${P.c}">${esc(P.n)}</b><span class="meta">${esc(P.d)}</span>${own ? (id ? '<span class="gems">Listo para la próxima partida</span>' : '') : `<span class="gems">Llevar · ${P.cost} gemas</span>`}</button>`;
   }).join('');

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Los dos finales",
+  "type": "object",
+  "properties": {
+    "completo": {
+      "type": "object",
+      "properties": {
+        "etiqueta": {
+          "type": "string"
+        },
+        "titulo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "texto": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "un párrafo por elemento"
+        }
+      },
+      "required": [
+        "etiqueta",
+        "titulo",
+        "texto"
+      ],
+      "additionalProperties": false,
+      "description": "si tienes todas las notas del diario"
+    },
+    "incompleto": {
+      "type": "object",
+      "properties": {
+        "etiqueta": {
+          "type": "string"
+        },
+        "titulo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "texto": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "un párrafo por elemento"
+        }
+      },
+      "required": [
+        "etiqueta",
+        "titulo",
+        "texto"
+      ],
+      "additionalProperties": false,
+      "description": "si falta alguna"
+    }
+  },
+  "required": [
+    "completo",
+    "incompleto"
+  ],
+  "additionalProperties": false
+}

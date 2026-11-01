@@ -21,7 +21,7 @@ function mkSub(floor, x, y) {
 const enemyPace = () => Math.min(1.4, 1 + .05 * (G.floor - 1));
 function subIdle(e) { e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.1 : .7) / D().rate / (e.elem ? 1 + .12 * (G.floor - 1) : enemyPace()); }
 function updateSub(e, dt) {
-  const p = G.player, S = e.def || SUBS[G.fi + 1], sd = SUB_DEFS[e.sk] || {}, a = angTo(e, p), d = dist(e, p), ph2 = e.phase === 2;
+  const p = G.player, S = e.def || SUBS[G.fi + 1], sd = SUB_DEFS[e.sk] || /** @type {any} */ ({}), a = angTo(e, p), d = dist(e, p), ph2 = e.phase === 2;
   const sm = e.slowT > 0 ? .7 : 1;
   e.st_t -= dt; e.tele = (e.tele || 0) - dt;
   if (e.phase === 1 && e.hp <= e.max * (G.diff === 'hard' ? .6 : .5)) {

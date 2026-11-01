@@ -1,0 +1,322 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Un piso de la campaña",
+  "type": "object",
+  "properties": {
+    "piso": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8,
+      "description": "número del piso (1 a 8, sin saltos)"
+    },
+    "nombre": {
+      "type": "string",
+      "minLength": 1,
+      "description": "nombre que ve el jugador"
+    },
+    "enemigosCerca": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "enemigos de las salas cerca de la entrada (ids de src/js/01b-enemigos/); repetir un id lo hace más frecuente"
+    },
+    "enemigosLejos": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "description": "enemigos de las salas del fondo (ids de src/js/01b-enemigos/)"
+    },
+    "jefe": {
+      "type": "string",
+      "description": "jefe del piso (id de src/js/01e-jefes/)"
+    },
+    "elites": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "probabilidad de que cada enemigo salga élite (0.1 = 10 %)"
+    },
+    "terror": {
+      "type": "boolean",
+      "description": "más oscuridad, latidos con poca vida y música de miedo"
+    },
+    "luz": {
+      "type": "object",
+      "properties": {
+        "clara": {
+          "type": "number",
+          "minimum": 0,
+          "description": "radio totalmente iluminado alrededor del jugador"
+        },
+        "hastaNoche": {
+          "type": "number",
+          "minimum": 0,
+          "description": "radio donde ya es noche"
+        },
+        "oscuridad": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "lo oscura que es la noche (0 a 1)"
+        }
+      },
+      "required": [
+        "clara",
+        "hastaNoche",
+        "oscuridad"
+      ],
+      "additionalProperties": false,
+      "description": "luz alrededor del jugador"
+    },
+    "musica": {
+      "type": "object",
+      "properties": {
+        "nota": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 127,
+          "description": "nota base (número MIDI)"
+        },
+        "tempo": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 300,
+          "description": "pulsos por minuto"
+        }
+      },
+      "required": [
+        "nota",
+        "tempo"
+      ],
+      "additionalProperties": false,
+      "description": "música del piso"
+    },
+    "colores": {
+      "type": "object",
+      "properties": {
+        "sueloA": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color base del suelo (#rrggbb)"
+        },
+        "sueloB": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "segundo color del suelo (se alterna con sueloA) (#rrggbb)"
+        },
+        "grietas": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de las grietas del suelo (#rrggbb)"
+        },
+        "manchas": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de las manchas del suelo (#rrggbb)"
+        },
+        "muroArriba": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "cara de arriba de los muros (#rrggbb)"
+        },
+        "muroFrente": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "cara frontal de los muros (#rrggbb)"
+        },
+        "muroBorde": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "borde de los muros (#rrggbb)"
+        }
+      },
+      "required": [
+        "sueloA",
+        "sueloB",
+        "grietas",
+        "manchas",
+        "muroArriba",
+        "muroFrente",
+        "muroBorde"
+      ],
+      "additionalProperties": false,
+      "description": "colores del suelo y de los muros"
+    },
+    "ambiente": {
+      "type": "object",
+      "properties": {
+        "antorchas": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de las antorchas"
+        },
+        "brillo": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de los brillos"
+        },
+        "estandartes": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de los estandartes"
+        },
+        "plantas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+            "description": "color: #rrggbb o rgba(r,g,b,a)"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "plantas: [color oscuro, color claro]"
+        },
+        "flores": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de las flores"
+        },
+        "charcos": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de los charcos"
+        },
+        "particulas": {
+          "enum": [
+            "polvo",
+            "esporas",
+            "brasas",
+            "nieve",
+            "luciernagas",
+            "chispas",
+            "petalos"
+          ],
+          "description": "partículas que flotan"
+        },
+        "vineta": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de la viñeta de los bordes"
+        },
+        "antorchaCada": {
+          "type": "number",
+          "minimum": 1,
+          "description": "cada cuántas casillas hay una antorcha en el muro de arriba"
+        },
+        "telaranas": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de telarañas"
+        },
+        "enredaderas": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "probabilidad de enredaderas"
+        },
+        "densidadBordes": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "cuánta decoración hay junto a los muros"
+        },
+        "densidadCentro": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "cuánta decoración hay en el resto del suelo"
+        },
+        "bordes": {
+          "type": "object",
+          "description": "decoración junto a los muros: tipo y peso (más peso = más frecuente)",
+          "propertyNames": {
+            "enum": [
+              "huesos",
+              "velas",
+              "cristales",
+              "musgo",
+              "hierba",
+              "charcos",
+              "runas",
+              "hongos",
+              "espinas",
+              "escarcha",
+              "lava",
+              "flores",
+              "vidrios",
+              "rosas"
+            ]
+          },
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "centro": {
+          "type": "object",
+          "description": "decoración del resto del suelo: tipo y peso",
+          "propertyNames": {
+            "enum": [
+              "huesos",
+              "velas",
+              "cristales",
+              "musgo",
+              "hierba",
+              "charcos",
+              "runas",
+              "hongos",
+              "espinas",
+              "escarcha",
+              "lava",
+              "flores",
+              "vidrios",
+              "rosas"
+            ]
+          },
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "required": [
+        "antorchas",
+        "brillo",
+        "estandartes",
+        "plantas",
+        "flores",
+        "charcos",
+        "particulas",
+        "vineta",
+        "antorchaCada",
+        "telaranas",
+        "enredaderas",
+        "densidadBordes",
+        "densidadCentro",
+        "bordes",
+        "centro"
+      ],
+      "additionalProperties": false,
+      "description": "decoración del piso"
+    }
+  },
+  "required": [
+    "piso",
+    "nombre",
+    "enemigosCerca",
+    "enemigosLejos",
+    "jefe",
+    "elites",
+    "terror",
+    "luz",
+    "musica",
+    "colores",
+    "ambiente"
+  ],
+  "additionalProperties": false
+}
