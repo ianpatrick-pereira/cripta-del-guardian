@@ -1,4 +1,7 @@
 // Jefe del piso 3: El Devorador de Luz
+import { TAU, angTo } from '../01-utilidades.js';
+import { defBoss } from '../01a-registro.js';
+import { G } from '../07-estado.js';
 defBoss('devourer', {
   orden: 3,
   datos: { name: 'El Devorador de Luz', hp: 1250, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,

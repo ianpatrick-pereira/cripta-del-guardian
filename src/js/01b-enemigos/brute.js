@@ -1,3 +1,11 @@
+import { ctx } from '../00-inicio.js';
+import { angTo, rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { moveEnt, pushOutProps } from '../08-colisiones.js';
+import { burst, damageProp, shake } from '../09-efectos.js';
+import { flankPoint, hazard, leadAng, takeToken } from '../14-enemigos.js';
 defEnemy('brute', {
   orden: 6,
   stats: { hp: 15, r: 17, speed: 58, dmg: 2, spr: 'brute', s: 2.6 },

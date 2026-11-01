@@ -1,4 +1,8 @@
 // Hoz arrojadiza
+import { TAU } from '../01-utilidades.js';
+import { defWeapon } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { espLv, throwIt, thrownOut } from '../12-armas-con-estilo-propio.js';
 defWeapon('sickle', {
   orden: 39,
   datos: { name: 'Hoz arrojadiza', type: 'bow', style: 'sickle', shape: 'sickle', rarity: 'rare', dmg: 3, cd: .6, speed: 480, pierce: 99, shots: 1, en: 3, chg: 'reap', chgEn: 18 },

@@ -1,4 +1,16 @@
 // ================= Forja =================
+import { $ } from './00-inicio.js';
+import { esc } from './01-utilidades.js';
+import { RARITY, applyW, weaponStats } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { sfx } from './05-audio.js';
+import { G } from './07-estado.js';
+import { later, showBanner } from './09-efectos.js';
+import { keys, mouse, touch } from './10-entrada.js';
+import { STYLE, elAbDesc, elAbName } from './12-armas-con-estilo-propio.js';
+import { ach } from './21-logros-y-bestiario.js';
+import { ELEMS, EL_ORDER } from './23-elementos.js';
+import { updateAdapt } from './25-enemigos-que-se-adaptan.js';
 const FORGE = {
   dmg:  { n: 'Filo',       d: '+8 % de daño' },
   rate: { n: 'Cadencia',   d: 'ataca un 10 % más rápido' },
@@ -69,3 +81,4 @@ function forgeBuy(i, k) {
 function closeForge() { if (G.choice && G.choice.forge) G.choice = null; $('ovForge').hidden = true; updateAdapt(false); }
 $('btnForgeClose').addEventListener('click', closeForge);
 
+export { closeForge, forgeBuy, openForge };

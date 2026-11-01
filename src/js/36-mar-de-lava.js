@@ -1,5 +1,11 @@
 // ================= Mar de lava: lo que rodea la mazmorra =================
 // textura de 256 px que se repite sin costuras; se dibuja una vez y luego solo se desplaza
+import { ctx } from './00-inicio.js';
+import { CRACK, DOOR, FLOOR, MH, MW, TAU, TILE, VOID, WALL, clamp, hash, rand } from './01-utilidades.js';
+import { FLOORS } from './03-datos-del-juego.js';
+import { G } from './07-estado.js';
+import { gfxLevel, zoom } from './34-dibujo.js';
+import { AMB, flame, hexA } from './35-ambiente.js';
 const LAVA_T = 256;
 const lavaTex = (() => {
   const c = document.createElement('canvas'); c.width = c.height = LAVA_T;
@@ -259,3 +265,4 @@ function drawTiles(vx0, vy0, vx1, vy1) {
 }
 function drawShadow(x, y, r) { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x, y + r * .8, r * .9, r * .35, 0, 0, TAU); ctx.fill(); }
 
+export { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles, radSprite };

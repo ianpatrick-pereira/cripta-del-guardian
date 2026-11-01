@@ -1,3 +1,8 @@
+import { angTo, rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { enemyShoot, flankPoint, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('spider', {
   orden: 7,
   stats: { hp: 6, r: 12, speed: 210, dmg: 1, spr: 'spider', s: 2 },

@@ -1,4 +1,10 @@
 // ================= Datos del juego =================
+import { DATOS } from '../datos/index.js';
+import { BOSS_DEFS, ENEMIES, WEAPON_DEFS, bossList, enemyList, weaponList } from './01a-registro.js';
+import { SAVE } from './04-guardado.js';
+import { G, rc } from './07-estado.js';
+import { STYLE, elAbName } from './12-armas-con-estilo-propio.js';
+import { ELEMS } from './23-elementos.js';
 const RARITY = {
   common:   { n: 'Común',      c: '#bdb6a8' },
   uncommon: { n: 'Poco común', c: '#6cc46a' },
@@ -179,3 +185,9 @@ const OLEADAS = DATOS.oleadas, BOTIN = DATOS.botin;
 const BOSSES = {};
 for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setCUR_CHAR(v) { return (CUR_CHAR = v); }
+
+export { BOSSES, BOTIN, CHARS, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, OLEADAS, RARITY, RELICS, RORDER, START_COST,
+  STAR_MUL, UPG, W, WEAPONS, applyW, chgName, cu, mkW, rollStars, rollWeapon, setCUR_CHAR, starterW,
+  weaponStats };

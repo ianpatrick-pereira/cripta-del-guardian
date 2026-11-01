@@ -1,4 +1,5 @@
 // Subjefe del piso 7: Obispo de Ceniza
+import { defSub } from '../01a-registro.js';
 defSub('ashbishop', {
   piso: 7,
   datos: { name: 'Obispo de Ceniza', spr: 'priest', s: 3.6, r: 22, hp: 1050, speed: 80, tint: '#c77dff', minion: 'phantom', want: 220,

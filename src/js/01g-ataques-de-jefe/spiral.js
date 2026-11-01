@@ -1,4 +1,9 @@
 // Ataque de jefe: spiral
+import { TAU } from '../01-utilidades.js';
+import { defBossMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { enemyShoot } from '../14-enemigos.js';
+import { bossIdle } from '../16-jefes.js';
 defBossMove('spiral', {
   hacer(e, dt, c) {
     e.timer += dt;

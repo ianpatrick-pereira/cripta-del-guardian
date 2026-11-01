@@ -1,5 +1,8 @@
 // ================= Enemigos que se adaptan a tu arsenal =================
 // cuanto más fuerte tu mejor arma respecto a lo esperado en el piso, más duros los enemigos
+import { DIFFS, RORDER } from './03-datos-del-juego.js';
+import { G } from './07-estado.js';
+import { addText } from './09-efectos.js';
 const EXPECT = [0, 2.0, 2.8, 3.6];
 function arsenalPower() {
   let best = 0;
@@ -16,3 +19,4 @@ function updateAdapt(announce) {
   if (announce && lvl > old + .3) addText(G.player.x, G.player.y - 40, 'Los enemigos se adaptan a tu arsenal', '#d4474b', 13);
 }
 
+export { updateAdapt };

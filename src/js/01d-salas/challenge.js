@@ -1,4 +1,12 @@
 // Sala de desafío
+import { ctx } from '../00-inicio.js';
+import { TAU, pick, rand } from '../01-utilidades.js';
+import { defRoom } from '../01a-registro.js';
+import { D, FLOORS } from '../03-datos-del-juego.js';
+import { sfx } from '../05-audio.js';
+import { G, freeSpot } from '../07-estado.js';
+import { burst, shake, showBanner } from '../09-efectos.js';
+import { ach } from '../21-logros-y-bestiario.js';
 defRoom('challenge', {
   orden: 1,
   objeto: 'trial',

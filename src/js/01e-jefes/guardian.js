@@ -1,4 +1,6 @@
 // Jefe del piso 1: El Guardián de la Cripta
+import { TAU } from '../01-utilidades.js';
+import { defBoss } from '../01a-registro.js';
 defBoss('guardian', {
   orden: 1,
   datos: { name: 'El Guardián de la Cripta', hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,

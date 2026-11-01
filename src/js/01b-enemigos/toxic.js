@@ -1,3 +1,7 @@
+import { rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { G } from '../07-estado.js';
+import { mkEnemy } from '../14-enemigos.js';
 defEnemy('toxic', {
   orden: 2,
   stats: { hp: 7, r: 13, speed: 80, dmg: 1, spr: 'toxic', s: 2 },

@@ -5,10 +5,11 @@ Roguelike de mazmorras en 2D con vista desde arriba que se juega en el navegador
 **Jugar:** en https://ianpatrick-pereira.github.io/cripta-del-guardian/ (se actualiza sola cada vez que un cambio entra en `main` y pasa las pruebas), o abre `cripta.html` en el navegador.
 
 ```
-npm install          # solo la primera vez (instala Playwright para las pruebas)
+npm install          # solo la primera vez (instala Playwright y las herramientas del build)
 npx playwright install chromium
+npm run dev          # servidor de desarrollo: http://localhost:8000, se recarga solo al guardar
 npm run build        # une src/ en cripta.html
-npm test             # 30 pruebas automáticas (~1 minuto)
+npm test             # 32 pruebas automáticas (~1 minuto)
 ```
 
 Cada push y cada pull request ejecuta las pruebas en GitHub Actions (`.github/workflows/pruebas.yml`).
@@ -21,10 +22,12 @@ Desde la v0.31 hay pruebas automáticas en `pruebas/`.
 Desde la v0.32 cada jefe, subjefe y ataque de jefe también es un archivo propio.
 Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/datos/`: se diseñan sin tocar código.
 Desde la v0.34 también la decoración de cada piso y los dos finales; y hay herramientas para medir el balance y el rendimiento.
+Desde la v0.38 cada archivo de `src/js/` es un módulo ES: declara con `import` lo que usa y con `export` lo que ofrece; y `npm run dev` recarga el juego al guardar.
 
 ```
 ./
-├── build.js          une src/ en cripta.html
+├── build.js          revisa los módulos de src/ y los une en cripta.html
+├── dev.js            servidor de desarrollo con recarga automática
 ├── cripta.html       el juego listo para publicar (generado)
 ├── pruebas/          probar.js (el bot y las pruebas) y referencia.json (cómo jugaron las partidas)
 └── src/
@@ -45,7 +48,7 @@ Desde la v0.34 también la decoración de cada piso y los dos finales; y hay her
 
 ## Flujo para cualquier cambio
 
-1. Edita el archivo que toca en `src/`.
+1. Arranca `npm run dev` y abre http://localhost:8000. Edita el archivo que toca en `src/`: al guardar, el juego se recarga solo (si algo no cuadra, el error sale en el navegador).
 2. Ejecuta `node build.js` → regenera `cripta.html`.
 3. Ejecuta `node pruebas/probar.js` (1 minuto aprox.). No publiques si alguna prueba sale con ✗.
 4. Publica `cripta.html` como siempre.
@@ -107,8 +110,11 @@ La explicación de cada campo está al principio de `01a-registro.js`.
 
 ## Reglas
 
-- Los archivos se unen en orden por su número (00, 01, 01a, 01b...) y comparten el mismo ámbito. Una carpeta numerada se une en su lugar con sus archivos en orden alfabético.
-- `00-inicio.js` abre la función que envuelve todo y `39-menus.js` la cierra. Un módulo nuevo se numera entre ambos.
+- Cada archivo es un módulo: si usa algo de otro archivo, lo importa (`import { G, newRun } from './07-estado.js';`), y si otro archivo lo necesita, lo exporta (`export { ... };` al final). El build avisa si falta un import, si importas algo que no existe o si escribes un nombre mal, con el archivo, la línea y el arreglo.
+- Un import es de solo lectura: otro archivo no puede hacer `paused = true`. Las pocas variables que se cambian desde fuera traen su función (`setPaused(true)`, `setQL(...)`) junto a su declaración.
+- Los datos de `src/datos/` se importan con `import { DATOS } from '../datos/index.js';` (ese archivo no existe en disco: lo crea el build).
+- Se usa solo `import { a, b } from './archivo.js'` y `export { a, b }` o `export function`/`export const` (sin `default`, `*` ni `as`). Si usas algo nuevo del navegador (por ejemplo `fetch`), añádelo a `GLOBALES` en `build.js`.
+- Los archivos se ejecutan en orden por su número (00, 01, 01a, 01b...), como antes: el build quita los import/export y los une dentro de una función. Una carpeta numerada se une en su lugar con sus archivos en orden alfabético. Un archivo nuevo entra solo según su número. No se usa un empaquetador como esbuild a propósito: reordena los archivos según quién importa a quién y cambia `const` por `var`, así que con tantas dependencias cruzadas un valor podría leerse antes de existir y quedar `undefined` sin ningún aviso.
 - Las carpetas de contenido (`01b` a `01h`) se cargan antes que el motor: sus archivos solo deben llamar a `defEnemy`, `defWeapon`, `defRoom`, `defBoss`, `defSub`, `defBossMove` o `defSubMove` (o declarar funciones), nunca ejecutar código del juego al cargar.
 - Si cambias la forma de lo que se guarda (partida en curso, progreso), sube `SAVE_VER` en `04-guardado.js` y añade el paso en `SAVE_MIGRA`. Una partida en curso incompatible se descarta; las gemas y el progreso nunca.
 - Dos hilos pueden trabajar a la vez si tocan archivos distintos; ambos deben ejecutar `build.js` al terminar.

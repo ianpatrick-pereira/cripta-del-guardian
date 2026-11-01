@@ -1,4 +1,15 @@
 // ================= Salas =================
+import { FLOOR, MH, MW, TAU, TILE, pick, rand } from './01-utilidades.js';
+import { BOSSES, BOTIN, D, ENEMY, FLOORS, OLEADAS } from './03-datos-del-juego.js';
+import { noise, sfx } from './05-audio.js';
+import { G, freeSpot } from './07-estado.js';
+import { hitsWall, roomAt } from './08-colisiones.js';
+import { addText, burst, later, shake, showBanner } from './09-efectos.js';
+import { mkEnemy } from './14-enemigos.js';
+import { SUBS } from './15-subjefes.js';
+import { noteFor } from './20-historia.js';
+import { updateAdapt } from './25-enemigos-que-se-adaptan.js';
+import { dareClear, dareStart } from './28-desafios-dentro-del-piso.js';
 function spawnWave(room) {
   const fl = FLOORS[G.fi];
   // las cantidades se ajustan en src/datos/oleadas.jsonc
@@ -96,3 +107,4 @@ function updateRooms(dt) {
   }
 }
 
+export { updateRooms };

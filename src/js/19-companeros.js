@@ -1,4 +1,14 @@
 // ================= Compañeros =================
+import { ctx } from './00-inicio.js';
+import { TAU, angTo, dist } from './01-utilidades.js';
+import { sfx } from './05-audio.js';
+import { G, rc } from './07-estado.js';
+import { moveEnt, roomAt } from './08-colisiones.js';
+import { addText } from './09-efectos.js';
+import { nearestEnemy } from './11-jugador.js';
+import { armorSh } from './13-armadura.js';
+import { hurtEnemy } from './14-enemigos.js';
+import { drawShadow } from './36-mar-de-lava.js';
 const PETS = {
   owl:   { n: 'Búho vigía',   d: 'Vuela a tu lado y dispara a los enemigos cercanos.', cost: 3, c: '#c9a46a' },
   wolf:  { n: 'Lobo sombrío', d: 'Persigue y muerde a los enemigos de la sala.',       cost: 5, c: '#a8a0c0' },
@@ -59,3 +69,4 @@ function drawPet() {
   }
 }
 
+export { PETS, drawPet, mkPet, updatePet };

@@ -1,4 +1,6 @@
 // ================= Reto diario =================
+import { SAVE, selChar, setSelChar } from './04-guardado.js';
+import { G, buildFloor0, newRun } from './07-estado.js';
 let DAILY = null;
 const todayStr = () => new Date().toISOString().slice(0, 10);
 function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -16,8 +18,12 @@ function startDaily() {
   // el reto es igual para todos: sin mejoras del altar, compañero ni arma inicial, en dificultad normal
   const keep = { upg: SAVE.upg, pet: SAVE.pet, startW: SAVE.startW, diff: SAVE.diff };
   Object.assign(SAVE, { upg: { hp: 0, coin: 0, en: 0 }, pet: '', startW: '', diff: 'normal' });
-  selChar = I.char; newRun(I.char);
+  setSelChar(I.char); newRun(I.char);
   Object.assign(SAVE, keep);
   G.daily = I.date;
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setDAILY(v) { return (DAILY = v); }
+
+export { DAILY, buildFloor, dailyInfo, dailyScore, setDAILY, startDaily };

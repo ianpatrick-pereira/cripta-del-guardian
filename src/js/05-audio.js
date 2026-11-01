@@ -1,4 +1,8 @@
 // ================= Audio =================
+import { pick } from './01-utilidades.js';
+import { FLOORS } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { G, paused, started } from './07-estado.js';
 let AC = null, muted = false, noiseBuf = null;
 function sfx(f, d = .08, type = 'square', v = .04, slide = 0) {
   if (!AC || muted) return;
@@ -45,3 +49,8 @@ function musicTick() {
   }
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setAC(v) { return (AC = v); }
+function setMuted(v) { return (muted = v); }
+
+export { AC, musicTick, muted, noise, setAC, setMuted, sfx };

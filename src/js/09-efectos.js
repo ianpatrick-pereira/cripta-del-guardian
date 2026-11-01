@@ -1,4 +1,11 @@
 // ================= Efectos =================
+import { CRACK, FLOOR, MH, MW, TAU, TILE, angTo, dist, rand, randi } from './01-utilidades.js';
+import { BOTIN } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { noise, sfx } from './05-audio.js';
+import { G, rc } from './07-estado.js';
+import { hurtPlayer } from './13-armadura.js';
+import { dropCoin, hurtEnemy } from './14-enemigos.js';
 function burst(x, y, color, n = 8, sp = 140, size = 3, life = .45) {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * TAU, s = rand(sp * .3, sp);
@@ -53,3 +60,4 @@ function damageProp(o, d) {
   if (Math.random() < BC.llave) G.pickups.push({ kind: 'key', x: o.x, y: o.y });
 }
 
+export { addText, breakCracks, burst, damageProp, explode, later, shake, showBanner };

@@ -1,6 +1,36 @@
 // ================= Menús =================
+import { $ } from './00-inicio.js';
+import { esc } from './01-utilidades.js';
+import { WEAPON_DEFS, roomList } from './01a-registro.js';
+import { BOSSES, CHARS, CUR_CHAR, D, DIFFS, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
+  setCUR_CHAR, starterW, weaponStats } from './03-datos-del-juego.js';
+import { SAVE, selChar, setSelChar, writeSave } from './04-guardado.js';
+import { AC, setAC } from './05-audio.js';
+import { G, newRun, paused, setPaused, setStarted, started } from './07-estado.js';
+import { keys, mouse, setWantAbil, setWantDash, setWantElem, touch, wantAbil, wantDash,
+  wantElem } from './10-entrada.js';
+import { maxBones } from './12-armas-con-estilo-propio.js';
+import { gainRelic, hurtPlayer, interact } from './13-armadura.js';
+import { hurtEnemy, killEnemy, mkEnemy } from './14-enemigos.js';
+import { SUBS } from './15-subjefes.js';
+import { SYNERGIES } from './18-sinergias.js';
+import { PETS } from './19-companeros.js';
+import { NOTES, closeEpilogue, closeNote } from './20-historia.js';
+import { ACH, BEAST, ach } from './21-logros-y-bestiario.js';
+import { resumeRun } from './22-guardar-partida.js';
+import { EL_ORDER } from './23-elementos.js';
+import { closeForge, forgeBuy, openForge } from './24-forja.js';
+import { SPECS, SUB_UNLOCK, gainTalent, offerTalent, setSpec, subLv } from './26-clases.js';
+import { setPact } from './27-pactos-de-piso.js';
+import { GAM_SVG, gamBetVal, gamLeave, gamPick, gamPlace, gamStep, gamTick } from './30-sala-de-apuestas.js';
+import { DAILY, buildFloor, dailyInfo, setDAILY, startDaily } from './31-reto-diario.js';
+import { pickChoice } from './32-eleccion-de-reliquia.js';
+import { relicChips, update } from './33-bucle.js';
+import { GFX_NAME, QL, QL0, resize, setQL, setSlowT, slowT } from './34-dibujo.js';
+import { render } from './38-armadura-visual.js';
+import { renderHistory } from './38b-historial.js';
 function renderMenu() {
-  CUR_CHAR = selChar;
+  setCUR_CHAR(selChar);
   $('charCards').innerHTML = Object.entries(CHARS).map(([id, c]) => {
     const own = SAVE.chars[id];
     return `<button class="card${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
@@ -24,7 +54,7 @@ function renderMenu() {
     // las mejoras de clase de otro personaje se devuelven al cambiar
     for (const [k, u] of Object.entries(UPG)) if (u.cls && u.cls !== id && SAVE.upg[k]) { SAVE.gems += u.cost.slice(0, SAVE.upg[k]).reduce((a, b) => a + b, 0); SAVE.upg[k] = 0; }
     writeSave();
-    selChar = id; renderMenu();
+    setSelChar(id); renderMenu();
   }));
   // compañeros
   $('petCards').innerHTML = [['', { n: 'Ninguno', d: 'Vas solo.', c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)].map(([id, P]) => {
@@ -98,14 +128,14 @@ function renderOpts(id) {
     <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
     <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
-    if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = QL0; slowT = 0; resize(); }
+    if (inp.tagName === 'SELECT') { o.gfx = inp.value; setQL(QL0); setSlowT(0); resize(); }
     else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
   }));
 }
 function setPause(v) {
   if (!started || !G || G.over || G.choice) return;
-  paused = v; $('ovPause').hidden = !v;
+  setPaused(v); $('ovPause').hidden = !v;
   keys.clear(); mouse.down = mouse.right = false; touch.atk = touch.chg = false;
   if (v) {
     renderOpts('pauseOpts');
@@ -119,21 +149,21 @@ function togglePause() { setPause(!paused); }
 function toMenu() {
   if (G && started && !G.keepRun) SAVE.run = null;
   if (G && started && !G.gemsBanked) { SAVE.gems += Math.round(G.gems * D().gem); SAVE.best = Math.max(SAVE.best, G.floor); writeSave(); }
-  $('ovEnd').hidden = true; $('ovEpi').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; paused = false; started = false;
+  $('ovEnd').hidden = true; $('ovEpi').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; setPaused(false); setStarted(false);
   $('touch').hidden = true;
   newRun(selChar);
   renderMenu(); $('ovStart').hidden = false; $('ovStart').scrollTop = 0;
 }
 $('btnStart').addEventListener('click', () => {
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch (_) { AC = null; }
-  $('ovStart').hidden = true; started = true; paused = false;
+  try { setAC(AC || new (window.AudioContext || window.webkitAudioContext)()); AC.resume && AC.resume(); } catch (_) { setAC(null); }
+  $('ovStart').hidden = true; setStarted(true); setPaused(false);
   if (touch.on) $('touch').hidden = false;
-  DAILY = null; newRun(selChar);
+  setDAILY(null); newRun(selChar);
   SAVE.upg = { hp: 0, coin: 0, en: 0 }; SAVE.pet = ''; SAVE.pets = {}; SAVE.startW = ''; writeSave();
 });
 $('btnDaily').addEventListener('click', () => {
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch (_) { AC = null; }
-  $('ovStart').hidden = true; started = true; paused = false;
+  try { setAC(AC || new (window.AudioContext || window.webkitAudioContext)()); AC.resume && AC.resume(); } catch (_) { setAC(null); }
+  $('ovStart').hidden = true; setStarted(true); setPaused(false);
   if (touch.on) $('touch').hidden = false;
   startDaily();
   SAVE.run = G.snap; writeSave();
@@ -143,10 +173,10 @@ $('btnMenu').addEventListener('click', toMenu);
 $('btnSaveQuit').addEventListener('click', () => { if (!G || !G.snap) return; SAVE.run = G.snap; G.keepRun = true; G.gemsBanked = true; writeSave(); toMenu(); });
 $('btnContinue').addEventListener('click', () => {
   if (!SAVE.run) return;
-  try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); AC.resume && AC.resume(); } catch (_) { AC = null; }
-  $('ovStart').hidden = true; started = true; paused = false;
+  try { setAC(AC || new (window.AudioContext || window.webkitAudioContext)()); AC.resume && AC.resume(); } catch (_) { setAC(null); }
+  $('ovStart').hidden = true; setStarted(true); setPaused(false);
   if (touch.on) $('touch').hidden = false;
-  DAILY = SAVE.run.daily ? dailyInfo(SAVE.run.daily) : null;
+  setDAILY(SAVE.run.daily ? dailyInfo(SAVE.run.daily) : null);
   // si la partida guardada no se puede reanudar, se descarta sin tocar las gemas ni el progreso
   try { resumeRun(SAVE.run); } catch (err) { console.warn('Partida guardada incompatible, se descarta', err); SAVE.run = null; writeSave(); if (G) { G.keepRun = true; G.gemsBanked = true; } toMenu(); }
 });
@@ -181,7 +211,7 @@ window.__cripta = {
   starter: id => starterW(id),
   totem(el) { const p = G.player; G.pickups.push({ kind: 'totem', el, x: p.x, y: p.y + 40, rise: 1 }); },
   crystals(n) { for (const el of EL_ORDER) G.crystals[el] = n; },
-  run(id) { DAILY = null; selChar = id; newRun(id); },
+  run(id) { setDAILY(null); setSelChar(id); newRun(id); },
   hit(e, d, a) { hurtEnemy(e, d, a, 0, { src: G.player.slots[G.player.cur], melee: true }); },
   hurt(d) { return hurtPlayer(d); },
   stats: w => weaponStats(w),
@@ -206,9 +236,9 @@ window.__cripta = {
   bot(o) {
     touch.on = true; touch.atk = !!o.atk; touch.chg = !!o.chg;
     if (o.mv) { touch.stickId = 1; touch.ox = touch.oy = 0; touch.x = o.mv[0] * 46; touch.y = o.mv[1] * 46; } else touch.stickId = null;
-    if (o.dash) wantDash = true;
-    if (o.abil) wantAbil = true;
-    if (o.elem) wantElem = true;
+    if (o.dash) setWantDash(true);
+    if (o.abil) setWantAbil(true);
+    if (o.elem) setWantElem(true);
   },
   // cierra cualquier elección abierta tomando la primera opción, para que el bot siga jugando
   resolve() {
@@ -222,4 +252,5 @@ window.__cripta = {
   roomIds: () => roomList(),
   flags: () => ({ paused, started }),
 };
-})();
+
+export { setPause, togglePause };

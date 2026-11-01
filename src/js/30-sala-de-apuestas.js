@@ -1,5 +1,15 @@
 // ================= Sala de apuestas: el juego de las tres cartas =================
 // la cámara se acerca a la mesa, eliges 1 de 3 cartas boca abajo y solo una gana
+import { $, ctx } from './00-inicio.js';
+import { TAU, TILE, pick, rand, randi } from './01-utilidades.js';
+import { SPR } from './02-pixel-art.js';
+import { noise, sfx } from './05-audio.js';
+import { G } from './07-estado.js';
+import { addText, burst, later, shake, showBanner } from './09-efectos.js';
+import { keys, mouse, touch } from './10-entrada.js';
+import { dropCoin } from './14-enemigos.js';
+import { SUBS, mkSub } from './15-subjefes.js';
+import { offerTalent } from './26-clases.js';
 const GAM_LINES = {
   hello: ['¿Te atreves a apostar, mortal?', 'Siéntate… la casa te esperaba', 'Tu oro huele delicioso…'],
   pick:  ['Es hora de escoger…', 'Elige… si te atreves', 'Una carta. Solo una vive…'],
@@ -181,3 +191,5 @@ const GAM_SVG = {
   back: `<svg viewBox="0 0 100 140" aria-hidden="true"><rect x="0" y="0" width="100" height="140" rx="8" fill="#170f22"/><rect x="5" y="5" width="90" height="130" rx="5" fill="none" stroke="#7a3fbf" stroke-width="1.5"/><rect x="9" y="9" width="82" height="122" rx="3" fill="none" stroke="#3a2456" stroke-width="1"/><g fill="#0b0712" stroke="#4a2e70" stroke-width="1"><path d="M14 132V108a8 8 0 0 1 16 0v24z"/><path d="M34 132V104a8 8 0 0 1 16 0v28z"/><path d="M54 132V104a8 8 0 0 1 16 0v28z"/><path d="M74 132V108a8 8 0 0 1 12 0v24z"/><path d="M22 96V80a6 6 0 0 1 12 0v16z"/><path d="M44 96V78a6 6 0 0 1 12 0v18z"/><path d="M66 96V80a6 6 0 0 1 12 0v16z"/></g><g fill="#9b6dd6" opacity=".7"><circle cx="42" cy="118" r="2.2"/><circle cx="62" cy="118" r="2.2"/><circle cx="50" cy="88" r="1.8"/><circle cx="28" cy="88" r="1.6"/><circle cx="72" cy="88" r="1.6"/></g><text x="50" y="34" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Cripta del</text><text x="50" y="52" text-anchor="middle" font-family="Grenze Gotisch, serif" font-size="15" fill="#d8b8ff">Guardián</text><path d="M30 60h40" stroke="#7a3fbf" stroke-width="1"/><path d="M50 56l3 4-3 4-3-4z" fill="#b98cff"/></svg>`,
 };
 
+export { GAM_SVG, cheatDefeated, drawCheatForm, drawCheatRoom, gamBetVal, gamEase, gamLeave, gamPick,
+  gamPlace, gamStep, gamTick, startGamble };

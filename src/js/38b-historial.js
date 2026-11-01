@@ -1,6 +1,11 @@
 // ================= Historial de partidas =================
 // Al terminar cada partida se guarda un resumen (las últimas 50). El menú muestra patrones:
 // en qué piso caes con cada clase y qué te mata más.
+import { $ } from './00-inicio.js';
+import { esc } from './01-utilidades.js';
+import { CHARS } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { G } from './07-estado.js';
 const HIST_MAX = 50;
 function saveHistory(won) {
   const p = G.player, w = p.slots[p.cur];
@@ -28,3 +33,5 @@ function renderHistory() {
   for (const x of H.slice(0, 8)) out.push(`<div class="${x.gano ? '' : 'off'}"><b>${x.gano ? '✓ ' : ''}${esc(CHARS[x.clase] ? CHARS[x.clase].name : x.clase)} · piso ${x.piso}</b>${mmss(x.tiempo)} · ${x.bajas} bajas${x.arma ? ' · ' + esc(x.arma) : ''}${x.causa ? ' · te derrotó: ' + esc(x.causa) : ''}</div>`);
   $('histList').innerHTML = out.join('');
 }
+
+export { renderHistory, saveHistory };

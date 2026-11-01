@@ -1,4 +1,12 @@
 // ================= Elección de reliquia =================
+import { $ } from './00-inicio.js';
+import { esc } from './01-utilidades.js';
+import { RELICS } from './03-datos-del-juego.js';
+import { G } from './07-estado.js';
+import { keys, mouse, touch } from './10-entrada.js';
+import { gainRelic } from './13-armadura.js';
+import { SPECS, TALENTS, gainTalent, setSpec } from './26-clases.js';
+import { PACTS, setPact } from './27-pactos-de-piso.js';
 function openChoice(eyebrow, title, ids, done, kind = 'relic') {
   ids = ids.filter(Boolean);
   if (!ids.length) { done(); return; }
@@ -21,3 +29,4 @@ function pickChoice(i) {
   c.done();
 }
 
+export { openChoice, pickChoice };

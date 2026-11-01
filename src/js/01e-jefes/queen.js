@@ -1,4 +1,6 @@
 // Jefe del piso 2: La Reina Tejedora
+import { TAU } from '../01-utilidades.js';
+import { defBoss } from '../01a-registro.js';
 defBoss('queen', {
   orden: 2,
   datos: { name: 'La Reina Tejedora', hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,

@@ -1,5 +1,12 @@
 // ================= Armas: diseño por estrellas, efecto elemental y estelas =================
 // punta del arma (TIP) y dónde empieza la parte que corta o brilla (BASE), en coordenadas del arma
+import { ctx } from './00-inicio.js';
+import { TAU, clamp, rand } from './01-utilidades.js';
+import { G } from './07-estado.js';
+import { ELEMS } from './23-elementos.js';
+import { flame, hexA } from './35-ambiente.js';
+import { radSprite } from './36-mar-de-lava.js';
+import { drawWeapon } from './38-armadura-visual.js';
 const W_TIP = { sword: 38, dagger: 30, great: 46, spear: 46, hammer: 30, scythe: 44, staff: 47, boomer: 16, whip: 26, shield: 18, musket: 40, sickle: 24, book: 20, rod: 40, kunai: 20, katar: 26, twin: 22, claws: 20, shuriken: 20, blowgun: 31, sling: 12, xbow: 22, bow: 16 };
 const W_BASE = { sword: 9, dagger: 9, great: 9, spear: 34, hammer: 20, scythe: 24, staff: 35, boomer: 2, whip: 10, shield: 2, musket: 10, sickle: 8, book: 2, rod: 24, kunai: 8, katar: 8, twin: 5, claws: 6, shuriken: 2, blowgun: 2, sling: 6, xbow: 4, bow: 0 };
 const STAR_COL = ['#bdb6a8', '#6cc46a', '#5aa4e8', '#bb7cf0', '#ffb03a'];
@@ -181,3 +188,7 @@ function swingTrail(p, w, s, prog) {
   if (S === 5 && Math.random() < .6) { const r = rand(R * .4, R * .9), an = rand(a0, a1); G.parts.push({ x: p.x + Math.cos(an) * r, y: p.y + Math.sin(an) * r, vx: 0, vy: -30, life: .4, max: .4, color: '#ffd27a', size: 2 }); }
 }
 
+// Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
+function setWREACT(v) { return (WREACT = v); }
+
+export { STAR_COL, WREACT, drawVfx, elemHitFx, haloSpr, setWREACT, swingTrail, weaponDeco };

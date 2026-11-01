@@ -1,4 +1,15 @@
 // Prisionero
+import { ctx } from '../00-inicio.js';
+import { rand } from '../01-utilidades.js';
+import { defRoom } from '../01a-registro.js';
+import { drawSpr } from '../02-pixel-art.js';
+import { rollWeapon } from '../03-datos-del-juego.js';
+import { SAVE } from '../04-guardado.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { addText, burst } from '../09-efectos.js';
+import { ach } from '../21-logros-y-bestiario.js';
+import { drawShadow } from '../36-mar-de-lava.js';
 defRoom('prisoner', {
   orden: 3,
   objeto: 'prisoner',

@@ -1,4 +1,11 @@
 // Ataque de subjefe: wave
+import { angTo, rand } from '../01-utilidades.js';
+import { defSubMove } from '../01a-registro.js';
+import { noise, sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hitsWall } from '../08-colisiones.js';
+import { enemyShoot } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('wave', {
   hacer(e, dt, c) {
     const { p, S, ph2 } = c;

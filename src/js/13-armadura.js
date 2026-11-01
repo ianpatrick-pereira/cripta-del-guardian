@@ -1,5 +1,25 @@
 // ================= Armadura =================
 // una sola armadura por ahora: su protección sube con las estrellas; no se forja ni usa cristales
+import { ctx } from './00-inicio.js';
+import { TAU, rand, randi } from './01-utilidades.js';
+import { ROOM_OBJ } from './01a-registro.js';
+import { BOTIN, RARITY, RELICS, rollStars, rollWeapon } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { noise, sfx } from './05-audio.js';
+import { G, randomRelics, rc } from './07-estado.js';
+import { addText, burst, later, shake, showBanner } from './09-efectos.js';
+import { dropCoin } from './14-enemigos.js';
+import { syn } from './18-sinergias.js';
+import { openNote } from './20-historia.js';
+import { ach } from './21-logros-y-bestiario.js';
+import { startElemFight } from './23-elementos.js';
+import { openForge } from './24-forja.js';
+import { classHurt, parry } from './26-clases.js';
+import { pact, pactOnDescend } from './27-pactos-de-piso.js';
+import { dareFail } from './28-desafios-dentro-del-piso.js';
+import { buildFloor } from './31-reto-diario.js';
+import { openChoice } from './32-eleccion-de-reliquia.js';
+import { endGame } from './33-bucle.js';
 const ARMOR = { n: 'Coraza del Guardián', sh: [1, 1, 2, 2, 3], block: [0, .08, .12, .18, .25], red: [0, 0, 0, 1, 1] };
 const armorSh = p => p.armor ? ARMOR.sh[p.armor - 1] : 0;
 function armorDesc(s) {
@@ -132,3 +152,4 @@ function hurtPlayer(d, por) {
   return true;
 }
 
+export { ARMOR, armorDesc, armorSh, drawArmor, dropArmor, gainRelic, hurtPlayer, interact, splitShot };

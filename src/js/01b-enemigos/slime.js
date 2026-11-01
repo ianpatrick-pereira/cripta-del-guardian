@@ -1,3 +1,8 @@
+import { TAU, angTo, rand } from '../01-utilidades.js';
+import { defEnemy } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { burst } from '../09-efectos.js';
+import { enemyShoot, flankPoint, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('slime', {
   orden: 1,
   stats: { hp: 5, r: 13, speed: 75, dmg: 1, spr: 'slime', s: 2 },

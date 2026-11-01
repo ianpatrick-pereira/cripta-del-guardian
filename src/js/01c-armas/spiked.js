@@ -1,4 +1,11 @@
 // Escudo de púas
+import { TAU } from '../01-utilidades.js';
+import { defWeapon } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { later } from '../09-efectos.js';
+import { meleeHit } from '../11-jugador.js';
+import { shieldBash } from '../12-armas-con-estilo-propio.js';
 defWeapon('spiked', {
   orden: 37,
   datos: { name: 'Escudo de púas', type: 'melee', style: 'shield', shape: 'shield', rarity: 'uncommon', dmg: 3, cd: .42, range: 48, arc: 1.6, en: 1, chg: 'bash', chgEn: 12 },

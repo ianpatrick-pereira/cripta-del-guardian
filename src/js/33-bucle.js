@@ -1,4 +1,29 @@
 // ================= Bucle =================
+import { $ } from './00-inicio.js';
+import { TAU, TILE, angDiff, angTo, clamp, dist, esc, rand } from './01-utilidades.js';
+import { ROOM_DEFS, roomList } from './01a-registro.js';
+import { D, FLOORS, RELICS } from './03-datos-del-juego.js';
+import { SAVE, writeSave } from './04-guardado.js';
+import { noise, sfx } from './05-audio.js';
+import { G, rc } from './07-estado.js';
+import { moveEnt, solidAt } from './08-colisiones.js';
+import { addText, breakCracks, burst, damageProp, explode, shake, showBanner } from './09-efectos.js';
+import { touch } from './10-entrada.js';
+import { maxEnergy, nearestEnemy, reflect, updatePlayer } from './11-jugador.js';
+import { shieldBlock, updateStyles, updateThrown } from './12-armas-con-estilo-propio.js';
+import { hurtPlayer, splitShot } from './13-armadura.js';
+import { chainHit, elemHit, enemyShoot, hurtEnemy, mkBoss, mkEnemy, quien, updateEnemy,
+  updateFlames } from './14-enemigos.js';
+import { SUBS, mkSub } from './15-subjefes.js';
+import { updateRooms } from './17-salas.js';
+import { updateSyn } from './18-sinergias.js';
+import { updatePet } from './19-companeros.js';
+import { openEpilogue } from './20-historia.js';
+import { ach } from './21-logros-y-bestiario.js';
+import { ELEMS, mkElem, shredShield, updateFlamer, updateTornados } from './23-elementos.js';
+import { updateClass } from './26-clases.js';
+import { dailyScore } from './31-reto-diario.js';
+import { saveHistory } from './38b-historial.js';
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -222,3 +247,4 @@ function update(dt) {
   G.cam.x += (tx - G.cam.x) * k; G.cam.y += (ty - G.cam.y) * k;
 }
 
+export { endGame, relicChips, showEnd, update };

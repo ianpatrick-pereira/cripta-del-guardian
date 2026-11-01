@@ -1,3 +1,4 @@
+import { defEnemy } from '../01a-registro.js';
 defEnemy('mini', {
   orden: 3,
   stats: { hp: 2, r: 8, speed: 115, dmg: 1, spr: 'toxic', s: 1.3 },

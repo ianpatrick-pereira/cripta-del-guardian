@@ -1,4 +1,9 @@
 // Ataque de subjefe: rain
+import { rand } from '../01-utilidades.js';
+import { defSubMove } from '../01a-registro.js';
+import { G } from '../07-estado.js';
+import { hazard } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('rain', {
   hacer(e, dt, c) {
     const { p, S, ph2 } = c;

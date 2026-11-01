@@ -14,3 +14,5 @@ const angDiff = (a, b) => { let d = (b - a) % TAU; if (d > Math.PI) d -= TAU; if
 const hash = (x, y) => { let h = x * 374761393 + y * 668265263; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967295; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+export { CELL_H, CELL_W, CRACK, DOOR, FLOOR, GRID, MH, MW, TAU, TILE, VOID, WALL, angDiff, angTo, clamp, dist,
+  esc, hash, pick, rand, randi, shuffle };

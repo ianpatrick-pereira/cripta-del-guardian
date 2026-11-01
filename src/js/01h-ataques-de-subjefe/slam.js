@@ -1,4 +1,7 @@
 // Ataque de subjefe: slam
+import { defSubMove } from '../01a-registro.js';
+import { hazard } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('slam', {
   hacer(e, dt, c) {
     const { S, ph2 } = c;

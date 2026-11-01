@@ -1,4 +1,12 @@
 // Ataque de subjefe: charge3
+import { ctx } from '../00-inicio.js';
+import { rand } from '../01-utilidades.js';
+import { defSubMove } from '../01a-registro.js';
+import { sfx } from '../05-audio.js';
+import { moveEnt, pushOutProps } from '../08-colisiones.js';
+import { burst, damageProp, shake } from '../09-efectos.js';
+import { enemyShoot, leadAng } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('charge3', {
   hacer(e, dt, c) {
     const { ph2 } = c;

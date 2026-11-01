@@ -1,4 +1,9 @@
 // ================= Pactos de piso: una maldición a cambio de una bendición =================
+import { sfx } from './05-audio.js';
+import { G, randomRelics } from './07-estado.js';
+import { burst, later, showBanner } from './09-efectos.js';
+import { gainRelic } from './13-armadura.js';
+import { openChoice } from './32-eleccion-de-reliquia.js';
 const PACTS = {
   volatile: { n: 'Cadáveres volátiles', c: '#ff8a3a', d: 'Maldición: los enemigos explotan al morir (cuidado con estar cerca). Bendición: +50 % de oro.' },
   glass:    { n: 'Cuerpo de cristal',   c: '#9bd8ff', d: 'Maldición: no tienes escudo en este piso. Bendición: el doble de probabilidad de crítico.' },
@@ -29,3 +34,4 @@ function pactOnDescend() {
   if (pact('fasting')) { p.maxHp += 2; p.hp += 2; }
 }
 
+export { PACTS, offerPact, pact, pactOnDescend, setPact };

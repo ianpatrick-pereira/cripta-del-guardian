@@ -1,4 +1,16 @@
 // ================= Elementos =================
+import { ctx } from './00-inicio.js';
+import { TAU, TILE, angTo, clamp, dist, pick, rand } from './01-utilidades.js';
+import { D } from './03-datos-del-juego.js';
+import { noise, sfx } from './05-audio.js';
+import { G, freeSpot, rc } from './07-estado.js';
+import { moveEnt, roomAt, solidAt } from './08-colisiones.js';
+import { addText, breakCracks, burst, later, shake, showBanner } from './09-efectos.js';
+import { dmgMul } from './11-jugador.js';
+import { elAbName, styleElem } from './12-armas-con-estilo-propio.js';
+import { armorSh } from './13-armadura.js';
+import { hurtEnemy } from './14-enemigos.js';
+import { drawShadow } from './36-mar-de-lava.js';
 const ELEMS = {
   fire:  { n: 'Fuego',  c: '#ff6a3a', ab: 'Lanzallamas', abd: 'Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.',
            hitd: 'te quema y deja el suelo ardiendo',
@@ -177,3 +189,5 @@ function drawCrystal(x, y, c, s = 1) {
   ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillRect(x - 1.5 * s, y - 5 * s, 2 * s, 4 * s);
 }
 
+export { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem, elemAbility, elemBlast, mkElem,
+  shredShield, startElemFight, totemElement, updateFlamer, updateTornados };

@@ -1,4 +1,13 @@
 // ================= Historia: notas del diario =================
+import { DATOS } from '../datos/index.js';
+import { $ } from './00-inicio.js';
+import { esc } from './01-utilidades.js';
+import { SAVE, writeSave } from './04-guardado.js';
+import { sfx } from './05-audio.js';
+import { G } from './07-estado.js';
+import { keys, mouse, touch } from './10-entrada.js';
+import { ach } from './21-logros-y-bestiario.js';
+import { showEnd } from './33-bucle.js';
 const NOTES = [
   { t: 'Diario de Aldric · día 1', b: 'Mi hermana Elena bajó a la cripta hace tres lunas. En el pueblo dicen que nadie vuelve. Yo volveré, y la traeré conmigo.' },
   { t: 'Garabato en la pared', b: 'EL GUARDIÁN NO PROTEGE LA CRIPTA. PROTEGE AL MUNDO DE LO QUE HAY ABAJO.' },
@@ -40,3 +49,4 @@ function openEpilogue() {
 function closeEpilogue() { $('ovEpi').hidden = true; showEnd(); }
 function closeNote() { if (G.choice && G.choice.note) G.choice = null; $('ovNote').hidden = true; }
 
+export { NARRATOR, NOTES, closeEpilogue, closeNote, noteFor, openEpilogue, openNote };

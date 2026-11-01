@@ -1,4 +1,10 @@
 // Ataque de subjefe: whirl
+import { TAU, angTo, rand } from '../01-utilidades.js';
+import { defSubMove } from '../01a-registro.js';
+import { G } from '../07-estado.js';
+import { moveEnt } from '../08-colisiones.js';
+import { enemyShoot } from '../14-enemigos.js';
+import { subIdle } from '../15-subjefes.js';
 defSubMove('whirl', {
   hacer(e, dt, c) {
     const { p, S } = c;

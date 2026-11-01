@@ -1,4 +1,9 @@
 // ================= Sinergias =================
+import { SAVE } from './04-guardado.js';
+import { sfx } from './05-audio.js';
+import { G, rc } from './07-estado.js';
+import { showBanner } from './09-efectos.js';
+import { ach } from './21-logros-y-bestiario.js';
 const hasFx = f => G.player.slots.some(w => w.fx === f);
 const SYNERGIES = [
   { id: 'infierno', n: 'Infierno',            c: '#ff8a3a', r: 'Arma de fuego + Pólvora negra',            d: 'Los enemigos en llamas explotan al morir.',                 ok: () => hasFx('burn') && rc('polvora') },
@@ -20,3 +25,4 @@ function updateSyn() {
   G.syn = now;
 }
 
+export { SYNERGIES, syn, updateSyn };

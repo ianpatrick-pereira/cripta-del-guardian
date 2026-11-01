@@ -1,4 +1,6 @@
 // ================= Pixel art =================
+import { ctx } from './00-inicio.js';
+import { ENEMIES } from './01a-registro.js';
 const MAPS = {
   knight: ['.....oo.....', '....kook....', '...kssssk...', '..kssssssk..', '..ksvvvvsk..', '..kssssssk..', '...kkkkkk...',
            '..kaaaaaak..', '.rkaabbaakr.', '.rkaaaaaakr.', '..kaaaaaak..', '...kl..lk...', '...kl..lk...', '...kk..kk...'],
@@ -57,3 +59,4 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   ctx.restore();
 }
 
+export { MAPS, SPR, SPR_DEFS, drawSpr };

@@ -1,4 +1,12 @@
 // Sala espejo
+import { ctx } from '../00-inicio.js';
+import { defRoom } from '../01a-registro.js';
+import { drawSpr } from '../02-pixel-art.js';
+import { mkW } from '../03-datos-del-juego.js';
+import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { burst, shake, showBanner } from '../09-efectos.js';
+import { mkEnemy } from '../14-enemigos.js';
 defRoom('mirror', {
   orden: 7,
   objeto: 'mirror',
@@ -41,3 +49,5 @@ function mirrorDefeated(e) {
   G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: mkW(e.mw.id, st), bob: 0 });
   showBanner('El reflejo se rompe', '#c77dff', `Copia de tu arma a ${st}★`);
 }
+
+export { mirrorDefeated };

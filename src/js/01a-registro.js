@@ -73,3 +73,6 @@ function defSub(id, def) { SUB_DEFS[id] = def; }
 const BOSS_MOVES = {}, SUB_MOVES = {};
 function defBossMove(id, def) { BOSS_MOVES[id] = typeof def === 'string' ? BOSS_MOVES[def] : def; }
 function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOVES[def] : def; }
+
+export { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_DEFS, ROOM_OBJ, SUB_DEFS, SUB_MOVES, WEAPON_DEFS, bossList,
+  defBoss, defBossMove, defEnemy, defRoom, defSub, defSubMove, defWeapon, enemyList, roomList, weaponList };

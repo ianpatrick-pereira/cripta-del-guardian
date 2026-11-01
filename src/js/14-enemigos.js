@@ -1,4 +1,23 @@
 // ================= Enemigos =================
+import { TAU, TILE, angDiff, angTo, clamp, dist, rand, randi } from './01-utilidades.js';
+import { ENEMIES } from './01a-registro.js';
+import { mirrorDefeated } from './01d-salas/mirror.js';
+import { BOSSES, BOTIN, D, ENEMY, OLEADAS, rollWeapon } from './03-datos-del-juego.js';
+import { SAVE } from './04-guardado.js';
+import { sfx } from './05-audio.js';
+import { G, freeSpot, rc } from './07-estado.js';
+import { moveEnt, pushOutProps, solidAt } from './08-colisiones.js';
+import { addText, burst, explode, later, shake } from './09-efectos.js';
+import { critChance, dmgMul } from './11-jugador.js';
+import { elemProc } from './12-armas-con-estilo-propio.js';
+import { enemyPace, subDefeated, updateSub } from './15-subjefes.js';
+import { bossDefeated, updateBoss } from './16-jefes.js';
+import { syn } from './18-sinergias.js';
+import { BEAST, ach } from './21-logros-y-bestiario.js';
+import { bestDmg, classHit, classKill, tl } from './26-clases.js';
+import { pact } from './27-pactos-de-piso.js';
+import { cheatDefeated } from './30-sala-de-apuestas.js';
+import { elemHitFx } from './37-armas-visual.js';
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   const fm = 1 + .6 * (G.floor - 1);
@@ -228,3 +247,5 @@ function updateEnemy(e, dt) {
   const f = Math.exp(-10 * dt); e.kx *= f; e.ky *= f;
 }
 
+export { blinkAway, chainHit, dropCoin, elemHit, enemyShoot, flankPoint, hazard, hurtEnemy, killEnemy,
+  leadAng, mkBoss, mkEnemy, quien, takeToken, telegraph, updateEnemy, updateFlames };
