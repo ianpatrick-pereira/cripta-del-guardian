@@ -12,7 +12,7 @@ const RARITY = {
   s5: { n: '★★★★★', c: '#ffb03a' },
 };
 const RORDER = ['common', 'uncommon', 'rare', 'epic'];
-const RWEIGHT = { common: 46, uncommon: 34, rare: 15, epic: 5 };
+const RWEIGHT = DATOS.botin.rarezaArmas;   // se cambia en src/datos/botin.jsonc
 // cada arma vive en su archivo de 01c-armas/; el orden importa para el sorteo de botín
 const WEAPONS = weaponList().map(id => ({ id, ...WEAPON_DEFS[id].datos }));
 // el ataque cargado evoluciona con las estrellas del arma
@@ -73,7 +73,7 @@ const W = id => mkW(id, 1);
 const START_COST = { common: 2, uncommon: 3, rare: 5, epic: 7 };
 function starterW(id) { const w = mkW(id, 1); w.starter = true; return applyW(w); }
 // probabilidad de cada nivel de estrellas según de dónde sale el arma
-const STAR_W = { enemy: [64, 27, 7, 1.6, .4], chest: [33, 34, 20, 9, 4], gold: [0, 46, 34, 14, 6], shop: [0, 50, 42, 6, 2] };
+const STAR_W = (E => ({ enemy: E.enemigo, chest: E.cofre, gold: E.cofreDorado, shop: E.tienda }))(DATOS.botin.estrellas);   // src/datos/botin.jsonc
 function rollStars(src) {
   const wts = STAR_W[src].slice();
   if (rc('trebol')) for (let i = 2; i < 5; i++) wts[i] *= 1.7;
@@ -165,32 +165,16 @@ function D() { return (G && G.dx) || DIFFS[(G && G.diff) || SAVE.diff] || DIFFS.
 const ENEMY = {};
 for (const id of enemyList()) ENEMY[id] = ENEMIES[id].stats;
 
-const FLOORS = [
-  { name: 'La Cripta', pal: { fa: '#24222e', fb: '#272532', crack: '#1c1a24', wt: '#3f3852', wf: '#2a2438', we: '#5a5070', sp: '#2d2a39' },
-    pool1: ['slime', 'slime', 'bat', 'archer'], pool2: ['slime', 'bat', 'archer', 'archer', 'brute'],
-    boss: 'guardian', light: [150, 560, .72], elite: .10, music: { root: 45, tempo: 96 } },
-  { name: 'Catacumbas Pútridas', pal: { fa: '#1f2622', fb: '#222a25', crack: '#171d19', wt: '#38483b', wf: '#26322a', we: '#55705a', sp: '#29332c' },
-    pool1: ['toxic', 'spider', 'archer', 'mage'], pool2: ['toxic', 'spider', 'mage', 'archer', 'brute'],
-    boss: 'queen', light: [130, 470, .82], elite: .16, music: { root: 40, tempo: 104 } },
-  { name: 'El Abismo', pal: { fa: '#1d1517', fb: '#201719', crack: '#140e10', wt: '#3a2228', wf: '#26161a', we: '#5c2e36', sp: '#2a1b1e' },
-    pool1: ['wraith', 'eye', 'spider', 'bat'], pool2: ['wraith', 'eye', 'mage', 'brute', 'spider'],
-    boss: 'devourer', light: [72, 250, .97], elite: .22, music: { root: 38, tempo: 76, horror: true }, horror: true },
-  { name: 'Osario Helado', pal: { fa: '#1c222c', fb: '#1f2631', crack: '#141920', wt: '#3a4a5e', wf: '#243040', we: '#6a8aa8', sp: '#26303c' },
-    pool1: ['warden', 'archer', 'bat', 'sniper'], pool2: ['warden', 'sniper', 'brute', 'mage', 'spider'],
-    boss: 'ossuary', light: [140, 520, .8], elite: .18, music: { root: 43, tempo: 92 } },
-  { name: 'Forja Hundida', pal: { fa: '#241a14', fb: '#281d16', crack: '#1a120c', wt: '#4a3020', wf: '#2e1e14', we: '#a0582a', sp: '#2e2018' },
-    pool1: ['bomber', 'charger', 'brute', 'bat'], pool2: ['bomber', 'charger', 'warden', 'eye', 'mage'],
-    boss: 'forger', light: [130, 480, .85], elite: .2, music: { root: 41, tempo: 112 } },
-  { name: 'Jardín de Raíces', pal: { fa: '#1a2116', fb: '#1d2519', crack: '#121810', wt: '#34442a', wf: '#22301c', we: '#5a7a3a', sp: '#24301e' },
-    pool1: ['splitter', 'burrower', 'spider', 'toxic'], pool2: ['splitter', 'burrower', 'priest', 'spider', 'charger'],
-    boss: 'rootmother', light: [125, 460, .86], elite: .22, music: { root: 40, tempo: 98 } },
-  { name: 'Catedral Hueca', pal: { fa: '#1e1a24', fb: '#221d28', crack: '#15121a', wt: '#3e3450', wf: '#2a2236', we: '#7a68a0', sp: '#2a2434' },
-    pool1: ['priest', 'phantom', 'sniper', 'wraith'], pool2: ['priest', 'phantom', 'sniper', 'warden', 'eye', 'bomber'],
-    boss: 'bishop', light: [105, 400, .92], elite: .25, music: { root: 37, tempo: 84, horror: true }, horror: true },
-  { name: 'Corazón de Elena', pal: { fa: '#200f12', fb: '#241114', crack: '#16090b', wt: '#4a1a22', wf: '#2e1016', we: '#8a2a3a', sp: '#2c1418' },
-    pool1: ['phantom', 'burrower', 'charger', 'sniper', 'splitter'], pool2: ['phantom', 'burrower', 'charger', 'sniper', 'priest', 'warden', 'bomber', 'eye', 'wraith'],
-    boss: 'elena', light: [72, 260, .97], elite: .28, music: { root: 36, tempo: 72, horror: true }, horror: true },
-];
+// los pisos se diseñan en src/datos/pisos/ (un archivo por piso); aquí se traducen al formato del motor
+const FLOORS = DATOS.pisos.map(d => {
+  const C = d.colores, f = { name: d.nombre, pal: { fa: C.sueloA, fb: C.sueloB, crack: C.grietas, wt: C.muroArriba, wf: C.muroFrente, we: C.muroBorde, sp: C.manchas },
+    pool1: d.enemigosCerca, pool2: d.enemigosLejos, boss: d.jefe, light: [d.luz.clara, d.luz.hastaNoche, d.luz.oscuridad], elite: d.elites,
+    music: { root: d.musica.nota, tempo: d.musica.tempo } };
+  if (d.terror) { f.music.horror = true; f.horror = true; }
+  return f;
+});
+// oleadas y botín: src/datos/oleadas.jsonc y src/datos/botin.jsonc
+const OLEADAS = DATOS.oleadas, BOTIN = DATOS.botin;
 // cada jefe vive en su archivo de 01e-jefes/
 const BOSSES = {};
 for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;

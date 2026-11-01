@@ -1,0 +1,29 @@
+// Botín: qué sueltan enemigos, objetos y cofres. Las probabilidades van de 0 a 1 (0.25 = 25 %).
+// [a, b] significa una cantidad al azar entre a y b.
+{
+  // peso de cada rareza al sortear qué arma sale (más peso = más frecuente)
+  "rarezaArmas": { "common": 46, "uncommon": 34, "rare": 15, "epic": 5 },
+  // peso de 1★, 2★, 3★, 4★ y 5★ según de dónde sale el arma o la armadura.
+  // 4★ y 5★ solo salen desde el piso 3.
+  "estrellas": {
+    "enemigo":     [64, 27, 7, 1.6, 0.4],
+    "cofre":       [33, 34, 20, 9, 4],
+    "cofreDorado": [0, 46, 34, 14, 6],
+    "tienda":      [0, 50, 42, 6, 2]
+  },
+  // al morir un enemigo normal
+  "enemigo": { "monedas": [1, 3], "monedasElite": 3, "energia": 0.25, "pocion": 0.07, "arma": 0.03 },
+  // extra si era élite
+  "elite": { "gema": 0.5, "llave": 0.3 },
+  // al romper una caja: probabilidad de soltar monedas y cuántas
+  "caja": { "monedas": 0.35, "cuantasMonedas": [1, 2], "energia": 0.12, "pocion": 0.05, "llave": 0.04 },
+  // al despejar una sala de combate: probabilidad de que aparezca un cofre dorado o uno normal
+  "salaDespejada": { "cofreDorado": 0.22, "cofre": 0.38 },
+  // al abrir un cofre (siempre trae un arma)
+  "cofre": { "monedas": [3, 6], "pocion": 0.45, "armadura": 0.12 },
+  // el cofre dorado necesita una llave y trae además una reliquia
+  "cofreDorado": { "armadura": 0.3 },
+  // jefes y subjefes
+  "jefe": { "monedas": 25, "armadura": 0.4 },
+  "subjefe": { "monedas": 12 }
+}

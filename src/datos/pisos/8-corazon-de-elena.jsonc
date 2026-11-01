@@ -1,0 +1,24 @@
+// Piso 8. Cambia estos valores para diseñar el piso; no hace falta tocar código.
+{
+  "piso": 8,
+  "nombre": "Corazón de Elena",
+  // enemigos de las salas cerca de la entrada y de las salas del fondo (ids de src/js/01b-enemigos/).
+  // Cada oleada saca enemigos al azar de la lista: repetir un id lo hace más frecuente.
+  "enemigosCerca": ["phantom", "burrower", "charger", "sniper", "splitter"],
+  "enemigosLejos": ["phantom", "burrower", "charger", "sniper", "priest", "warden", "bomber", "eye", "wraith"],
+  // jefe del piso (id de src/js/01e-jefes/)
+  "jefe": "elena",
+  // probabilidad de que cada enemigo salga élite (0.1 = 10 %); la dificultad suma la suya
+  "elites": 0.28,
+  // terror: más oscuridad, latidos con poca vida y música de miedo
+  "terror": true,
+  // luz alrededor del jugador: radio totalmente iluminado, radio donde ya es noche y lo oscura que es (0 a 1)
+  "luz": { "clara": 72, "hastaNoche": 260, "oscuridad": 0.97 },
+  // música: nota base (número MIDI) y velocidad en pulsos por minuto
+  "musica": { "nota": 36, "tempo": 72 },
+  // colores del suelo y de los muros
+  "colores": {
+    "sueloA": "#200f12", "sueloB": "#241114", "grietas": "#16090b", "manchas": "#2c1418",
+    "muroArriba": "#4a1a22", "muroFrente": "#2e1016", "muroBorde": "#8a2a3a"
+  }
+}

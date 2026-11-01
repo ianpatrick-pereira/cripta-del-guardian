@@ -52,7 +52,7 @@ function subDefeated(e) {
   }
   showBanner(e.name + ' cae', '#e3a24a', 'Subjefe derrotado');
   later(.9, offerTalent);
-  for (let i = 0; i < 12; i++) dropCoin(e.x, e.y);
+  for (let i = 0; i < BOTIN.subjefe.monedas; i++) dropCoin(e.x, e.y);
   G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });
   G.pickups.push({ kind: 'potion', x: e.x + 20, y: e.y });
   const sd = SUB_DEFS[e.sk];

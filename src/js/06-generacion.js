@@ -81,7 +81,7 @@ function buildMap(layout) {
     r.cx = (r.tcx + .5) * TILE; r.cy = (r.tcy + .5) * TILE;
     r.visited = false; r.locked = false; r.wave = 0;
     r.cleared = r.type !== 'combat' && r.type !== 'boss';
-    r.waves = r.type === 'combat' ? (r.depth >= 3 ? 3 : 2) : 0;
+    const OS = OLEADAS.oleadasPorSala; r.waves = r.type === 'combat' ? (r.depth >= OS.profundidadDificil ? OS.dificil : OS.normal) : 0;
     const hx = (r.w - 2) / 2, hy = (r.h - 2) / 2, mx = r.x + (r.w - 1) / 2, my = r.y + (r.h - 1) / 2;
     for (let y = r.y + 1; y < r.y + r.h - 1; y++) for (let x = r.x + 1; x < r.x + r.w - 1; x++)
       if (S.in((x - mx) / hx, (y - my) / hy) || big || small) tiles[y * MW + x] = FLOOR;

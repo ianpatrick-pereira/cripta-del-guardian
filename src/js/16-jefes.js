@@ -53,8 +53,8 @@ function updateBoss(e, dt) {
 }
 function bossDefeated(e) {
   G.boss = null; G.beams = []; G.darkT = 0; G.hazards = [];
-  for (let i = 0; i < 25; i++) dropCoin(e.x, e.y);
-  if (Math.random() < .4) dropArmor(e.x + 40, e.y + 30, 'chest');
+  for (let i = 0; i < BOTIN.jefe.monedas; i++) dropCoin(e.x, e.y);
+  if (Math.random() < BOTIN.jefe.armadura) dropArmor(e.x + 40, e.y + 30, 'chest');
   for (let i = 0; i < Math.ceil((4 + G.floor) / 2); i++) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-120, 120), vy: rand(-120, 120) });
   for (const o of G.enemies) if (o !== e && !o.dead) { o.dead = true; burst(o.x, o.y, '#ece4cf', 10); }
   G.markers.length = 0;

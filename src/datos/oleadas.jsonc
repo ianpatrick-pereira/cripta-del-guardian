@@ -1,0 +1,12 @@
+// Oleadas de las salas de combate. La profundidad de una sala es a cuántas salas está de la entrada.
+{
+  // cuántas oleadas tiene cada sala de combate: las salas a partir de "profundidadDificil" tienen más
+  "oleadasPorSala": { "normal": 2, "dificil": 3, "profundidadDificil": 3 },
+  // las salas con profundidad menor que esta usan "enemigosCerca" del piso; las demás, "enemigosLejos"
+  "profundidadLejos": 2,
+  // enemigos de cada oleada = base + porProfundidad × profundidad (hasta profundidadMaxima)
+  //                          + porOleada × número de oleada + porPiso × (piso − 1) + lo que sume la dificultad
+  "enemigos": { "base": 3, "porProfundidad": 1, "profundidadMaxima": 4, "porOleada": 1, "porPiso": 1, "minimo": 2 },
+  // desde este piso salen menos enemigos (se multiplican por "factorCantidad"), pero con mucha más vida
+  "pisosDuros": { "desdePiso": 3, "factorCantidad": 0.55, "factorVida": 2.2 }
+}

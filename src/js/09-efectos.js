@@ -46,9 +46,10 @@ function damageProp(o, d) {
   o.dead = true;
   if (o.kind === 'barrel') { later(.07, () => explode(o.x, o.y, 78, 7, false)); return; }
   burst(o.x, o.y, '#8a5a34', 12, 150, 4, .5); noise(.15, .05, 1500);
-  if (Math.random() < .35) for (let i = 0; i < randi(1, 2); i++) dropCoin(o.x, o.y);
-  if (Math.random() < .12) G.pickups.push({ kind: 'energy', x: o.x, y: o.y, vx: 0, vy: 0 });
-  if (Math.random() < .05) G.pickups.push({ kind: 'potion', x: o.x, y: o.y });
-  if (Math.random() < .04) G.pickups.push({ kind: 'key', x: o.x, y: o.y });
+  const BC = BOTIN.caja;   // src/datos/botin.jsonc
+  if (Math.random() < BC.monedas) for (let i = 0; i < randi(BC.cuantasMonedas[0], BC.cuantasMonedas[1]); i++) dropCoin(o.x, o.y);
+  if (Math.random() < BC.energia) G.pickups.push({ kind: 'energy', x: o.x, y: o.y, vx: 0, vy: 0 });
+  if (Math.random() < BC.pocion) G.pickups.push({ kind: 'potion', x: o.x, y: o.y });
+  if (Math.random() < BC.llave) G.pickups.push({ kind: 'key', x: o.x, y: o.y });
 }
 
