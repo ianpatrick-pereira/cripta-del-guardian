@@ -15,6 +15,7 @@ const ACH = {
   rescue:    { n: 'Libertador',           d: 'Rescata a un prisionero.', g: 2 },
   synergy:   { n: 'Alquimista',           d: 'Activa una sinergia.', g: 2 },
   lore:      { n: 'Cronista',             d: `Encuentra las ${NOTES.length} notas del diario.`, g: 6 },
+  truth:     { n: 'El círculo roto',      d: 'Sal de la cripta con el diario completo y conoce el final verdadero.', g: 8 },
   pet:       { n: 'Nunca solo',           d: 'Consigue un compañero.', g: 1 },
   crystal:   { n: 'Esencia elemental',    d: 'Consigue un cristal elemental.', g: 2 },
   awaken:    { n: 'Despertar',            d: 'Despierta la habilidad elemental de un arma.', g: 4 },

@@ -84,7 +84,7 @@ function updatePlayer(dt) {
       p.burnTick = 1.1;
       if (p.sh > 0) p.sh--; else p.hp--;
       p.shT = 0; G.hurtFlash = .2; addText(p.x, p.y - 22, 1, '#ff6a3a', 12); sfx(160, .08, 'sawtooth', .03, -40);
-      if (p.hp <= 0) { p.hp = 0; endGame(false); }
+      if (p.hp <= 0) { p.hp = 0; G.hitBy = 'las quemaduras'; endGame(false); }
     }
   }
 

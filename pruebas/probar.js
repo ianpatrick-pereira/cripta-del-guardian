@@ -1,6 +1,6 @@
 // Pruebas automáticas de Cripta del Guardián.
 // Uso:  node juego/pruebas/probar.js               ejecuta todas las pruebas
-//       node juego/pruebas/probar.js clases         solo un grupo (clases, armas, salas, guardado)
+//       node juego/pruebas/probar.js clases         solo un grupo (clases, armas, salas, guardado, finales)
 //       node juego/pruebas/probar.js --referencia   guarda los resultados actuales como referencia
 // Un bot juega solo con azar repetible (misma semilla = misma partida). Cada prueba falla si hay
 // errores de JavaScript, valores imposibles (NaN) o salas que no se pueden terminar. Además compara
@@ -27,7 +27,7 @@ const SAVE_BASE = { gems: 50, chars: { knight: true, archer: true, rogue: true }
 // ---------- funciones que corren dentro de la página ----------
 // el bot: persigue al enemigo más cercano, mantiene distancia si dispara, carga, esquiva y usa habilidades
 const BOT = `window.__bot = (frames, godmode) => {
-  const T = window.__cripta, G = T.state(), out = { hits: 0, nan: false };
+  const T = window.__cripta, G = T.state(), out = { hits: 0, nan: false, dano: 0, por: {} };
   for (let f = 0; f < frames; f++) {
     if (T.resolve()) continue;
     const p = G.player; if (!p || G.over) break;
@@ -44,7 +44,7 @@ const BOT = `window.__bot = (frames, godmode) => {
     }
     T.bot(o);
     const hp0 = p.hp; T.sim(1);
-    if (p.hp < hp0) out.hits++;
+    if (p.hp < hp0) { out.hits++; out.dano += hp0 - p.hp; out.por[G.hitBy || '?'] = (out.por[G.hitBy || '?'] || 0) + hp0 - p.hp; }
     if (godmode) { p.hp = p.maxHp; }
     if (f % 30 === 0) T.render();
     if (!Number.isFinite(p.x) || !Number.isFinite(p.y) || G.enemies.some(e => !Number.isFinite(e.x) || !Number.isFinite(e.y) || Number.isNaN(e.hp))) { out.nan = true; break; }
@@ -146,6 +146,17 @@ escenarios.push(casoSave('guardado de una versión vieja', { ...SAVE_BASE, gems:
 escenarios.push(casoSave('guardado con un arma que ya no existe', { ...SAVE_BASE, gems: 37, run: { ...RUN_OK, slots: [{ id: 'arma-borrada', stars: 2, up: {} }] } }, { continuar: false }));
 escenarios.push(casoSave('guardado de una versión futura', { ...SAVE_BASE, gems: 37, ver: 99, run: RUN_OK }, { continuar: false }));
 escenarios.push(casoSave('sin guardado', null, { continuar: false }));
+// 5) los dos finales: al salir victorioso tras el piso 8 sale el final verdadero solo con el diario completo
+const casoFinal = (id, notas, titulo) => ({ grupo: 'finales', id, seed: 11, save: { ...SAVE_BASE, notes: Object.fromEntries(Array.from({ length: notas }, (_, i) => [i, true])) }, run: async pg => {
+  await pg.evaluate(() => { const T = window.__cripta; T.run('knight'); const G = T.state(); T.floor(8); window.__simR(2); G.wonOnce = true; G.pickups.push({ kind: 'exit', x: G.player.x, y: G.player.y }); T.use('exit'); window.__simR(240); });
+  const fallos = [], vis = await pg.isVisible('#ovEpi'), t = vis ? await pg.textContent('#epiTitle') : '';
+  if (!vis) fallos.push('no apareció el final');
+  else if (t !== titulo) fallos.push(`salió «${t}» y tocaba «${titulo}»`);
+  if (vis) { await pg.click('#btnEpiClose'); if (!await pg.isVisible('#ovEnd')) fallos.push('tras el final no aparece la pantalla de resultados'); }
+  return { fallos, huella: [vis, t], info: t ? `«${t}»` : '' };
+} });
+escenarios.push(casoFinal('final verdadero con el diario completo', 9, 'El círculo roto'));
+escenarios.push(casoFinal('final incompleto con 5 notas', 5, 'Otro turno'));
 
 // ---------- traducir «cripta.html:línea» al archivo de src/ donde está ese código ----------
 const mapa = (() => {
@@ -156,7 +167,9 @@ const dondeEsta = msg => msg.replace(/(?:file:\/\/[^\s)]*\/)?cripta\.html:(\d+)(
 const errorCorto = err => { const st = (err.stack || err.message || String(err)).split('\n'); const at = st.find(l => /cripta\.html:\d+/.test(l)); return dondeEsta(st[0] + (at ? ' (en ' + at.trim().replace(/^at /, '') + ')' : '')); };
 
 // ---------- ejecución ----------
-(async () => {
+// pruebas/balance.js reutiliza el entorno y el bot
+module.exports = { preparar, BOT, SAVE_BASE };
+if (require.main === module) (async () => {
   if (!fs.existsSync(JUEGO)) { console.error('No existe cripta.html: ejecuta node juego/build.js'); process.exit(2); }
   const lista = escenarios.filter(e => !grupo || e.grupo === grupo);
   const ref = fs.existsSync(REF) ? JSON.parse(fs.readFileSync(REF, 'utf8')) : {};

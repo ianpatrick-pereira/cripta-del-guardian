@@ -175,6 +175,7 @@ details.codex[open]{padding-bottom:12px}
 #bEle{right:30px;bottom:192px;width:56px;height:56px;border-color:rgba(255,138,58,.75)}
 #bUse{right:190px;bottom:62px;width:64px;height:64px;border-color:var(--ember)}
 #bPause{left:12px;top:132px;width:42px;height:42px;border-radius:8px}
+#epiText .lead{margin:0 0 12px}
 </style>
 
 <div id="frame">
@@ -193,7 +194,7 @@ details.codex[open]{padding-bottom:12px}
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.33</p>
+      <p class="eyebrow">Prototipo jugable · v0.34</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -208,6 +209,7 @@ details.codex[open]{padding-bottom:12px}
       <details class="codex"><summary>Logros <span id="achCount"></span></summary><div class="clist" id="achList"></div></details>
       <details class="codex"><summary>Bestiario <span id="beastCount"></span></summary><div class="clist" id="beastList"></div></details>
       <details class="codex"><summary>Diario <span id="noteCount"></span></summary><div class="clist" id="noteList"></div></details>
+      <details class="codex"><summary>Historial <span id="histCount"></span></summary><div class="clist" id="histList"></div></details>
       <details class="codex"><summary>Sinergias <span id="synCount"></span></summary><div class="clist" id="synList"></div></details>
       <details class="codex"><summary>Opciones</summary><div class="opts" id="menuOpts"></div></details>
       <div class="keys">
@@ -286,6 +288,16 @@ details.codex[open]{padding-bottom:12px}
     </div>
   </div>
 
+  <div class="overlay" id="ovEpi" hidden>
+    <div class="panel note">
+      <p class="eyebrow" id="epiEyebrow">Final</p>
+      <h2 id="epiTitle"></h2>
+      <div id="epiText"></div>
+      <p class="hint" id="epiHint"></p>
+      <div class="row"><button class="primary" id="btnEpiClose" type="button">Continuar</button></div>
+    </div>
+  </div>
+
   <div class="overlay" id="ovNote" hidden>
     <div class="panel note">
       <p class="eyebrow" id="noteEyebrow">Nota</p>
@@ -321,7 +333,7 @@ const ctx = cv.getContext('2d');
 const frame = document.getElementById('frame');
 const $ = id => document.getElementById(id);
 
-const DATOS = {"pisos":[{"piso":1,"nombre":"La Cripta","enemigosCerca":["slime","slime","bat","archer"],"enemigosLejos":["slime","bat","archer","archer","brute"],"jefe":"guardian","elites":0.1,"terror":false,"luz":{"clara":150,"hastaNoche":560,"oscuridad":0.72},"musica":{"nota":45,"tempo":96},"colores":{"sueloA":"#24222e","sueloB":"#272532","grietas":"#1c1a24","manchas":"#2d2a39","muroArriba":"#3f3852","muroFrente":"#2a2438","muroBorde":"#5a5070"}},{"piso":2,"nombre":"Catacumbas Pútridas","enemigosCerca":["toxic","spider","archer","mage"],"enemigosLejos":["toxic","spider","mage","archer","brute"],"jefe":"queen","elites":0.16,"terror":false,"luz":{"clara":130,"hastaNoche":470,"oscuridad":0.82},"musica":{"nota":40,"tempo":104},"colores":{"sueloA":"#1f2622","sueloB":"#222a25","grietas":"#171d19","manchas":"#29332c","muroArriba":"#38483b","muroFrente":"#26322a","muroBorde":"#55705a"}},{"piso":3,"nombre":"El Abismo","enemigosCerca":["wraith","eye","spider","bat"],"enemigosLejos":["wraith","eye","mage","brute","spider"],"jefe":"devourer","elites":0.22,"terror":true,"luz":{"clara":72,"hastaNoche":250,"oscuridad":0.97},"musica":{"nota":38,"tempo":76},"colores":{"sueloA":"#1d1517","sueloB":"#201719","grietas":"#140e10","manchas":"#2a1b1e","muroArriba":"#3a2228","muroFrente":"#26161a","muroBorde":"#5c2e36"}},{"piso":4,"nombre":"Osario Helado","enemigosCerca":["warden","archer","bat","sniper"],"enemigosLejos":["warden","sniper","brute","mage","spider"],"jefe":"ossuary","elites":0.18,"terror":false,"luz":{"clara":140,"hastaNoche":520,"oscuridad":0.8},"musica":{"nota":43,"tempo":92},"colores":{"sueloA":"#1c222c","sueloB":"#1f2631","grietas":"#141920","manchas":"#26303c","muroArriba":"#3a4a5e","muroFrente":"#243040","muroBorde":"#6a8aa8"}},{"piso":5,"nombre":"Forja Hundida","enemigosCerca":["bomber","charger","brute","bat"],"enemigosLejos":["bomber","charger","warden","eye","mage"],"jefe":"forger","elites":0.2,"terror":false,"luz":{"clara":130,"hastaNoche":480,"oscuridad":0.85},"musica":{"nota":41,"tempo":112},"colores":{"sueloA":"#241a14","sueloB":"#281d16","grietas":"#1a120c","manchas":"#2e2018","muroArriba":"#4a3020","muroFrente":"#2e1e14","muroBorde":"#a0582a"}},{"piso":6,"nombre":"Jardín de Raíces","enemigosCerca":["splitter","burrower","spider","toxic"],"enemigosLejos":["splitter","burrower","priest","spider","charger"],"jefe":"rootmother","elites":0.22,"terror":false,"luz":{"clara":125,"hastaNoche":460,"oscuridad":0.86},"musica":{"nota":40,"tempo":98},"colores":{"sueloA":"#1a2116","sueloB":"#1d2519","grietas":"#121810","manchas":"#24301e","muroArriba":"#34442a","muroFrente":"#22301c","muroBorde":"#5a7a3a"}},{"piso":7,"nombre":"Catedral Hueca","enemigosCerca":["priest","phantom","sniper","wraith"],"enemigosLejos":["priest","phantom","sniper","warden","eye","bomber"],"jefe":"bishop","elites":0.25,"terror":true,"luz":{"clara":105,"hastaNoche":400,"oscuridad":0.92},"musica":{"nota":37,"tempo":84},"colores":{"sueloA":"#1e1a24","sueloB":"#221d28","grietas":"#15121a","manchas":"#2a2434","muroArriba":"#3e3450","muroFrente":"#2a2236","muroBorde":"#7a68a0"}},{"piso":8,"nombre":"Corazón de Elena","enemigosCerca":["phantom","burrower","charger","sniper","splitter"],"enemigosLejos":["phantom","burrower","charger","sniper","priest","warden","bomber","eye","wraith"],"jefe":"elena","elites":0.28,"terror":true,"luz":{"clara":72,"hastaNoche":260,"oscuridad":0.97},"musica":{"nota":36,"tempo":72},"colores":{"sueloA":"#200f12","sueloB":"#241114","grietas":"#16090b","manchas":"#2c1418","muroArriba":"#4a1a22","muroFrente":"#2e1016","muroBorde":"#8a2a3a"}}],"oleadas":{"oleadasPorSala":{"normal":2,"dificil":3,"profundidadDificil":3},"profundidadLejos":2,"enemigos":{"base":3,"porProfundidad":1,"profundidadMaxima":4,"porOleada":1,"porPiso":1,"minimo":2},"pisosDuros":{"desdePiso":3,"factorCantidad":0.55,"factorVida":2.2}},"botin":{"rarezaArmas":{"common":46,"uncommon":34,"rare":15,"epic":5},"estrellas":{"enemigo":[64,27,7,1.6,0.4],"cofre":[33,34,20,9,4],"cofreDorado":[0,46,34,14,6],"tienda":[0,50,42,6,2]},"enemigo":{"monedas":[1,3],"monedasElite":3,"energia":0.25,"pocion":0.07,"arma":0.03},"elite":{"gema":0.5,"llave":0.3},"caja":{"monedas":0.35,"cuantasMonedas":[1,2],"energia":0.12,"pocion":0.05,"llave":0.04},"salaDespejada":{"cofreDorado":0.22,"cofre":0.38},"cofre":{"monedas":[3,6],"pocion":0.45,"armadura":0.12},"cofreDorado":{"armadura":0.3},"jefe":{"monedas":25,"armadura":0.4},"subjefe":{"monedas":12}}};
+const DATOS = {"pisos":[{"piso":1,"nombre":"La Cripta","enemigosCerca":["slime","slime","bat","archer"],"enemigosLejos":["slime","bat","archer","archer","brute"],"jefe":"guardian","elites":0.1,"terror":false,"luz":{"clara":150,"hastaNoche":560,"oscuridad":0.72},"musica":{"nota":45,"tempo":96},"colores":{"sueloA":"#24222e","sueloB":"#272532","grietas":"#1c1a24","manchas":"#2d2a39","muroArriba":"#3f3852","muroFrente":"#2a2438","muroBorde":"#5a5070"},"ambiente":{"antorchas":"#ffb347","brillo":"#b98cff","estandartes":"#4a2a6a","plantas":["#2f4a34","#4f7a4a"],"flores":"#c9a6ff","charcos":"rgba(70,80,130,.32)","particulas":"polvo","vineta":"rgba(24,10,40,.55)","antorchaCada":5,"telaranas":0.6,"enredaderas":0.12,"densidadBordes":0.14,"densidadCentro":0.07,"bordes":{"huesos":2,"velas":1,"cristales":1,"musgo":2},"centro":{"hierba":2,"musgo":2,"charcos":1,"runas":0.4}}},{"piso":2,"nombre":"Catacumbas Pútridas","enemigosCerca":["toxic","spider","archer","mage"],"enemigosLejos":["toxic","spider","mage","archer","brute"],"jefe":"queen","elites":0.16,"terror":false,"luz":{"clara":130,"hastaNoche":470,"oscuridad":0.82},"musica":{"nota":40,"tempo":104},"colores":{"sueloA":"#1f2622","sueloB":"#222a25","grietas":"#171d19","manchas":"#29332c","muroArriba":"#38483b","muroFrente":"#26322a","muroBorde":"#55705a"},"ambiente":{"antorchas":"#d8ff7a","brillo":"#7aff9b","estandartes":"#2f4a28","plantas":["#3f5a2c","#6a8a3a"],"flores":"#e0d070","charcos":"rgba(90,140,60,.3)","particulas":"esporas","vineta":"rgba(8,24,12,.55)","antorchaCada":5,"telaranas":0.8,"enredaderas":0.3,"densidadBordes":0.17,"densidadCentro":0.1,"bordes":{"hongos":3,"huesos":2,"musgo":2},"centro":{"hierba":2,"musgo":3,"charcos":2,"hongos":1}}},{"piso":3,"nombre":"El Abismo","enemigosCerca":["wraith","eye","spider","bat"],"enemigosLejos":["wraith","eye","mage","brute","spider"],"jefe":"devourer","elites":0.22,"terror":true,"luz":{"clara":72,"hastaNoche":250,"oscuridad":0.97},"musica":{"nota":38,"tempo":76},"colores":{"sueloA":"#1d1517","sueloB":"#201719","grietas":"#140e10","manchas":"#2a1b1e","muroArriba":"#3a2228","muroFrente":"#26161a","muroBorde":"#5c2e36"},"ambiente":{"antorchas":"#ff4a3a","brillo":"#c04aff","estandartes":"#5a1018","plantas":["#3a1a22","#5a2430"],"flores":"#ff4a6a","charcos":"rgba(120,10,20,.38)","particulas":"brasas","vineta":"rgba(40,0,8,.62)","antorchaCada":8,"telaranas":0.5,"enredaderas":0,"densidadBordes":0.13,"densidadCentro":0.06,"bordes":{"huesos":3,"velas":1,"cristales":1},"centro":{"runas":1,"espinas":2,"charcos":1}}},{"piso":4,"nombre":"Osario Helado","enemigosCerca":["warden","archer","bat","sniper"],"enemigosLejos":["warden","sniper","brute","mage","spider"],"jefe":"ossuary","elites":0.18,"terror":false,"luz":{"clara":140,"hastaNoche":520,"oscuridad":0.8},"musica":{"nota":43,"tempo":92},"colores":{"sueloA":"#1c222c","sueloB":"#1f2631","grietas":"#141920","manchas":"#26303c","muroArriba":"#3a4a5e","muroFrente":"#243040","muroBorde":"#6a8aa8"},"ambiente":{"antorchas":"#ffc27a","brillo":"#8ad8ff","estandartes":"#2a4a6a","plantas":["#4a5e72","#8aaac8"],"flores":"#cfeaff","charcos":"rgba(150,200,255,.22)","particulas":"nieve","vineta":"rgba(6,18,36,.55)","antorchaCada":5,"telaranas":0.3,"enredaderas":0,"densidadBordes":0.15,"densidadCentro":0.08,"bordes":{"cristales":3,"huesos":3},"centro":{"escarcha":3,"charcos":1,"hierba":1}}},{"piso":5,"nombre":"Forja Hundida","enemigosCerca":["bomber","charger","brute","bat"],"enemigosLejos":["bomber","charger","warden","eye","mage"],"jefe":"forger","elites":0.2,"terror":false,"luz":{"clara":130,"hastaNoche":480,"oscuridad":0.85},"musica":{"nota":41,"tempo":112},"colores":{"sueloA":"#241a14","sueloB":"#281d16","grietas":"#1a120c","manchas":"#2e2018","muroArriba":"#4a3020","muroFrente":"#2e1e14","muroBorde":"#a0582a"},"ambiente":{"antorchas":"#ff7a2a","brillo":"#ff4a1a","estandartes":"#6a2a10","plantas":["#4a3020","#6a4426"],"flores":"#ffb070","charcos":"rgba(40,20,10,.4)","particulas":"brasas","vineta":"rgba(40,12,0,.55)","antorchaCada":4,"telaranas":0.2,"enredaderas":0,"densidadBordes":0.12,"densidadCentro":0.09,"bordes":{"huesos":2,"velas":1},"centro":{"lava":3,"hierba":0.5}}},{"piso":6,"nombre":"Jardín de Raíces","enemigosCerca":["splitter","burrower","spider","toxic"],"enemigosLejos":["splitter","burrower","priest","spider","charger"],"jefe":"rootmother","elites":0.22,"terror":false,"luz":{"clara":125,"hastaNoche":460,"oscuridad":0.86},"musica":{"nota":40,"tempo":98},"colores":{"sueloA":"#1a2116","sueloB":"#1d2519","grietas":"#121810","manchas":"#24301e","muroArriba":"#34442a","muroFrente":"#22301c","muroBorde":"#5a7a3a"},"ambiente":{"antorchas":"#ffe27a","brillo":"#c8ff7a","estandartes":"#3a5a2a","plantas":["#3f6a2a","#6aa040"],"flores":"#ff9ad8","charcos":"rgba(60,110,140,.3)","particulas":"luciernagas","vineta":"rgba(6,24,10,.5)","antorchaCada":6,"telaranas":0.3,"enredaderas":0.45,"densidadBordes":0.34,"densidadCentro":0.26,"bordes":{"hongos":2,"flores":3,"musgo":2,"hierba":2},"centro":{"hierba":5,"flores":4,"musgo":2,"charcos":1}}},{"piso":7,"nombre":"Catedral Hueca","enemigosCerca":["priest","phantom","sniper","wraith"],"enemigosLejos":["priest","phantom","sniper","warden","eye","bomber"],"jefe":"bishop","elites":0.25,"terror":true,"luz":{"clara":105,"hastaNoche":400,"oscuridad":0.92},"musica":{"nota":37,"tempo":84},"colores":{"sueloA":"#1e1a24","sueloB":"#221d28","grietas":"#15121a","manchas":"#2a2434","muroArriba":"#3e3450","muroFrente":"#2a2236","muroBorde":"#7a68a0"},"ambiente":{"antorchas":"#c77dff","brillo":"#ffd27a","estandartes":"#3a1a5a","plantas":["#3e3450","#5e4a78"],"flores":"#d8b8ff","charcos":"rgba(90,60,140,.3)","particulas":"chispas","vineta":"rgba(26,8,44,.6)","antorchaCada":6,"telaranas":0.7,"enredaderas":0.05,"densidadBordes":0.13,"densidadCentro":0.07,"bordes":{"velas":2,"cristales":1,"huesos":1},"centro":{"runas":2,"vidrios":2,"musgo":1}}},{"piso":8,"nombre":"Corazón de Elena","enemigosCerca":["phantom","burrower","charger","sniper","splitter"],"enemigosLejos":["phantom","burrower","charger","sniper","priest","warden","bomber","eye","wraith"],"jefe":"elena","elites":0.28,"terror":true,"luz":{"clara":72,"hastaNoche":260,"oscuridad":0.97},"musica":{"nota":36,"tempo":72},"colores":{"sueloA":"#200f12","sueloB":"#241114","grietas":"#16090b","manchas":"#2c1418","muroArriba":"#4a1a22","muroFrente":"#2e1016","muroBorde":"#8a2a3a"},"ambiente":{"antorchas":"#ff3a5a","brillo":"#c77dff","estandartes":"#6a0a1e","plantas":["#4a1a22","#7a2a3a"],"flores":"#ff5a7a","charcos":"rgba(120,10,30,.4)","particulas":"petalos","vineta":"rgba(44,0,14,.62)","antorchaCada":8,"telaranas":0.5,"enredaderas":0.15,"densidadBordes":0.15,"densidadCentro":0.08,"bordes":{"velas":2,"rosas":3,"huesos":1},"centro":{"rosas":2,"runas":1,"espinas":2,"charcos":1}}}],"oleadas":{"oleadasPorSala":{"normal":2,"dificil":3,"profundidadDificil":3},"profundidadLejos":2,"enemigos":{"base":3,"porProfundidad":1,"profundidadMaxima":4,"porOleada":1,"porPiso":1,"minimo":2},"pisosDuros":{"desdePiso":3,"factorCantidad":0.55,"factorVida":2.2}},"botin":{"rarezaArmas":{"common":46,"uncommon":34,"rare":15,"epic":5},"estrellas":{"enemigo":[64,27,7,1.6,0.4],"cofre":[33,34,20,9,4],"cofreDorado":[0,46,34,14,6],"tienda":[0,50,42,6,2]},"enemigo":{"monedas":[1,3],"monedasElite":3,"energia":0.25,"pocion":0.07,"arma":0.03},"elite":{"gema":0.5,"llave":0.3},"caja":{"monedas":0.35,"cuantasMonedas":[1,2],"energia":0.12,"pocion":0.05,"llave":0.04},"salaDespejada":{"cofreDorado":0.22,"cofre":0.38},"cofre":{"monedas":[3,6],"pocion":0.45,"armadura":0.12},"cofreDorado":{"armadura":0.3},"jefe":{"monedas":25,"armadura":0.4},"subjefe":{"monedas":12}},"finales":{"completo":{"etiqueta":"Final verdadero","titulo":"El círculo roto","texto":["Elena se deshace en polvo de seda, y por primera vez la cripta guarda silencio.","Abres el diario. Conoces cada página, porque cada página la escribiste tú: el hermano que baja, el Guardián que espera, la voz que llama desde abajo. La cripta no tiene fondo, solo tiene turnos.","Esta vez no ocupas el lugar del Guardián. Arrancas la primera página, la que empieza «Mi hermana bajó a la cripta hace tres lunas», y la quemas en la última antorcha.","Al subir, la luz del amanecer te quema los ojos. A tu lado camina alguien. No te atreves a mirarla todavía, pero conoces el ritmo de sus pasos.","Detrás de ustedes, la entrada de la cripta se cierra como un párpado cansado."]},"incompleto":{"etiqueta":"Final","titulo":"Otro turno","texto":["Elena cae, y la cripta suspira como quien se da la vuelta en la cama.","Subes las escaleras con el botín a cuestas. Fuera es de noche, y el pueblo parece más pequeño de lo que recordabas.","En el bolsillo encuentras un diario que no recuerdas haber guardado. La letra es la tuya. La primera línea dice: «Mi hermana bajó a la cripta hace tres lunas».","Mañana, piensas, volverás a bajar."]}}};
 // ================= Utilidades =================
 const TILE = 32, GRID = 5, CELL_W = 33, CELL_H = 27;
 const MW = GRID * CELL_W, MH = GRID * CELL_H;
@@ -1818,7 +1830,7 @@ defBossMove('laser', {
       for (const b of G.beams) { b.on = true; b.x = e.x; b.y = e.y; if (ph2) b.a += dt * .9; }
       for (const b of G.beams) {
         const dx = p.x - b.x, dy = p.y - b.y, along = dx * Math.cos(b.a) + dy * Math.sin(b.a), perp = Math.abs(-dx * Math.sin(b.a) + dy * Math.cos(b.a));
-        if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1); }
+        if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1, quien(e)); }
       }
       if (e.timer > act) { G.beams = []; bossIdle(e); }
     }
@@ -1837,7 +1849,7 @@ defBossMove('leap', {
       if (!hitsWall(e.tgt.x, e.tgt.y, e.r)) { e.x = e.tgt.x; e.y = e.tgt.y; }
       shake(14); noise(.3, .1, 500); burst(e.x, e.y, '#5a4a5a', 22, 220, 5);
       bossRing(e, ph2 ? 18 : 12, 170, bcol);
-      if (dist(e, p) < e.r + p.r + 10) hurtPlayer(2);
+      if (dist(e, p) < e.r + p.r + 10) hurtPlayer(2, quien(e));
     }
     if (e.timer > 1.5) { if (--e.reps > 0) { e.k = 0; e.timer = .2; } else bossIdle(e); }
   }
@@ -2344,12 +2356,13 @@ for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 const SAVE_KEY = 'cripta-guardian-v1';
 // Versión del formato del guardado. Súbela cuando cambie la forma de lo que se guarda
 // y añade en SAVE_MIGRA el paso que convierte la versión anterior en la nueva.
-const SAVE_VER = 2;
+const SAVE_VER = 3;
 const SAVE_MIGRA = {
-  2: s => s   // v1 → v2: mismo formato; solo empieza a llevar número de versión
+  2: s => s,  // v1 → v2: mismo formato; solo empieza a llevar número de versión
+  3: s => ({ ...s, hist: Array.isArray(s.hist) ? s.hist : [] })   // v3: historial de partidas
 };
 const defaultSave = () => ({ ver: SAVE_VER, gems: 0, chars: { knight: true, archer: false, rogue: false }, upg: { hp: 0, coin: 0, en: 0 }, best: 0, wins: 0, diff: 'normal',
-  ach: {}, kills: {}, found: {}, notes: {}, syn: {}, pets: {}, pet: '', startW: '', forged: 0, rescued: 0, run: null,
+  ach: {}, kills: {}, found: {}, notes: {}, syn: {}, pets: {}, pet: '', startW: '', forged: 0, rescued: 0, run: null, hist: [],
   opt: { music: .8, sfx: .8, shake: 1, gfx: 'auto' } });
 // la partida en curso solo se conserva si todo lo que nombra sigue existiendo en esta versión
 function runValid(r) {
@@ -2786,7 +2799,7 @@ function explode(x, y, R, dmg, fromPlayer) {
   shake(11); noise(.45, .12, 700); sfx(70, .35, 'sawtooth', .05, -30);
   for (const e of G.enemies) if (!e.dead && dist(e, { x, y }) < R + e.r) hurtEnemy(e, dmg, angTo({ x, y }, e), 320, { explosion: true });
   const p = G.player;
-  if (!fromPlayer && !rc('polvora') && dist(p, { x, y }) < R + p.r) hurtPlayer(2);
+  if (!fromPlayer && !rc('polvora') && dist(p, { x, y }) < R + p.r) hurtPlayer(2, 'una explosión');
   for (const o of G.props) if (!o.dead && o.kind !== 'merchant' && dist(o, { x, y }) < R + o.r) damageProp(o, 99);
   breakCracks(x, y, R + 10);
 }
@@ -2979,7 +2992,7 @@ function updatePlayer(dt) {
       p.burnTick = 1.1;
       if (p.sh > 0) p.sh--; else p.hp--;
       p.shT = 0; G.hurtFlash = .2; addText(p.x, p.y - 22, 1, '#ff6a3a', 12); sfx(160, .08, 'sawtooth', .03, -40);
-      if (p.hp <= 0) { p.hp = 0; endGame(false); }
+      if (p.hp <= 0) { p.hp = 0; G.hitBy = 'las quemaduras'; endGame(false); }
     }
   }
 
@@ -3502,9 +3515,10 @@ function gainRelic(id) {
   sfx(520, .15, 'triangle', .05, 300); later(.12, () => sfx(780, .2, 'triangle', .05, 300));
 }
 
-function hurtPlayer(d) {
+function hurtPlayer(d, por) {
   const p = G.player;
   if (p.inv > 0 || G.over) return false;
+  G.hitBy = por || 'un golpe';
   if (p.char === 'knight' && p.parryT > 0 && p.parryCd <= 0) { parry(p); return false; }
   d += G.floor >= 11 ? 3 : G.floor >= 7 ? 2 : G.floor >= 3 ? 1 : 0;
   if (pact('fragile')) d += 1;
@@ -3625,10 +3639,17 @@ function chainHit(from, dmg) {
   }
   if (targets.length) sfx(1500, .08, 'sawtooth', .02, -900);
 }
+// nombre de quien te golpea, para el historial de partidas («te derrotó…»)
+function quien(e) {
+  if (!e) return null;
+  if (e.isBoss) return BOSSES[e.kind].name;
+  if (e.isSub) return e.name;
+  return BEAST[e.type] ? BEAST[e.type].n : null;
+}
 function enemyShoot(e, a, speed, r = 5, color = '#e86a8a', dmg = 1, kind = 'orb') {
   const S = G.elSrc;
   G.proj.push({ x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null });
+    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) });
 }
 
 // ---- herramientas de IA ----
@@ -3675,7 +3696,7 @@ function threat(e) {
 }
 function hazard(x, y, r, t, dmg = 1, color = '#d4474b', o = {}) {
   const S = G.elSrc;
-  G.hazards.push({ x, y, r, t, max: t, dmg: S ? Math.max(dmg, S.dmg) : dmg, color, src: S, el: S ? S.elem : null, ...o });
+  G.hazards.push({ x, y, r, t, max: t, dmg: S ? Math.max(dmg, S.dmg) : dmg, color, src: S, el: S ? S.elem : null, por: quien(o.owner) || quien(G.actor), ...o });
 }
 // efecto del elemento cuando un Elemental te alcanza
 function elemHit(el, from) {
@@ -4098,6 +4119,17 @@ function openNote(id) {
   $('noteTitle').textContent = N.t; $('noteText').textContent = N.b;
   $('ovNote').hidden = false; sfx(300, .6, 'sine', .03, -100);
 }
+// ---------- los dos finales (textos en src/datos/finales.jsonc) ----------
+// con todas las notas del diario: el final verdadero; si falta alguna, el otro
+function openEpilogue() {
+  const faltan = NOTES.length - Object.keys(SAVE.notes).length, F = faltan <= 0 ? DATOS.finales.completo : DATOS.finales.incompleto;
+  if (faltan <= 0) ach('truth');
+  $('epiEyebrow').textContent = F.etiqueta; $('epiTitle').textContent = F.titulo;
+  $('epiText').innerHTML = F.texto.map(t => `<p class="lead">${esc(t)}</p>`).join('');
+  $('epiHint').textContent = faltan > 0 ? `Te ${faltan === 1 ? 'falta 1 página' : `faltan ${faltan} páginas`} del diario para conocer la verdad.` : '';
+  $('ovEpi').hidden = false; sfx(180, 1.2, 'sine', .04, -60);
+}
+function closeEpilogue() { $('ovEpi').hidden = true; showEnd(); }
 function closeNote() { if (G.choice && G.choice.note) G.choice = null; $('ovNote').hidden = true; }
 
 // ================= Logros y bestiario =================
@@ -4117,6 +4149,7 @@ const ACH = {
   rescue:    { n: 'Libertador',           d: 'Rescata a un prisionero.', g: 2 },
   synergy:   { n: 'Alquimista',           d: 'Activa una sinergia.', g: 2 },
   lore:      { n: 'Cronista',             d: `Encuentra las ${NOTES.length} notas del diario.`, g: 6 },
+  truth:     { n: 'El círculo roto',      d: 'Sal de la cripta con el diario completo y conoce el final verdadero.', g: 8 },
   pet:       { n: 'Nunca solo',           d: 'Consigue un compañero.', g: 1 },
   crystal:   { n: 'Esencia elemental',    d: 'Consigue un cristal elemental.', g: 2 },
   awaken:    { n: 'Despertar',            d: 'Despierta la habilidad elemental de un arma.', g: 4 },
@@ -5065,6 +5098,7 @@ function endGame(won) {
   G.gemGain = Math.round(G.gems * D().gem);
   SAVE.gems += G.gemGain; SAVE.best = Math.max(SAVE.best, G.floor); if (won && !G.wonOnce) SAVE.wins++;
   SAVE.run = null;
+  saveHistory(won);
   if (G.daily) {
     G.dailyPts = dailyScore();
     if (!SAVE.daily || SAVE.daily.date !== G.daily) SAVE.daily = { date: G.daily, best: 0 };
@@ -5074,13 +5108,17 @@ function endGame(won) {
   if (won && G.floor === 8) showBanner('¡La cripta ha caído!', '#e3a24a');
 }
 function showEnd() {
+  if (!$('ovEpi').hidden) return;
   const won = G.won;
+  // al salir victorioso tras vencer a Elena, primero el final de la historia
+  if (won && G.wonOnce && !G.epiShown) { G.epiShown = true; openEpilogue(); return; }
   $('endEyebrow').textContent = won ? 'Victoria' : G.wonOnce ? 'Fin del descenso' : 'Derrota';
   $('endTitle').textContent = won ? (G.floor > 8 ? `Saliste del Abismo en el piso ${G.floor}` : 'Has conquistado la cripta') : G.wonOnce ? `El Abismo te reclamó en el piso ${G.floor}` : `Caíste en el piso ${G.floor}`;
   $('endText').textContent = won || G.wonOnce
     ? 'La victoria quedó registrada. Las gemas que juntaste ya están en el altar para desbloquear personajes, mejoras y compañeros.'
     : 'Las gemas que juntaste se guardaron. Úsalas en el Altar de almas para volver más fuerte.';
   if (G.daily) $('endText').textContent = `Reto diario del ${G.daily}: ${G.dailyPts} puntos${G.dailyRec ? ' · ¡nuevo récord!' : ` · tu récord: ${SAVE.daily.best}`}. Puntos: 1000 por piso superado, 10 por baja y 1 por moneda (+3000 si ganas).`;
+  if (!won && G.hitBy) $('endText').textContent += ` Te derrotó: ${G.hitBy}.`;
   const s = Math.floor(G.time);
   $('stFloor').textContent = G.floor;
   $('stTime').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -5131,7 +5169,7 @@ function update(dt) {
     if (h.t <= 0) {
       h.gone = true;
       const pl = G.player;
-      if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg) && h.el) elemHit(h.el, h); }
+      if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg, h.por) && h.el) elemHit(h.el, h); }
       burst(h.x, h.y, h.color, 12, 190, 4, .4); shake(4); noise(.12, .05, 700);
       if (h.el === 'fire') { if (!G.flames) G.flames = []; G.flames.push({ x: h.x, y: h.y, r: h.r * .9, t: 3.2, fight: true }); }
       const prevSrc = G.elSrc; G.elSrc = h.src || null;
@@ -5157,8 +5195,8 @@ function update(dt) {
   const p = G.player;
   for (const e of [...G.enemies]) {
     if (e.dead) continue;
-    updateEnemy(e, dt);
-    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg) && e.elem) elemHit(e.elem, e); }
+    G.actor = e; updateEnemy(e, dt); G.actor = null;
+    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg, quien(e)) && e.elem) elemHit(e.elem, e); }
   }
   const es = G.enemies;
   for (let i = 0; i < es.length; i++) for (let j = i + 1; j < es.length; j++) {
@@ -5217,7 +5255,7 @@ function update(dt) {
     } else if (!G.over && dist(pr, p) < p.r + pr.r - 2) {
       if (p.blockT > 0 && shieldBlock(p, pr)) { /* bloqueada por el escudo */ }
       else if (p.bulwarkT > 0) reflect(pr, angTo(p, pr), 3);
-      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, 'Atrapado', '#e8e8d8', 12); } pr.life = 0; }
+      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, 'Atrapado', '#e8e8d8', 12); } pr.life = 0; }
     }
   }
   G.proj = G.proj.filter(pr => pr.life > 0);
@@ -5327,24 +5365,14 @@ function drawElemRooms(vx0, vy0, vx1, vy1) {
 }
 // ================= Ambiente: decoración, vegetación y luces =================
 // cada piso tiene su paleta de luz, plantas y objetos; edge = junto a los muros, open = en el centro de la sala
-const AMB = [
-  { torch: '#ffb347', glow: '#b98cff', banner: '#4a2a6a', plant: ['#2f4a34', '#4f7a4a'], flower: '#c9a6ff', puddle: 'rgba(70,80,130,.32)', mote: 'dust', gap: 5, web: .6, vine: .12,
-    vig: 'rgba(24,10,40,.55)', pe: .14, po: .07, edge: { bones: 2, candles: 1, crystal: 1, moss: 2 }, open: { grass: 2, moss: 2, puddle: 1, rune: .4 } },
-  { torch: '#d8ff7a', glow: '#7aff9b', banner: '#2f4a28', plant: ['#3f5a2c', '#6a8a3a'], flower: '#e0d070', puddle: 'rgba(90,140,60,.3)', mote: 'spore', gap: 5, web: .8, vine: .3,
-    vig: 'rgba(8,24,12,.55)', pe: .17, po: .1, edge: { mushroom: 3, bones: 2, moss: 2 }, open: { grass: 2, moss: 3, puddle: 2, mushroom: 1 } },
-  { torch: '#ff4a3a', glow: '#c04aff', banner: '#5a1018', plant: ['#3a1a22', '#5a2430'], flower: '#ff4a6a', puddle: 'rgba(120,10,20,.38)', mote: 'ember', gap: 8, web: .5, vine: 0,
-    vig: 'rgba(40,0,8,.62)', pe: .13, po: .06, edge: { bones: 3, candles: 1, crystal: 1 }, open: { rune: 1, thorn: 2, puddle: 1 } },
-  { torch: '#ffc27a', glow: '#8ad8ff', banner: '#2a4a6a', plant: ['#4a5e72', '#8aaac8'], flower: '#cfeaff', puddle: 'rgba(150,200,255,.22)', mote: 'snow', gap: 5, web: .3, vine: 0,
-    vig: 'rgba(6,18,36,.55)', pe: .15, po: .08, edge: { crystal: 3, bones: 3 }, open: { frost: 3, puddle: 1, grass: 1 } },
-  { torch: '#ff7a2a', glow: '#ff4a1a', banner: '#6a2a10', plant: ['#4a3020', '#6a4426'], flower: '#ffb070', puddle: 'rgba(40,20,10,.4)', mote: 'ember', gap: 4, web: .2, vine: 0,
-    vig: 'rgba(40,12,0,.55)', pe: .12, po: .09, edge: { bones: 2, candles: 1 }, open: { lava: 3, grass: .5 } },
-  { torch: '#ffe27a', glow: '#c8ff7a', banner: '#3a5a2a', plant: ['#3f6a2a', '#6aa040'], flower: '#ff9ad8', puddle: 'rgba(60,110,140,.3)', mote: 'firefly', gap: 6, web: .3, vine: .45,
-    vig: 'rgba(6,24,10,.5)', pe: .34, po: .26, edge: { mushroom: 2, flowers: 3, moss: 2, grass: 2 }, open: { grass: 5, flowers: 4, moss: 2, puddle: 1 } },
-  { torch: '#c77dff', glow: '#ffd27a', banner: '#3a1a5a', plant: ['#3e3450', '#5e4a78'], flower: '#d8b8ff', puddle: 'rgba(90,60,140,.3)', mote: 'spark', gap: 6, web: .7, vine: .05,
-    vig: 'rgba(26,8,44,.6)', pe: .13, po: .07, edge: { candles: 2, crystal: 1, bones: 1 }, open: { rune: 2, glass: 2, moss: 1 } },
-  { torch: '#ff3a5a', glow: '#c77dff', banner: '#6a0a1e', plant: ['#4a1a22', '#7a2a3a'], flower: '#ff5a7a', puddle: 'rgba(120,10,30,.4)', mote: 'petal', gap: 8, web: .5, vine: .15,
-    vig: 'rgba(44,0,14,.62)', pe: .15, po: .08, edge: { candles: 2, roses: 3, bones: 1 }, open: { roses: 2, rune: 1, thorn: 2, puddle: 1 } },
-];
+// la decoración de cada piso se diseña en src/datos/pisos/ (bloque "ambiente"); aquí se traduce al formato del motor
+const AMB_COSAS = { huesos: 'bones', velas: 'candles', cristales: 'crystal', musgo: 'moss', hierba: 'grass', charcos: 'puddle', runas: 'rune', hongos: 'mushroom', espinas: 'thorn', escarcha: 'frost', lava: 'lava', flores: 'flowers', vidrios: 'glass', rosas: 'roses' };
+const AMB_PART = { polvo: 'dust', esporas: 'spore', brasas: 'ember', nieve: 'snow', luciernagas: 'firefly', chispas: 'spark', petalos: 'petal' };
+const AMB = DATOS.pisos.map(({ ambiente: d }) => {
+  const tipos = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [AMB_COSAS[k], v]));
+  return { torch: d.antorchas, glow: d.brillo, banner: d.estandartes, plant: d.plantas, flower: d.flores, puddle: d.charcos, mote: AMB_PART[d.particulas],
+    gap: d.antorchaCada, web: d.telaranas, vine: d.enredaderas, vig: d.vineta, pe: d.densidadBordes, po: d.densidadCentro, edge: tipos(d.bordes), open: tipos(d.centro) };
+});
 const GLOW_MOTES = { firefly: 1, ember: 1, spark: 1, spore: 1 };
 function pickW(obj, h) { let s = 0; for (const k in obj) s += obj[k]; let v = h * s; for (const k in obj) { v -= obj[k]; if (v <= 0) return k; } return Object.keys(obj)[0]; }
 function hexA(c, a) { const n = parseInt(c.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
@@ -6866,7 +6894,20 @@ function loop(now) {
   if (started && G && G.gam) gamTick(dt);
   try { musicTick(); } catch (_) {}
   render();
+  if (SAVE.opt.fps) drawFps(raw);
   requestAnimationFrame(loop);
+}
+// contador de FPS (Opciones): sirve para medir el rendimiento real en tu aparato
+let fpsEma = 16.7;
+function drawFps(raw) {
+  if (raw > 0 && raw < 500) fpsEma = fpsEma * .95 + raw * .05;
+  const fps = Math.round(1000 / fpsEma);
+  ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(4, 4, 96, 18);
+  ctx.font = '600 12px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = fps >= 55 ? '#6cc46a' : fps >= 30 ? '#e3a24a' : '#d4474b';
+  ctx.fillText(`${fps} FPS · Q${gfxLevel()}`, 9, 13);
+  ctx.restore();
 }
 requestAnimationFrame(loop);
 
@@ -6878,6 +6919,36 @@ function render() {
   try { render0(); } finally { zoom = z0; G.cam.x = cx; G.cam.y = cy; }
 }
 
+// ================= Historial de partidas =================
+// Al terminar cada partida se guarda un resumen (las últimas 50). El menú muestra patrones:
+// en qué piso caes con cada clase y qué te mata más.
+const HIST_MAX = 50;
+function saveHistory(won) {
+  const p = G.player, w = p.slots[p.cur];
+  SAVE.hist = [{ fecha: Date.now(), clase: p.char, piso: G.floor, tiempo: Math.floor(G.time), bajas: G.kills, monedas: G.coins,
+    gano: !!won, causa: won ? null : G.hitBy || null, arma: w ? w.name : null, dif: G.diff, diario: !!G.daily }, ...(SAVE.hist || [])].slice(0, HIST_MAX);
+}
+const mmss = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function renderHistory() {
+  const H = SAVE.hist || [];
+  $('histCount').textContent = `· ${H.length} ${H.length === 1 ? 'partida' : 'partidas'}`;
+  if (!H.length) { $('histList').innerHTML = '<div class="off"><b>Sin partidas aún</b>Cada partida que termines aparecerá aquí.</div>'; return; }
+  const out = [];
+  // por clase: partidas, piso medio y mejor piso
+  for (const c of Object.keys(CHARS)) {
+    const h = H.filter(x => x.clase === c); if (!h.length) continue;
+    const media = h.reduce((a, x) => a + x.piso, 0) / h.length, mejor = Math.max(...h.map(x => x.piso)), v = h.filter(x => x.gano).length;
+    out.push(`<div><b>${esc(CHARS[c].name)}</b>${h.length} ${h.length === 1 ? 'partida' : 'partidas'} · piso medio ${media.toFixed(1)} · mejor ${mejor}${v ? ` · ${v} ${v === 1 ? 'victoria' : 'victorias'}` : ''}</div>`);
+  }
+  // lo que más te derrota y el piso donde más caes
+  const cuenta = k => { const m = {}; for (const x of H) if (!x.gano && x[k] != null) m[x[k]] = (m[x[k]] || 0) + 1; return Object.entries(m).sort((a, b) => b[1] - a[1]); };
+  const causas = cuenta('causa'), pisos = cuenta('piso');
+  if (causas.length) out.push(`<div><b>Lo que más te derrota</b>${causas.slice(0, 3).map(([n, k]) => `${esc(n)} (${k})`).join(' · ')}</div>`);
+  if (pisos.length) out.push(`<div><b>Donde más caes</b>${pisos.slice(0, 3).map(([n, k]) => `piso ${n} (${k})`).join(' · ')}</div>`);
+  // últimas partidas
+  for (const x of H.slice(0, 8)) out.push(`<div class="${x.gano ? '' : 'off'}"><b>${x.gano ? '✓ ' : ''}${esc(CHARS[x.clase] ? CHARS[x.clase].name : x.clase)} · piso ${x.piso}</b>${mmss(x.tiempo)} · ${x.bajas} bajas${x.arma ? ' · ' + esc(x.arma) : ''}${x.causa ? ' · te derrotó: ' + esc(x.causa) : ''}</div>`);
+  $('histList').innerHTML = out.join('');
+}
 // ================= Menús =================
 function renderMenu() {
   CUR_CHAR = selChar;
@@ -6944,6 +7015,7 @@ function renderMenu() {
   $('noteList').innerHTML = NOTES.map((N, i) => SAVE.notes[i] ? `<div><b>${esc(N.t)}</b>${esc(N.b)}</div>` : `<div class="off"><b>Página perdida</b>Sigue explorando la cripta.</div>`).join('');
   $('synCount').textContent = `· ${SYNERGIES.filter(S => SAVE.syn[S.id]).length}/${SYNERGIES.length}`;
   $('synList').innerHTML = SYNERGIES.map(S => `<div class="${SAVE.syn[S.id] ? '' : 'off'}"><b style="color:${SAVE.syn[S.id] ? S.c : 'inherit'}">${esc(S.n)}</b>${esc(S.r)}: ${esc(S.d)}</div>`).join('');
+  renderHistory();
   renderOpts('menuOpts');
   $('btnContinue').hidden = !SAVE.run;
   if (SAVE.run) $('btnContinue').textContent = `Continuar · piso ${SAVE.run.floor} (${CHARS[SAVE.run.char].name})`;
@@ -6974,10 +7046,11 @@ function renderOpts(id) {
   $(id).innerHTML = `<label>Música <input type="range" min="0" max="1" step=".05" value="${o.music}" data-o="music"></label>
     <label>Efectos <input type="range" min="0" max="1" step=".05" value="${o.sfx}" data-o="sfx"></label>
     <label><input type="checkbox" data-o="shake" ${o.shake < 1 ? 'checked' : ''}> Reducir la sacudida de pantalla</label>
+    <label><input type="checkbox" data-o="fps" ${o.fps ? 'checked' : ''}> Mostrar fotogramas por segundo (FPS)</label>
     <label>Calidad gráfica <select data-o="gfx">${['auto', '2', '1', '0'].map(k => `<option value="${k}" ${String(o.gfx || 'auto') === k ? 'selected' : ''}>${GFX_NAME[k]}</option>`).join('')}</select></label>`;
   $(id).querySelectorAll('input, select').forEach(inp => inp.addEventListener('input', () => {
     if (inp.tagName === 'SELECT') { o.gfx = inp.value; QL = 2; slowT = 0; resize(); }
-    else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
+    else if (inp.dataset.o === 'fps') o.fps = inp.checked; else if (inp.type === 'checkbox') o.shake = inp.checked ? .3 : 1; else o[inp.dataset.o] = +inp.value;
     writeSave();
   }));
 }
@@ -6997,7 +7070,7 @@ function togglePause() { setPause(!paused); }
 function toMenu() {
   if (G && started && !G.keepRun) SAVE.run = null;
   if (G && started && !G.gemsBanked) { SAVE.gems += Math.round(G.gems * D().gem); SAVE.best = Math.max(SAVE.best, G.floor); writeSave(); }
-  $('ovEnd').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; paused = false; started = false;
+  $('ovEnd').hidden = true; $('ovEpi').hidden = true; $('ovPause').hidden = true; $('ovChoice').hidden = true; $('ovGamble').hidden = true; $('ovForge').hidden = true; $('ovNote').hidden = true; paused = false; started = false;
   $('touch').hidden = true;
   newRun(selChar);
   renderMenu(); $('ovStart').hidden = false; $('ovStart').scrollTop = 0;
@@ -7029,6 +7102,7 @@ $('btnContinue').addEventListener('click', () => {
   try { resumeRun(SAVE.run); } catch (err) { console.warn('Partida guardada incompatible, se descarta', err); SAVE.run = null; writeSave(); if (G) { G.keepRun = true; G.gemsBanked = true; } toMenu(); }
 });
 $('btnNoteClose').addEventListener('click', closeNote);
+$('btnEpiClose').addEventListener('click', closeEpilogue);
 $('gamCards').querySelectorAll('.gcard').forEach(c => { c.querySelector('.gback').innerHTML = GAM_SVG.back; c.addEventListener('click', () => gamPick(+c.dataset.i)); });
 $('gamMinus').addEventListener('click', () => gamStep(-10));
 $('gamPlus').addEventListener('click', () => gamStep(10));
@@ -7049,6 +7123,7 @@ window.__cripta = {
   armor(st) { G.pickups.push({ kind: 'armor', stars: st, x: G.player.x + 30, y: G.player.y }); },
   weapon(id, st = 1) { G.player.slots[G.player.cur] = mkW(id, st); },
   weapons: () => WEAPONS.map(w => w.id),
+  weaponInfo: () => WEAPONS.map(w => ({ id: w.id, n: w.name, r: w.rarity, t: w.type, fam: (WEAPON_DEFS[w.id] || {}).familia || null })),
   roll: src => rollWeapon(src),
   spawn(t, x, y) { G.enemies.push(mkEnemy(t, x, y, 1, false)); },
   toEvent(k) { const r = G.rooms.find(r => r.ev === k); if (!r) return false; G.player.x = r.cx; G.player.y = r.cy + 60; G.cam.x = r.cx; G.cam.y = r.cy; return true; },

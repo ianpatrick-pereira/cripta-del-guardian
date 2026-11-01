@@ -761,7 +761,20 @@ function loop(now) {
   if (started && G && G.gam) gamTick(dt);
   try { musicTick(); } catch (_) {}
   render();
+  if (SAVE.opt.fps) drawFps(raw);
   requestAnimationFrame(loop);
+}
+// contador de FPS (Opciones): sirve para medir el rendimiento real en tu aparato
+let fpsEma = 16.7;
+function drawFps(raw) {
+  if (raw > 0 && raw < 500) fpsEma = fpsEma * .95 + raw * .05;
+  const fps = Math.round(1000 / fpsEma);
+  ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(4, 4, 96, 18);
+  ctx.font = '600 12px ui-monospace, monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = fps >= 55 ? '#6cc46a' : fps >= 30 ? '#e3a24a' : '#d4474b';
+  ctx.fillText(`${fps} FPS · Q${gfxLevel()}`, 9, 13);
+  ctx.restore();
 }
 requestAnimationFrame(loop);
 

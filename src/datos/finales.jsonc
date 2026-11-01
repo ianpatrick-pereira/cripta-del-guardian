@@ -1,0 +1,27 @@
+// Los dos finales. Se muestran al «Salir victorioso» tras vencer a Elena (piso 8 o más).
+// "completo": si tienes en el diario todas las notas de la historia (se guardan entre partidas).
+// "incompleto": si te falta alguna; al final se dice cuántas faltan.
+// Cada párrafo es un elemento de la lista "texto".
+{
+  "completo": {
+    "etiqueta": "Final verdadero",
+    "titulo": "El círculo roto",
+    "texto": [
+      "Elena se deshace en polvo de seda, y por primera vez la cripta guarda silencio.",
+      "Abres el diario. Conoces cada página, porque cada página la escribiste tú: el hermano que baja, el Guardián que espera, la voz que llama desde abajo. La cripta no tiene fondo, solo tiene turnos.",
+      "Esta vez no ocupas el lugar del Guardián. Arrancas la primera página, la que empieza «Mi hermana bajó a la cripta hace tres lunas», y la quemas en la última antorcha.",
+      "Al subir, la luz del amanecer te quema los ojos. A tu lado camina alguien. No te atreves a mirarla todavía, pero conoces el ritmo de sus pasos.",
+      "Detrás de ustedes, la entrada de la cripta se cierra como un párpado cansado."
+    ]
+  },
+  "incompleto": {
+    "etiqueta": "Final",
+    "titulo": "Otro turno",
+    "texto": [
+      "Elena cae, y la cripta suspira como quien se da la vuelta en la cama.",
+      "Subes las escaleras con el botín a cuestas. Fuera es de noche, y el pueblo parece más pequeño de lo que recordabas.",
+      "En el bolsillo encuentras un diario que no recuerdas haber guardado. La letra es la tuya. La primera línea dice: «Mi hermana bajó a la cripta hace tres lunas».",
+      "Mañana, piensas, volverás a bajar."
+    ]
+  }
+}

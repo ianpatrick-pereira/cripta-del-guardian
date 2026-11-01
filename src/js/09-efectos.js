@@ -16,7 +16,7 @@ function explode(x, y, R, dmg, fromPlayer) {
   shake(11); noise(.45, .12, 700); sfx(70, .35, 'sawtooth', .05, -30);
   for (const e of G.enemies) if (!e.dead && dist(e, { x, y }) < R + e.r) hurtEnemy(e, dmg, angTo({ x, y }, e), 320, { explosion: true });
   const p = G.player;
-  if (!fromPlayer && !rc('polvora') && dist(p, { x, y }) < R + p.r) hurtPlayer(2);
+  if (!fromPlayer && !rc('polvora') && dist(p, { x, y }) < R + p.r) hurtPlayer(2, 'una explosión');
   for (const o of G.props) if (!o.dead && o.kind !== 'merchant' && dist(o, { x, y }) < R + o.r) damageProp(o, 99);
   breakCracks(x, y, R + 10);
 }
