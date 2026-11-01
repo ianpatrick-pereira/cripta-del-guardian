@@ -193,7 +193,7 @@ details.codex[open]{padding-bottom:12px}
 
   <div class="overlay" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · v0.32</p>
+      <p class="eyebrow">Prototipo jugable · v0.33</p>
       <h1>Cripta del Guardián</h1>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
       <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
@@ -321,6 +321,7 @@ const ctx = cv.getContext('2d');
 const frame = document.getElementById('frame');
 const $ = id => document.getElementById(id);
 
+const DATOS = {"pisos":[{"piso":1,"nombre":"La Cripta","enemigosCerca":["slime","slime","bat","archer"],"enemigosLejos":["slime","bat","archer","archer","brute"],"jefe":"guardian","elites":0.1,"terror":false,"luz":{"clara":150,"hastaNoche":560,"oscuridad":0.72},"musica":{"nota":45,"tempo":96},"colores":{"sueloA":"#24222e","sueloB":"#272532","grietas":"#1c1a24","manchas":"#2d2a39","muroArriba":"#3f3852","muroFrente":"#2a2438","muroBorde":"#5a5070"}},{"piso":2,"nombre":"Catacumbas Pútridas","enemigosCerca":["toxic","spider","archer","mage"],"enemigosLejos":["toxic","spider","mage","archer","brute"],"jefe":"queen","elites":0.16,"terror":false,"luz":{"clara":130,"hastaNoche":470,"oscuridad":0.82},"musica":{"nota":40,"tempo":104},"colores":{"sueloA":"#1f2622","sueloB":"#222a25","grietas":"#171d19","manchas":"#29332c","muroArriba":"#38483b","muroFrente":"#26322a","muroBorde":"#55705a"}},{"piso":3,"nombre":"El Abismo","enemigosCerca":["wraith","eye","spider","bat"],"enemigosLejos":["wraith","eye","mage","brute","spider"],"jefe":"devourer","elites":0.22,"terror":true,"luz":{"clara":72,"hastaNoche":250,"oscuridad":0.97},"musica":{"nota":38,"tempo":76},"colores":{"sueloA":"#1d1517","sueloB":"#201719","grietas":"#140e10","manchas":"#2a1b1e","muroArriba":"#3a2228","muroFrente":"#26161a","muroBorde":"#5c2e36"}},{"piso":4,"nombre":"Osario Helado","enemigosCerca":["warden","archer","bat","sniper"],"enemigosLejos":["warden","sniper","brute","mage","spider"],"jefe":"ossuary","elites":0.18,"terror":false,"luz":{"clara":140,"hastaNoche":520,"oscuridad":0.8},"musica":{"nota":43,"tempo":92},"colores":{"sueloA":"#1c222c","sueloB":"#1f2631","grietas":"#141920","manchas":"#26303c","muroArriba":"#3a4a5e","muroFrente":"#243040","muroBorde":"#6a8aa8"}},{"piso":5,"nombre":"Forja Hundida","enemigosCerca":["bomber","charger","brute","bat"],"enemigosLejos":["bomber","charger","warden","eye","mage"],"jefe":"forger","elites":0.2,"terror":false,"luz":{"clara":130,"hastaNoche":480,"oscuridad":0.85},"musica":{"nota":41,"tempo":112},"colores":{"sueloA":"#241a14","sueloB":"#281d16","grietas":"#1a120c","manchas":"#2e2018","muroArriba":"#4a3020","muroFrente":"#2e1e14","muroBorde":"#a0582a"}},{"piso":6,"nombre":"Jardín de Raíces","enemigosCerca":["splitter","burrower","spider","toxic"],"enemigosLejos":["splitter","burrower","priest","spider","charger"],"jefe":"rootmother","elites":0.22,"terror":false,"luz":{"clara":125,"hastaNoche":460,"oscuridad":0.86},"musica":{"nota":40,"tempo":98},"colores":{"sueloA":"#1a2116","sueloB":"#1d2519","grietas":"#121810","manchas":"#24301e","muroArriba":"#34442a","muroFrente":"#22301c","muroBorde":"#5a7a3a"}},{"piso":7,"nombre":"Catedral Hueca","enemigosCerca":["priest","phantom","sniper","wraith"],"enemigosLejos":["priest","phantom","sniper","warden","eye","bomber"],"jefe":"bishop","elites":0.25,"terror":true,"luz":{"clara":105,"hastaNoche":400,"oscuridad":0.92},"musica":{"nota":37,"tempo":84},"colores":{"sueloA":"#1e1a24","sueloB":"#221d28","grietas":"#15121a","manchas":"#2a2434","muroArriba":"#3e3450","muroFrente":"#2a2236","muroBorde":"#7a68a0"}},{"piso":8,"nombre":"Corazón de Elena","enemigosCerca":["phantom","burrower","charger","sniper","splitter"],"enemigosLejos":["phantom","burrower","charger","sniper","priest","warden","bomber","eye","wraith"],"jefe":"elena","elites":0.28,"terror":true,"luz":{"clara":72,"hastaNoche":260,"oscuridad":0.97},"musica":{"nota":36,"tempo":72},"colores":{"sueloA":"#200f12","sueloB":"#241114","grietas":"#16090b","manchas":"#2c1418","muroArriba":"#4a1a22","muroFrente":"#2e1016","muroBorde":"#8a2a3a"}}],"oleadas":{"oleadasPorSala":{"normal":2,"dificil":3,"profundidadDificil":3},"profundidadLejos":2,"enemigos":{"base":3,"porProfundidad":1,"profundidadMaxima":4,"porOleada":1,"porPiso":1,"minimo":2},"pisosDuros":{"desdePiso":3,"factorCantidad":0.55,"factorVida":2.2}},"botin":{"rarezaArmas":{"common":46,"uncommon":34,"rare":15,"epic":5},"estrellas":{"enemigo":[64,27,7,1.6,0.4],"cofre":[33,34,20,9,4],"cofreDorado":[0,46,34,14,6],"tienda":[0,50,42,6,2]},"enemigo":{"monedas":[1,3],"monedasElite":3,"energia":0.25,"pocion":0.07,"arma":0.03},"elite":{"gema":0.5,"llave":0.3},"caja":{"monedas":0.35,"cuantasMonedas":[1,2],"energia":0.12,"pocion":0.05,"llave":0.04},"salaDespejada":{"cofreDorado":0.22,"cofre":0.38},"cofre":{"monedas":[3,6],"pocion":0.45,"armadura":0.12},"cofreDorado":{"armadura":0.3},"jefe":{"monedas":25,"armadura":0.4},"subjefe":{"monedas":12}}};
 // ================= Utilidades =================
 const TILE = 32, GRID = 5, CELL_W = 33, CELL_H = 27;
 const MW = GRID * CELL_W, MH = GRID * CELL_H;
@@ -340,7 +341,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 // ================= Registro de contenido =================
 // Cada enemigo vive en su propio archivo dentro de 01b-enemigos/ y se registra con defEnemy.
 // Para añadir uno nuevo: copia un archivo de esa carpeta, cambia el id y sus datos, y ponlo en la lista
-// de enemigos de algún piso (FLOORS, en 03-datos-del-juego.js). No hace falta tocar nada más.
+// de enemigos de algún piso (src/datos/pisos/). No hace falta tocar nada más.
 //   orden      posición en el bestiario
 //   stats      vida, radio, velocidad, daño, sprite y escala
 //   bestiario  nombre y descripción que ve el jugador
@@ -383,7 +384,7 @@ const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden 
 
 // Cada jefe vive en su propio archivo dentro de 01e-jefes/ y se registra con defBoss.
 // Para añadir uno: copia el archivo de uno parecido, cambia el id y sus datos, y ponlo como boss de un piso
-// (FLOORS, en 03-datos-del-juego.js). Sale en el bestiario solo.
+// (campo "jefe" en src/datos/pisos/). Sale en el bestiario solo.
 //   orden      posición en el bestiario
 //   datos      name, hp, r (radio), minion (enemigo que invoca), want (distancia a la que se queda),
 //              col (color de sus balas), tint y scale (color y tamaño del dibujo), look (usar el aspecto de otro jefe),
@@ -2172,7 +2173,7 @@ const RARITY = {
   s5: { n: '★★★★★', c: '#ffb03a' },
 };
 const RORDER = ['common', 'uncommon', 'rare', 'epic'];
-const RWEIGHT = { common: 46, uncommon: 34, rare: 15, epic: 5 };
+const RWEIGHT = DATOS.botin.rarezaArmas;   // se cambia en src/datos/botin.jsonc
 // cada arma vive en su archivo de 01c-armas/; el orden importa para el sorteo de botín
 const WEAPONS = weaponList().map(id => ({ id, ...WEAPON_DEFS[id].datos }));
 // el ataque cargado evoluciona con las estrellas del arma
@@ -2233,7 +2234,7 @@ const W = id => mkW(id, 1);
 const START_COST = { common: 2, uncommon: 3, rare: 5, epic: 7 };
 function starterW(id) { const w = mkW(id, 1); w.starter = true; return applyW(w); }
 // probabilidad de cada nivel de estrellas según de dónde sale el arma
-const STAR_W = { enemy: [64, 27, 7, 1.6, .4], chest: [33, 34, 20, 9, 4], gold: [0, 46, 34, 14, 6], shop: [0, 50, 42, 6, 2] };
+const STAR_W = (E => ({ enemy: E.enemigo, chest: E.cofre, gold: E.cofreDorado, shop: E.tienda }))(DATOS.botin.estrellas);   // src/datos/botin.jsonc
 function rollStars(src) {
   const wts = STAR_W[src].slice();
   if (rc('trebol')) for (let i = 2; i < 5; i++) wts[i] *= 1.7;
@@ -2325,32 +2326,16 @@ function D() { return (G && G.dx) || DIFFS[(G && G.diff) || SAVE.diff] || DIFFS.
 const ENEMY = {};
 for (const id of enemyList()) ENEMY[id] = ENEMIES[id].stats;
 
-const FLOORS = [
-  { name: 'La Cripta', pal: { fa: '#24222e', fb: '#272532', crack: '#1c1a24', wt: '#3f3852', wf: '#2a2438', we: '#5a5070', sp: '#2d2a39' },
-    pool1: ['slime', 'slime', 'bat', 'archer'], pool2: ['slime', 'bat', 'archer', 'archer', 'brute'],
-    boss: 'guardian', light: [150, 560, .72], elite: .10, music: { root: 45, tempo: 96 } },
-  { name: 'Catacumbas Pútridas', pal: { fa: '#1f2622', fb: '#222a25', crack: '#171d19', wt: '#38483b', wf: '#26322a', we: '#55705a', sp: '#29332c' },
-    pool1: ['toxic', 'spider', 'archer', 'mage'], pool2: ['toxic', 'spider', 'mage', 'archer', 'brute'],
-    boss: 'queen', light: [130, 470, .82], elite: .16, music: { root: 40, tempo: 104 } },
-  { name: 'El Abismo', pal: { fa: '#1d1517', fb: '#201719', crack: '#140e10', wt: '#3a2228', wf: '#26161a', we: '#5c2e36', sp: '#2a1b1e' },
-    pool1: ['wraith', 'eye', 'spider', 'bat'], pool2: ['wraith', 'eye', 'mage', 'brute', 'spider'],
-    boss: 'devourer', light: [72, 250, .97], elite: .22, music: { root: 38, tempo: 76, horror: true }, horror: true },
-  { name: 'Osario Helado', pal: { fa: '#1c222c', fb: '#1f2631', crack: '#141920', wt: '#3a4a5e', wf: '#243040', we: '#6a8aa8', sp: '#26303c' },
-    pool1: ['warden', 'archer', 'bat', 'sniper'], pool2: ['warden', 'sniper', 'brute', 'mage', 'spider'],
-    boss: 'ossuary', light: [140, 520, .8], elite: .18, music: { root: 43, tempo: 92 } },
-  { name: 'Forja Hundida', pal: { fa: '#241a14', fb: '#281d16', crack: '#1a120c', wt: '#4a3020', wf: '#2e1e14', we: '#a0582a', sp: '#2e2018' },
-    pool1: ['bomber', 'charger', 'brute', 'bat'], pool2: ['bomber', 'charger', 'warden', 'eye', 'mage'],
-    boss: 'forger', light: [130, 480, .85], elite: .2, music: { root: 41, tempo: 112 } },
-  { name: 'Jardín de Raíces', pal: { fa: '#1a2116', fb: '#1d2519', crack: '#121810', wt: '#34442a', wf: '#22301c', we: '#5a7a3a', sp: '#24301e' },
-    pool1: ['splitter', 'burrower', 'spider', 'toxic'], pool2: ['splitter', 'burrower', 'priest', 'spider', 'charger'],
-    boss: 'rootmother', light: [125, 460, .86], elite: .22, music: { root: 40, tempo: 98 } },
-  { name: 'Catedral Hueca', pal: { fa: '#1e1a24', fb: '#221d28', crack: '#15121a', wt: '#3e3450', wf: '#2a2236', we: '#7a68a0', sp: '#2a2434' },
-    pool1: ['priest', 'phantom', 'sniper', 'wraith'], pool2: ['priest', 'phantom', 'sniper', 'warden', 'eye', 'bomber'],
-    boss: 'bishop', light: [105, 400, .92], elite: .25, music: { root: 37, tempo: 84, horror: true }, horror: true },
-  { name: 'Corazón de Elena', pal: { fa: '#200f12', fb: '#241114', crack: '#16090b', wt: '#4a1a22', wf: '#2e1016', we: '#8a2a3a', sp: '#2c1418' },
-    pool1: ['phantom', 'burrower', 'charger', 'sniper', 'splitter'], pool2: ['phantom', 'burrower', 'charger', 'sniper', 'priest', 'warden', 'bomber', 'eye', 'wraith'],
-    boss: 'elena', light: [72, 260, .97], elite: .28, music: { root: 36, tempo: 72, horror: true }, horror: true },
-];
+// los pisos se diseñan en src/datos/pisos/ (un archivo por piso); aquí se traducen al formato del motor
+const FLOORS = DATOS.pisos.map(d => {
+  const C = d.colores, f = { name: d.nombre, pal: { fa: C.sueloA, fb: C.sueloB, crack: C.grietas, wt: C.muroArriba, wf: C.muroFrente, we: C.muroBorde, sp: C.manchas },
+    pool1: d.enemigosCerca, pool2: d.enemigosLejos, boss: d.jefe, light: [d.luz.clara, d.luz.hastaNoche, d.luz.oscuridad], elite: d.elites,
+    music: { root: d.musica.nota, tempo: d.musica.tempo } };
+  if (d.terror) { f.music.horror = true; f.horror = true; }
+  return f;
+});
+// oleadas y botín: src/datos/oleadas.jsonc y src/datos/botin.jsonc
+const OLEADAS = DATOS.oleadas, BOTIN = DATOS.botin;
 // cada jefe vive en su archivo de 01e-jefes/
 const BOSSES = {};
 for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
@@ -2517,7 +2502,7 @@ function buildMap(layout) {
     r.cx = (r.tcx + .5) * TILE; r.cy = (r.tcy + .5) * TILE;
     r.visited = false; r.locked = false; r.wave = 0;
     r.cleared = r.type !== 'combat' && r.type !== 'boss';
-    r.waves = r.type === 'combat' ? (r.depth >= 3 ? 3 : 2) : 0;
+    const OS = OLEADAS.oleadasPorSala; r.waves = r.type === 'combat' ? (r.depth >= OS.profundidadDificil ? OS.dificil : OS.normal) : 0;
     const hx = (r.w - 2) / 2, hy = (r.h - 2) / 2, mx = r.x + (r.w - 1) / 2, my = r.y + (r.h - 1) / 2;
     for (let y = r.y + 1; y < r.y + r.h - 1; y++) for (let x = r.x + 1; x < r.x + r.w - 1; x++)
       if (S.in((x - mx) / hx, (y - my) / hy) || big || small) tiles[y * MW + x] = FLOOR;
@@ -2831,10 +2816,11 @@ function damageProp(o, d) {
   o.dead = true;
   if (o.kind === 'barrel') { later(.07, () => explode(o.x, o.y, 78, 7, false)); return; }
   burst(o.x, o.y, '#8a5a34', 12, 150, 4, .5); noise(.15, .05, 1500);
-  if (Math.random() < .35) for (let i = 0; i < randi(1, 2); i++) dropCoin(o.x, o.y);
-  if (Math.random() < .12) G.pickups.push({ kind: 'energy', x: o.x, y: o.y, vx: 0, vy: 0 });
-  if (Math.random() < .05) G.pickups.push({ kind: 'potion', x: o.x, y: o.y });
-  if (Math.random() < .04) G.pickups.push({ kind: 'key', x: o.x, y: o.y });
+  const BC = BOTIN.caja;   // src/datos/botin.jsonc
+  if (Math.random() < BC.monedas) for (let i = 0; i < randi(BC.cuantasMonedas[0], BC.cuantasMonedas[1]); i++) dropCoin(o.x, o.y);
+  if (Math.random() < BC.energia) G.pickups.push({ kind: 'energy', x: o.x, y: o.y, vx: 0, vy: 0 });
+  if (Math.random() < BC.pocion) G.pickups.push({ kind: 'potion', x: o.x, y: o.y });
+  if (Math.random() < BC.llave) G.pickups.push({ kind: 'key', x: o.x, y: o.y });
 }
 
 // ================= Entrada =================
@@ -3465,10 +3451,10 @@ function interact(p, it) {
     it.opened = true;
     const luck = rc('trebol');
     G.pickups.push({ kind: 'weapon', x: it.x, y: it.y + 30, weapon: rollWeapon(it.gold ? 'gold' : 'chest'), bob: 0 });
-    if (Math.random() < (it.gold ? .3 : .12)) dropArmor(it.x - 40, it.y + 26, it.gold ? 'gold' : 'chest');
+    if (Math.random() < (it.gold ? BOTIN.cofreDorado.armadura : BOTIN.cofre.armadura)) dropArmor(it.x - 40, it.y + 26, it.gold ? 'gold' : 'chest');
     if (it.gold) { const rr = randomRelics(1)[0]; if (rr) G.pickups.push({ kind: 'relic', relic: rr, x: it.x + 46, y: it.y + 26 }); }
-    for (let i = 0; i < randi(3, 6); i++) dropCoin(it.x, it.y);
-    if (!pact('fasting') && (Math.random() < .45 || luck)) G.pickups.push({ kind: 'potion', x: it.x + rand(-26, 26), y: it.y + 20 + rand(0, 14) });
+    for (let i = 0; i < randi(BOTIN.cofre.monedas[0], BOTIN.cofre.monedas[1]); i++) dropCoin(it.x, it.y);
+    if (!pact('fasting') && (Math.random() < BOTIN.cofre.pocion || luck)) G.pickups.push({ kind: 'potion', x: it.x + rand(-26, 26), y: it.y + 20 + rand(0, 14) });
     burst(it.x, it.y, '#e3a24a', 14, 160);
     sfx(400, .2, 'triangle', .05, 500);
   } else if (it.kind === 'shop') {
@@ -3547,7 +3533,7 @@ function hurtPlayer(d) {
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   const fm = 1 + .6 * (G.floor - 1);
-  const hp = Math.round(d.hp * (1 + .1 * depth) * fm * (elite ? 2.5 : 1) * D().hp * (G.floor >= 3 ? 2.2 : 1));
+  const hp = Math.round(d.hp * (1 + .1 * depth) * fm * (elite ? 2.5 : 1) * D().hp * (G.floor >= OLEADAS.pisosDuros.desdePiso ? OLEADAS.pisosDuros.factorVida : 1));
   return { type, x, y, lv: G.floor, r: d.r * (elite ? 1.3 : 1), hp, max: hp, speed: d.speed * (elite ? 1.1 : 1) * Math.min(1.3, 1 + .035 * (G.floor - 1)) * (pact('frenzy') ? 1.25 : 1), dmg: d.dmg + (elite && G.floor > 1 ? 1 : 0),
     spr: d.spr, s: d.s * (elite ? 1.3 : 1), elite, kx: 0, ky: 0, flash: 0, t: rand(0, 3), st: 'walk', st_t: 0, cd: rand(.5, 1.5),
     shootT: rand(1.2, 2.2), wob: rand(0, TAU), tx: x, ty: y, poison: 0, pt: 0, alpha: 1, wa: rand(0, TAU), shield: elite && G.floor >= 4 ? Math.round(hp * .4) : 0 };
@@ -3617,14 +3603,16 @@ function killEnemy(e, src) {
   if (e.isSub) { ach('sub'); SAVE.kills['sub:' + e.sk] = (SAVE.kills['sub:' + e.sk] || 0) + 1; subDefeated(e); return; }
   if (ENEMIES[e.type] && ENEMIES[e.type].alMorir) ENEMIES[e.type].alMorir(e);
   if (pact('volatile')) { const x = e.x, y = e.y, dm = Math.max(2, Math.round(bestDmg(p))); burst(x, y, '#ff8a3a', 8, 90); later(.35, () => { if (!G.over) explode(x, y, 50, dm, false); }); }
-  const coins = Math.round((randi(1, 3) + (rc('iman') ? 1 : 0) + (e.elite ? 3 : 0)) * (pact('volatile') ? 1.5 : 1) * (pact('dark') ? 2 : 1));
+  // probabilidades en src/datos/botin.jsonc
+  const BE = BOTIN.enemigo, BL = BOTIN.elite;
+  const coins = Math.round((randi(BE.monedas[0], BE.monedas[1]) + (rc('iman') ? 1 : 0) + (e.elite ? BE.monedasElite : 0)) * (pact('volatile') ? 1.5 : 1) * (pact('dark') ? 2 : 1));
   for (let i = 0; i < coins; i++) dropCoin(e.x, e.y);
-  if (Math.random() < .25) G.pickups.push({ kind: 'energy', x: e.x, y: e.y, vx: 0, vy: 0 });
-  if (!pact('fasting') && Math.random() < .07) G.pickups.push({ kind: 'potion', x: e.x, y: e.y });
-  if (Math.random() < .03) G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: rollWeapon('enemy'), bob: 0 });
+  if (Math.random() < BE.energia) G.pickups.push({ kind: 'energy', x: e.x, y: e.y, vx: 0, vy: 0 });
+  if (!pact('fasting') && Math.random() < BE.pocion) G.pickups.push({ kind: 'potion', x: e.x, y: e.y });
+  if (Math.random() < BE.arma) G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: rollWeapon('enemy'), bob: 0 });
   if (e.elite) {
-    if (Math.random() < .5) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-60, 60), vy: rand(-60, 60) });
-    if (Math.random() < .3) G.pickups.push({ kind: 'key', x: e.x + 12, y: e.y });
+    if (Math.random() < BL.gema) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-60, 60), vy: rand(-60, 60) });
+    if (Math.random() < BL.llave) G.pickups.push({ kind: 'key', x: e.x + 12, y: e.y });
   }
 }
 function chainHit(from, dmg) {
@@ -3818,7 +3806,7 @@ function subDefeated(e) {
   }
   showBanner(e.name + ' cae', '#e3a24a', 'Subjefe derrotado');
   later(.9, offerTalent);
-  for (let i = 0; i < 12; i++) dropCoin(e.x, e.y);
+  for (let i = 0; i < BOTIN.subjefe.monedas; i++) dropCoin(e.x, e.y);
   G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });
   G.pickups.push({ kind: 'potion', x: e.x + 20, y: e.y });
   const sd = SUB_DEFS[e.sk];
@@ -3880,8 +3868,8 @@ function updateBoss(e, dt) {
 }
 function bossDefeated(e) {
   G.boss = null; G.beams = []; G.darkT = 0; G.hazards = [];
-  for (let i = 0; i < 25; i++) dropCoin(e.x, e.y);
-  if (Math.random() < .4) dropArmor(e.x + 40, e.y + 30, 'chest');
+  for (let i = 0; i < BOTIN.jefe.monedas; i++) dropCoin(e.x, e.y);
+  if (Math.random() < BOTIN.jefe.armadura) dropArmor(e.x + 40, e.y + 30, 'chest');
   for (let i = 0; i < Math.ceil((4 + G.floor) / 2); i++) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-120, 120), vy: rand(-120, 120) });
   for (const o of G.enemies) if (o !== e && !o.dead) { o.dead = true; burst(o.x, o.y, '#ece4cf', 10); }
   G.markers.length = 0;
@@ -3903,10 +3891,12 @@ function bossDefeated(e) {
 // ================= Salas =================
 function spawnWave(room) {
   const fl = FLOORS[G.fi];
-  const d = room.depth, n0 = Math.max(2, 3 + Math.min(d, 4) + room.wave + (G.floor - 1) + D().count);
-  // desde el piso 3 salen menos enemigos, pero mucho más duros (ver mkEnemy)
-  const n = G.floor >= 3 ? Math.max(2, Math.round(n0 * .55)) : n0;
-  const pool = d <= 1 ? fl.pool1 : fl.pool2;
+  // las cantidades se ajustan en src/datos/oleadas.jsonc
+  const E = OLEADAS.enemigos, PD = OLEADAS.pisosDuros;
+  const d = room.depth, n0 = Math.max(E.minimo, E.base + E.porProfundidad * Math.min(d, E.profundidadMaxima) + E.porOleada * room.wave + E.porPiso * (G.floor - 1) + D().count);
+  // en los pisos duros salen menos enemigos, pero mucho más duros (ver mkEnemy)
+  const n = G.floor >= PD.desdePiso ? Math.max(E.minimo, Math.round(n0 * PD.factorCantidad)) : n0;
+  const pool = d < OLEADAS.profundidadLejos ? fl.pool1 : fl.pool2;
   const p = G.player;
   for (let i = 0; i < n; i++) {
     const pos = freeSpot(room, 2, 20, p, 150) || freeSpot(room, 2, 20) || { x: room.cx, y: room.cy };
@@ -3953,8 +3943,8 @@ function clearRoom(room) {
     G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' }, { kind: 'key', x: x - 34, y });
     const n1 = noteFor(1); if (n1 >= 0) G.pickups.push({ kind: 'note', id: n1, x: x + 60, y: y + 40 });
   }
-  else if (r < .22) G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' });
-  else if (r < .6) G.pickups.push({ kind: 'chest', x, y, opened: false, minR: room.depth >= 3 || G.floor > 1 ? 'uncommon' : 'common' });
+  else if (r < BOTIN.salaDespejada.cofreDorado) G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' });
+  else if (r < BOTIN.salaDespejada.cofreDorado + BOTIN.salaDespejada.cofre) G.pickups.push({ kind: 'chest', x, y, opened: false, minR: room.depth >= 3 || G.floor > 1 ? 'uncommon' : 'common' });
 }
 // en los pasillos, de vez en cuando, aparece alguna alimaña débil
 const STRAYS = ['bat', 'slime', 'mini'];

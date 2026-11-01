@@ -2,7 +2,7 @@
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   const fm = 1 + .6 * (G.floor - 1);
-  const hp = Math.round(d.hp * (1 + .1 * depth) * fm * (elite ? 2.5 : 1) * D().hp * (G.floor >= 3 ? 2.2 : 1));
+  const hp = Math.round(d.hp * (1 + .1 * depth) * fm * (elite ? 2.5 : 1) * D().hp * (G.floor >= OLEADAS.pisosDuros.desdePiso ? OLEADAS.pisosDuros.factorVida : 1));
   return { type, x, y, lv: G.floor, r: d.r * (elite ? 1.3 : 1), hp, max: hp, speed: d.speed * (elite ? 1.1 : 1) * Math.min(1.3, 1 + .035 * (G.floor - 1)) * (pact('frenzy') ? 1.25 : 1), dmg: d.dmg + (elite && G.floor > 1 ? 1 : 0),
     spr: d.spr, s: d.s * (elite ? 1.3 : 1), elite, kx: 0, ky: 0, flash: 0, t: rand(0, 3), st: 'walk', st_t: 0, cd: rand(.5, 1.5),
     shootT: rand(1.2, 2.2), wob: rand(0, TAU), tx: x, ty: y, poison: 0, pt: 0, alpha: 1, wa: rand(0, TAU), shield: elite && G.floor >= 4 ? Math.round(hp * .4) : 0 };
@@ -72,14 +72,16 @@ function killEnemy(e, src) {
   if (e.isSub) { ach('sub'); SAVE.kills['sub:' + e.sk] = (SAVE.kills['sub:' + e.sk] || 0) + 1; subDefeated(e); return; }
   if (ENEMIES[e.type] && ENEMIES[e.type].alMorir) ENEMIES[e.type].alMorir(e);
   if (pact('volatile')) { const x = e.x, y = e.y, dm = Math.max(2, Math.round(bestDmg(p))); burst(x, y, '#ff8a3a', 8, 90); later(.35, () => { if (!G.over) explode(x, y, 50, dm, false); }); }
-  const coins = Math.round((randi(1, 3) + (rc('iman') ? 1 : 0) + (e.elite ? 3 : 0)) * (pact('volatile') ? 1.5 : 1) * (pact('dark') ? 2 : 1));
+  // probabilidades en src/datos/botin.jsonc
+  const BE = BOTIN.enemigo, BL = BOTIN.elite;
+  const coins = Math.round((randi(BE.monedas[0], BE.monedas[1]) + (rc('iman') ? 1 : 0) + (e.elite ? BE.monedasElite : 0)) * (pact('volatile') ? 1.5 : 1) * (pact('dark') ? 2 : 1));
   for (let i = 0; i < coins; i++) dropCoin(e.x, e.y);
-  if (Math.random() < .25) G.pickups.push({ kind: 'energy', x: e.x, y: e.y, vx: 0, vy: 0 });
-  if (!pact('fasting') && Math.random() < .07) G.pickups.push({ kind: 'potion', x: e.x, y: e.y });
-  if (Math.random() < .03) G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: rollWeapon('enemy'), bob: 0 });
+  if (Math.random() < BE.energia) G.pickups.push({ kind: 'energy', x: e.x, y: e.y, vx: 0, vy: 0 });
+  if (!pact('fasting') && Math.random() < BE.pocion) G.pickups.push({ kind: 'potion', x: e.x, y: e.y });
+  if (Math.random() < BE.arma) G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: rollWeapon('enemy'), bob: 0 });
   if (e.elite) {
-    if (Math.random() < .5) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-60, 60), vy: rand(-60, 60) });
-    if (Math.random() < .3) G.pickups.push({ kind: 'key', x: e.x + 12, y: e.y });
+    if (Math.random() < BL.gema) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-60, 60), vy: rand(-60, 60) });
+    if (Math.random() < BL.llave) G.pickups.push({ kind: 'key', x: e.x + 12, y: e.y });
   }
 }
 function chainHit(from, dmg) {

@@ -1,7 +1,7 @@
 // ================= Registro de contenido =================
 // Cada enemigo vive en su propio archivo dentro de 01b-enemigos/ y se registra con defEnemy.
 // Para añadir uno nuevo: copia un archivo de esa carpeta, cambia el id y sus datos, y ponlo en la lista
-// de enemigos de algún piso (FLOORS, en 03-datos-del-juego.js). No hace falta tocar nada más.
+// de enemigos de algún piso (src/datos/pisos/). No hace falta tocar nada más.
 //   orden      posición en el bestiario
 //   stats      vida, radio, velocidad, daño, sprite y escala
 //   bestiario  nombre y descripción que ve el jugador
@@ -44,7 +44,7 @@ const roomList = () => Object.keys(ROOM_DEFS).sort((a, b) => ROOM_DEFS[a].orden 
 
 // Cada jefe vive en su propio archivo dentro de 01e-jefes/ y se registra con defBoss.
 // Para añadir uno: copia el archivo de uno parecido, cambia el id y sus datos, y ponlo como boss de un piso
-// (FLOORS, en 03-datos-del-juego.js). Sale en el bestiario solo.
+// (campo "jefe" en src/datos/pisos/). Sale en el bestiario solo.
 //   orden      posición en el bestiario
 //   datos      name, hp, r (radio), minion (enemigo que invoca), want (distancia a la que se queda),
 //              col (color de sus balas), tint y scale (color y tamaño del dibujo), look (usar el aspecto de otro jefe),

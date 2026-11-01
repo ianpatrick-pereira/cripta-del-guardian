@@ -1,10 +1,12 @@
 // ================= Salas =================
 function spawnWave(room) {
   const fl = FLOORS[G.fi];
-  const d = room.depth, n0 = Math.max(2, 3 + Math.min(d, 4) + room.wave + (G.floor - 1) + D().count);
-  // desde el piso 3 salen menos enemigos, pero mucho más duros (ver mkEnemy)
-  const n = G.floor >= 3 ? Math.max(2, Math.round(n0 * .55)) : n0;
-  const pool = d <= 1 ? fl.pool1 : fl.pool2;
+  // las cantidades se ajustan en src/datos/oleadas.jsonc
+  const E = OLEADAS.enemigos, PD = OLEADAS.pisosDuros;
+  const d = room.depth, n0 = Math.max(E.minimo, E.base + E.porProfundidad * Math.min(d, E.profundidadMaxima) + E.porOleada * room.wave + E.porPiso * (G.floor - 1) + D().count);
+  // en los pisos duros salen menos enemigos, pero mucho más duros (ver mkEnemy)
+  const n = G.floor >= PD.desdePiso ? Math.max(E.minimo, Math.round(n0 * PD.factorCantidad)) : n0;
+  const pool = d < OLEADAS.profundidadLejos ? fl.pool1 : fl.pool2;
   const p = G.player;
   for (let i = 0; i < n; i++) {
     const pos = freeSpot(room, 2, 20, p, 150) || freeSpot(room, 2, 20) || { x: room.cx, y: room.cy };
@@ -51,8 +53,8 @@ function clearRoom(room) {
     G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' }, { kind: 'key', x: x - 34, y });
     const n1 = noteFor(1); if (n1 >= 0) G.pickups.push({ kind: 'note', id: n1, x: x + 60, y: y + 40 });
   }
-  else if (r < .22) G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' });
-  else if (r < .6) G.pickups.push({ kind: 'chest', x, y, opened: false, minR: room.depth >= 3 || G.floor > 1 ? 'uncommon' : 'common' });
+  else if (r < BOTIN.salaDespejada.cofreDorado) G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' });
+  else if (r < BOTIN.salaDespejada.cofreDorado + BOTIN.salaDespejada.cofre) G.pickups.push({ kind: 'chest', x, y, opened: false, minR: room.depth >= 3 || G.floor > 1 ? 'uncommon' : 'common' });
 }
 // en los pasillos, de vez en cuando, aparece alguna alimaña débil
 const STRAYS = ['bat', 'slime', 'mini'];

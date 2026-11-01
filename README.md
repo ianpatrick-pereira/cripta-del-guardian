@@ -19,6 +19,7 @@ Desde la v0.29 el código fuente vive en `src/`. **`cripta.html` ya no se edita 
 Desde la v0.30 cada enemigo, arma y sala de evento es un archivo propio.
 Desde la v0.31 hay pruebas automáticas en `pruebas/`.
 Desde la v0.32 cada jefe, subjefe y ataque de jefe también es un archivo propio.
+Desde la v0.33 los pisos, las oleadas y el botín son archivos de datos en `src/datos/`: se diseñan sin tocar código.
 
 ```
 ./
@@ -28,6 +29,7 @@ Desde la v0.32 cada jefe, subjefe y ataque de jefe también es un archivo propio
 └── src/
     ├── pagina.html   HTML de los menús y pantallas, con @@CSS@@ y @@JS@@ como huecos
     ├── estilos.css   estilos
+    ├── datos/        diseño sin código: pisos/ (uno por piso), oleadas.jsonc y botin.jsonc
     └── js/
         ├── 01a-registro.js   defEnemy, defWeapon, defRoom, defBoss, defSub...: qué campos lleva cada archivo
         ├── 01b-enemigos/     un archivo por enemigo (18): datos, sprite, bestiario, IA y dibujo
@@ -70,12 +72,22 @@ Para ir más rápido se puede probar un solo grupo: `node pruebas/probar.js arma
 
 Necesita Node.js y Playwright (`npm install playwright` y `npx playwright install chromium` si no están).
 
+## Diseñar con los archivos de datos
+
+`src/datos/` guarda el diseño del juego en archivos de texto sencillos (JSON con comentarios `//`). Cada valor lleva al lado una explicación.
+
+- **`pisos/1-la-cripta.jsonc` … `8-corazon-de-elena.jsonc`**: nombre, qué enemigos salen cerca y lejos de la entrada, el jefe, cuántos élites, si es un piso de terror, la luz, la música y los colores.
+- **`oleadas.jsonc`**: cuántas oleadas tiene cada sala y cuántos enemigos salen en cada una.
+- **`botin.jsonc`**: qué sueltan los enemigos, las cajas, los cofres, los jefes y los subjefes, y con qué probabilidad sale cada rareza de arma y cada número de estrellas.
+
+Al ejecutar `build.js` se comprueban: si falta una coma, dice el archivo y la línea; si un piso usa un enemigo o un jefe que no existe, dice cuál. Un cambio en estos archivos cambia cómo se juega, así que las pruebas dirán «cambió respecto a la referencia»: es lo esperado. Si todas salen ✓, guarda la nueva referencia con `--referencia`.
+
 ## Añadir contenido
 
-- **Enemigo nuevo:** copia un archivo de `01b-enemigos/` parecido, cambia el id, los datos, el sprite y la IA, y añade el id a la lista de enemigos de algún piso (`FLOORS` en `03-datos-del-juego.js`). Sale en el bestiario solo.
+- **Enemigo nuevo:** copia un archivo de `01b-enemigos/` parecido, cambia el id, los datos, el sprite y la IA, y añade el id a la lista de enemigos de algún piso (`src/datos/pisos/`). Sale en el bestiario solo.
 - **Arma nueva:** copia un archivo de `01c-armas/` parecido y cambia el id y los datos. Entra sola en el sorteo de botín según su rareza; dale un `orden` mayor que el de la última.
 - **Sala de evento nueva:** copia un archivo de `01d-salas/` y cambia el id, el objeto y sus funciones. Entra sola en el sorteo de salas de cada piso.
-- **Jefe nuevo:** copia un archivo de `01e-jefes/`, cambia el id, los datos y sus listas de ataques (p1, p2, p3), y ponlo como `boss` de un piso en `FLOORS`. Puede reutilizar el dibujo de otro con `look` y cambiarle el color con `tint`, o traer su propio `aspecto`.
+- **Jefe nuevo:** copia un archivo de `01e-jefes/`, cambia el id, los datos y sus listas de ataques (p1, p2, p3), y ponlo como `jefe` de un piso en `src/datos/pisos/`. Puede reutilizar el dibujo de otro con `look` y cambiarle el color con `tint`, o traer su propio `aspecto`.
 - **Subjefe nuevo:** copia un archivo de `01f-subjefes/` y cambia el id, el `piso` y los datos. Hay uno por piso: el nuevo reemplaza al que tenga ese número.
 - **Ataque nuevo:** copia un archivo de `01g-ataques-de-jefe/` (o `01h-` para subjefes), cambia el id y su `hacer`, y añade el id a las listas p1/p2/p3 de los jefes que quieras que lo usen.
 

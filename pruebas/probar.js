@@ -148,17 +148,11 @@ escenarios.push(casoSave('guardado de una versión futura', { ...SAVE_BASE, gems
 escenarios.push(casoSave('sin guardado', null, { continuar: false }));
 
 // ---------- traducir «cripta.html:línea» al archivo de src/ donde está ese código ----------
-const SRC = path.join(__dirname, '..', 'src', 'js');
 const mapa = (() => {
-  const files = [];
-  for (const f of fs.readdirSync(SRC).filter(f => /^\d+[a-z]?-/.test(f)).sort()) {
-    if (fs.statSync(path.join(SRC, f)).isDirectory()) files.push(...fs.readdirSync(path.join(SRC, f)).filter(g => g.endsWith('.js')).sort().map(g => f + '/' + g));
-    else if (f.endsWith('.js')) files.push(f);
-  }
   let linea = fs.readFileSync(JUEGO, 'utf8').split('\n').indexOf('<script>') + 2;   // primera línea de JS (contando desde 1)
-  return files.map(f => { const n = fs.readFileSync(path.join(SRC, f), 'utf8').split('\n').length - 1, ini = linea; linea += n; return { f, ini, fin: linea - 1 }; });
+  return require('../build.js').partes().map(({ nombre, texto }) => { const n = texto.split('\n').length - 1, ini = linea; linea += n; return { f: nombre, ini, fin: linea - 1 }; });
 })();
-const dondeEsta = msg => msg.replace(/(?:file:\/\/[^\s)]*\/)?cripta\.html:(\d+)(?::\d+)?/g, (m, l) => { const x = mapa.find(x => +l >= x.ini && +l <= x.fin); return x ? `src/js/${x.f}:${+l - x.ini + 1}` : m; });
+const dondeEsta = msg => msg.replace(/(?:file:\/\/[^\s)]*\/)?cripta\.html:(\d+)(?::\d+)?/g, (m, l) => { const x = mapa.find(x => +l >= x.ini && +l <= x.fin); return x ? `${x.f}:${+l - x.ini + 1}` : m; });
 const errorCorto = err => { const st = (err.stack || err.message || String(err)).split('\n'); const at = st.find(l => /cripta\.html:\d+/.test(l)); return dondeEsta(st[0] + (at ? ' (en ' + at.trim().replace(/^at /, '') + ')' : '')); };
 
 // ---------- ejecución ----------

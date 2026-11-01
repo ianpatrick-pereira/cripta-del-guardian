@@ -53,10 +53,10 @@ function interact(p, it) {
     it.opened = true;
     const luck = rc('trebol');
     G.pickups.push({ kind: 'weapon', x: it.x, y: it.y + 30, weapon: rollWeapon(it.gold ? 'gold' : 'chest'), bob: 0 });
-    if (Math.random() < (it.gold ? .3 : .12)) dropArmor(it.x - 40, it.y + 26, it.gold ? 'gold' : 'chest');
+    if (Math.random() < (it.gold ? BOTIN.cofreDorado.armadura : BOTIN.cofre.armadura)) dropArmor(it.x - 40, it.y + 26, it.gold ? 'gold' : 'chest');
     if (it.gold) { const rr = randomRelics(1)[0]; if (rr) G.pickups.push({ kind: 'relic', relic: rr, x: it.x + 46, y: it.y + 26 }); }
-    for (let i = 0; i < randi(3, 6); i++) dropCoin(it.x, it.y);
-    if (!pact('fasting') && (Math.random() < .45 || luck)) G.pickups.push({ kind: 'potion', x: it.x + rand(-26, 26), y: it.y + 20 + rand(0, 14) });
+    for (let i = 0; i < randi(BOTIN.cofre.monedas[0], BOTIN.cofre.monedas[1]); i++) dropCoin(it.x, it.y);
+    if (!pact('fasting') && (Math.random() < BOTIN.cofre.pocion || luck)) G.pickups.push({ kind: 'potion', x: it.x + rand(-26, 26), y: it.y + 20 + rand(0, 14) });
     burst(it.x, it.y, '#e3a24a', 14, 160);
     sfx(400, .2, 'triangle', .05, 500);
   } else if (it.kind === 'shop') {
