@@ -26,7 +26,7 @@ import { SPECS, SUB_UNLOCK, gainTalent, offerTalent, setSpec, subLv } from './26
 import { setPact } from './27-pactos-de-piso.js';
 import { GAM_SVG, gamBetVal, gamLeave, gamPick, gamPlace, gamStep, gamTick } from './30-sala-de-apuestas.js';
 import { DAILY, buildFloor, dailyInfo, setDAILY, startDaily } from './31-reto-diario.js';
-import { pickChoice } from './32-eleccion-de-reliquia.js';
+import { openChoice, pickChoice } from './32-eleccion-de-reliquia.js';
 import { relicChips, update } from './33-bucle.js';
 import { GFX_NAME, QL, QL0, resize, setQL, setSlowT, slowT } from './34-dibujo.js';
 import { render } from './38-armadura-visual.js';
@@ -235,6 +235,7 @@ window.__cripta = {
   toBoss() { const r = G.bossRoom; for (const x of G.rooms) { x.cleared = true; x.visited = true; } r.cleared = false; G.player.x = r.cx; G.player.y = r.cy + 150; G.cam.x = G.player.x; G.cam.y = G.player.y; },
   floor(n) { buildFloor(n); },
   relic(id) { gainRelic(id); },
+  relicChoice(ids) { openChoice('Altar', 'Elige una reliquia', ids, () => {}); },
   armor(st) { G.pickups.push({ kind: 'armor', stars: st, x: G.player.x + 30, y: G.player.y }); },
   weapon(id, st = 1) { G.player.slots[G.player.cur] = mkW(id, st); },
   weapons: () => WEAPONS.map(w => w.id),

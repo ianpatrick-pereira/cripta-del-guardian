@@ -156,6 +156,16 @@ details.codex[open]{padding-bottom:12px}
 .fw .ups button span{display:block;color:var(--muted);font-size:11px;font-weight:400}
 .choice b{font-size:26px}
 .choice .key{color:var(--muted);font-size:11px;letter-spacing:.12em}
+/* v0.47: el efecto en números, el icono de la reliquia y el brillo de sinergia */
+.choice .ric{display:inline-grid;place-items:center;width:30px;height:30px;border:2px solid;border-radius:4px;background:rgba(12,11,17,.85);font:600 16px var(--ui);margin:2px 0}
+.choice .nums{display:block;font-size:12px;color:#9be0c8;line-height:1.45;margin-top:4px;font-variant-numeric:tabular-nums}
+.choice .synx{display:block;font-size:12px;font-weight:600;margin-top:4px}
+.choice.syn{box-shadow:0 0 0 1px var(--glow),0 0 18px -2px var(--glow);animation:synGlow 1.6s ease-in-out infinite}
+@keyframes synGlow{50%{box-shadow:0 0 0 1px var(--glow),0 0 28px 2px var(--glow)}}
+@media (prefers-reduced-motion:reduce){.choice.syn{animation:none}}
+#choiceAct{display:flex;justify-content:center;margin-top:10px}
+#choiceAct[hidden]{display:none}
+.fw .ups button span.nx{color:#9be0c8}
 
 /* ---------- lobby (v0.45): pestañas, retratos, barra fija para entrar ---------- */
 #ovStart{flex-direction:column;align-items:center;padding-bottom:0}
