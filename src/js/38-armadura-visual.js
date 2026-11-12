@@ -541,12 +541,13 @@ function drawHUD(w, h) {
     hudBottom = sy0 - 4;
   }
   G.hudBottom = hudBottom;
-  if (G.toasts && G.toasts.length) G.toasts.forEach((t, i) => {
-    const ty = 64 + i * 26; ctx.globalAlpha = Math.min(1, t.t * 2);
+  // avisos de logro: en cola, de a uno, bajo la barra del jefe
+  if (G.toasts && G.toasts.length) {
+    const t = G.toasts[0], ty = G.enemies.some(e => e.isBoss || e.isSub) ? 66 : 22; ctx.globalAlpha = Math.max(0, Math.min(1, t.t * 2, (3.5 - t.t) * 5));
     ctx.font = '600 12px "Chakra Petch", ui-monospace, monospace'; const tw = ctx.measureText(t.txt).width + 24;
     ctx.fillStyle = 'rgba(12,11,17,.9)'; ctx.fillRect(w / 2 - tw / 2, ty - 11, tw, 22); ctx.strokeStyle = '#e3a24a'; ctx.lineWidth = 1; ctx.strokeRect(w / 2 - tw / 2 + .5, ty - 10.5, tw - 1, 21);
     hudText(t.txt, w / 2, ty, 12, '#ffd27a', 'center'); ctx.globalAlpha = 1;
-  });
+  }
 
   drawWeaponBar(p, w, h);
 
@@ -579,12 +580,13 @@ function drawHUD(w, h) {
   }
 
   if (G.banner) {
-    const a = Math.min(1, G.banner.t * 2, (2.6 - G.banner.t) * 4);
+    // cartel corto en el tercio de arriba: no tapa a los enemigos que acaban de aparecer
+    const T0 = G.banner.max || 1.8, k = T0 - G.banner.t, a = Math.min(1, G.banner.t * 2.5, k * 6);
     ctx.globalAlpha = Math.max(0, a);
-    // bajo el panel (y bajo el botón de pausa en un celular en vertical) para no taparlos
-    const by = Math.max(h * .3, Math.min(h * .5, G.hudBottom + (hudVertical(w, h) ? 100 : 44)));
-    if (G.banner.sub) fitText(G.banner.sub.toUpperCase(), w / 2, by - 30, w - 24, 12, '#9d95ab', 'center');
-    hudText(G.banner.txt, w / 2, by, Math.min(46, w / 13), G.banner.color, 'center', 800, 'Grenze Gotisch');
+    const vert = hudVertical(w, h), by = vert ? Math.max(h * .3, Math.min(h * .5, G.hudBottom + 100)) : Math.max(96, h * .2);
+    const sz = Math.min(34, w / 16) * (1 + .12 * Math.max(0, 1 - k * 5));   // entra un poco más grande y se asienta
+    if (G.banner.sub) fitText(G.banner.sub.toUpperCase(), w / 2, by - sz * .75, w - 24, 11, '#9d95ab', 'center');
+    hudText(G.banner.txt, w / 2, by, sz, G.banner.color, 'center', 800, 'Grenze Gotisch');
     ctx.globalAlpha = 1;
   }
 

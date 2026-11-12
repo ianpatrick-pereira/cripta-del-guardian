@@ -135,6 +135,7 @@ Necesita Node.js y Playwright (`npm install playwright` y `npx playwright instal
 - **`botin.jsonc`**: qué sueltan los enemigos, las cajas, los cofres, los jefes y los subjefes, y con qué probabilidad sale cada rareza de arma y cada número de estrellas.
 - **`finales.jsonc`**: los textos de los dos finales. Al «Salir victorioso» tras vencer a Elena sale el final verdadero si el diario tiene todas las notas; si no, el otro, que dice cuántas páginas faltan.
 - Dentro de cada piso, el bloque **`ambiente`** decide la decoración: colores de antorchas y plantas, partículas, telarañas y qué objetos hay por el suelo.
+- El bloque **`mar`** decide lo que rodea la mazmorra (desde la v0.43 cada piso tiene el suyo: sombra, ciénaga, vacío con estrellas, agua helada, lava, raíces, niebla, carne): colores del fondo, de las placas que flotan, burbujas, vapor, llamas (o `null`) y cuánta luz da.
 
 Al ejecutar `build.js` se comprueban: si falta una coma, dice el archivo y la línea; si un piso usa un enemigo o un jefe que no existe, dice cuál. Un cambio en estos archivos cambia cómo se juega, así que las pruebas dirán «cambió respecto a la referencia»: es lo esperado. Si todas salen ✓, guarda la nueva referencia con `--referencia`.
 

@@ -176,7 +176,7 @@ for (const id of enemyList()) ENEMY[id] = ENEMIES[id].stats;
 const FLOORS = DATOS.pisos.map(d => {
   const C = d.colores, f = { name: d.nombre, pal: { fa: C.sueloA, fb: C.sueloB, crack: C.grietas, wt: C.muroArriba, wf: C.muroFrente, we: C.muroBorde, sp: C.manchas },
     pool1: d.enemigosCerca, pool2: d.enemigosLejos, boss: d.jefe, light: [d.luz.clara, d.luz.hastaNoche, d.luz.oscuridad], elite: d.elites,
-    music: { root: d.musica.nota, tempo: d.musica.tempo } };
+    music: { root: d.musica.nota, tempo: d.musica.tempo }, mar: d.mar };
   if (d.terror) { f.music.horror = true; f.horror = true; }
   return f;
 });

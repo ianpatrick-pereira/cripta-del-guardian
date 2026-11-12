@@ -7,36 +7,41 @@ import { G } from './07-estado.js';
 import { gfxLevel, zoom } from './34-dibujo.js';
 import { AMB, flame, hexA } from './35-ambiente.js';
 const LAVA_T = 256;
-const lavaTex = (() => {
-  const c = document.createElement('canvas'); c.width = c.height = LAVA_T;
+// cada piso tiene su propio "mar" (src/datos/pisos/, bloque "mar"): lava, ciénaga, vacío con estrellas, agua helada...
+const rgbOf = c => { const n = parseInt(c.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+const SEA_TEX = [];
+function seaTex(fi) {
+  if (SEA_TEX[fi]) return SEA_TEX[fi];
+  const M = FLOORS[fi].mar, c = document.createElement('canvas'); c.width = c.height = LAVA_T;
   const g = c.getContext('2d');
-  g.fillStyle = '#2a0703'; g.fillRect(0, 0, LAVA_T, LAVA_T);
-  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  g.fillStyle = M.fondo; g.fillRect(0, 0, LAVA_T, LAVA_T);
+  let seed = 7 + fi; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const wrap = (fn) => { for (const ox of [-LAVA_T, 0, LAVA_T]) for (const oy of [-LAVA_T, 0, LAVA_T]) fn(ox, oy); };
-  // manchas calientes (naranja y amarillo) y zonas más frías (rojo oscuro)
+  const [hotC, midC, coldC] = M.manchas.map(rgbOf);
+  // manchas calientes y zonas más frías; más tenues que antes para que el fondo no le gane al combate
   for (let i = 0; i < 46; i++) {
     const x = rnd() * LAVA_T, y = rnd() * LAVA_T, r = 14 + rnd() * 46, hot = rnd();
-    const col = hot > .7 ? [255, 190, 60] : hot > .35 ? [240, 90, 20] : [120, 16, 6];
+    const col = hot > .7 ? hotC : hot > .35 ? midC : coldC;
     wrap((ox, oy) => {
       const gr = g.createRadialGradient(x + ox, y + oy, 0, x + ox, y + oy, r);
-      gr.addColorStop(0, `rgba(${col},${hot > .7 ? .42 : .5})`); gr.addColorStop(1, `rgba(${col},0)`);
+      gr.addColorStop(0, `rgba(${col},${hot > .7 ? .26 : .32})`); gr.addColorStop(1, `rgba(${col},0)`);
       g.fillStyle = gr; g.fillRect(x + ox - r, y + oy - r, r * 2, r * 2);
     });
   }
-  // costra: placas oscuras con grietas brillantes entre ellas
+  // costra: placas con un borde brillante
   for (let i = 0; i < 40; i++) {
     const x = rnd() * LAVA_T, y = rnd() * LAVA_T, n = 5 + (rnd() * 3 | 0), R = 7 + rnd() * 11, pts = [];
     for (let k = 0; k < n; k++) { const a = k / n * TAU + rnd() * .5; pts.push([Math.cos(a) * R * (.7 + rnd() * .4), Math.sin(a) * R * (.7 + rnd() * .4)]); }
     wrap((ox, oy) => {
       g.beginPath(); pts.forEach(([px, py], k) => k ? g.lineTo(x + ox + px, y + oy + py) : g.moveTo(x + ox + px, y + oy + py)); g.closePath();
-      g.fillStyle = 'rgba(24,6,4,.8)'; g.fill();
-      g.strokeStyle = 'rgba(255,130,30,.45)'; g.lineWidth = 1.5; g.stroke();
+      g.fillStyle = M.costra; g.fill();
+      g.strokeStyle = M.grietas; g.lineWidth = 1.5; g.stroke();
     });
   }
-  // chispas de roca fundida
-  for (let i = 0; i < 70; i++) { const x = rnd() * LAVA_T, y = rnd() * LAVA_T; g.fillStyle = rnd() > .5 ? 'rgba(255,220,130,.6)' : 'rgba(255,130,40,.5)'; g.fillRect(x, y, 2, 2); }
-  return c;
-})();
+  // puntitos de luz (chispas, esporas o estrellas)
+  for (let i = 0; i < 70; i++) { const x = rnd() * LAVA_T, y = rnd() * LAVA_T; g.fillStyle = rnd() > .5 ? M.chispas[0] : M.chispas[1]; g.fillRect(x, y, rnd() > .85 ? 2 : 1.5, rnd() > .85 ? 2 : 1.5); }
+  return SEA_TEX[fi] = c;
+}
 
 // bordes del mar de lava (vacío pegado a un muro): de ahí sale el vapor y se ven llamas
 function buildLava() {
@@ -55,7 +60,7 @@ function buildLava() {
 
 function drawLavaSea(vx0, vy0, vx1, vy1) {
   if (!G.lava || G.lava.of !== G.tiles) buildLava();
-  const t = G.time;
+  const t = G.time, M = FLOORS[G.fi].mar;
   // burbujas y llamas pegadas a los bordes
   const L = G.lava, FX = L.fx, dt = clamp(t - (L.t ?? t), 0, .05); L.t = t;
   const tile = (x, y) => G.tiles[Math.floor(y / TILE) * MW + Math.floor(x / TILE)];
@@ -84,12 +89,12 @@ function drawLavaSea(vx0, vy0, vx1, vy1) {
       // crece, brilla y revienta
       const r = f.r * Math.min(1, k * 1.6);
       if (k < .8) {
-        ctx.fillStyle = 'rgba(140,28,8,.9)'; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,140,40,.7)'; ctx.lineWidth = 1; ctx.stroke();
-        ctx.fillStyle = 'rgba(255,200,120,.6)'; ctx.fillRect(f.x - r * .45, f.y - r * .45, 2, 2);
+        ctx.fillStyle = M.burbujas; ctx.globalAlpha = .75; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU); ctx.fill();
+        ctx.globalAlpha = 1; ctx.strokeStyle = M.grietas; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = M.chispas[0]; ctx.fillRect(f.x - r * .45, f.y - r * .45, 2, 2);
       } else {
         const q = (k - .8) / .2;
-        ctx.strokeStyle = `rgba(255,170,70,${.6 * (1 - q)})`; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (1 + q * .8), 0, TAU); ctx.stroke();
+        ctx.strokeStyle = M.grietas; ctx.globalAlpha = 1 - q; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (1 + q * .8), 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
       }
     }
   }
@@ -97,19 +102,19 @@ function drawLavaSea(vx0, vy0, vx1, vy1) {
 // vapor y llamas de los bordes: por encima de los muros, debajo de los personajes
 function drawLavaSteam(vx0, vy0, vx1, vy1) {
   if (!G.lava) return;
-  const t = G.time, E = G.lava.edge;
+  const t = G.time, E = G.lava.edge, M = FLOORS[G.fi].mar;
   // llamas fijas en algunos bordes (una de cada pocas baldosas)
-  for (let i = 0; i < E.length; i += 2) {
+  if (M.llamas) for (let i = 0; i < E.length; i += 2) {
     const tx = E[i], ty = E[i + 1];
     if (hash(tx * 5 + 1, ty * 9 + 2) > .16) continue;
     const x = (tx + .5) * TILE, y = (ty + .8) * TILE;
     if (x < vx0 - 30 || x > vx1 + 30 || y < vy0 - 30 || y > vy1 + 40) continue;
-    flame(x, y, '#ff7a1a', 1.1 + .3 * Math.sin(t * 2 + tx), t, tx * 1.7 + ty);
+    flame(x, y, M.llamas, 1.1 + .3 * Math.sin(t * 2 + tx), t, tx * 1.7 + ty);
   }
   for (const f of G.lava.fx) {
     if (f.k !== 'steam') continue;
     const k = 1 - f.life / f.max, a = Math.min(k * 4, 1) * (1 - k) * .2;
-    ctx.fillStyle = `rgba(230,215,205,${a})`; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (1 + k * 1.4), 0, TAU); ctx.fill();
+    ctx.fillStyle = hexA(M.vapor, a); ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (1 + k * 1.4), 0, TAU); ctx.fill();
   }
 }
 
@@ -144,7 +149,7 @@ function drawLighting(w, h, camX, camY, px, py, r0, r1, al, lk) {
   if (G.lava) {
     const S = LQ * zoom * TILE;
     lg.setTransform(S, 0, 0, S, LQ * (w / 2 - camX * zoom), LQ * (h / 2 - camY * zoom));
-    lg.imageSmoothingEnabled = true; lg.globalAlpha = (.62 + .08 * Math.sin(G.time * 1.3)) * lk;
+    lg.imageSmoothingEnabled = true; lg.globalAlpha = (.62 + .08 * Math.sin(G.time * 1.3)) * Math.min(1, FLOORS[G.fi].mar.luz * 1.2) * lk;
     lg.drawImage(G.lava.mask, 0, 0);
     lg.globalAlpha = 1; lg.setTransform(LQ, 0, 0, LQ, 0, 0);
   }
@@ -182,7 +187,13 @@ function paintTiles(ctx, tx0, ty0, tx1, ty1) {
   const P = FLOORS[G.fi].pal;
   for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
     const t = G.tiles[ty * MW + tx], x = tx * TILE, y = ty * TILE;
-    if (t === VOID) { ctx.drawImage(lavaTex, x % LAVA_T, y % LAVA_T, TILE, TILE, x, y, TILE, TILE); continue; }
+    if (t === VOID) {
+      ctx.drawImage(seaTex(G.fi), x % LAVA_T, y % LAVA_T, TILE, TILE, x, y, TILE, TILE);
+      // sombra pegada a la mazmorra: separa la sala del fondo y lleva la vista al combate
+      const d = wallDist(tx, ty);
+      if (d) { ctx.fillStyle = `rgba(0,0,0,${d === 1 ? .55 : .3})`; ctx.fillRect(x, y, TILE, TILE); }
+      continue;
+    }
     if (t === FLOOR || t === DOOR) {
       ctx.fillStyle = (tx + ty) & 1 ? P.fa : P.fb;
       ctx.fillRect(x, y, TILE, TILE);
@@ -196,7 +207,15 @@ function paintTiles(ctx, tx0, ty0, tx1, ty1) {
       if (up === WALL || up === CRACK) { ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.fillRect(x, y, TILE, 5); ctx.fillStyle = 'rgba(0,0,0,.14)'; ctx.fillRect(x, y + 5, TILE, 6); }
       if (lf === WALL || lf === CRACK) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(x, y, 5, TILE); }
       if (rt === WALL || rt === CRACK) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(x + TILE - 5, y, 5, TILE); }
-      if (h < .12) { ctx.fillStyle = P.crack; ctx.fillRect(x + 6, y + 10 + Math.floor(h * 60), 10, 2); ctx.fillRect(x + 14, y + 12 + Math.floor(h * 60), 2, 6); }
+      if (h < .07) {
+        // grietas variadas y menos frecuentes (antes todas tenían la misma forma y el suelo parecía una cuadrícula)
+        ctx.fillStyle = P.crack; ctx.globalAlpha = .75; const v = Math.floor(h * 57) % 4, o = Math.floor(hash(ty, tx) * 12);
+        if (v === 0) { ctx.fillRect(x + 5 + o, y + 9, 8, 2); ctx.fillRect(x + 11 + o, y + 11, 2, 5); }
+        else if (v === 1) { ctx.fillRect(x + 8, y + 6 + o, 2, 6); ctx.fillRect(x + 10, y + 11 + o, 5, 2); ctx.fillRect(x + 15, y + 13 + o, 2, 3); }
+        else if (v === 2) { ctx.fillRect(x + 4 + o, y + 18, 3, 2); ctx.fillRect(x + 7 + o, y + 16, 3, 2); ctx.fillRect(x + 10 + o, y + 17, 4, 2); }
+        else { ctx.fillRect(x + 6 + o, y + 6 + o, 2, 2); ctx.fillRect(x + 9 + o, y + 9 + o, 2, 2); }
+        ctx.globalAlpha = 1;
+      }
       else if (h > .93) { ctx.fillStyle = P.sp; ctx.fillRect(x + 10, y + 12, 6, 4); }
       else if (h > .88 && G.fi === 1) { ctx.fillStyle = '#2f4a33'; ctx.fillRect(x + 4, y + 20, 8, 4); ctx.fillRect(x + 8, y + 16, 4, 4); }
       else if (h > .88 && G.fi === 2) { ctx.fillStyle = '#3a1418'; ctx.fillRect(x + 12, y + 8, 4, 4); ctx.fillRect(x + 16, y + 12, 4, 2); }
@@ -227,6 +246,17 @@ function paintTiles(ctx, tx0, ty0, tx1, ty1) {
   }
 }
 
+// distancia (1 o 2 baldosas) de un vacío a la mazmorra; 0 si está más lejos
+function wallDist(tx, ty) {
+  let best = 0;
+  for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
+    const x = tx + dx, y = ty + dy;
+    if (x < 0 || y < 0 || x >= MW || y >= MH || G.tiles[y * MW + x] === VOID) continue;
+    const d = Math.max(Math.abs(dx), Math.abs(dy));
+    if (!best || d < best) best = d;
+  }
+  return best;
+}
 // el suelo y los muros no cambian: se dibujan una vez por bloques de 8×8 baldosas y luego solo se copian
 const CH = 8;
 function tileChunk(cx, cy) {
@@ -236,8 +266,9 @@ function tileChunk(cx, cy) {
   if (C.size > 160) C.clear();   // no acumular memoria: se vuelven a dibujar cuando hagan falta
   const tx0 = cx * CH, ty0 = cy * CH, tx1 = Math.min(MW - 1, tx0 + CH - 1), ty1 = Math.min(MH - 1, ty0 + CH - 1);
   let empty = true;
-  for (let ty = ty0; ty <= ty1 && empty; ty++) for (let tx = tx0; tx <= tx1; tx++) if (G.tiles[ty * MW + tx] !== VOID) { empty = false; break; }
-  if (empty) { C.set(key, lavaTex); return lavaTex; }   // un bloque solo de lava es la textura misma (mide lo mismo)
+  // (con 2 baldosas de margen: la sombra del borde de la mazmorra puede caer en este bloque)
+  for (let ty = Math.max(0, ty0 - 2); ty <= Math.min(MH - 1, ty1 + 2) && empty; ty++) for (let tx = Math.max(0, tx0 - 2); tx <= Math.min(MW - 1, tx1 + 2); tx++) if (G.tiles[ty * MW + tx] !== VOID) { empty = false; break; }
+  if (empty) { const T = seaTex(G.fi); C.set(key, T); return T; }   // un bloque solo de fondo es la textura misma (mide lo mismo)
   c = document.createElement('canvas'); c.width = c.height = CH * TILE;
   const g = c.getContext('2d'); g.translate(-tx0 * TILE, -ty0 * TILE);
   paintTiles(g, tx0, ty0, tx1, ty1);

@@ -110,7 +110,7 @@ function renderMenu() {
     const lv = SAVE.upg[id] || 0, maxed = lv >= u.max, cost = u.cost[lv];
     return `<div class="upg${u.cls ? ' cls' : ''}"><div class="nm">${u.cls ? `<em>${esc(CHARS[u.cls].name)}</em> ` : ''}${esc(u.name)}<span>${esc(u.desc)}</span></div>
       <div class="dots">${Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</div>
-      <button class="small" type="button" data-u="${id}" ${maxed || SAVE.gems < cost ? 'disabled' : ''}>${maxed ? tr('Máximo') : tr`Mejorar · ${cost} gemas`}</button></div>`;
+      <button class="small" type="button" data-u="${id}" ${maxed || SAVE.gems < cost ? 'disabled' : ''}>${maxed ? tr('Máximo') : (cost === 1 ? tr`Mejorar · ${cost} gema` : tr`Mejorar · ${cost} gemas`)}</button></div>`;
   }).join('');
   $('upgList').insertAdjacentHTML('afterbegin', tr('<p class="hint">Las mejoras, el compañero y el arma inicial que compres valen solo para la próxima partida. Las gemas se guardan siempre. Las mejoras con el nombre de la clase cambian según el personaje que elijas; si cambias de personaje se te devuelven.</p>'));
   $('upgList').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
@@ -118,8 +118,8 @@ function renderMenu() {
     if (lv >= u.max || SAVE.gems < u.cost[lv]) return;
     SAVE.gems -= u.cost[lv]; SAVE.upg[id] = lv + 1; writeSave(); renderMenu();
   }));
-  const extra = SAVE.best ? tr` Récord: piso ${SAVE.best}${SAVE.wins ? tr` · ${SAVE.wins} victorias` : ''}.` : '';
-  $('gemCount').textContent = tr`${SAVE.gems} gemas.${extra}`;
+  const extra = SAVE.best ? tr` · récord: piso ${SAVE.best}${SAVE.wins ? tr` · ${SAVE.wins} victorias` : ''}` : '';
+  $('gemCount').textContent = (SAVE.gems === 1 ? tr('1 gema') : tr`${SAVE.gems} gemas`) + extra;
 }
 function renderOpts(id) {
   const o = SAVE.opt;

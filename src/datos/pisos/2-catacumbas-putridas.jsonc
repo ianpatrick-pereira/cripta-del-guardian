@@ -21,6 +21,9 @@
     "sueloA": "#1f2622", "sueloB": "#222a25", "grietas": "#171d19", "manchas": "#29332c",
     "muroArriba": "#38483b", "muroFrente": "#26322a", "muroBorde": "#55705a"
   },
+  // lo que rodea la mazmorra (ciénaga tóxica): fondo, manchas [caliente, media, fría], placas que flotan y su borde,
+  // puntitos de luz, burbujas, llamas en los bordes (null = sin llamas), vapor y cuánta luz propia da (0 a 1)
+  "mar": {"fondo": "#081206", "manchas": ["#8ab83a", "#3d6b1f", "#14280c"], "costra": "rgba(8,14,5,.8)", "grietas": "rgba(140,200,70,.32)", "chispas": ["rgba(200,240,120,.45)", "rgba(120,190,60,.4)"], "burbujas": "#3f6e1c", "llamas": null, "vapor": "#b8d6a0", "luz": 0.28},
   // decoración: colores de antorchas, brillos, estandartes, plantas (oscura y clara), flores y charcos;
   // partículas que flotan (polvo, esporas, brasas, nieve, luciernagas, chispas o petalos) y la viñeta de los bordes
   "ambiente": {

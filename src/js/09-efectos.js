@@ -15,7 +15,7 @@ function burst(x, y, color, n = 8, sp = 140, size = 3, life = .45) {
 }
 function addText(x, y, txt, color = '#ece4cf', size = 13) { G.texts.push({ x, y, txt: String(txt), color, life: .8, size }); }
 function shake(v) { G.shake = Math.max(G.shake, v * SAVE.opt.shake); }
-function showBanner(txt, color = '#ece4cf', sub = '') { G.banner = { txt, sub, color, t: 2.6 }; }
+function showBanner(txt, color = '#ece4cf', sub = '') { G.banner = { txt, sub, color, t: 1.8, max: 1.8 }; }
 function later(t, fn) { G.timers.push({ t, fn }); }
 
 function explode(x, y, R, dmg, fromPlayer) {

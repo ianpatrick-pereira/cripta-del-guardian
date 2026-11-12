@@ -95,7 +95,7 @@ function update(dt) {
   G.synT = (G.synT || 0) - dt;
   if (G.synT <= 0) { G.synT = .5; updateSyn(); }
   for (const k of roomList()) if (ROOM_DEFS[k].actualizar) ROOM_DEFS[k].actualizar(dt);   // salas de 01d-salas/
-  if (G.toasts) { for (const t of G.toasts) t.t -= dt; G.toasts = G.toasts.filter(t => t.t > 0); }
+  if (G.toasts && G.toasts.length) { G.toasts[0].t -= dt; if (G.toasts[0].t <= 0) G.toasts.shift(); }   // de a uno
   // peligros de área: círculos que se llenan y estallan
   for (const h of G.hazards) {
     if (h.owner && h.owner.dead) { h.gone = true; continue; }

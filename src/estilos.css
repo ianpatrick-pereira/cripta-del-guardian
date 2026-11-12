@@ -32,8 +32,11 @@ body{
 .opts select{background:var(--stone2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}
 .overlay{
   position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;
-  background:rgba(8,7,12,.86);padding:24px 16px;overflow-y:auto;
+  background:rgba(8,7,12,.93);padding:24px 16px;overflow-y:auto;
 }
+/* el menú principal tapa del todo la partida de fondo: su propia escena (luz de antorcha desde abajo) */
+#ovStart{background:radial-gradient(ellipse 70% 45% at 50% 108%, rgba(227,162,74,.16), rgba(227,162,74,0) 70%),
+  radial-gradient(ellipse 60% 40% at 50% -10%, rgba(120,80,190,.12), rgba(120,80,190,0) 70%), linear-gradient(#0c0a13, #060509)}
 .gamble{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:10px;padding:16px;
   background:radial-gradient(ellipse at 50% 42%, rgba(40,16,62,.84), rgba(6,3,10,.97) 72%);animation:gfade .3s ease-out;overflow:hidden}
 .gamble::before{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 140px 50px #000;animation:gflick 5s infinite}
