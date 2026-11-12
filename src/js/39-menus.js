@@ -3,7 +3,8 @@ import { IDIOMA, IDIOMAS, setIdioma, tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { esc } from './01-utilidades.js';
 import { WEAPON_DEFS, roomList } from './01a-registro.js';
-import { BOSSES, CHARS, CUR_CHAR, D, DIFFS, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
+import { SPR } from './02-pixel-art.js';
+import { BOSSES, CHARS, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
   setCUR_CHAR, starterW, weaponStats } from './03-datos-del-juego.js';
 import { SAVE, selChar, setSelChar, writeSave } from './04-guardado.js';
 import { AC, setAC } from './05-audio.js';
@@ -30,22 +31,41 @@ import { relicChips, update } from './33-bucle.js';
 import { GFX_NAME, QL, QL0, resize, setQL, setSlowT, slowT } from './34-dibujo.js';
 import { render } from './38-armadura-visual.js';
 import { renderHistory } from './38b-historial.js';
+// dibujo de un sprite como imagen (para el menú): se escala sin suavizar y se guarda
+const SPR_URL = {};
+function sprURL(key, scale = 4) {
+  const k = key + '@' + scale; if (SPR_URL[k]) return SPR_URL[k];
+  const sp = SPR[key]; if (!sp) return '';
+  const c = document.createElement('canvas'); c.width = sp.wd * scale; c.height = sp.ht * scale;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(sp.n, 0, 0, c.width, c.height);
+  try { return SPR_URL[k] = c.toDataURL(); } catch (_) { return ''; }
+}
+// barra corta de una estadística (vida, escudo, energía, velocidad) con su valor
+const statBar = (nombre, v, k) => `<span class="sbar"><em>${nombre}</em><i><u style="width:${Math.round(Math.max(.08, Math.min(1, k)) * 100)}%"></u></i><b>${v}</b></span>`;
+let lobbyTab = 'pj';
+function setLobbyTab(t) {
+  lobbyTab = t;
+  document.querySelectorAll('#ovStart [data-tab]').forEach(b => b.setAttribute('aria-selected', String(/** @type {HTMLElement} */ (b).dataset.tab === t)));
+  document.querySelectorAll('#ovStart [data-pane]').forEach(x => { /** @type {HTMLElement} */ (x).hidden = /** @type {HTMLElement} */ (x).dataset.pane !== t; });
+}
+document.querySelectorAll('#ovStart [data-tab]').forEach(b => b.addEventListener('click', () => setLobbyTab(/** @type {HTMLElement} */ (b).dataset.tab)));
 function renderMenu() {
   setCUR_CHAR(selChar);
   $('charCards').innerHTML = Object.entries(CHARS).map(([id, c]) => {
     const own = SAVE.chars[id];
-    return tr`<button class="card${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
-      <b>${esc(c.name)}</b>
-      <span class="abil">${esc(c.role)}</span>
-      <span class="meta">${c.hp + SAVE.upg.hp} vida · ${c.sh} escudo · ${c.en + SAVE.upg.en * 15} energía · velocidad ${c.speed}</span>
-      <span class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}</span>
-      <span class="meta">${esc(c.mech)}</span>
-      <span class="meta">Subclases: ${Object.values(SPECS).filter(S => S.cls === id).map(S => `${S.n} (${S.d.replace('.', '').toLowerCase()})`).join(', ')}. Se desbloquea tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas.</span>
-      <span class="meta">Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %; bastones neutrales.</span>
-      <span class="abil">${esc(c.abil)}: ${esc(c.abilDesc)}</span>
-      ${own ? '' : tr`<span class="gems">Desbloquear · ${c.cost} gemas</span>`}
+    return `<button class="card ch${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
+      <span class="por"><img src="${sprURL(c.spr, 6)}" alt=""></span>
+      <span class="ci"><b>${esc(c.name)}</b><span class="abil">${esc(c.role)}</span>
+      <span class="sbars">${statBar(tr('Vida'), c.hp + SAVE.upg.hp, (c.hp + SAVE.upg.hp) / 10)}${statBar(tr('Escudo'), c.sh, c.sh / 5)}${statBar(tr('Energía'), c.en + SAVE.upg.en * 15, (c.en + SAVE.upg.en * 15) / 180)}${statBar(tr('Velocidad'), c.speed, (c.speed - 140) / 80)}</span>
+      ${own ? `<span class="meta">F · ${esc(c.abil)}</span>` : tr`<span class="gems">🔒 Desbloquear · ${c.cost} gemas</span>`}</span>
     </button>`;
   }).join('');
+  { const c = CHARS[selChar];
+    $('charDetail').innerHTML = tr`<h3>${esc(c.name)}</h3>
+      <p><b class="abil">F · ${esc(c.abil)}:</b> ${esc(c.abilDesc)}</p>
+      <p>${esc(c.mech)}</p>
+      <p class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}. Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %; bastones neutrales.</p>
+      <p class="meta">Subclases: ${Object.values(SPECS).filter(S => S.cls === selChar).map(S => `${S.n} (${S.d.replace('.', '').toLowerCase()})`).join(', ')}. Se desbloquea tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas.</p>`; }
   $('charCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.c, c = CHARS[id];
     if (!SAVE.chars[id]) {
@@ -90,7 +110,12 @@ function renderMenu() {
   $('achList').innerHTML = Object.entries(ACH).map(([k, A]) => `<div class="${SAVE.ach[k] ? '' : 'off'}"><b>${SAVE.ach[k] ? '✓ ' : ''}${esc(A.n)}</b>${esc(A.d)} · +${A.g} ${A.g === 1 ? tr('gema') : tr('gemas')}</div>`).join('');
   const beasts = [...Object.entries(BEAST).map(([k, B]) => [k, B.n, B.d]), ...Object.values(SUBS).map(S => ['sub:' + S.sk, S.name, tr('Subjefe.')]), ...Object.entries(BOSSES).map(([k, B]) => ['boss:' + k, B.name, tr('Jefe de piso.')])];
   $('beastCount').textContent = `· ${beasts.filter(b => SAVE.kills[b[0]]).length}/${beasts.length}`;
-  $('beastList').innerHTML = beasts.map(([k, n, d]) => SAVE.kills[k] ? tr`<div><b>${esc(n)}</b>${esc(d)} Derrotados: ${SAVE.kills[k]}</div>` : tr`<div class="off"><b>???</b>Aún no lo has derrotado.</div>`).join('');
+  // cada enemigo con su dibujo; los que aún no derrotaste, en silueta
+  const beastSpr = k => k.startsWith('boss:') ? '' : k.startsWith('sub:') ? (Object.values(SUBS).find(S => 'sub:' + S.sk === k) || {}).spr : ENEMY[k] && ENEMY[k].spr;
+  $('beastList').innerHTML = beasts.map(([k, n, d]) => {
+    const sp = beastSpr(k), img = sp ? `<img src="${sprURL(sp, 3)}" alt="">` : '<i>★</i>';
+    return SAVE.kills[k] ? tr`<div title="${esc(d)}">${img}<b>${esc(n)}</b><span>Derrotados: ${SAVE.kills[k]}</span></div>` : `<div class="off">${img}<b>???</b></div>`;
+  }).join('');
   $('noteCount').textContent = `· ${Object.keys(SAVE.notes).length}/${NOTES.length}`;
   $('noteList').innerHTML = NOTES.map((N, i) => SAVE.notes[i] ? `<div><b>${esc(N.t)}</b>${esc(N.b)}</div>` : tr`<div class="off"><b>Página perdida</b>Sigue explorando la cripta.</div>`).join('');
   $('synCount').textContent = `· ${SYNERGIES.filter(S => SAVE.syn[S.id]).length}/${SYNERGIES.length}`;
@@ -104,7 +129,8 @@ function renderMenu() {
     $('btnDaily').textContent = tr`Reto diario · ${CHARS[I.char].name}${rec ? tr` · récord ${rec}` : ''}`;
     $('btnDaily').title = tr('La misma mazmorra para todos hoy, con clase fija, sin mejoras del altar y en dificultad Guardián'); }
   $('diffCards').innerHTML = Object.entries(DIFFS).map(([id, d]) =>
-    `<button class="card${SAVE.diff === id ? ' sel' : ''}" type="button" data-d="${id}"><b>${esc(d.name)}</b><span class="meta">${esc(d.desc)}</span></button>`).join('');
+    `<button class="${SAVE.diff === id ? 'sel' : ''}" type="button" data-d="${id}" aria-pressed="${SAVE.diff === id}">${esc(d.name)}</button>`).join('');
+  $('diffDesc').textContent = (DIFFS[SAVE.diff] || DIFFS.normal).desc;
   $('diffCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { SAVE.diff = b.dataset.d; writeSave(); renderMenu(); }));
   $('upgList').innerHTML = Object.entries(UPG).filter(([, u]) => !u.cls || u.cls === selChar).map(([id, u]) => {
     const lv = SAVE.upg[id] || 0, maxed = lv >= u.max, cost = u.cost[lv];
@@ -120,6 +146,12 @@ function renderMenu() {
   }));
   const extra = SAVE.best ? tr` · récord: piso ${SAVE.best}${SAVE.wins ? tr` · ${SAVE.wins} victorias` : ''}` : '';
   $('gemCount').textContent = (SAVE.gems === 1 ? tr('1 gema') : tr`${SAVE.gems} gemas`) + extra;
+  // resumen de lo elegido, siempre visible junto al botón de entrar
+  const nUpg = Object.entries(UPG).filter(([, u]) => !u.cls || u.cls === selChar).reduce((a, [k]) => a + (SAVE.upg[k] || 0), 0);
+  const sw = SAVE.startW && WEAPONS.find(w => w.id === SAVE.startW);
+  $('lobbySum').innerHTML = [`<b>${esc(CHARS[selChar].name)}</b>`, esc((DIFFS[SAVE.diff] || DIFFS.normal).name), SAVE.pet ? esc(PETS[SAVE.pet].n) : tr('sin compañero'),
+    sw ? esc(sw.name) : '', nUpg ? (nUpg === 1 ? tr('1 mejora del altar') : tr`${nUpg} mejoras del altar`) : ''].filter(Boolean).join(' · ');
+  setLobbyTab(lobbyTab);
 }
 function renderOpts(id) {
   const o = SAVE.opt;

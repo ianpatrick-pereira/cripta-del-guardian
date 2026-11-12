@@ -1048,9 +1048,7 @@
   " · te derrotó: ": " · defeated by: ",
 
   // src/js/39-menus.js
-  "<button class=\"card{0}{1}\" type=\"button\" data-c=\"{2}\">\n      <b>{3}</b>\n      <span class=\"abil\">{4}</span>\n      <span class=\"meta\">{5} vida · {6} escudo · {7} energía · velocidad {8}</span>\n      <span class=\"meta\">Empieza con {9}</span>\n      <span class=\"meta\">{10}</span>\n      <span class=\"meta\">Subclases: {11}. Se desbloquea tras {12} bajas y luego crece con cada enemigo que matas.</span>\n      <span class=\"meta\">Armas afines (+30 %): {13}. Las de otra clase −30 %; bastones neutrales.</span>\n      <span class=\"abil\">{14}: {15}</span>\n      {16}\n    </button>": "<button class=\"card{0}{1}\" type=\"button\" data-c=\"{2}\">\n      <b>{3}</b>\n      <span class=\"abil\">{4}</span>\n      <span class=\"meta\">{5} health · {6} shield · {7} energy · speed {8}</span>\n      <span class=\"meta\">Starts with {9}</span>\n      <span class=\"meta\">{10}</span>\n      <span class=\"meta\">Subclasses: {11}. Unlocks after {12} kills and then grows with every enemy you kill.</span>\n      <span class=\"meta\">Affine weapons (+30 %): {13}. Other classes' weapons −30 %; staves are neutral.</span>\n      <span class=\"abil\">{14}: {15}</span>\n      {16}\n    </button>",
   " y ": " and ",
-  "<span class=\"gems\">Desbloquear · {0} gemas</span>": "<span class=\"gems\">Unlock · {0} gems</span>",
   "Te faltan {0} gemas": "You need {0} more gems",
   "Ninguno": "None",
   "Vas solo.": "You go alone.",
@@ -1062,8 +1060,6 @@
   " gemas": " gems",
   "Subjefe.": "Sub-boss.",
   "Jefe de piso.": "Floor boss.",
-  "<div><b>{0}</b>{1} Derrotados: {2}</div>": "<div><b>{0}</b>{1} Defeated: {2}</div>",
-  "<div class=\"off\"><b>???</b>Aún no lo has derrotado.</div>": "<div class=\"off\"><b>???</b>You haven't defeated it yet.</div>",
   "<div class=\"off\"><b>Página perdida</b>Sigue explorando la cripta.</div>": "<div class=\"off\"><b>Lost page</b>Keep exploring the crypt.</div>",
   "Continuar · piso {0} ({1})": "Continue · floor {0} ({1})",
   "Nueva partida": "New run",
@@ -1094,7 +1090,6 @@
   "II": "II",
   "Prototipo jugable ·": "Playable prototype ·",
   "Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.": "Descend eight floors, clear every room, gather relics and defeat each level's boss. The gems you find are kept even if you die.",
-  "Elige personaje": "Choose a character",
   "Dificultad": "Difficulty",
   "Compañero": "Companion",
   "Altar de almas": "Altar of souls",
@@ -1178,5 +1173,22 @@
   "Elena cae, y la cripta suspira como quien se da la vuelta en la cama.": "Elena falls, and the crypt sighs like someone rolling over in bed.",
   "Subes las escaleras con el botín a cuestas. Fuera es de noche, y el pueblo parece más pequeño de lo que recordabas.": "You climb the stairs with the loot on your back. Outside it's night, and the village seems smaller than you remembered.",
   "En el bolsillo encuentras un diario que no recuerdas haber guardado. La letra es la tuya. La primera línea dice: «Mi hermana bajó a la cripta hace tres lunas».": "In your pocket you find a journal you don't remember keeping. The handwriting is yours. The first line reads: “My sister went down into the crypt three moons ago”.",
-  "Mañana, piensas, volverás a bajar.": "Tomorrow, you think, you'll go down again."
+  "Mañana, piensas, volverás a bajar.": "Tomorrow, you think, you'll go down again.",
+
+  // src/js/39-menus.js (lobby v0.45)
+  "Vida": "Health",
+  "Escudo": "Shield",
+  "Energía": "Energy",
+  "Velocidad": "Speed",
+  "<span class=\"gems\">🔒 Desbloquear · {0} gemas</span>": "<span class=\"gems\">🔒 Unlock · {0} gems</span>",
+  "<h3>{0}</h3>\n      <p><b class=\"abil\">F · {1}:</b> {2}</p>\n      <p>{3}</p>\n      <p class=\"meta\">Empieza con {4}. Armas afines (+30 %): {5}. Las de otra clase −30 %; bastones neutrales.</p>\n      <p class=\"meta\">Subclases: {6}. Se desbloquea tras {7} bajas y luego crece con cada enemigo que matas.</p>": "<h3>{0}</h3>\n      <p><b class=\"abil\">F · {1}:</b> {2}</p>\n      <p>{3}</p>\n      <p class=\"meta\">Starts with {4}. Affine weapons (+30 %): {5}. Other classes' weapons −30 %; staves are neutral.</p>\n      <p class=\"meta\">Subclasses: {6}. Unlocks after {7} kills and then grows with every enemy you kill.</p>",
+  "<div title=\"{0}\">{1}<b>{2}</b><span>Derrotados: {3}</span></div>": "<div title=\"{0}\">{1}<b>{2}</b><span>Defeated: {3}</span></div>",
+  "sin compañero": "no companion",
+  "1 mejora del altar": "1 altar upgrade",
+  "{0} mejoras del altar": "{0} altar upgrades",
+  "Personaje": "Character",
+  "Preparación": "Preparation",
+  "Archivo": "Archive",
+  "Controles": "Controls",
+  "Menú": "Menu"
 }
