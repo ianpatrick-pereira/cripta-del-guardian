@@ -19,6 +19,11 @@ const GLIFOS = {
   calavera:['..aaaaa..', '.aaaaaaa.', 'aaaaaaaaa', 'a..aaa..a', 'a..aaa..a', 'aaaa.aaaa', '.aaaaaaa.', '.a.a.a.a.'],
   copo:    ['....a....', '..a.a.a..', '...aaa...', 'aaaabaaaa', '...aaa...', '..a.a.a..', '....a....'],
   humo:    ['...aaa....', '..abbaa...', '.aaaaaaaa.', 'aaaaaaaaaa', 'aaaaaaaaaa', '.aaaaaaaa.'],
+  bandera: ['a........', 'aaaaaaa..', 'abbaaaaa.', 'abaaaaa..', 'aaaaaaaa.', 'a........', 'a........', 'a........', 'a........'],
+  puno:    ['.aaaaaa.', 'abababaa', 'aaaaaaaa', 'aaaaaaaa', '.aaaaaa.', '..aaaa..', '..aaaa..'],
+  pluma:   ['.......aa', '.....aaba', '....aaba.', '...aaba..', '..aaba...', '..aba....', '.aaa.....', '.a.......', 'a........'],
+  mira:    ['....a....', '..aaaaa..', '.a..a..a.', '.a.....a.', 'aaa.b.aaa', '.a.....a.', '.a..a..a.', '..aaaaa..', '....a....'],
+  capa:    ['...aaa...', '..abbaa..', '..aaaaa..', '.aaaaaaa.', '.aaaaaaa.', 'aaaaaaaaa', 'aaaaaaaaa', 'aa.aaa.aa'],
   llama:   ['....a....', '...aa....', '...aaa...', '..aaaa.a.', '.aaabaaaa', '.aabbbaaa', '.aabbbaa.', '..aaaaa..'],
 };
 // qué dibujo lleva cada mejora (reliquias, talentos y pactos)
@@ -26,6 +31,7 @@ const ICONO = {
   // reliquias
   corazon: 'corazon', escudo: 'escudo', botas: 'bota', rebote: 'flecha', onda: 'espada', veneno: 'gota', ojo: 'ojo', vampiro: 'gota',
   carcaj: 'flecha', piedra: 'espada', reloj: 'reloj', iman: 'iman', bateria: 'rayo', espinas: 'espinas', trebol: 'trebol', polvora: 'bomba',
+  estandarte: 'bandera', guantelete: 'puno', broquel: 'escudo', pluma: 'pluma', mira: 'mira', punta: 'flecha', capa: 'capa', punal: 'espada', brazalete: 'llama',
   // talentos
   vigor: 'corazon', muro: 'escudo', furia: 'llama', egida: 'escudo', contra: 'espada', puas: 'espinas', embestida: 'escudo', aguante: 'escudo', sed: 'corazon',
   ojo2: 'ojo', rafaga: 'rayo', perfora: 'flecha', cazador: 'ojo', hielo: 'copo', rebote2: 'flecha', carcaj2: 'flecha', voltereta: 'flecha', frio: 'copo',

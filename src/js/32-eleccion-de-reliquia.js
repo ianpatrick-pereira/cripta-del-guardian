@@ -43,6 +43,7 @@ function renderChoice() {
     }
     const n = kind === 'relic' ? G.player.relics.filter(x => x === id).length : 0;
     let tags = n ? tr`<span class="tag">Ya tienes ${n}</span>` : '', cls = '', glow = '';
+    if (kind === 'relic' && R.cls && R.cls.length === 1) tags += tr`<span class="tag">★ De tu clase</span>`;
     const s = kind === 'relic' ? relicSynergy(id) : null;
     if (s) { tags += tr`<span class="tag synx" style="color:${s.c}">✦ Sinergia: ${esc(s.n)}</span>`; cls = ' syn'; glow = `;--glow:${s.c}`; }
     return `<button class="card choice pic${cls}" type="button" data-i="${i}" style="border-color:${R.c}${glow}"><span class="key">${i + 1}</span>` +
