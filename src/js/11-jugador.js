@@ -93,7 +93,12 @@ function updatePlayer(dt) {
       }
     }
     G.parts.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .22, max: .22, color: 'rgba(227,162,74,.5)', size: 9 });
-  } else moveEnt(p, mx * ch.speed * speedMul * dt, my * ch.speed * speedMul * dt);
+  } else if (p.slick > 0) {
+    // charco del Elemental de agua: resbalas, cuesta frenar y girar
+    const k = Math.min(1, dt * 1.6);
+    p.svx = (p.svx || 0) + (mx * ch.speed * speedMul * 1.15 - (p.svx || 0)) * k; p.svy = (p.svy || 0) + (my * ch.speed * speedMul * 1.15 - (p.svy || 0)) * k;
+    moveEnt(p, p.svx * dt, p.svy * dt);
+  } else { p.svx = mx * ch.speed * speedMul; p.svy = my * ch.speed * speedMul; moveEnt(p, p.svx * dt, p.svy * dt); }
   if (p.kbx || p.kby) { moveEnt(p, p.kbx * dt, p.kby * dt); const f = Math.exp(-7 * dt); p.kbx *= f; p.kby *= f; if (Math.abs(p.kbx) + Math.abs(p.kby) < 10) p.kbx = p.kby = 0; }
   pushOutProps(p);
   p.walk += ml * dt * 10;

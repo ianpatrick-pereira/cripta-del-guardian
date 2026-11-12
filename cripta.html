@@ -303,7 +303,7 @@ details.codex[open]{padding-bottom:12px}
   <div class="overlay lobby" id="ovStart">
     <div class="panel">
       <header class="lhead">
-        <div><p class="eyebrow">Prototipo jugable · <span>v0.56</span></p><h1>Cripta del Guardián</h1></div>
+        <div><p class="eyebrow">Prototipo jugable · <span>v0.57</span></p><h1>Cripta del Guardián</h1></div>
         <span class="gempill" id="gemCount"></span>
       </header>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
@@ -2481,6 +2481,124 @@ defBossMove('web', {
     if (e.timer > vol * .5 + .5) bossIdle(e);
   }
 });
+// Ataque de Elemental de aire: te atrae hacia él y, al final, suelta una ráfaga que hace daño y empuja
+
+
+
+
+
+
+
+
+
+defSubMove('atraer', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    if (e.timer > .3 && e.timer < 1.7) {
+      windPull(e, ph2 ? 170 : 130, dt);
+      if (Math.random() < .7) { const an = rand(0, TAU), rr = rand(60, 170); G.parts.push({ x: e.x + Math.cos(an) * rr, y: e.y + Math.sin(an) * rr, vx: -Math.cos(an) * 260, vy: -Math.sin(an) * 260, life: .45, max: .45, color: 'rgba(200,240,224,.8)', size: 2 }); }
+      if (Math.random() < dt * 5) noise(.2, .03, 2400);
+    }
+    if (e.k === 0 && e.timer > 1.7) {
+      e.k = 1;
+      // ráfaga: daña y empuja si estás cerca, y lanza un anillo de cuchillas de viento
+      if (!G.over && dist(e, p) < 130 && hurtPlayer(e.dmg, e.name)) elemHit('air', e);
+      for (let i = 0; i < (ph2 ? 16 : 12); i++) enemyShoot(e, i * TAU / (ph2 ? 16 : 12) + angTo(e, p), 260, 5, S.pc);
+      burst(e.x, e.y, '#c8f0e0', 26, 320, 4, .5); shake(8); sfx(600, .3, 'sine', .05, -400);
+    }
+    if (e.timer > 2.1) subIdle(e);
+  }
+});
+// Ataque de Elemental de fuego: bolas de fuego que caen sobre ti y dejan el suelo ardiendo
+
+
+
+
+
+
+defSubMove('bolafuego', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    const n = ph2 ? 4 : 3;
+    if (e.timer > .35 && e.k < n && e.timer >= .35 + e.k * .4) {
+      const t = .9, j = 30;
+      hazard(p.x + G.pv.x * t * .7 + rand(-j, j), p.y + G.pv.y * t * .7 + rand(-j, j), 44, t, 1, S.pc, { owner: e, el: 'fire' });
+      enemyShoot(e, angTo(e, p) + rand(-.15, .15), 190, 10, '#ffb04a');
+      e.k++; sfx(180, .2, 'sawtooth', .04, -90);
+    }
+    if (e.timer > .5 + n * .4 + .6) subIdle(e);
+  }
+});
+// Ataque de Elemental de fuego: una línea de suelo ardiendo que avanza hacia ti
+
+
+
+
+
+
+
+defSubMove('brasas', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    if (e.k === 0) { e.k = 1; e.ca = angTo(e, p); e.n = 0; }
+    const tot = ph2 ? 9 : 7;
+    while (e.n < tot && e.timer > .3 + e.n * .09) {
+      e.n++;
+      for (const side of ph2 ? [-.35, 0, .35] : [0]) {
+        const a = e.ca + side, d = e.r + e.n * 38, x = e.x + Math.cos(a) * d, y = e.y + Math.sin(a) * d;
+        if (!hitsWall(x, y, 10)) hazard(x, y, 30, .45, 1, S.pc, { owner: e, el: 'fire' });
+      }
+      noise(.1, .03, 500);
+    }
+    if (e.timer > .3 + tot * .09 + .7) subIdle(e);
+  }
+});
+// Ataque de Elemental de agua: bolas de agua en ráfagas; donde caen dejan charcos
+
+
+
+
+
+
+
+defSubMove('burbujas', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    const n = ph2 ? 4 : 3;
+    if (e.timer > .45 && e.k < n && e.timer >= .45 + e.k * .45) {
+      const A = angTo(e, p);
+      for (let i = -2; i <= 2; i++) enemyShoot(e, A + i * .14 + rand(-.03, .03), 210 + 15 * Math.abs(i), 8, S.pc);
+      addPuddle(p.x + rand(-40, 40), p.y + rand(-40, 40), 38, 5);
+      e.k++; sfx(420, .15, 'sine', .04, -260);
+    }
+    if (e.timer > .55 + n * .45) subIdle(e);
+  }
+});
+// Ataque de Elemental de agua: inunda el suelo a tu alrededor; los charcos te hacen resbalar
+
+
+
+
+
+
+defSubMove('charcos', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    if (e.k === 0) {
+      e.k = 1; e.spots = [];
+      const n = ph2 ? 5 : 4, off = rand(0, TAU);
+      for (let i = 0; i < n; i++) { const a = off + i * TAU / n, d = i === 0 ? 0 : rand(60, 110); e.spots.push({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }); }
+      for (const s of e.spots) hazard(s.x, s.y, 46, .8, 1, S.tint, { owner: e });
+    }
+    if (e.k === 1 && e.timer > .8) { e.k = 2; for (const s of e.spots) addPuddle(s.x, s.y, 50, 7); noise(.4, .06, 700); }
+    if (e.timer > 1.2) subIdle(e);
+  }
+});
 // Ataque de subjefe: charge3
 
 
@@ -2533,6 +2651,46 @@ defSubMove('fan', {
     const T = e.timer - .5, dur = 1.3;
     while (e.k * .07 < T && T < dur) { const ang = e.ca - .9 + 1.8 * (e.k * .07 / dur); enemyShoot(e, ang, 230, 5, S.tint); e.k++; if (e.k % 3 === 0) sfx(420, .03, 'square', .015); }
     if (T > dur + .3) subIdle(e);
+  }
+});
+// Ataque de Elemental de aire: flechas de viento muy rápidas
+
+
+
+
+
+
+defSubMove('flechas', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    const n = ph2 ? 5 : 4;
+    if (e.timer > .3 && e.k < n && e.timer >= .3 + e.k * .28) {
+      // apunta adonde vas a estar
+      const t = .35, A = angTo(e, { x: p.x + G.pv.x * t, y: p.y + G.pv.y * t });
+      for (let i = -1; i <= 1; i++) enemyShoot(e, A + i * .1 + rand(-.02, .02), 420, 4, S.pc, 1, 'arrow');
+      e.k++; sfx(900, .06, 'triangle', .03, 500);
+    }
+    if (e.timer > .4 + n * .28) subIdle(e);
+  }
+});
+// Ataque de Elemental de tierra: abanicos de piedras pequeñas
+
+
+
+
+
+defSubMove('gravilla', {
+  hacer(e, dt, c) {
+    const { p, ph2 } = c;
+    e.timer += dt;
+    const n = ph2 ? 3 : 2;
+    if (e.timer > .4 && e.k < n && e.timer >= .4 + e.k * .5) {
+      const A = angTo(e, p) + (e.k % 2 ? .1 : -.1);
+      for (let i = -3; i <= 3; i++) enemyShoot(e, A + i * .16 + rand(-.03, .03), 230, 5, '#a88a68');
+      e.k++; sfx(140, .12, 'square', .03, -60);
+    }
+    if (e.timer > .5 + n * .5) subIdle(e);
   }
 });
 // Ataque de subjefe: gust
@@ -2588,6 +2746,93 @@ defSubMove('bighop', 'hop');
 defSubMove('hop2', {
   hacer(e, dt, c) {
     if (e.st_t <= 0) { e.st = 'bighop'; e.k = 0; e.timer = 0; e.tele = .3; }
+  }
+});
+// Ataque de Elemental de fuego: lanzallamas hacia un lado que gira despacio hacia ti
+
+
+
+
+
+defSubMove('lanzallamas', {
+  hacer(e, dt, c) {
+    const { p, ph2 } = c;
+    e.timer += dt;
+    // aviso: medio segundo apuntando antes de escupir
+    if (e.k === 0) { e.k = 1; e.ca = angTo(e, p); e.tele = .55; sfx(110, .5, 'sawtooth', .04, 60); }
+    if (e.timer > .55 && e.timer < 2.4) {
+      const want = angTo(e, p); let da = want - e.ca; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
+      const turn = (ph2 ? 1.2 : .8) * dt; e.ca += Math.max(-turn, Math.min(turn, da));
+      flameCone(e, e.ca, ph2 ? 240 : 210, .3, dt);
+      if (Math.random() < dt * 6) noise(.14, .03, 700);
+    }
+    if (e.timer > 2.6) subIdle(e);
+  }
+});
+// Ataque de Elemental de tierra: levanta columnas de roca detrás de ti para cerrarte el paso
+
+
+
+
+
+
+defSubMove('muralla', {
+  hacer(e, dt, c) {
+    const { p, ph2 } = c;
+    e.timer += dt;
+    if (e.k === 0 && e.timer > .5) {
+      e.k = 1;
+      // una jaula de columnas a tu alrededor con la salida mirando hacia él: o lo enfrentas o las rompes
+      const toE = angTo(p, e), n = 10, gap = ph2 ? 1 : 2;
+      for (let i = 0; i < n; i++) {
+        if (Math.min(i, n - i) < gap) continue;
+        const a = toE + i * 2 * Math.PI / n, d = 84 + rand(-5, 5);
+        raisePillar(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d);
+      }
+      shake(8); noise(.4, .08, 250); sfx(60, .5, 'sawtooth', .05, -10);
+    }
+    if (e.timer > 1.1) subIdle(e);
+  }
+});
+// Ataque de Elemental de tierra: lanza un pedrusco que rueda hacia ti y estalla en área
+
+
+
+
+
+defSubMove('pedrusco', {
+  hacer(e, dt, c) {
+    const { p, ph2 } = c;
+    e.timer += dt;
+    if (e.k === 0) { e.k = 1; e.tele = .6; shake(3); }
+    if (e.k === 1 && e.timer > .6) { e.k = 2; throwBoulder(e, angTo(e, p), e.dmg); }
+    if (ph2 && e.k === 2 && e.timer > 1.3) { e.k = 3; throwBoulder(e, angTo(e, p) + .35, e.dmg); throwBoulder(e, angTo(e, p) - .35, e.dmg); }
+    if (e.timer > (ph2 ? 2 : 1.4)) subIdle(e);
+  }
+});
+// Ataque de Elemental de aire: ráfaga de viento en cono que hace daño y te lanza hacia atrás
+
+
+
+
+
+
+
+defSubMove('rafaga', {
+  hacer(e, dt, c) {
+    const { p, S, ph2 } = c;
+    e.timer += dt;
+    if (e.k === 0) { e.k = 1; e.ca = angTo(e, p); e.tele = .5; }
+    if (e.k === 1 && e.timer > .5) {
+      e.k = 2;
+      let da = Math.abs(angTo(e, p) - e.ca); if (da > Math.PI) da = TAU - da;
+      if (!G.over && dist(e, p) < 260 && da < .55 && hurtPlayer(e.dmg, e.name)) elemHit('air', e);
+      for (let i = -5; i <= 5; i++) enemyShoot(e, e.ca + i * .1, 330 + rand(-30, 30), 5, S.pc);
+      for (let i = 0; i < 30; i++) { const an = e.ca + rand(-.5, .5), sp = rand(300, 560); G.parts.push({ x: e.x, y: e.y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp, life: .5, max: .5, color: 'rgba(200,240,224,.8)', size: 3 }); }
+      noise(.5, .08, 2600);
+    }
+    if (ph2 && e.k === 2 && e.timer > 1.1) { e.k = 1; e.timer = .5 - .01; e.ca = angTo(e, p); e.reps = (e.reps || 0) + 1; if (e.reps > 1) { e.k = 3; } }
+    if (e.timer > 1.2 || e.k === 3) { e.reps = 0; subIdle(e); }
   }
 });
 // Ataque de subjefe: rain
@@ -3749,7 +3994,12 @@ function updatePlayer(dt) {
       }
     }
     G.parts.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .22, max: .22, color: 'rgba(227,162,74,.5)', size: 9 });
-  } else moveEnt(p, mx * ch.speed * speedMul * dt, my * ch.speed * speedMul * dt);
+  } else if (p.slick > 0) {
+    // charco del Elemental de agua: resbalas, cuesta frenar y girar
+    const k = Math.min(1, dt * 1.6);
+    p.svx = (p.svx || 0) + (mx * ch.speed * speedMul * 1.15 - (p.svx || 0)) * k; p.svy = (p.svy || 0) + (my * ch.speed * speedMul * 1.15 - (p.svy || 0)) * k;
+    moveEnt(p, p.svx * dt, p.svy * dt);
+  } else { p.svx = mx * ch.speed * speedMul; p.svy = my * ch.speed * speedMul; moveEnt(p, p.svx * dt, p.svy * dt); }
   if (p.kbx || p.kby) { moveEnt(p, p.kbx * dt, p.kby * dt); const f = Math.exp(-7 * dt); p.kbx *= f; p.kby *= f; if (Math.abs(p.kbx) + Math.abs(p.kby) < 10) p.kbx = p.kby = 0; }
   pushOutProps(p);
   p.walk += ml * dt * 10;
@@ -5264,23 +5514,23 @@ function resumeRun(s) {
 const ELEMS = {
   fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
-           boss: { name: tr('Señor de las Brasas'), r: 24, hp: 270, speed: 92, want: 190, minion: ['bat', 'mage'], p1: ['rain', 'fan', 'volley', 'rain'], p2: ['rain', 'fan', 'volley', 'summon', 'slam', 'rain'] } },
+           boss: { name: tr('Señor de las Brasas'), r: 24, hp: 300, speed: 92, want: 170, p1: ['lanzallamas', 'bolafuego', 'brasas'], p2: ['lanzallamas', 'bolafuego', 'brasas', 'lanzallamas', 'rain'] } },
   water: { n: tr('Agua'),   c: '#4ab0e8', ab: tr('Maremoto'), abd: tr('Una ola en anillo empuja, frena y daña; desde Nv3 te cura 1.'),
            hitd: tr('te empapa y te ralentiza'),
-           boss: { name: tr('Leviatán de la Fuente'), r: 26, hp: 290, speed: 74, want: 130, minion: ['slime', 'toxic'], p1: ['spit', 'wave', 'hop', 'fan'], p2: ['spit', 'wave', 'bighop', 'fan', 'summon', 'whirl'] } },
+           boss: { name: tr('Leviatán de la Fuente'), r: 26, hp: 320, speed: 78, want: 150, p1: ['wave', 'burbujas', 'charcos'], p2: ['wave', 'burbujas', 'charcos', 'whirl', 'wave'] } },
   air:   { n: tr('Aire'),   c: '#c8f0e0', ab: tr('Tornado'),  abd: tr('Lanza un tornado que arrastra y tritura a los enemigos.'),
            hitd: tr('te lanza hacia atrás'),
-           boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 250, speed: 118, want: 170, minion: ['bat', 'spider'], p1: ['gust', 'charge3', 'fan', 'retreat'], p2: ['gust', 'charge3', 'fan', 'retreat', 'summon', 'gust'] } },
+           boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 270, speed: 155, want: 190, p1: ['flechas', 'gust', 'atraer'], p2: ['flechas', 'gust', 'atraer', 'rafaga', 'charge3'] } },
   earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Fisura'),   abd: tr('Una línea de picos de roca aturde y te da escudo.'),
            hitd: tr('golpea +1 y resiste el daño'),
-           boss: { name: tr('Gólem de Roca'), r: 28, hp: 380, speed: 62, want: 0, minion: ['brute', 'slime'], p1: ['slam', 'hop', 'rain'], p2: ['slam', 'bighop', 'rain', 'summon', 'charge3'] } },
+           boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'slam'], p2: ['pedrusco', 'gravilla', 'muralla', 'slam', 'pedrusco'] } },
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
 function mkElem(el, x, y) {
   const E = ELEMS[el], B = E.boss;
-  const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el, minion: B.minion };
+  const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el };
   const lv = G.floor, hp = Math.round(B.hp * D().hp * (1 + .65 * (lv - 1)));
-  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), tint: E.c,
+  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), fd: el === 'earth' ? 1 : 0, tint: E.c,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 function totemElement() { return pick(EL_ORDER); }
@@ -5288,12 +5538,8 @@ function startElemFight(it) {
   const room = roomAt(it.x, it.y) || G.cur, E = ELEMS[it.el];
   it.gone = true; room.locked = true; room.elTheme = it.el;
   G.elFight = { room, el: it.el };
+  // v0.57: pelea a solas, sin súbditos
   G.markers.push({ x: it.x, y: it.y, t: 1.3, type: 'elem', el: it.el });
-  const n = Math.min(5, 2 + Math.floor((G.floor - 1) / 2) + (G.diff === 'hard' ? 1 : 0));
-  for (let i = 0; i < n; i++) {
-    const pos = freeSpot(room, 2, 20, G.player, 150);
-    if (pos) G.markers.push({ x: pos.x, y: pos.y, t: 1.1 + i * .1, type: pick(E.boss.minion), depth: 1, el: it.el });
-  }
   showBanner(E.boss.name, E.c, tr`Elemental de ${E.n.toLowerCase()} · opcional`);
   shake(8); noise(.5, .08, 400); sfx(70, .8, 'sawtooth', .05, 20);
 }
@@ -5439,6 +5685,128 @@ function drawCrystal(x, y, c, s = 1) {
   ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillRect(x - 1.5 * s, y - 5 * s, 2 * s, 4 * s);
 }
 
+
+
+// ================= Poderes de los Elementales (v0.57) =================
+// Cada Elemental pelea solo, con su propio repertorio (ver los ataques el-* en 01h-ataques-de-subjefe/):
+//   agua   → olas, bolas de agua y charcos que te hacen resbalar
+//   fuego  → lanzallamas hacia un lado, bolas de fuego y suelo ardiendo
+//   tierra → pedruscos que estallan en área, gravilla y columnas que cierran el paso (más duro y más lento)
+//   aire   → más rápido, flechas de viento, empuja, atrae y suelta una ráfaga
+// Aquí viven las cosas que dejan en el mundo: charcos, pedruscos y columnas.
+
+
+
+
+
+
+
+
+
+// charco: mientras lo pisas, te deslizas (ver el movimiento en 11-jugador.js)
+function addPuddle(x, y, r = 46, t = 6) {
+  if (hitsWall(x, y, 8)) return;
+  (G.puddles || (G.puddles = [])).push({ x, y, r, t, max: t, wob: rand(0, TAU) });
+}
+// pedrusco: rueda hacia donde estabas y estalla en área al chocar o al llegar
+function throwBoulder(e, a, dmg) {
+  (G.boulders || (G.boulders = [])).push({ x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, a, sp: 250, d: 0, max: 420, r: 18, dmg, src: e, spin: 0 });
+  sfx(70, .4, 'sawtooth', .05, -20);
+}
+// columna de roca: sólida durante unos segundos; se puede romper a golpes
+function raisePillar(x, y) {
+  const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE), p = G.player;
+  if (solidAt(tx, ty) || hitsWall(x, y, 14) || dist({ x, y }, p) < p.r + 30) return false;
+  if (G.props.some(o => !o.dead && dist(o, { x, y }) < o.r + 22)) return false;
+  G.props.push({ kind: 'roca', x, y, r: 16, hp: 18, solid: true, flash: 0, temp: 7, rise: 0 });
+  burst(x, y, '#8a6a48', 10, 140, 4, .4);
+  return true;
+}
+function updateElemPowers(dt) {
+  const p = G.player, fight = !!G.elFight;
+  if (G.puddles) {
+    for (const c of G.puddles) {
+      c.t -= dt;
+      if (!G.over && dist(c, p) < c.r && p.dashT <= 0) p.slick = .35;
+    }
+    G.puddles = G.puddles.filter(c => c.t > 0 && fight);
+  }
+  if (G.boulders) {
+    for (const b of G.boulders) {
+      const step = b.sp * dt; b.d += step; b.spin += dt * 8;
+      const nx = b.x + Math.cos(b.a) * step, ny = b.y + Math.sin(b.a) * step;
+      const hitP = !G.over && dist(b, p) < b.r + p.r;
+      if (hitsWall(nx, ny, b.r * .6) || b.d >= b.max || hitP || G.props.some(o => !o.dead && o.solid && dist(o, { x: nx, y: ny }) < o.r + b.r * .6)) {
+        b.gone = true;
+        // estallido en área + gravilla en anillo
+        if (!G.over && dist(b, p) < 80 + p.r * .4 && hurtPlayer(b.dmg + 1, b.src.name)) elemHit('earth', b);
+        for (let i = 0; i < 8; i++) enemyShoot({ x: b.x, y: b.y, r: 6 }, i * TAU / 8 + rand(-.1, .1), 170, 5, '#c09060');
+        burst(b.x, b.y, '#8a6a48', 22, 220, 5, .5); shake(9); noise(.3, .08, 300);
+        continue;
+      }
+      b.x = nx; b.y = ny;
+      if (Math.random() < .5) G.parts.push({ x: b.x + rand(-8, 8), y: b.y + b.r * .6, vx: 0, vy: -20, life: .4, max: .4, color: '#6a5440', size: 3 });
+    }
+    G.boulders = G.boulders.filter(b => !b.gone && fight);
+  }
+  for (const o of G.props) if (o.kind === 'roca' && !o.dead) {
+    o.rise = Math.min(1, (o.rise || 0) + dt * 5); o.temp -= dt;
+    if (o.temp <= 0 || !fight) { o.dead = true; burst(o.x, o.y, '#8a6a48', 8, 120, 4, .4); }
+  }
+  p.slick = (p.slick || 0) - dt;
+}
+function drawPuddles() {
+  if (!G.puddles) return;
+  for (const c of G.puddles) {
+    const k = Math.min(1, c.t / .8, (c.max - c.t) / .3);
+    ctx.globalAlpha = .55 * k; ctx.fillStyle = '#2a6f9a';
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r, c.r * .62, 0, 0, TAU); ctx.fill();
+    ctx.globalAlpha = .5 * k; ctx.strokeStyle = '#9be0ff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r * (.55 + .1 * Math.sin(G.time * 3 + c.wob)), c.r * .34, 0, 0, TAU); ctx.stroke();
+    ctx.globalAlpha = .7 * k; ctx.fillStyle = '#e8f8ff'; ctx.fillRect(c.x - c.r * .4, c.y - c.r * .25, 8, 2);
+    ctx.globalAlpha = 1;
+  }
+}
+function drawBoulders() {
+  if (!G.boulders) return;
+  for (const b of G.boulders) {
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(b.x, b.y + b.r * .8, b.r, b.r * .4, 0, 0, TAU); ctx.fill();
+    ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.spin);
+    ctx.fillStyle = '#7a6046'; ctx.fillRect(-b.r, -b.r * .8, b.r * 2, b.r * 1.6); ctx.fillRect(-b.r * .8, -b.r, b.r * 1.6, b.r * 2);
+    ctx.fillStyle = '#9a7a58'; ctx.fillRect(-b.r * .6, -b.r * .7, b.r * .7, b.r * .5);
+    ctx.fillStyle = '#4e3c2a'; ctx.fillRect(b.r * .1, b.r * .2, b.r * .6, b.r * .35);
+    ctx.restore();
+  }
+}
+// columna: se dibuja desde drawProp
+function drawPillar(o) {
+  const h = 34 * (o.rise || 0), w = o.flash > 0;
+  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(o.x, o.y + 6, 17, 7, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = w ? '#fff' : '#6a5440'; ctx.fillRect(o.x - 14, o.y + 6 - h, 28, h);
+  ctx.fillStyle = w ? '#fff' : '#9a7a58'; ctx.fillRect(o.x - 16, o.y + 2 - h, 32, 8);
+  ctx.fillStyle = '#4e3c2a'; ctx.fillRect(o.x - 6, o.y + 14 - h, 3, h * .6); ctx.fillRect(o.x + 5, o.y + 10 - h, 3, h * .4);
+  if (o.temp < 1.5 && Math.floor(G.time * 10) % 2) { ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(o.x - 14, o.y + 6 - h, 28, h); }
+}
+// lanzallamas del Elemental de fuego: cono que gira despacio hacia ti
+function flameCone(e, a, reach, half, dt) {
+  const p = G.player, ox = e.x + Math.cos(a) * e.r, oy = e.y + Math.sin(a) * e.r;
+  for (let i = 0; i < 6; i++) { const an = a + rand(-half, half) * .9, sp = reach * rand(2.4, 3.2); G.parts.push({ x: ox, y: oy, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp, life: .36, max: .36, color: Math.random() < .35 ? '#ffd27a' : Math.random() < .5 ? '#ff8a3a' : '#e8402a', size: rand(5, 10) }); }
+  const d = dist(p, { x: ox, y: oy });
+  let da = Math.abs(angTo({ x: ox, y: oy }, p) - a); if (da > Math.PI) da = TAU - da;
+  if (!G.over && d < reach && da < half + p.r / Math.max(30, d) && hurtPlayer(e.dmg, e.name)) elemHit('fire', e);
+  // deja el suelo ardiendo por donde pasa
+  e.burnAcc = (e.burnAcc || 0) + dt;
+  if (e.burnAcc > .3) {
+    e.burnAcc = 0;
+    const r = rand(.45, .9) * reach, fx = ox + Math.cos(a) * r, fy = oy + Math.sin(a) * r;
+    if (!hitsWall(fx, fy, 8)) (G.flames || (G.flames = [])).push({ x: fx, y: fy, r: 26, t: 3, fight: true });
+  }
+}
+// empuja o atrae al jugador (aire)
+function windPull(e, k, dt) {
+  const p = G.player, a = angTo(p, e);
+  moveEnt(p, Math.cos(a) * k * dt, Math.sin(a) * k * dt);
+}
 
 
 // ================= Forja =================
@@ -6343,6 +6711,7 @@ function pickChoice(i) {
 
 
 
+
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -6434,6 +6803,7 @@ function update(dt) {
   }
   G.hazards = G.hazards.filter(h => !h.gone);
   updateFlames(dt);
+  updateElemPowers(dt);
   G.darkT -= dt;
 
   for (let i = G.markers.length - 1; i >= 0; i--) {
@@ -7553,6 +7923,7 @@ function setWREACT(v) { return (WREACT = v); }
 
 
 
+
 // colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí)
 const ARMOR_PARTS = { knight: ['#9a97a8', '#c9c3b4'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
@@ -7956,6 +8327,7 @@ function drawPickup(it) {
   }
 }
 function drawProp(o) {
+  if (o.kind === 'roca') { drawPillar(o); return; }
   if (o.kind === 'merchant') { drawShadow(o.x, o.y, 11); drawSpr('merchant', o.x, o.y - 2, 2, { flip: G.player.x < o.x }); return; }
   drawShadow(o.x, o.y + 2, 12);
   drawSpr(o.kind, o.x, o.y, o.kind === 'barrel' ? 2.2 : 2, { white: o.flash > 0 });
@@ -8288,6 +8660,7 @@ function render0() {
   }
   for (const it of G.pickups) if (it.kind === 'portal' && Math.random() < .3) G.parts.push({ x: it.x + rand(-20, 20), y: it.y + rand(-28, 28), vx: 0, vy: -40, life: .6, max: .6, color: '#c77dff', size: 3 });
   // suelo en llamas del Señor de las Brasas
+  drawPuddles(); drawBoulders();
   for (const f of G.flames || []) {
     const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
     g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
