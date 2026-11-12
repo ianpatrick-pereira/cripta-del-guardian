@@ -1,7 +1,7 @@
 // ================= Forja =================
 import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
-import { esc } from './01-utilidades.js';
+import { esc, fmtNum } from './01-utilidades.js';
 import { RARITY, applyW, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { sfx } from './05-audio.js';
@@ -22,6 +22,15 @@ const FORGE_MAX = 3;
 const forgeCost = (w, k) => Math.round(((10 + 6 * w.stars) * (1 + .6 * (w.up[k] || 0)) + 6 * (G.floor - 1)) * (k === 'bones' ? 2.5 : 1));
 // mejora exclusiva y cara del grimorio
 const BONES_UP = { n: tr('Legión mayor'), d: tr('+1 esqueleto como máximo por nivel (mejora cara)') };
+// cómo queda el arma con un nivel más de esa mejora: "12 → 13 daño"
+function forgePreview(w, k) {
+  const n = applyW({ ...w, up: { ...w.up, [k]: (w.up[k] || 0) + 1 } });
+  if (k === 'dmg') return tr`Daño: ${w.dmg} → ${n.dmg}`;
+  if (k === 'rate') return tr`Ataques por segundo: ${fmtNum(1 / w.cd)} → ${fmtNum(1 / n.cd)}`;
+  if (k === 'chg') return tr`Carga: ×${fmtNum(w.chgMul)} → ×${fmtNum(n.chgMul)}`;
+  if (k === 'en') return (w.en !== n.en ? tr`Energía: ${w.en} → ${n.en} · ` : '') + tr`Energía de la carga: ${w.chgEn} → ${n.chgEn}`;
+  return '';
+}
 function openForge() {
   G.choice = { forge: true, ids: [] };
   keys.clear(); mouse.down = mouse.right = false; touch.atk = touch.chg = false;
@@ -36,7 +45,8 @@ function renderForge() {
     if (w.stars >= 5) return tr`<div class="fw">${head}<div class="st">Arma legendaria: no admite mejoras normales.</div>${elb}</div>`;
     const ups = Object.entries(w.style ? { ...FORGE, esp: STYLE[w.style].esp, ...(w.style === 'grimoire' ? { bones: BONES_UP } : {}) } : FORGE).map(([k, f]) => {
       const lv = w.up[k] || 0, max = lv >= FORGE_MAX, cost = forgeCost(w, k), useless = k === 'en' && w.en === 0 && w.chgEn <= 4;
-      return `<button class="small" type="button" data-s="${i}" data-k="${k}" ${!max && !useless && G.coins >= cost ? '' : 'disabled'}><b>${f.n} ${'●'.repeat(lv)}${'○'.repeat(FORGE_MAX - lv)}</b><span>${f.d}</span><span>${max ? tr('Máximo') : cost + tr(' monedas')}</span></button>`;
+      const nx = max || useless ? '' : forgePreview(w, k);
+      return `<button class="small" type="button" data-s="${i}" data-k="${k}" ${!max && !useless && G.coins >= cost ? '' : 'disabled'}><b>${f.n} ${'●'.repeat(lv)}${'○'.repeat(FORGE_MAX - lv)}</b><span>${f.d}</span>${nx ? `<span class="nx">${esc(nx)}</span>` : ''}<span>${max ? tr('Máximo') : cost + tr(' monedas')}</span></button>`;
     }).join('');
     return `<div class="fw">${head}<div class="ups">${ups}</div>${elb}</div>`;
   }).join('');

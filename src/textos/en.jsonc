@@ -1190,5 +1190,21 @@
   "Preparación": "Preparation",
   "Archivo": "Archive",
   "Controles": "Controls",
-  "Menú": "Menu"
+  "Menú": "Menu",
+
+  // v0.47 elecciones
+  "Daño: {0} → {1}": "Damage: {0} → {1}",
+  "Ataques por segundo: {0} → {1}": "Attacks per second: {0} → {1}",
+  "Carga: ×{0} → ×{1}": "Charge: ×{0} → ×{1}",
+  "Daño": "Damage",
+  "Crítico": "Crit",
+  "Energía máx.": "Max energy",
+  "Escudo máx.": "Max shield",
+  "Vida máx.: {0} → {1}": "Max health: {0} → {1}",
+  "<span class=\"synx\" style=\"color:{0}\">✦ Activa la sinergia {1}</span>": "<span class=\"synx\" style=\"color:{0}\">✦ Unlocks the synergy {1}</span>",
+  "<button class=\"ghost small\" id=\"btnReroll\" type=\"button\" {0}>↻ Volver a tirar · {1} monedas (tecla R, una vez por piso)</button>": "<button class=\"ghost small\" id=\"btnReroll\" type=\"button\" {0}>↻ Reroll · {1} coins (R key, once per floor)</button>",
+
+  // v0.47 elecciones
+  "Energía: {0} → {1} · ": "Energy: {0} → {1} · ",
+  "Energía de la carga: {0} → {1}": "Charge energy: {0} → {1}"
 }

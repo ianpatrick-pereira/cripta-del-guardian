@@ -291,6 +291,12 @@ function drawEnemy(e) {
     ctx.fillStyle = `rgba(255,210,122,${.18 + .08 * Math.sin(G.time * 6)})`;
     ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 8, 0, TAU); ctx.fill();
   }
+  if (e.elite) {   // corona de élite (y escudo si lo tiene) sobre la cabeza
+    const hx = e.x, hy = e.y - e.r - (e.hp < e.max ? (e.shield > 0 ? 25 : 21) : 12) + Math.sin(G.time * 3) * 1.5;
+    ctx.fillStyle = '#1b1208'; ctx.fillRect(hx - 7, hy - 3, 14, 7);
+    ctx.fillStyle = '#ffd27a'; ctx.fillRect(hx - 6, hy, 12, 3); ctx.fillRect(hx - 6, hy - 3, 2, 3); ctx.fillRect(hx - 1, hy - 4, 2, 4); ctx.fillRect(hx + 4, hy - 3, 2, 3);
+    if (e.shield > 0) { ctx.fillStyle = '#9bd8ff'; ctx.fillRect(hx + 9, hy - 3, 6, 5); ctx.fillRect(hx + 10, hy + 2, 4, 2); }
+  }
   if (e.el) { ctx.fillStyle = ELEMS[e.el].c + '44'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 7, 0, TAU); ctx.fill(); }
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
   drawSpr(e.spr, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
@@ -411,6 +417,8 @@ function drawProp(o) {
   drawSpr(o.kind, o.x, o.y, o.kind === 'barrel' ? 2.2 : 2, { white: o.flash > 0 });
 }
 
+// un símbolo por tipo de sala: jefe, tienda, tesoro, evento, secreta
+const roomIcon = r => r.ev ? ['!', '#ff8a3a'] : { boss: ['☠', '#ff5a5f'], treasure: ['◆', '#c77dff'], shop: ['$', '#f0c040'], secret: ['?', '#c77dff'] }[r.type];
 function drawMinimap(w) {
   const cw = 15, ch = 11, gap = 5, pad = 10;
   const known = r => r.type === 'secret' ? r.visited : (r.visited || r.links.some(n => n.visited && n.type !== 'secret'));
@@ -430,8 +438,7 @@ function drawMinimap(w) {
     ctx.fillStyle = r === G.cur ? '#e3a24a' : r.visited ? '#6b6480' : '#2a2638';
     ctx.fillRect(x, y, cw, ch);
     if (!r.visited) { ctx.strokeStyle = '#4a4458'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, y + .5, cw - 1, ch - 1); }
-    // un símbolo por tipo de sala: jefe, tienda, tesoro, evento, secreta
-    const ic = r.ev ? ['!', '#ff8a3a'] : { boss: ['☠', '#ff5a5f'], treasure: ['◆', '#c77dff'], shop: ['$', '#f0c040'], secret: ['?', '#c77dff'] }[r.type];
+    const ic = roomIcon(r);
     if (ic) { ctx.font = '700 10px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#0c0b11'; ctx.fillText(ic[0], x + cw / 2 + .5, y + ch / 2 + 1.5); ctx.fillStyle = ic[1]; ctx.fillText(ic[0], x + cw / 2, y + ch / 2 + 1); }
   }
   return oy + GRID * (ch + gap) + pad;
@@ -710,6 +717,21 @@ function render0() {
   // por encima de la oscuridad: lo que el jugador necesita ver para esquivar
   worldT();
   drawMotesGlow();
+  // las puertas anuncian su premio: el símbolo de la sala especial aún sin visitar, junto a la pared que da hacia ella
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '700 22px "Chakra Petch", ui-monospace, monospace';
+  for (const r of G.rooms) {
+    if (!r.visited) continue;
+    for (const n of r.links) {
+      if (n.visited || n.type === 'secret') continue;
+      const ic = roomIcon(n); if (!ic) continue;
+      const x = clamp(n.cx, r.x * TILE + TILE * 2, (r.x + r.w) * TILE - TILE * 2), y = clamp(n.cy, r.y * TILE + TILE * 2, (r.y + r.h) * TILE - TILE * 2);
+      const a = .7 + .25 * Math.sin(G.time * 3);
+      ctx.globalAlpha = a * .8; ctx.fillStyle = '#0c0b11'; ctx.beginPath(); ctx.arc(x, y, 16, 0, TAU); ctx.fill();
+      ctx.globalAlpha = a; ctx.strokeStyle = ic[1]; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = ic[1]; ctx.fillText(ic[0], x, y + 1);
+    }
+  }
+  ctx.globalAlpha = 1;
   if (FLOORS[G.fi].horror || G.darkT > 0 || pact('dark')) {
     for (const e of G.enemies) {
       if (e.isBoss) continue;

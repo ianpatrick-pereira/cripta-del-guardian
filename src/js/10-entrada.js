@@ -5,7 +5,7 @@ import { G, started } from './07-estado.js';
 import { closeNote } from './20-historia.js';
 import { closeForge } from './24-forja.js';
 import { gamLeave, gamPick, gamPlace } from './30-sala-de-apuestas.js';
-import { pickChoice } from './32-eleccion-de-reliquia.js';
+import { pickChoice, rerollChoice } from './32-eleccion-de-reliquia.js';
 import { setPause, togglePause } from './39-menus.js';
 const keys = new Set();
 const mouse = { x: 0, y: 0, down: false, right: false, moved: false };
@@ -19,6 +19,7 @@ addEventListener('keydown', e => {
   if (G && G.choice && G.choice.forge) { if (['escape', 'e', 'p'].includes(k)) closeForge(); return; }
   if (G && G.choice && G.choice.gamble) { if (['1', '2', '3'].includes(k)) gamPick(+k - 1); else if (k === 'enter') gamPlace(); else if (k === 'escape') gamLeave(); return; }
   if (G && G.choice && ['1', '2', '3'].includes(k)) { pickChoice(+k - 1); return; }
+  if (G && G.choice && k === 'r' && !e.repeat) { rerollChoice(); return; }
   if (!started) return;
   if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'tab'].includes(k)) e.preventDefault();
   if (k === 'escape' || k === 'p') { togglePause(); return; }
