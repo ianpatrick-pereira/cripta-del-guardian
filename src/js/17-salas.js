@@ -7,7 +7,7 @@ import { G, freeSpot } from './07-estado.js';
 import { hitsWall, roomAt, roomRectAt } from './08-colisiones.js';
 import { addText, burst, later, shake, showBanner } from './09-efectos.js';
 import { mkEnemy } from './14-enemigos.js';
-import { SUBS } from './15-subjefes.js';
+import { SUBS, subMinion } from './15-subjefes.js';
 import { noteFor } from './20-historia.js';
 import { updateAdapt } from './25-enemigos-que-se-adaptan.js';
 import { dareClear, dareStart } from './28-desafios-dentro-del-piso.js';
@@ -35,10 +35,10 @@ function startEncounter(room) {
   } else if (room.sub) {
     const S = SUBS[room.subK || G.fi + 1];
     room.wave = room.waves;
-    G.markers.push({ x: room.cx, y: room.cy - 30, t: 1.4, type: 'sub', k: room.subK || G.fi + 1 });
+    G.markers.push({ x: room.cx, y: room.cy - 30, t: 1.4, type: 'sub', k: room.subK || G.fi + 1, ex: !!room.subExtra });
     for (let i = 0; i < (G.diff === 'hard' ? 3 : 2); i++) {
       const pos = freeSpot(room, 2, 20, G.player, 150);
-      if (pos) G.markers.push({ x: pos.x, y: pos.y, t: 1.2 + i * .1, type: S.minion, depth: 1 });
+      if (pos) G.markers.push({ x: pos.x, y: pos.y, t: 1.2 + i * .1, type: subMinion(S), depth: 1 });
     }
     showBanner(S.name, '#e3a24a', tr('Subjefe'));
   } else { G.waveDelay = .5; dareStart(room); }

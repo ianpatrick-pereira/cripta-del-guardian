@@ -3,7 +3,7 @@
 import { tr } from './00b-textos.js';
 import { angTo, dist, pick, rand } from './01-utilidades.js';
 import { SUB_DEFS, SUB_MOVES } from './01a-registro.js';
-import { BOTIN, D } from './03-datos-del-juego.js';
+import { BOTIN, D, FLOORS } from './03-datos-del-juego.js';
 import { sfx } from './05-audio.js';
 import { G } from './07-estado.js';
 import { moveEnt, pushOutProps } from './08-colisiones.js';
@@ -13,10 +13,20 @@ import { ELEMS } from './23-elementos.js';
 import { offerTalent } from './26-clases.js';
 const SUBS = {};
 for (const id of Object.keys(SUB_DEFS)) SUBS[SUB_DEFS[id].piso] = { sk: id, ...SUB_DEFS[id].datos };
-function mkSub(floor, x, y) {
-  // los subjefes extra (de pisos anteriores) llegan con la vida del subjefe del piso actual
-  const S = SUBS[floor], base = floor === G.fi + 1 ? S.hp : SUBS[G.fi + 1].hp * .75, hp = Math.round(base * D().hp * (1 + .8 * (G.cycle - 1)));
-  return { def: S, type: 'sub', isSub: true, sk: S.sk, name: S.name, spr: S.spr, s: S.s, r: S.r, x, y, hp, max: hp, speed: S.speed, dmg: 1, tint: S.tint,
+// v0.55: cada piso tiene UN subjefe, el líder de su monstruo. Respecto a uno normal: +25 % de vida,
+// recibe un 20 % menos de daño (ver hurtEnemy), pega 1 más que los monstruos del piso y ataca con su propio repertorio.
+const SUB_VIDA = 1.25, SUB_RESISTE = .8;
+// los esbirros que llama son del monstruo del piso (los Elementales traen los suyos)
+function subMinion(S) {
+  if (S.el) return Array.isArray(S.minion) ? pick(S.minion) : S.minion;
+  const fl = FLOORS[G.fi];
+  return (fl && fl.pool1 && fl.pool1[0]) || S.minion;
+}
+function mkSub(floor, x, y, extra = false) {
+  // los subjefes extra (otra sala del mismo piso) llegan con el 75 % de la vida
+  const S = SUBS[floor], base = S.hp * SUB_VIDA * (extra ? .75 : 1), hp = Math.round(base * D().hp * (1 + .8 * (G.cycle - 1)));
+  const fd = 1 + (G.floor >= 5 ? 1 : 0) + (D().dmgAdd || 0);
+  return { def: S, type: 'sub', isSub: true, sk: S.sk, name: S.name, spr: S.spr, s: S.s, r: S.r, x, y, hp, max: hp, speed: S.speed, dmg: 1 + fd, fd, resist: SUB_RESISTE, tint: S.tint,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 const enemyPace = () => Math.min(1.4, 1 + .05 * (G.floor - 1));
@@ -70,4 +80,4 @@ function subDefeated(e) {
   if (sd && sd.alMorir) sd.alMorir(e);
 }
 
-export { SUBS, enemyPace, mkSub, subDefeated, subIdle, updateSub };
+export { SUBS, enemyPace, mkSub, subMinion, subDefeated, subIdle, updateSub };

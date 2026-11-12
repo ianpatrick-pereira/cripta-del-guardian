@@ -22,9 +22,11 @@ import { cheatDefeated } from './30-sala-de-apuestas.js';
 import { elemHitFx } from './37-armas-visual.js';
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
-  const fm = 1 + .6 * (G.floor - 1);
+  // v0.55: cada piso más hondo aguanta bastante más (vida +70 % por piso) y desde el piso 5 pega 1 más
+  // (se suma a lo que ya añade hurtPlayer: +1 desde el piso 3 y +2 desde el 7)
+  const fm = 1 + .7 * (G.floor - 1), fd = (G.floor >= 5 ? 1 : 0) + (D().dmgAdd || 0);
   const hp = Math.round(d.hp * (1 + .1 * depth) * fm * (elite ? 2.5 : 1) * D().hp * (G.floor >= OLEADAS.pisosDuros.desdePiso ? OLEADAS.pisosDuros.factorVida : 1));
-  return { type, x, y, lv: G.floor, r: d.r * (elite ? 1.3 : 1), hp, max: hp, speed: d.speed * (elite ? 1.1 : 1) * Math.min(1.3, 1 + .035 * (G.floor - 1)) * (pact('frenzy') ? 1.25 : 1), dmg: d.dmg + (elite && G.floor > 1 ? 1 : 0),
+  return { type, x, y, lv: G.floor, r: d.r * (elite ? 1.3 : 1), hp, max: hp, speed: d.speed * (elite ? 1.1 : 1) * Math.min(1.3, 1 + .035 * (G.floor - 1)) * (pact('frenzy') ? 1.25 : 1), dmg: d.dmg + fd + (elite && G.floor > 1 ? 1 : 0), fd,
     spr: d.spr, s: d.s * (elite ? 1.3 : 1), elite, kx: 0, ky: 0, flash: 0, t: rand(0, 3), st: 'walk', st_t: 0, cd: rand(.5, 1.5),
     shootT: rand(1.2, 2.2), wob: rand(0, TAU), tx: x, ty: y, poison: 0, pt: 0, alpha: 1, wa: rand(0, TAU), shield: elite && G.floor >= 4 ? Math.round(hp * .4) : 0 };
 }
@@ -48,6 +50,7 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
     if (dmg <= 0) { e.flash = .06; addText(e.x + rand(-6, 6), e.y - e.r - 4, ab, '#9bd8ff', 12); return; }
   }
   if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * .7));
+  if (e.resist) dmg = Math.max(1, Math.round(dmg * e.resist));
   e.hp -= dmg; e.flash = .1; e.hitT = .14;
   // golpe fuerte (crítico, cargado, habilidad): micropausa y el enemigo se frena un instante
   const heavy = crit || kb >= 300 || o.cls;
@@ -133,8 +136,14 @@ function quien(e) {
   if (e.isSub) return e.name;
   return BEAST[e.type] ? BEAST[e.type].n : null;
 }
+// daño extra (piso hondo, arsenal fuerte, subjefe) de quien lanza un disparo o una zona; los jefes llevan el suyo
+function extraDmg(e) {
+  const A = e && e.fd != null ? e : G.actor;
+  return A && A.fd && !A.isBoss ? A.fd : 0;
+}
 function enemyShoot(e, a, speed, r = 5, color = '#e86a8a', dmg = 1, kind = 'orb') {
   const S = G.elSrc;
+  dmg += extraDmg(e);   // los disparos también pegan más en los pisos hondos
   G.proj.push({ x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
     r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) });
 }
@@ -183,6 +192,7 @@ function threat(e) {
 }
 function hazard(x, y, r, t, dmg = 1, color = '#d4474b', o = {}) {
   const S = G.elSrc;
+  dmg += extraDmg(o.owner);
   G.hazards.push({ x, y, r, t, max: t, dmg: S ? Math.max(dmg, S.dmg) : dmg, color, src: S, el: S ? S.elem : null, por: quien(o.owner) || quien(G.actor), ...o });
 }
 // efecto del elemento cuando un Elemental te alcanza

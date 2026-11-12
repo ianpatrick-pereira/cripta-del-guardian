@@ -2,10 +2,10 @@
 {
   "piso": 6,
   "nombre": "Jardín de Raíces",
-  // enemigos de las salas cerca de la entrada y de las salas del fondo (ids de src/js/01b-enemigos/).
-  // Cada oleada saca enemigos al azar de la lista: repetir un id lo hace más frecuente.
-  "enemigosCerca": ["splitter", "burrower", "spider", "toxic"],
-  "enemigosLejos": ["splitter", "burrower", "priest", "spider", "charger"],
+  // monstruo del piso (id de src/js/01b-enemigos/). Desde v0.55 cada piso tiene UN solo tipo;
+  // las dos listas siguen existiendo por si un piso quiere mezclar (cerca de la entrada / salas del fondo).
+  "enemigosCerca": ["splitter"],
+  "enemigosLejos": ["splitter"],
   // jefe del piso (id de src/js/01e-jefes/)
   "jefe": "rootmother",
   // probabilidad de que cada enemigo salga élite (0.1 = 10 %); la dificultad suma la suya

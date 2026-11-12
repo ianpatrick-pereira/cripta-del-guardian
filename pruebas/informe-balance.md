@@ -8,12 +8,13 @@ El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): 
 
 **✓ Ningún límite roto** (41 armas comprobadas, 8 pisos y 3 clases comprobados)
 
-- ⚠ Arma «Orbe del vacío»: 0.59× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Varita de aprendiz»: 0.57× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Bastón de marea»: 0.58× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Orbe del vacío»: 0.55× la mediana (aviso fuera de 0.6–1.7)
 - ⚠ Arma «Rayo sostenido»: 0.59× la mediana (aviso fuera de 0.6–1.7)
-- ⚠ Piso 2: 2.1× más difícil que el piso 1 (aviso desde 1.8×)
-- ⚠ Piso 3: 1.9× más difícil que el piso 2 (aviso desde 1.8×)
-- ⚠ Piso 7: 1.9× más difícil que el piso 6 (aviso desde 1.8×)
-- ⚠ Asesino necesita 3.7× las vidas de Caballero (aviso desde 2×)
+- ⚠ Piso 3: 2.0× más difícil que el piso 2 (aviso desde 1.8×)
+- ⚠ Piso 4: 2.1× más difícil que el piso 3 (aviso desde 1.8×)
+- ⚠ Asesino necesita 3.2× las vidas de Caballero (aviso desde 2×)
 
 ## Dificultad por piso
 
@@ -21,82 +22,82 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 
 | Piso | Caballero | Tirador | Asesino | Salas | Subjefe | Jefe |
 |---|---|---|---|---|---|---|
-| 1 | 6.4 | 0.4 | 12.1 | 0.2 | 0.2 | 5.9 |
-| 2 | 7.0 | 7.2 | 24.9 | 4.3 | 0.9 | 7.8 |
-| 3 | 15.1 | 15.3 | 45.7 | 7.0 | 5.3 | 13.0 |
-| 4 | 13.3 | 49.6 | 62.4 | 15.5 | 11.3 | 15.0 |
-| 5 | 21.9 | 49.5 | 99.6 | 22.5 | 13.1 | 21.4 |
-| 6 | 18.2 | 26.2 | 53.2 | 11.7 | 4.4 | 16.4 |
-| 7 | 25.8 | 54.3 | 108.6 | 15.3 | 15.6 | 32.0 |
-| 8 | 41.7 | 103.4 | 153.0 | 33.3 | 28.8 | 37.3 |
+| 1 | 7.1 | 3.5 | 16.6 | 0.4 | 2.4 | 6.2 |
+| 2 | 5.9 | 12.8 | 29.5 | 2.5 | 6.1 | 7.5 |
+| 3 | 16.0 | 28.7 | 52.3 | 5.8 | 12.1 | 14.4 |
+| 4 | 36.9 | 75.3 | 90.6 | 28.5 | 22.7 | 16.3 |
+| 5 | 44.7 | 82.8 | 88.9 | 17.7 | 34.5 | 19.9 |
+| 6 | 22.6 | 59.8 | 80.2 | 13.9 | 24.0 | 16.3 |
+| 7 | 34.1 | 107.2 | 139.9 | 16.8 | 49.5 | 27.4 |
+| 8 | 36.4 | 130.3 | 148.5 | 27.6 | 50.3 | 27.2 |
 
 | Clase | Vidas por piso (media) | Minutos por piso | Salas que no pudo terminar |
 |---|---|---|---|
-| Caballero | 18.7 | 3.2 | 11 |
-| Tirador | 38.2 | 5.3 | 32 |
-| Asesino | 69.9 | 4.5 | 15 |
+| Caballero | 25.5 | 2.7 | 3 |
+| Tirador | 62.6 | 5.4 | 23 |
+| Asesino | 80.8 | 3.9 | 4 |
 
 ### Quién hace más daño
 
-- Escudero: 13 % del daño recibido
-- Elena, Corazón de la Cripta: 10 % del daño recibido
-- El Obispo Hueco: 8 % del daño recibido
-- La Forjadora: 6 % del daño recibido
-- Fantasma: 6 % del daño recibido
-- La Raíz Madre: 5 % del daño recibido
-- El Señor del Osario: 4 % del daño recibido
-- El Devorador de Luz: 4 % del daño recibido
-- Ojo vigía: 3 % del daño recibido
+- Excavador: 9 % del daño recibido
+- Obispo de Ceniza: 8 % del daño recibido
+- El Gemelo de Aldric: 8 % del daño recibido
+- Escudero: 8 % del daño recibido
+- Fantasma: 7 % del daño recibido
+- Herrero Fundido: 7 % del daño recibido
+- El Obispo Hueco: 5 % del daño recibido
+- Embestidor: 5 % del daño recibido
+- Elena, Corazón de la Cripta: 5 % del daño recibido
+- Madre Espina: 4 % del daño recibido
+- La Forjadora: 4 % del daño recibido
 - Centinela Escarchado: 3 % del daño recibido
-- El Verdugo: 3 % del daño recibido
-- Bruto: 3 % del daño recibido
 
 ## Armas a 3★ (piso 4)
 
-Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: 27.5. Marcadas: contra un blanco, más de 1.7× (⬆) o menos de 0.6× (⬇) la mediana (los avisos de pruebas/balance-limites.jsonc).
+Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: 31.6. Marcadas: contra un blanco, más de 1.7× (⬆) o menos de 0.6× (⬇) la mediana (los avisos de pruebas/balance-limites.jsonc).
 
 | Arma | Rareza | Clase | Contra un blanco (daño/s) | × mediana | Contra un grupo (daño/s) | Grupo despejado | Energía al final |
 |---|---|---|---|---|---|---|---|
-| Garras de sombra | rare | Asesino | 41.8 | 1.52 | 34.6 | 3/3 | 45 % |
-| Filo nocturno | epic | Asesino | 41.5 | 1.51 | 34.8 | 3/3 | 55 % |
-| Daga veloz | uncommon | Asesino | 41.4 | 1.51 | 28.6 | 3/3 | 95 % |
-| Látigo de cadenas | uncommon | Asesino | 39.5 | 1.44 | 45.0 | 3/3 | 96 % |
-| Mandoble | rare | Caballero | 38.5 | 1.40 | 39.8 | 3/3 | 96 % |
-| Espada flamígera | epic | Caballero | 38.3 | 1.39 | 32.8 | 3/3 | 77 % |
-| Guadaña sangrienta | epic | Asesino | 38.1 | 1.39 | 45.9 | 3/3 | 75 % |
-| Mosquete | rare | Tirador | 37.5 | 1.36 | 49.3 | 3/3 | 91 % |
-| Hoja del Abismo | epic | Caballero | 36.0 | 1.31 | 26.2 | 3/3 | 51 % |
-| Espada de hierro | uncommon | Caballero | 35.2 | 1.28 | 31.8 | 3/3 | 87 % |
-| Dagas gemelas | rare | Asesino | 34.5 | 1.25 | 23.5 | 3/3 | 61 % |
-| Arco explosivo | epic | Tirador | 34.2 | 1.25 | 36.7 | 3/3 | 21 % |
-| Bumerán | common | Tirador | 34.2 | 1.25 | 26.5 | 3/3 | 96 % |
-| Hoz arrojadiza | rare | Asesino | 33.2 | 1.21 | 40.1 | 3/3 | 73 % |
-| Martillo de guerra | rare | Caballero | 32.3 | 1.18 | 48.2 | 3/3 | 92 % |
-| Lanza de guardia | uncommon | Caballero | 32.0 | 1.16 | 29.7 | 3/3 | 94 % |
-| Katar | uncommon | Asesino | 31.0 | 1.13 | 35.8 | 3/3 | 98 % |
-| Hoja de escarcha | rare | Caballero | 28.9 | 1.05 | 35.8 | 3/3 | 96 % |
-| Espada oxidada | common | Caballero | 28.5 | 1.04 | 34.3 | 3/3 | 95 % |
-| Shurikens | rare | Asesino | 28.1 | 1.02 | 27.5 | 3/3 | 18 % |
-| Arco de las Sombras | epic | Asesino | 27.5 | 1.00 | 8.2 | 0/3 | 5 % |
-| Arco de escarcha | rare | Tirador | 26.3 | 0.96 | 9.1 | 1/3 | 4 % |
-| Garrote | common | Caballero | 25.9 | 0.94 | 29.9 | 3/3 | 100 % |
-| Cerbatana | uncommon | Asesino | 25.8 | 0.94 | 23.2 | 3/3 | 46 % |
-| Kunais | common | Asesino | 25.5 | 0.93 | 22.7 | 3/3 | 39 % |
-| Arco corto | common | Tirador | 24.9 | 0.91 | 10.9 | 2/3 | 42 % |
-| Bastón del vendaval | rare | Caballero | 23.9 | 0.87 | 7.7 | 0/3 | 7 % |
-| Bastón de fuego | rare | Caballero | 22.8 | 0.83 | 22.8 | 3/3 | 13 % |
-| Bastón de la ciénaga | uncommon | Asesino | 22.8 | 0.83 | 19.0 | 2/3 | 33 % |
-| Grimorio de huesos | epic | Caballero | 22.5 | 0.82 | 25.4 | 3/3 | 32 % |
-| Escudo de púas | uncommon | Caballero | 21.0 | 0.76 | 25.5 | 3/3 | 89 % |
-| Arco largo | uncommon | Tirador | 20.9 | 0.76 | 13.0 | 2/3 | 9 % |
-| Honda | common | Tirador | 20.8 | 0.76 | 8.0 | 0/3 | 18 % |
-| Bastón del rayo | epic | Caballero | 19.8 | 0.72 | 9.6 | 1/3 | 8 % |
-| Arco triple | rare | Tirador | 19.8 | 0.72 | 11.2 | 2/3 | 2 % |
-| Bastón de roca | uncommon | Caballero | 19.6 | 0.71 | 9.7 | 1/3 | 9 % |
-| Varita de aprendiz | common | Caballero | 18.4 | 0.67 | 8.8 | 1/3 | 2 % |
-| Ballesta pesada | rare | Tirador | 18.4 | 0.67 | 14.6 | 3/3 | 18 % |
-| Bastón de marea | rare | Caballero | 16.9 | 0.61 | 10.3 | 2/3 | 14 % |
-| Orbe del vacío ⬇ | epic | Caballero | 16.3 | 0.59 | 9.0 | 1/3 | 9 % |
-| Rayo sostenido ⬇ | epic | Caballero | 16.1 | 0.59 | 10.8 | 2/3 | 8 % |
+| Filo nocturno | epic | Asesino | 46.3 | 1.46 | 44.5 | 3/3 | 55 % |
+| Látigo de cadenas | uncommon | Asesino | 43.2 | 1.37 | 51.3 | 3/3 | 95 % |
+| Guadaña sangrienta | epic | Asesino | 42.4 | 1.34 | 44.9 | 3/3 | 61 % |
+| Mandoble | rare | Caballero | 41.3 | 1.31 | 29.8 | 3/3 | 87 % |
+| Arco explosivo | epic | Tirador | 40.9 | 1.29 | 21.3 | 3/3 | 4 % |
+| Daga veloz | uncommon | Asesino | 40.7 | 1.29 | 30.8 | 3/3 | 49 % |
+| Espada de hierro | uncommon | Caballero | 38.6 | 1.22 | 34.1 | 3/3 | 93 % |
+| Dagas gemelas | rare | Asesino | 38.3 | 1.21 | 33.6 | 3/3 | 62 % |
+| Espada flamígera | epic | Caballero | 38.2 | 1.21 | 28.2 | 3/3 | 49 % |
+| Kunais | common | Asesino | 37.2 | 1.18 | 18.3 | 3/3 | 20 % |
+| Espada oxidada | common | Caballero | 37.1 | 1.17 | 31.6 | 3/3 | 100 % |
+| Arco de las Sombras | epic | Asesino | 35.6 | 1.13 | 7.6 | 0/3 | 5 % |
+| Shurikens | rare | Asesino | 35.5 | 1.12 | 19.4 | 2/3 | 14 % |
+| Hoja del Abismo | epic | Caballero | 35.2 | 1.11 | 29.7 | 3/3 | 45 % |
+| Bumerán | common | Tirador | 34.5 | 1.09 | 25.6 | 2/3 | 86 % |
+| Garras de sombra | rare | Asesino | 33.4 | 1.06 | 26.1 | 3/3 | 22 % |
+| Hoz arrojadiza | rare | Asesino | 33.3 | 1.05 | 30.0 | 3/3 | 32 % |
+| Cerbatana | uncommon | Asesino | 32.0 | 1.01 | 27.9 | 3/3 | 44 % |
+| Martillo de guerra | rare | Caballero | 31.8 | 1.01 | 49.3 | 3/3 | 89 % |
+| Lanza de guardia | uncommon | Caballero | 31.7 | 1.00 | 28.4 | 2/3 | 81 % |
+| Hoja de escarcha | rare | Caballero | 31.6 | 1.00 | 27.6 | 2/3 | 53 % |
+| Honda | common | Tirador | 28.6 | 0.91 | 10.0 | 0/3 | 2 % |
+| Bastón de fuego | rare | Caballero | 28.1 | 0.89 | 18.3 | 2/3 | 3 % |
+| Katar | uncommon | Asesino | 27.3 | 0.87 | 23.5 | 2/3 | 49 % |
+| Garrote | common | Caballero | 26.3 | 0.83 | 25.9 | 2/3 | 87 % |
+| Bastón de la ciénaga | uncommon | Asesino | 25.9 | 0.82 | 13.3 | 1/3 | 4 % |
+| Bastón de roca | uncommon | Caballero | 25.0 | 0.79 | 12.1 | 2/3 | 7 % |
+| Escudo de púas | uncommon | Caballero | 24.6 | 0.78 | 27.8 | 3/3 | 94 % |
+| Bastón del vendaval | rare | Caballero | 24.0 | 0.76 | 8.8 | 0/3 | 6 % |
+| Arco corto | common | Tirador | 23.6 | 0.75 | 14.6 | 1/3 | 25 % |
+| Arco de escarcha | rare | Tirador | 23.5 | 0.74 | 14.8 | 1/3 | 4 % |
+| Grimorio de huesos | epic | Caballero | 23.0 | 0.73 | 24.2 | 3/3 | 15 % |
+| Arco triple | rare | Tirador | 21.7 | 0.69 | 10.9 | 1/3 | 2 % |
+| Arco largo | uncommon | Tirador | 21.6 | 0.68 | 10.4 | 1/3 | 8 % |
+| Ballesta pesada | rare | Tirador | 21.3 | 0.68 | 15.7 | 2/3 | 4 % |
+| Mosquete | rare | Tirador | 20.2 | 0.64 | 33.0 | 2/3 | 59 % |
+| Bastón del rayo | epic | Caballero | 19.3 | 0.61 | 13.3 | 2/3 | 17 % |
+| Rayo sostenido ⬇ | epic | Caballero | 18.8 | 0.59 | 13.8 | 2/3 | 2 % |
+| Bastón de marea ⬇ | rare | Caballero | 18.4 | 0.58 | 6.5 | 0/3 | 6 % |
+| Varita de aprendiz ⬇ | common | Caballero | 17.9 | 0.57 | 18.9 | 2/3 | 17 % |
+| Orbe del vacío ⬇ | epic | Caballero | 17.4 | 0.55 | 9.7 | 0/3 | 8 % |
 
-_294 partidas en 169 s._
+_294 partidas en 162 s._

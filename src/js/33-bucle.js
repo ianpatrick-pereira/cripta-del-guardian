@@ -125,7 +125,7 @@ function update(dt) {
       G.markers.splice(i, 1);
       if (m.type === 'boss') { G.boss = mkBoss(FLOORS[G.fi].boss, m.x, m.y); G.enemies.push(G.boss); shake(10); burst(m.x, m.y, '#c77dff', 30, 260, 5); }
       else if (m.type === 'elem') { G.enemies.push(mkElem(m.el, m.x, m.y)); shake(10); burst(m.x, m.y, ELEMS[m.el].c, 30, 240, 5); }
-      else if (m.type === 'sub') { const k = m.k || G.fi + 1; G.enemies.push(mkSub(k, m.x, m.y)); shake(8); burst(m.x, m.y, SUBS[k].tint, 24, 220, 4); }
+      else if (m.type === 'sub') { const k = m.k || G.fi + 1; G.enemies.push(mkSub(k, m.x, m.y, m.ex)); shake(8); burst(m.x, m.y, SUBS[k].tint, 24, 220, 4); }
       else { const ne = mkEnemy(m.type, m.x, m.y, m.depth, m.elite); if (m.el) { ne.el = m.el; ne.hp = ne.max = Math.round(ne.max * .85); } G.enemies.push(ne); burst(m.x, m.y, m.el ? ELEMS[m.el].c : '#d4474b', 6, 90); }
     }
   }
