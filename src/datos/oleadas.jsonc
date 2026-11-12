@@ -8,5 +8,5 @@
   //                          + porOleada × número de oleada + porPiso × (piso − 1) + lo que sume la dificultad
   "enemigos": { "base": 3, "porProfundidad": 1, "profundidadMaxima": 4, "porOleada": 1, "porPiso": 1, "minimo": 2 },
   // desde este piso salen menos enemigos (se multiplican por "factorCantidad"), pero con mucha más vida
-  "pisosDuros": { "desdePiso": 3, "factorCantidad": 0.55, "factorVida": 2.2 }
+  "pisosDuros": { "desdePiso": 3, "factorCantidad": 0.55, "factorVida": 1.45 }
 }

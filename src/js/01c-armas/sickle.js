@@ -8,7 +8,7 @@ defWeapon('sickle', {
   orden: 39,
   datos: { name: tr('Hoz arrojadiza'), type: 'bow', style: 'sickle', shape: 'sickle', rarity: 'rare', dmg: 3, cd: .6, speed: 480, pierce: 99, shots: 1, en: 3, chg: 'reap', chgEn: 18 },
   familia: 'rogue',
-  potencia: .4,
+  potencia: .32,
   estilo: {
     // cobra la energía en ataque() al lanzar, no antes
     cobraAlLanzar: true,

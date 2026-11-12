@@ -45,7 +45,12 @@ const BOT = `window.__bot = (frames, godmode) => {
       o = { mv, atk: ciclo < 4, chg: ciclo >= 4 && ciclo < 4.8, dash: f % 170 === 0, abil: f % 480 === 0, elem: f % 600 === 0 };
     }
     T.bot(o);
+    // inmortal de verdad: con 100 de vida extra durante el fotograma, varios golpes juntos no pueden matarlo
+    // (el Asesino tiene 5 de vida y en el piso 8 un fotograma con dos golpes fuertes terminaba la partida).
+    // Si una curación recorta la vida al máximo (p. ej. la habilidad del Paladín), ese fotograma no cuenta como daño.
+    if (godmode) p.hp = p.maxHp + 100;
     const hp0 = p.hp; T.sim(1);
+    if (godmode && p.hp <= p.maxHp) p.hp = hp0;
     if (p.hp < hp0) { out.hits++; out.dano += hp0 - p.hp; out.por[G.hitBy || '?'] = (out.por[G.hitBy || '?'] || 0) + hp0 - p.hp; }
     if (godmode) { p.hp = p.maxHp; }
     if (f % 30 === 0) T.render();
