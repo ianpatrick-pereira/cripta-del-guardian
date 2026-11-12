@@ -13,7 +13,7 @@ import { addText, burst, explode, later, shake } from './09-efectos.js';
 import { critChance, dmgMul } from './11-jugador.js';
 import { elemProc } from './12-armas-con-estilo-propio.js';
 import { enemyPace, subDefeated, updateSub } from './15-subjefes.js';
-import { bossDefeated, updateBoss } from './16-jefes.js';
+import { bossCap, bossDefeated, bossExposeK, updateBoss } from './16-jefes.js';
 import { syn } from './18-sinergias.js';
 import { BEAST, ach } from './21-logros-y-bestiario.js';
 import { bestDmg, classHit, classKill, tl } from './26-clases.js';
@@ -31,7 +31,8 @@ function mkEnemy(type, x, y, depth, elite) {
     shootT: rand(1.2, 2.2), wob: rand(0, TAU), tx: x, ty: y, poison: 0, pt: 0, alpha: 1, wa: rand(0, TAU), shield: elite && G.floor >= 4 ? Math.round(hp * .4) : 0 };
 }
 function mkBoss(kind, x, y) {
-  const B = BOSSES[kind], hp = Math.round(B.hp * D().hp * (1 + .8 * (G.cycle - 1)));
+  // v0.56: los jefes tienen +30 % de vida además de ir en guardia (ver 16-jefes.js)
+  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * D().hp * (1 + .8 * (G.cycle - 1)));
   return { type: 'boss', kind, isBoss: true, x, y, r: B.r, hp, max: hp, speed: 42, dmg: 2,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, invuln: false, spin: 0, fade: 1, air: false, poison: 0, pt: 0, wob: 0, timer: 0 };
 }
@@ -51,6 +52,11 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
   }
   if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * .7));
   if (e.resist) dmg = Math.max(1, Math.round(dmg * e.resist));
+  if (e.isBoss) {
+    const raw = dmg;
+    dmg = Math.max(1, Math.min(bossCap(e), Math.round(dmg * bossExposeK(e))));
+    if (!(e.exposeT > 0) && raw > dmg * 1.6 && !(e.guardTxt > G.time)) { e.guardTxt = G.time + 1.2; addText(e.x, e.y - e.r - 26, tr('En guardia'), '#9d95ab', 11); }
+  }
   e.hp -= dmg; e.flash = .1; e.hitT = .14;
   // golpe fuerte (crítico, cargado, habilidad): micropausa y el enemigo se frena un instante
   const heavy = crit || kb >= 300 || o.cls;

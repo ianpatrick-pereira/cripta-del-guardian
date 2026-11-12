@@ -32,6 +32,7 @@ function startEncounter(room) {
   if (room.type === 'boss') {
     G.markers.push({ x: room.cx, y: room.cy - 40, t: 1.6, type: 'boss', depth: 5 });
     showBanner(BOSSES[FLOORS[G.fi].boss].name, '#d4474b', tr`Jefe del piso ${G.floor}`);
+    later(3.2, () => showBanner(tr('Va en guardia'), '#ffd84a', tr('Golpéalo justo después de cada ataque, cuando brille en dorado')));
   } else if (room.sub) {
     const S = SUBS[room.subK || G.fi + 1];
     room.wave = room.waves;

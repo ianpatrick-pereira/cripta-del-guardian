@@ -1247,5 +1247,11 @@
   "Espectral": "Spectral",
   "<p class=\"meta\" style=\"margin-top:10px\"><b>Aspecto</b> · solo cambia los colores; se compra una vez</p>": "<p class=\"meta\" style=\"margin-top:10px\"><b>Look</b> · only changes colors; you buy it once</p>",
   "Clásico": "Classic",
-  " · {0} gemas": " · {0} gems"
+  " · {0} gemas": " · {0} gems",
+
+  // v0.56 jefes en guardia
+  "En guardia": "Guarding",
+  "¡Expuesto!": "Exposed!",
+  "Va en guardia": "It's on guard",
+  "Golpéalo justo después de cada ataque, cuando brille en dorado": "Hit it right after each attack, while it glows gold"
 }

@@ -250,6 +250,12 @@ function drawBoss(e) {
     ctx.strokeStyle = '#d4474b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.tgt.x, e.tgt.y, e.r * 1.2, 0, TAU); ctx.stroke();
   }
   drawShadow(e.x, e.y, e.r);
+  // expuesto tras un ataque: anillo dorado que se cierra mientras dura la ventana
+  if (e.exposeT > 0) {
+    const k = Math.min(1, e.exposeT / .8);
+    ctx.strokeStyle = `rgba(255,216,74,${.45 + .4 * Math.abs(Math.sin(G.time * 12))})`; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(e.x, e.y, e.r * (1.1 + .5 * k), 0, TAU); ctx.stroke();
+  }
   // se dibuja a media resolución y se escala para que se vea pixelado
   const g = bctx; g.clearRect(0, 0, 64, 64);
   g.save(); g.translate(32, 32); g.scale(.5, .5);
