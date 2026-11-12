@@ -87,7 +87,7 @@ function renderMenu() {
   // logros, bestiario, diario, sinergias
   const nAch = Object.keys(ACH).filter(k => SAVE.ach[k]).length;
   $('achCount').textContent = `· ${nAch}/${Object.keys(ACH).length}`;
-  $('achList').innerHTML = Object.entries(ACH).map(([k, A]) => `<div class="${SAVE.ach[k] ? '' : 'off'}"><b>${SAVE.ach[k] ? '✓ ' : ''}${esc(A.n)}</b>${esc(A.d)} · +${A.g} ${A.g === 1 ? 'gema' : 'gemas'}</div>`).join('');
+  $('achList').innerHTML = Object.entries(ACH).map(([k, A]) => `<div class="${SAVE.ach[k] ? '' : 'off'}"><b>${SAVE.ach[k] ? '✓ ' : ''}${esc(A.n)}</b>${esc(A.d)} · +${A.g} ${A.g === 1 ? tr('gema') : tr('gemas')}</div>`).join('');
   const beasts = [...Object.entries(BEAST).map(([k, B]) => [k, B.n, B.d]), ...Object.values(SUBS).map(S => ['sub:' + S.sk, S.name, tr('Subjefe.')]), ...Object.entries(BOSSES).map(([k, B]) => ['boss:' + k, B.name, tr('Jefe de piso.')])];
   $('beastCount').textContent = `· ${beasts.filter(b => SAVE.kills[b[0]]).length}/${beasts.length}`;
   $('beastList').innerHTML = beasts.map(([k, n, d]) => SAVE.kills[k] ? tr`<div><b>${esc(n)}</b>${esc(d)} Derrotados: ${SAVE.kills[k]}</div>` : tr`<div class="off"><b>???</b>Aún no lo has derrotado.</div>`).join('');

@@ -31,7 +31,7 @@ const ACH = {
 function ach(id) {
   if (!ACH[id] || SAVE.ach[id]) return;
   SAVE.ach[id] = true; SAVE.gems += ACH[id].g; writeSave();
-  if (G && started) { (G.toasts = G.toasts || []).push({ txt: tr`Logro: ${ACH[id].n}  ·  +${ACH[id].g} ${ACH[id].g === 1 ? 'gema' : 'gemas'}`, t: 3.5 }); sfx(880, .15, 'triangle', .04, 400); later(.12, () => sfx(1320, .2, 'triangle', .04)); }
+  if (G && started) { (G.toasts = G.toasts || []).push({ txt: tr`Logro: ${ACH[id].n}  ·  +${ACH[id].g} ${ACH[id].g === 1 ? tr('gema') : tr('gemas')}`, t: 3.5 }); sfx(880, .15, 'triangle', .04, 400); later(.12, () => sfx(1320, .2, 'triangle', .04)); }
 }
 // la ficha de cada enemigo viene de su archivo de 01b-enemigos/
 const BEAST = {};

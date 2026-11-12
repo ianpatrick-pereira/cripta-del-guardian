@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { TAU, angDiff, angTo, dist, rand } from './01-utilidades.js';
 import { ROOM_OBJ } from './01a-registro.js';
-import { CHARS, FLOORS, RARITY, chgName, cu } from './03-datos-del-juego.js';
+import { CHARS, RARITY, chgName, cu } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
 import { G, rc } from './07-estado.js';
 import { moveEnt, pushOutProps } from './08-colisiones.js';
@@ -144,12 +144,13 @@ function updatePlayer(dt) {
   if (wantUse && it) interact(p, it);
   setWantUse(false);
 
-  p.inv -= dt;
+  p.inv -= dt; p.sqT = (p.sqT || 0) - dt;
   p.shT += dt;
   const maxSh = p.maxSh + rc('escudo') + armorSh(p);
   if (p.shT > (tl('aguante') ? 1.5 : 3) && p.sh < maxSh) { p.shAcc += dt; if (p.shAcc > (tl('aguante') ? .35 : .7)) { p.shAcc = 0; p.sh++; sfx(880, .05, 'sine', .02); } }
 
-  if (FLOORS[G.fi].horror && p.hp <= 2) { G.heartT -= dt; if (G.heartT <= 0) { G.heartT = .9; sfx(60, .12, 'sine', .12); later(.16, () => sfx(52, .12, 'sine', .1)); } }
+  // latido con poca vida (antes solo en los pisos de terror)
+  if (p.hp <= 2 && p.hp > 0 && p.maxHp > 2) { G.heartT -= dt; if (G.heartT <= 0) { G.heartT = .9; sfx(60, .12, 'sine', .12); later(.16, () => sfx(52, .12, 'sine', .1)); } }
 }
 
 function useAbility(p) {
@@ -182,7 +183,8 @@ function attack(p) {
       if (p.noEnT <= 0) { addText(p.x, p.y - 26, tr('Agotado: daño a la mitad'), '#5aa4e8', 12); p.noEnT = 1.5; }
     } else p.en -= cost;
     p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
-    sfx(w.shape === 'hammer' ? 120 : 180, .07, 'sawtooth', .025, -80);
+    // sonido por familia: los pesados retumban, los filos silban
+    if (w.shape === 'hammer') { sfx(110, .09, 'sawtooth', .03, -50); noise(.09, .05, 450); } else { sfx(190, .06, 'sawtooth', .018, -90); noise(.07, .035, 2600); }
     meleeHit(p, w, w.range, w.arc, dmg, w.shape === 'hammer' ? 380 : 260, false);
     if (rc('onda')) {
       const a = p.aim;
@@ -195,7 +197,9 @@ function attack(p) {
     p.en -= cost;
     const n = w.shots + (w.type === 'bow' ? rc('carcaj') + (syn('lluvia') ? 1 : 0) + (tl('carcaj2') ? 1 : 0) : 0), spread = .17;
     for (let i = 0; i < n; i++) shootPlayer(p, w, p.aim + (i - (n - 1) / 2) * spread + rand(-.025, .025), w.dmg);
-    sfx(w.type === 'staff' ? 520 : 700, .06, w.type === 'staff' ? 'sine' : 'triangle', .03, w.type === 'staff' ? 200 : -300);
+    if (w.type === 'staff') { sfx(520, .09, 'sine', .03, 200); sfx(1040, .06, 'sine', .012, 300); }
+    else if (w.type === 'bow') { sfx(330, .05, 'triangle', .03, -150); noise(.05, .025, 3200); }   // cuerda
+    else sfx(700, .06, 'triangle', .03, -300);
   }
 }
 function shootPlayer(p, w, a, dmg, extra = {}) {
