@@ -16,6 +16,7 @@ import { SYNERGIES } from './18-sinergias.js';
 import { drawGuide } from './21b-guia.js';
 import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
+import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
 import { dareText } from './28-desafios-dentro-del-piso.js';
@@ -430,6 +431,7 @@ function drawPickup(it) {
   }
 }
 function drawProp(o) {
+  if (o.kind === 'roca') { drawPillar(o); return; }
   if (o.kind === 'merchant') { drawShadow(o.x, o.y, 11); drawSpr('merchant', o.x, o.y - 2, 2, { flip: G.player.x < o.x }); return; }
   drawShadow(o.x, o.y + 2, 12);
   drawSpr(o.kind, o.x, o.y, o.kind === 'barrel' ? 2.2 : 2, { white: o.flash > 0 });
@@ -762,6 +764,7 @@ function render0() {
   }
   for (const it of G.pickups) if (it.kind === 'portal' && Math.random() < .3) G.parts.push({ x: it.x + rand(-20, 20), y: it.y + rand(-28, 28), vx: 0, vy: -40, life: .6, max: .6, color: '#c77dff', size: 3 });
   // suelo en llamas del Señor de las Brasas
+  drawPuddles(); drawBoulders();
   for (const f of G.flames || []) {
     const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
     g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');

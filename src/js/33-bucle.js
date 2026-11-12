@@ -23,6 +23,7 @@ import { updateGuide } from './21b-guia.js';
 import { openEpilogue } from './20-historia.js';
 import { ach } from './21-logros-y-bestiario.js';
 import { ELEMS, mkElem, shredShield, updateFlamer, updateTornados } from './23-elementos.js';
+import { updateElemPowers } from './23b-poderes-elementales.js';
 import { updateClass } from './26-clases.js';
 import { dailyScore } from './31-reto-diario.js';
 import { saveHistory } from './38b-historial.js';
@@ -117,6 +118,7 @@ function update(dt) {
   }
   G.hazards = G.hazards.filter(h => !h.gone);
   updateFlames(dt);
+  updateElemPowers(dt);
   G.darkT -= dt;
 
   for (let i = G.markers.length - 1; i >= 0; i--) {

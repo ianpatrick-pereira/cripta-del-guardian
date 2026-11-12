@@ -4,7 +4,7 @@ import { ctx } from './00-inicio.js';
 import { TAU, TILE, angTo, clamp, dist, pick, rand } from './01-utilidades.js';
 import { D } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
-import { G, freeSpot, rc } from './07-estado.js';
+import { G, rc } from './07-estado.js';
 import { moveEnt, roomAt, solidAt } from './08-colisiones.js';
 import { addText, breakCracks, burst, later, shake, showBanner } from './09-efectos.js';
 import { dmgMul } from './11-jugador.js';
@@ -15,23 +15,23 @@ import { drawShadow } from './36-mar-de-lava.js';
 const ELEMS = {
   fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
-           boss: { name: tr('Señor de las Brasas'), r: 24, hp: 270, speed: 92, want: 190, minion: ['bat', 'mage'], p1: ['rain', 'fan', 'volley', 'rain'], p2: ['rain', 'fan', 'volley', 'summon', 'slam', 'rain'] } },
+           boss: { name: tr('Señor de las Brasas'), r: 24, hp: 300, speed: 92, want: 170, p1: ['lanzallamas', 'bolafuego', 'brasas'], p2: ['lanzallamas', 'bolafuego', 'brasas', 'lanzallamas', 'rain'] } },
   water: { n: tr('Agua'),   c: '#4ab0e8', ab: tr('Maremoto'), abd: tr('Una ola en anillo empuja, frena y daña; desde Nv3 te cura 1.'),
            hitd: tr('te empapa y te ralentiza'),
-           boss: { name: tr('Leviatán de la Fuente'), r: 26, hp: 290, speed: 74, want: 130, minion: ['slime', 'toxic'], p1: ['spit', 'wave', 'hop', 'fan'], p2: ['spit', 'wave', 'bighop', 'fan', 'summon', 'whirl'] } },
+           boss: { name: tr('Leviatán de la Fuente'), r: 26, hp: 320, speed: 78, want: 150, p1: ['wave', 'burbujas', 'charcos'], p2: ['wave', 'burbujas', 'charcos', 'whirl', 'wave'] } },
   air:   { n: tr('Aire'),   c: '#c8f0e0', ab: tr('Tornado'),  abd: tr('Lanza un tornado que arrastra y tritura a los enemigos.'),
            hitd: tr('te lanza hacia atrás'),
-           boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 250, speed: 118, want: 170, minion: ['bat', 'spider'], p1: ['gust', 'charge3', 'fan', 'retreat'], p2: ['gust', 'charge3', 'fan', 'retreat', 'summon', 'gust'] } },
+           boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 270, speed: 155, want: 190, p1: ['flechas', 'gust', 'atraer'], p2: ['flechas', 'gust', 'atraer', 'rafaga', 'charge3'] } },
   earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Fisura'),   abd: tr('Una línea de picos de roca aturde y te da escudo.'),
            hitd: tr('golpea +1 y resiste el daño'),
-           boss: { name: tr('Gólem de Roca'), r: 28, hp: 380, speed: 62, want: 0, minion: ['brute', 'slime'], p1: ['slam', 'hop', 'rain'], p2: ['slam', 'bighop', 'rain', 'summon', 'charge3'] } },
+           boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'slam'], p2: ['pedrusco', 'gravilla', 'muralla', 'slam', 'pedrusco'] } },
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
 function mkElem(el, x, y) {
   const E = ELEMS[el], B = E.boss;
-  const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el, minion: B.minion };
+  const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el };
   const lv = G.floor, hp = Math.round(B.hp * D().hp * (1 + .65 * (lv - 1)));
-  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), tint: E.c,
+  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), fd: el === 'earth' ? 1 : 0, tint: E.c,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 function totemElement() { return pick(EL_ORDER); }
@@ -39,12 +39,8 @@ function startElemFight(it) {
   const room = roomAt(it.x, it.y) || G.cur, E = ELEMS[it.el];
   it.gone = true; room.locked = true; room.elTheme = it.el;
   G.elFight = { room, el: it.el };
+  // v0.57: pelea a solas, sin súbditos
   G.markers.push({ x: it.x, y: it.y, t: 1.3, type: 'elem', el: it.el });
-  const n = Math.min(5, 2 + Math.floor((G.floor - 1) / 2) + (G.diff === 'hard' ? 1 : 0));
-  for (let i = 0; i < n; i++) {
-    const pos = freeSpot(room, 2, 20, G.player, 150);
-    if (pos) G.markers.push({ x: pos.x, y: pos.y, t: 1.1 + i * .1, type: pick(E.boss.minion), depth: 1, el: it.el });
-  }
   showBanner(E.boss.name, E.c, tr`Elemental de ${E.n.toLowerCase()} · opcional`);
   shake(8); noise(.5, .08, 400); sfx(70, .8, 'sawtooth', .05, 20);
 }
