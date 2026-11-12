@@ -2,7 +2,7 @@
 import { tr } from './00b-textos.js';
 import { FLOOR, MW, TILE, pick, rand, randi, shuffle } from './01-utilidades.js';
 import { ROOM_DEFS, roomList } from './01a-registro.js';
-import { CHARS, CUR_CHAR, FLOORS, RELICS, UPG, WEAPONS, rollWeapon, setCUR_CHAR,
+import { CHARS, CUR_CHAR, FLOORS, RELICS, relicFor, UPG, WEAPONS, rollWeapon, setCUR_CHAR,
   skinOf, starterW } from './03-datos-del-juego.js';
 import { SAVE, writeSave } from './04-guardado.js';
 import { buildMap, generate } from './06-generacion.js';
@@ -147,10 +147,12 @@ function freeSpot(r, margin = 2, minProp = 30, avoid = null, minAvoid = 0) {
   }
   return null;
 }
+// sorteo de reliquias: solo las que sirven a tu clase; las propias de tu clase pesan el doble (v0.60)
 function randomRelics(n) {
-  const owned = G ? G.player.relics : [];
-  const pool = Object.keys(RELICS).filter(id => !(RELICS[id].u && owned.includes(id)));
-  return shuffle(pool).slice(0, n);
+  const owned = G ? G.player.relics : [], ch = G ? G.player.char : CUR_CHAR;
+  const pool = Object.keys(RELICS).filter(id => !(RELICS[id].u && owned.includes(id)) && relicFor(id, ch));
+  const bag = pool.flatMap(id => RELICS[id].cls && RELICS[id].cls.length === 1 ? [id, id] : [id]);
+  return [...new Set(shuffle(bag))].slice(0, n);
 }
 
 // Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.

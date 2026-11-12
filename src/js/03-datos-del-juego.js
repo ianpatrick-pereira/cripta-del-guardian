@@ -122,12 +122,12 @@ const RELICS = {
   corazon:  { n: tr('Corazón de piedra'),  d: tr('+2 de vida máxima y te cura 2.'), c: '#d4474b' },
   escudo:   { n: tr('Escudo rúnico'),      d: tr('+1 de escudo máximo.'), c: '#8fb7d9' },
   botas:    { n: tr('Botas de viento'),    d: tr('+15 % de velocidad.'), c: '#9be0c8' },
-  rebote:   { n: tr('Flechas rebotantes'), d: tr('Tus flechas rebotan una vez en las paredes.'), c: '#e3a24a', u: 1 },
-  onda:     { n: tr('Onda cortante'),      d: tr('Los tajos de espada lanzan una onda.'), c: '#ece4cf', u: 1 },
+  rebote:   { n: tr('Flechas rebotantes'), d: tr('Tus flechas rebotan una vez en las paredes.'), c: '#e3a24a', u: 1, cls: ['archer', 'rogue'] },
+  onda:     { n: tr('Onda cortante'),      d: tr('Los tajos de espada lanzan una onda.'), c: '#ece4cf', u: 1, cls: ['knight', 'rogue'] },
   veneno:   { n: tr('Colmillo venenoso'),  d: tr('Tus golpes envenenan: 1 de daño por segundo durante 3 s.'), c: '#9be05a', u: 1 },
   ojo:      { n: tr('Ojo del cazador'),    d: tr('+15 % de probabilidad de crítico.'), c: '#ffd27a' },
   vampiro:  { n: tr('Sangre de vampiro'),  d: tr('Cada 12 enemigos derrotados recuperas 1 de vida.'), c: '#b0303a', u: 1 },
-  carcaj:   { n: tr('Carcaj extra'),       d: tr('Los arcos disparan 1 flecha más.'), c: '#c9a46a' },
+  carcaj:   { n: tr('Carcaj extra'),       d: tr('Los arcos disparan 1 flecha más.'), c: '#c9a46a', cls: ['archer'] },
   piedra:   { n: tr('Piedra de afilar'),   d: tr('+20 % de daño.'), c: '#bdb6a8' },
   reloj:    { n: tr('Reloj de arena'),     d: tr('La esquiva recarga un 40 % más rápido.'), c: '#e8d08a', u: 1 },
   iman:     { n: tr('Imán de oro'),        d: tr('Atraes monedas desde lejos y los enemigos sueltan más.'), c: '#f0c040', u: 1 },
@@ -135,7 +135,19 @@ const RELICS = {
   espinas:  { n: tr('Coraza de espinas'),  d: tr('Al recibir daño disparas espinas alrededor.'), c: '#7a9a5a', u: 1 },
   trebol:   { n: tr('Trébol de cuatro'),   d: tr('Los cofres sueltan mejores armas y un objeto extra.'), c: '#6cc46a', u: 1 },
   polvora:  { n: tr('Pólvora negra'),      d: tr('Al esquivar dejas una bomba. Las explosiones no te dañan.'), c: '#8a84a0', u: 1 },
+  // reliquias de clase (v0.60): solo salen a su clase y salen más seguido
+  estandarte: { n: tr('Estandarte del baluarte'), d: tr('Baluarte dura 1 s más.'), c: '#e3a24a', cls: ['knight'] },
+  guantelete: { n: tr('Guantelete de hierro'),    d: tr('Represalia hace +50 % de daño.'), c: '#d4474b', cls: ['knight'] },
+  broquel:    { n: tr('Broquel pulido'),          d: tr('El Desvío recarga un 40 % más rápido.'), c: '#8fb7d9', u: 1, cls: ['knight'] },
+  pluma:      { n: tr('Pluma de halcón'),         d: tr('La Concentración se llena un 35 % más rápido.'), c: '#9be07a', cls: ['archer'] },
+  mira:       { n: tr('Mira de largo alcance'),   d: tr('+25 % de daño a enemigos lejanos.'), c: '#ffd27a', cls: ['archer'] },
+  punta:      { n: tr('Punta dorada'),            d: tr('El disparo concentrado hace +50 % de daño.'), c: '#f0c040', cls: ['archer'] },
+  capa:       { n: tr('Capa de sombras'),         d: tr('Sombra dura 1 s más.'), c: '#6b6480', cls: ['rogue'] },
+  punal:      { n: tr('Puñal ritual'),            d: tr('Los golpes por la espalda hacen +50 % de daño.'), c: '#bb7cf0', cls: ['rogue'] },
+  brazalete:  { n: tr('Brazalete del duelista'),  d: tr('El combo suma +2 % más por golpe y dura un 50 % más.'), c: '#e05ab0', cls: ['rogue'] },
 };
+// ¿puede salirle esta reliquia a esta clase? (las de clase solo a la suya)
+const relicFor = (id, ch) => !RELICS[id].cls || RELICS[id].cls.includes(ch);
 
 const CHARS = {
   knight: { name: tr('Caballero'), spr: 'knight', hp: 8, sh: 3, speed: 175, en: 100, start: ['rusty', 'club'], abil: tr('Baluarte'), abilDesc: tr('2,5 s invulnerable; las balas que te tocan rebotan.'), cd: 14, cost: 0,
@@ -214,4 +226,4 @@ for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 // Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
 function setCUR_CHAR(v) { return (CUR_CHAR = v); }
 
-export { wPower, applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, skinOf, SKINS, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };
+export { relicFor, wPower, applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, skinOf, SKINS, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };

@@ -232,17 +232,17 @@ function shieldCharge(p) {
 function focusShot(p, w) {
   if (p.focus >= 100) {
     p.focus = 0;
-    const a = p.aim, dmg = Math.max(3, Math.round(bestDmg(p) * (3 + .4 * cu('a_gold'))));
+    const a = p.aim, dmg = Math.max(3, Math.round(bestDmg(p) * (3 + .4 * cu('a_gold')) * (1 + .5 * rc('punta'))));
     G.proj.push({ x: p.x + Math.cos(a) * 14, y: p.y + Math.sin(a) * 14, vx: Math.cos(a) * 900, vy: Math.sin(a) * 900, r: 6, dmg, owner: 'player', kind: 'power', pierce: 99, hit: new Set(), life: 1.2, color: '#ffd27a', src: w, fx: tl('hielo') ? 'slow' : undefined, focus: true });
     addText(p.x, p.y - 30, tr('Disparo concentrado'), '#ffd27a', 12);
     burst(p.x, p.y, '#ffd27a', 10, 160); sfx(1000, .12, 'triangle', .05, -400);
-  } else p.focus = Math.min(100, p.focus + 12 * clamp(w.cd / .4, .5, 2.5) * (tl('rafaga') ? 1.6 : 1) * (1 + .1 * cu('a_focus') + (subIs('ranger') ? .1 * subLv(p) : 0)));
+  } else p.focus = Math.min(100, p.focus + 12 * clamp(w.cd / .4, .5, 2.5) * (tl('rafaga') ? 1.6 : 1) * (1 + .1 * cu('a_focus') + (subIs('ranger') ? .1 * subLv(p) : 0)) * (1 + .35 * rc('pluma')));
 }
 // Desvío del Caballero: el golpe se anula y contraataca
 function parry(p) {
   const big = tl('contra'), R = big ? 130 : 80, dmg = Math.max(2, Math.round(bestDmg(p) * (big ? 2.5 : 1.5) * (subIs('guardian') ? 1 + .15 * subLv(p) : 1)));
   dareCount('parry');
-  p.parryCd = Math.max(.5, (tl('egida') ? 1 : 2.5) - .3 * cu('k_parry') - (subIs('guardian') ? .2 * subLv(p) : 0)); p.parryT = 0; p.inv = .35;
+  p.parryCd = Math.max(.5, (tl('egida') ? 1 : 2.5) - .3 * cu('k_parry') - (subIs('guardian') ? .2 * subLv(p) : 0)) * (rc('broquel') ? .6 : 1); p.parryT = 0; p.inv = .35;
   for (const e of G.enemies) if (!e.dead && !e.air && dist(e, p) < R + e.r) { hurtEnemy(e, dmg, angTo(p, e), 380, { cls: true, melee: true }); if (big && !e.isBoss) e.slowT = Math.max(e.slowT || 0, 1.2); }
   for (const pr of G.proj) if (pr.owner === 'enemy' && dist(pr, p) < R) reflect(pr, angTo(p, pr), dmg);
   CLS().fx.push({ ring: true, x: p.x, y: p.y, r: R, t: .3, max: .3, c: '#ffd27a' });
@@ -255,12 +255,14 @@ function classHurt(p) {
   } else if (p.char === 'archer') p.focus = tl('frio') ? p.focus / 2 : 0;
   else if (p.char === 'rogue') p.combo = 0;
 }
+// cuánto suma cada golpe seguido del Asesino (+5 %, +2 % por Brazalete del duelista)
+const comboStep = p => .05 + .02 * rc('brazalete');
 // bonos de clase sobre cada golpe del jugador
 function classHit(e, dmg, ang, o) {
   if (!o.src && !o.cls) return dmg;
   const p = G.player;
   let k = 1;
-  if (p.revenge && o.melee) { k *= (tl('furia') ? 2 : 1.5) + .1 * cu('k_bash'); if (!p.revUsed) addText(e.x, e.y - e.r - 20, tr('Represalia'), '#d4474b', 11); p.revUsed = true; }
+  if (p.revenge && o.melee) { k *= (tl('furia') ? 2 : 1.5) + .1 * cu('k_bash') + .5 * rc('guantelete'); if (!p.revUsed) addText(e.x, e.y - e.r - 20, tr('Represalia'), '#d4474b', 11); p.revUsed = true; }
   if (p.rageT > 0) k *= p.rageMul || 1.6;
   const SL = subLv(p);
   if (subIs('berserker')) k *= 1 + .05 * SL;
@@ -268,20 +270,21 @@ function classHit(e, dmg, ang, o) {
   if (subIs('ghost') && (p.veilT > 0 || p.shadowT > 0)) k *= 1.3 + .1 * SL;
   if (subIs('poisoner')) { e.poison = 3; e.pdmg = Math.max(e.pdmg || 1, Math.round(bestDmg(p) * (.15 + .05 * SL))); }
   if (p.char === 'archer' && tl('cazador') && !o.melee && dist(p, e) > 200) k *= 1.3;
+  if (p.char === 'archer' && rc('mira') && !o.melee && dist(p, e) > 200) k *= 1 + .25 * rc('mira');
   const bw = o.src && o.src.back ? o.src.back : 0, fc = e.type === 'warden' ? e.face : e.face2;
   const behind = o.back || (fc !== undefined && Math.abs(angDiff(ang, fc)) < 1.15);
   if (p.char !== 'rogue' && bw && behind) k *= 1 + bw * .5;
   if (p.char === 'rogue') {
     if (behind) {
-      const m = (tl('filo') ? 3 : 2) + bw + .2 * cu('r_back');
+      const m = (tl('filo') ? 3 : 2) + bw + .2 * cu('r_back') + .5 * rc('punal');
       k *= e.isBoss || e.isSub ? 1 + (m - 1) / 2 : m;
       addText(e.x, e.y - e.r - 20, tr('Espalda'), '#bb7cf0', 10); dareCount('back');
       if (tl('sangre') && ++p.backN % 8 === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); }
     }
     if (tl('acecho') && e.hp >= e.max) k *= 2.5;
     if (tl('verdugo') && e.hp < e.max * .3) k *= 1.6;
-    k *= 1 + .05 * p.combo;
-    p.combo = Math.min(tl('frenesi') ? 20 : 10, p.combo + 1); p.comboT = tl('frenesi') ? 1.8 : 1.2;
+    k *= 1 + comboStep(p) * p.combo;
+    p.combo = Math.min(tl('frenesi') ? 20 : 10, p.combo + 1); p.comboT = (tl('frenesi') ? 1.8 : 1.2) * (1 + .5 * rc('brazalete'));
   }
   return Math.max(1, Math.round(dmg * k));
 }
@@ -300,7 +303,7 @@ function classKill(e, src) {
 function classRes(p) {
   if (p.char === 'knight') return p.revenge ? { t: tr('Represalia lista'), c: '#d4474b' } : p.parryCd > 0 ? { t: tr`Desvío ${Math.ceil(p.parryCd)} s`, c: '#6b6480' } : { t: tr('Desvío listo'), c: '#ffd27a' };
   if (p.char === 'archer') return { k: p.focus / 100, c: p.focus >= 100 ? '#ffd27a' : '#c9a46a' };
-  if (p.char === 'rogue' && p.combo) return { t: tr`Combo +${p.combo * 5} %`, c: '#bb7cf0' };
+  if (p.char === 'rogue' && p.combo) return { t: tr`Combo +${Math.round(p.combo * comboStep(p) * 100)} %`, c: '#bb7cf0' };
   return null;
 }
 

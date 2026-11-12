@@ -1249,5 +1249,26 @@
   // v0.59 cartas con imagen y niveles
   "+1 vida máxima · +8 % de daño · {0} más fuerte": "+1 max health · +8% damage · stronger {0}",
   "<span class=\"tag\">Ya tienes {0}</span>": "<span class=\"tag\">You have {0}</span>",
-  "<span class=\"tag synx\" style=\"color:{0}\">✦ Sinergia: {1}</span>": "<span class=\"tag synx\" style=\"color:{0}\">✦ Synergy: {1}</span>"
+  "<span class=\"tag synx\" style=\"color:{0}\">✦ Sinergia: {1}</span>": "<span class=\"tag synx\" style=\"color:{0}\">✦ Synergy: {1}</span>",
+
+  // v0.60 reliquias de clase
+  "Estandarte del baluarte": "Bulwark Banner",
+  "Baluarte dura 1 s más.": "Bulwark lasts 1 s longer.",
+  "Guantelete de hierro": "Iron Gauntlet",
+  "Represalia hace +50 % de daño.": "Retaliation deals +50 % damage.",
+  "Broquel pulido": "Polished Buckler",
+  "El Desvío recarga un 40 % más rápido.": "Deflect recharges 40 % faster.",
+  "Pluma de halcón": "Hawk Feather",
+  "La Concentración se llena un 35 % más rápido.": "Focus fills 35 % faster.",
+  "Mira de largo alcance": "Long-Range Sight",
+  "+25 % de daño a enemigos lejanos.": "+25 % damage to distant enemies.",
+  "Punta dorada": "Golden Tip",
+  "El disparo concentrado hace +50 % de daño.": "Focused shot deals +50 % damage.",
+  "Capa de sombras": "Shadow Cloak",
+  "Sombra dura 1 s más.": "Shadow lasts 1 s longer.",
+  "Puñal ritual": "Ritual Dagger",
+  "Los golpes por la espalda hacen +50 % de daño.": "Hits from behind deal +50 % damage.",
+  "Brazalete del duelista": "Duelist's Bracelet",
+  "El combo suma +2 % más por golpe y dura un 50 % más.": "Combo adds +2 % more per hit and lasts 50 % longer.",
+  "<span class=\"tag\">★ De tu clase</span>": "<span class=\"tag\">★ Your class</span>"
 }

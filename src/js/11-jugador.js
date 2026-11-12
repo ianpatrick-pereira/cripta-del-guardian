@@ -166,7 +166,7 @@ function useAbility(p) {
   (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .7, r: 40, c: { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff' }[p.char] || '#ffd27a' });
   if (p.spec) { p.abilCd = SPECS[p.spec].cd; specAbility(p); return; }
   p.abilCd = ch.cd;
-  if (p.char === 'knight') { p.bulwarkT = 2.5; p.inv = Math.max(p.inv, 2.5); sfx(300, .4, 'triangle', .06, 300); burst(p.x, p.y, '#e3a24a', 18, 160); }
+  if (p.char === 'knight') { const t = 2.5 + rc('estandarte'); p.bulwarkT = t; p.inv = Math.max(p.inv, t); sfx(300, .4, 'triangle', .06, 300); burst(p.x, p.y, '#e3a24a', 18, 160); }
   else if (p.char === 'archer') {
     for (let wv = 0; wv < 3; wv++) later(wv * .22, () => {
       for (let i = 0; i < 20; i++) {
@@ -175,7 +175,7 @@ function useAbility(p) {
       }
       sfx(700, .08, 'triangle', .04, -300);
     });
-  } else { p.shadowT = 3; sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }
+  } else { p.shadowT = 3 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }
 }
 
 function attack(p) {
