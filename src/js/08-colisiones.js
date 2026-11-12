@@ -46,5 +46,11 @@ function roomAt(x, y) {
   for (const r of G.rooms) if (tx >= r.x + 2 && tx <= r.x + r.w - 3 && ty >= r.y + 2 && ty <= r.y + r.h - 3) return r;
   return null;
 }
+// la sala completa (muros incluidos) que contiene el punto: fuera de todas, estás en un pasillo
+function roomRectAt(x, y) {
+  const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+  for (const r of G.rooms) if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) return r;
+  return null;
+}
 
-export { hitsWall, moveEnt, pushOutProps, roomAt, solidAt };
+export { hitsWall, moveEnt, pushOutProps, roomAt, roomRectAt, solidAt };

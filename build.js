@@ -201,7 +201,7 @@ function sprites() {
 // ---------- módulos ----------
 const acorn = require('acorn'), escope = require('eslint-scope');
 // lo que el código puede usar sin importarlo porque lo da el navegador (si usas algo nuevo del navegador, añádelo aquí)
-const GLOBALES = new Set(('Array Boolean Date Error JSON Map Math Number Object ResizeObserver Set String Uint8Array ' +
+const GLOBALES = new Set(('Array Boolean Date Error JSON Map Math Number Object ResizeObserver Set String Uint8Array Int16Array ' +
   'WeakMap NodeFilter addEventListener console document localStorage location matchMedia navigator parseInt performance requestAnimationFrame setTimeout undefined window').split(' '));
 // módulos «virtuales»: no existen en disco; el build los crea con los datos y las traducciones
 const textDir = path.join(src, 'textos');

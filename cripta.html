@@ -303,7 +303,7 @@ details.codex[open]{padding-bottom:12px}
   <div class="overlay lobby" id="ovStart">
     <div class="panel">
       <header class="lhead">
-        <div><p class="eyebrow">Prototipo jugable · <span>v0.53</span></p><h1>Cripta del Guardián</h1></div>
+        <div><p class="eyebrow">Prototipo jugable · <span>v0.54</span></p><h1>Cripta del Guardián</h1></div>
         <span class="gempill" id="gemCount"></span>
       </header>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
@@ -3487,6 +3487,12 @@ function roomAt(x, y) {
   for (const r of G.rooms) if (tx >= r.x + 2 && tx <= r.x + r.w - 3 && ty >= r.y + 2 && ty <= r.y + r.h - 3) return r;
   return null;
 }
+// la sala completa (muros incluidos) que contiene el punto: fuera de todas, estás en un pasillo
+function roomRectAt(x, y) {
+  const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
+  for (const r of G.rooms) if (tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h) return r;
+  return null;
+}
 
 
 // ================= Efectos =================
@@ -4848,26 +4854,59 @@ function clearRoom(room) {
   else if (r < BOTIN.salaDespejada.cofreDorado) G.pickups.push({ kind: 'chest', gold: true, x, y, opened: false, minR: 'rare' });
   else if (r < BOTIN.salaDespejada.cofreDorado + BOTIN.salaDespejada.cofre) G.pickups.push({ kind: 'chest', x, y, opened: false, minR: room.depth >= 3 || G.floor > 1 ? 'uncommon' : 'common' });
 }
-// en los pasillos, de vez en cuando, aparece alguna alimaña débil
-const STRAYS = ['bat', 'slime', 'mini'];
-function updateCorridor(dt) {
-  const p = G.player, inCor = !roomAt(p.x, p.y);
-  G.corK = (G.corK || 0) + ((inCor ? 1 : 0) - (G.corK || 0)) * Math.min(1, dt * 3);
-  if (!inCor || G.over || G.choice) return;
-  G.corT = (G.corT || 0) + dt;
-  if (G.corT < (G.corNext || (G.corNext = rand(7, 13)))) return;
-  G.corT = 0; G.corNext = rand(8, 15);
-  if (Math.random() < .4 || G.enemies.filter(e => e.stray).length >= 3) return;
-  const types = STRAYS.filter(t => ENEMY[t]), n = Math.random() < .3 ? 2 : 1;
-  for (let k = 0; k < n; k++) for (let tries = 0; tries < 60; tries++) {
-    const a = rand(0, TAU), d = rand(170, 280), x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
-    const tx = Math.floor(x / TILE), ty = Math.floor(y / TILE);
-    if (tx < 0 || ty < 0 || tx >= MW || ty >= MH || G.tiles[ty * MW + tx] !== FLOOR || roomAt(x, y) || hitsWall(x, y, 12)) continue;
-    const e = mkEnemy(pick(types), x, y, 0, false);
-    e.stray = true; e.hp = e.max = Math.max(4, Math.round(e.max * .45));
-    G.enemies.push(e); burst(x, y, '#3a3448', 10, 80, 4, .5);
-    break;
+// los pasillos: cada tramo entre dos salas es una zona aparte. La primera vez que entras en uno,
+// hay un 75 % de que lo ronde un grupo de 3 a 5 bichos pequeños del tipo del piso.
+const COR_GRUPO = { prob: .75, min: 3, max: 5 };
+function corridorMap() {
+  if (G.corFor === G.tiles) return;
+  const lab = new Int16Array(MW * MH).fill(-1), inRect = (tx, ty) => G.rooms.some(r => tx >= r.x && tx < r.x + r.w && ty >= r.y && ty < r.y + r.h);
+  const zones = [];
+  for (let i = 0; i < MW * MH; i++) {
+    if (lab[i] >= 0 || G.tiles[i] !== FLOOR || inRect(i % MW, (i / MW) | 0)) continue;
+    const id = zones.length, cells = [], st = [i]; lab[i] = id;
+    while (st.length) {
+      const c = st.pop(); cells.push(c);
+      const cx = c % MW, cy = (c / MW) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = cx + dx, ny = cy + dy, n = ny * MW + nx;
+        if (nx < 0 || ny < 0 || nx >= MW || ny >= MH || lab[n] >= 0 || G.tiles[n] !== FLOOR || inRect(nx, ny)) continue;
+        lab[n] = id; st.push(n);
+      }
+    }
+    zones.push(cells);
   }
+  G.corFor = G.tiles; G.corLab = lab; G.corZones = zones; G.corDone = new Set();
+}
+function corridorGroup(zone) {
+  const p = G.player, fl = FLOORS[G.fi];
+  const types = (fl.pool1 || []).filter(t => ENEMY[t]);
+  if (!types.length) return;
+  const type = pick(types);
+  // casillas del tramo lejos del jugador, preferiblemente hacia delante
+  const spots = G.corZones[zone].map(c => ({ x: (c % MW + .5) * TILE, y: (((c / MW) | 0) + .5) * TILE }))
+    .filter(s => { const d = Math.hypot(s.x - p.x, s.y - p.y); return d > 150 && d < 460 && !hitsWall(s.x, s.y, 12); });
+  if (!spots.length) return;
+  const ahead = spots.filter(s => (s.x - p.x) * G.pv.x + (s.y - p.y) * G.pv.y > 0);
+  const pool = ahead.length >= 3 ? ahead : spots, c = pick(pool);
+  const n = COR_GRUPO.min + Math.floor(Math.random() * (COR_GRUPO.max - COR_GRUPO.min + 1));
+  for (let k = 0; k < n; k++) {
+    // el grupo aparece junto: cada uno en una casilla cercana a la elegida
+    const near = pool.filter(s => Math.hypot(s.x - c.x, s.y - c.y) < 70), s = pick(near.length ? near : pool);
+    const x = s.x + rand(-8, 8), y = s.y + rand(-8, 8);
+    const e = mkEnemy(type, x, y, 0, false);
+    e.stray = true; e.hp = e.max = Math.max(4, Math.round(e.max * .45)); e.s *= .75; e.r *= .8;
+    G.enemies.push(e); burst(x, y, '#3a3448', 10, 80, 4, .5);
+  }
+}
+function updateCorridor(dt) {
+  const p = G.player, inCor = !roomRectAt(p.x, p.y);
+  G.corK = (G.corK || 0) + ((inCor ? 1 : 0) - (G.corK || 0)) * Math.min(1, dt * 3);
+  if (!inCor || G.over || G.choice || !G.tiles || G.sinPasillos) return;   // sinPasillos: lo usan las pruebas de armas
+  corridorMap();
+  const z = G.corLab[Math.floor(p.y / TILE) * MW + Math.floor(p.x / TILE)];
+  if (z < 0 || G.corDone.has(z)) return;
+  G.corDone.add(z);
+  if (Math.random() < COR_GRUPO.prob) corridorGroup(z);
 }
 function updateRooms(dt) {
   const p = G.player;

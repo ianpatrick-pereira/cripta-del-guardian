@@ -48,7 +48,7 @@ const probarArma = ([id, ch, blanco]) => {
   const p = G.player, r = G.rooms.filter(r => r.type === 'combat').sort((a, b) => a.depth - b.depth)[0];
   for (const x of G.rooms) { x.cleared = true; x.locked = false; }
   p.x = r.cx; p.y = r.cy; G.cam.x = p.x; G.cam.y = p.y; G.enemies.length = 0; G.markers.length = 0;
-  T.weapon(id, 3); p.en = p.maxEn;
+  T.weapon(id, 3); p.en = p.maxEn; G.sinPasillos = true;   // que ningún grupo del pasillo se cruce en la medida
   // blanco: dos ojos quietos a media distancia (daño puro, sin fallar por puntería) y energía infinita;
   // grupo: seis enemigos que se mueven y atacan, con la energía normal
   if (blanco) [-1, 1].forEach(k => T.spawn('eye', p.x + 110, p.y + k * 30));
