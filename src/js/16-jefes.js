@@ -13,11 +13,21 @@ import { dropCoin, enemyShoot } from './14-enemigos.js';
 import { enemyPace } from './15-subjefes.js';
 import { ach } from './21-logros-y-bestiario.js';
 import { openChoice } from './32-eleccion-de-reliquia.js';
-function bossIdle(e) { e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.05 : e.phase === 2 ? .6 : .38) / D().rate / enemyPace(); }
+// v0.56: los jefes van en guardia (reciben el 30 % del daño y cada golpe se queda en un tope) salvo justo
+// después de terminar un ataque: ahí quedan expuestos un momento y reciben el 130 %. Hay que esquivar y castigar.
+const JEFE = { guardia: .3, expuesto: 1.3, topeGuardia: .03, topeExpuesto: .06, ventana: .8 };
+function bossExposeK(e) { return e.exposeT > 0 ? JEFE.expuesto : JEFE.guardia; }
+function bossCap(e) { return Math.max(4, Math.round(e.max * (e.exposeT > 0 ? JEFE.topeExpuesto : JEFE.topeGuardia))); }
+function bossIdle(e) {
+  if (e.st !== 'enrage' && e.st !== 'idle' && e.st !== 'prep' && !e.dead) {
+    e.exposeT = JEFE.ventana * (e.phase === 3 ? .75 : 1);
+    addText(e.x, e.y - e.r - 26, tr('¡Expuesto!'), '#ffd84a', 14);
+  }
+  e.st = 'idle'; e.st_t = (e.phase === 1 ? 1.05 : e.phase === 2 ? .6 : .38) / D().rate / enemyPace(); }
 function bossRing(e, n, sp, color, off = 0, r = 7) { for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, sp, r, color); }
 function updateBoss(e, dt) {
   const p = G.player, a = angTo(e, p), B = BOSSES[e.kind];
-  e.st_t -= dt; e.spin += dt;
+  e.st_t -= dt; e.spin += dt; e.exposeT = (e.exposeT || 0) - dt;
   e.tele = (e.tele || 0) - dt;
   if ((e.phase === 1 && e.hp <= e.max * .5) || (e.phase === 2 && e.hp <= e.max * .25)) {
     e.phase++; e.st = 'enrage'; e.st_t = 1.5; e.invuln = true;
@@ -87,4 +97,4 @@ function bossDefeated(e) {
   }));
 }
 
-export { bossDefeated, bossIdle, bossRing, updateBoss };
+export { bossCap, bossExposeK, bossDefeated, bossIdle, bossRing, updateBoss };

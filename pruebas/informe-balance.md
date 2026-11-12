@@ -12,9 +12,9 @@ El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): 
 - ⚠ Arma «Bastón de marea»: 0.58× la mediana (aviso fuera de 0.6–1.7)
 - ⚠ Arma «Orbe del vacío»: 0.55× la mediana (aviso fuera de 0.6–1.7)
 - ⚠ Arma «Rayo sostenido»: 0.59× la mediana (aviso fuera de 0.6–1.7)
-- ⚠ Piso 3: 2.0× más difícil que el piso 2 (aviso desde 1.8×)
-- ⚠ Piso 4: 2.1× más difícil que el piso 3 (aviso desde 1.8×)
-- ⚠ Asesino necesita 3.2× las vidas de Caballero (aviso desde 2×)
+- ⚠ Piso 3: 1.8× más difícil que el piso 2 (aviso desde 1.8×)
+- ⚠ Piso 4: 2.0× más difícil que el piso 3 (aviso desde 1.8×)
+- ⚠ Asesino necesita 3.1× las vidas de Caballero (aviso desde 2×)
 
 ## Dificultad por piso
 
@@ -22,35 +22,35 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 
 | Piso | Caballero | Tirador | Asesino | Salas | Subjefe | Jefe |
 |---|---|---|---|---|---|---|
-| 1 | 7.1 | 3.5 | 16.6 | 0.4 | 2.4 | 6.2 |
-| 2 | 5.9 | 12.8 | 29.5 | 2.5 | 6.1 | 7.5 |
-| 3 | 16.0 | 28.7 | 52.3 | 5.8 | 12.1 | 14.4 |
-| 4 | 36.9 | 75.3 | 90.6 | 28.5 | 22.7 | 16.3 |
-| 5 | 44.7 | 82.8 | 88.9 | 17.7 | 34.5 | 19.9 |
-| 6 | 22.6 | 59.8 | 80.2 | 13.9 | 24.0 | 16.3 |
-| 7 | 34.1 | 107.2 | 139.9 | 16.8 | 49.5 | 27.4 |
-| 8 | 36.4 | 130.3 | 148.5 | 27.6 | 50.3 | 27.2 |
+| 1 | 14.5 | 4.9 | 29.7 | 0.4 | 2.4 | 13.6 |
+| 2 | 11.3 | 14.6 | 47.4 | 2.5 | 6.1 | 15.8 |
+| 3 | 25.3 | 32.8 | 76.4 | 5.8 | 12.1 | 26.9 |
+| 4 | 44.6 | 96.3 | 127.0 | 28.0 | 22.5 | 38.7 |
+| 5 | 53.3 | 90.6 | 129.1 | 17.7 | 34.5 | 38.8 |
+| 6 | 34.1 | 62.7 | 134.6 | 15.6 | 25.1 | 36.5 |
+| 7 | 52.3 | 115.8 | 166.0 | 16.8 | 49.5 | 45.1 |
+| 8 | 53.8 | 124.2 | 187.1 | 25.7 | 47.8 | 48.2 |
 
 | Clase | Vidas por piso (media) | Minutos por piso | Salas que no pudo terminar |
 |---|---|---|---|
-| Caballero | 25.5 | 2.7 | 3 |
-| Tirador | 62.6 | 5.4 | 23 |
-| Asesino | 80.8 | 3.9 | 4 |
+| Caballero | 36.2 | 3.4 | 3 |
+| Tirador | 67.7 | 6.3 | 34 |
+| Asesino | 112.2 | 4.9 | 7 |
 
 ### Quién hace más daño
 
-- Excavador: 9 % del daño recibido
-- Obispo de Ceniza: 8 % del daño recibido
-- El Gemelo de Aldric: 8 % del daño recibido
-- Escudero: 8 % del daño recibido
+- Elena, Corazón de la Cripta: 8 % del daño recibido
+- El Obispo Hueco: 7 % del daño recibido
+- Excavador: 7 % del daño recibido
+- Escudero: 7 % del daño recibido
+- Obispo de Ceniza: 7 % del daño recibido
 - Fantasma: 7 % del daño recibido
-- Herrero Fundido: 7 % del daño recibido
-- El Obispo Hueco: 5 % del daño recibido
-- Embestidor: 5 % del daño recibido
-- Elena, Corazón de la Cripta: 5 % del daño recibido
-- Madre Espina: 4 % del daño recibido
-- La Forjadora: 4 % del daño recibido
-- Centinela Escarchado: 3 % del daño recibido
+- El Gemelo de Aldric: 6 % del daño recibido
+- La Forjadora: 6 % del daño recibido
+- El Señor del Osario: 6 % del daño recibido
+- Herrero Fundido: 5 % del daño recibido
+- La Raíz Madre: 5 % del daño recibido
+- El Devorador de Luz: 4 % del daño recibido
 
 ## Armas a 3★ (piso 4)
 
@@ -100,4 +100,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Varita de aprendiz ⬇ | common | Caballero | 17.9 | 0.57 | 18.9 | 2/3 | 17 % |
 | Orbe del vacío ⬇ | epic | Caballero | 17.4 | 0.55 | 9.7 | 0/3 | 8 % |
 
-_294 partidas en 162 s._
+_294 partidas en 178 s._
