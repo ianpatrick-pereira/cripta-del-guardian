@@ -4901,7 +4901,7 @@ function corridorGroup(zone) {
 function updateCorridor(dt) {
   const p = G.player, inCor = !roomRectAt(p.x, p.y);
   G.corK = (G.corK || 0) + ((inCor ? 1 : 0) - (G.corK || 0)) * Math.min(1, dt * 3);
-  if (!inCor || G.over || G.choice || !G.tiles) return;
+  if (!inCor || G.over || G.choice || !G.tiles || G.sinPasillos) return;   // sinPasillos: lo usan las pruebas de armas
   corridorMap();
   const z = G.corLab[Math.floor(p.y / TILE) * MW + Math.floor(p.x / TILE)];
   if (z < 0 || G.corDone.has(z)) return;
