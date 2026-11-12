@@ -11,9 +11,10 @@ npm run dev          # servidor de desarrollo: http://localhost:8000, se recarga
 npm run build        # une src/ en cripta.html
 npm run tipos        # revisión de tipos con TypeScript (menos de 1 segundo)
 npm test             # 33 pruebas automáticas (~1 minuto)
+npm run capturas     # capturas del menú y de los 8 pisos en escritorio y celular (pruebas/capturas/)
 ```
 
-Cada push y cada pull request ejecuta en GitHub Actions (`.github/workflows/pruebas.yml`) las pruebas, la revisión de tipos y los límites de balance.
+Cada push y cada pull request ejecuta en GitHub Actions (`.github/workflows/pruebas.yml`) las pruebas, la revisión de tipos y los límites de balance, y guarda las capturas como «artifact» de la ejecución (se descargan desde la pestaña Summary).
 
 ## Cómo está organizado el código
 
