@@ -48,7 +48,7 @@ function mkW(id, stars = 1) {
 // el poder lo marcan las estrellas: a igual nivel todas las armas rinden parecido (daño por segundo),
 // y cada estrella sube el daño lo bastante para que se note el salto de color
 const STAR_MUL = [1, 1.5, 2.2, 3.1, 4.3];
-const REF_DPS = { melee: 9, bow: 7, staff: 7 };
+const REF_DPS = { melee: 9, bow: 8, staff: 8 };   // v0.48: arcos y bastones +14 %
 // armas que golpean varias veces, atraviesan o dañan en área rinden menos por golpe
 const PW = {};
 for (const id in WEAPON_DEFS) if (WEAPON_DEFS[id].potencia) PW[id] = WEAPON_DEFS[id].potencia;
