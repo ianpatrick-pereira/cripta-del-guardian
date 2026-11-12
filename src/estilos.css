@@ -32,7 +32,7 @@ body{
 .opts select{background:var(--stone2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit}
 .overlay{
   position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;
-  background:rgba(8,7,12,.93);padding:24px 16px;overflow-y:auto;
+  background:rgba(8,7,12,.93);padding:24px var(--opx, 16px);overflow-y:auto;
 }
 /* el menú principal tapa del todo la partida de fondo: su propia escena (luz de antorcha desde abajo) */
 #ovStart{background:radial-gradient(ellipse 70% 45% at 50% 108%, rgba(227,162,74,.16), rgba(227,162,74,0) 70%),
@@ -157,6 +157,73 @@ details.codex[open]{padding-bottom:12px}
 .choice b{font-size:26px}
 .choice .key{color:var(--muted);font-size:11px;letter-spacing:.12em}
 
+/* ---------- lobby (v0.45): pestañas, retratos, barra fija para entrar ---------- */
+#ovStart{flex-direction:column;align-items:center;padding-bottom:0}
+#ovStart .panel{margin:0 0 12px}
+.lhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.lhead h1{font-size:clamp(40px, 6.5vw, 68px)}
+.gempill{color:var(--gem);font-weight:600;font-size:13px;background:rgba(199,125,255,.1);border:1px solid rgba(199,125,255,.35);border-radius:999px;padding:5px 12px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font:600 14px var(--ui);padding:9px 12px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ember);border-bottom-color:var(--ember)}
+.pane{display:flex;flex-direction:column;gap:12px}
+.pane h3{font-size:21px}
+.cards.chars{grid-template-columns:repeat(auto-fit, minmax(210px, 1fr))}
+.card.ch{flex-direction:row;align-items:center;gap:12px}
+.card.ch .por{flex:0 0 auto;width:78px;height:92px;display:grid;place-items:center;border-radius:6px;
+  background:radial-gradient(circle at 50% 70%, rgba(227,162,74,.16), transparent 65%), var(--void)}
+.card.ch .por img{width:72px;image-rendering:pixelated}
+.card.ch.sel .por img{animation:lbob 1.6s ease-in-out infinite}
+.card.ch.locked .por img{filter:brightness(0) drop-shadow(0 0 1px #6b6480)}
+.card.ch .ci > b{font-size:22px}
+.card.ch .ci{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.sbars{display:grid;gap:3px}
+.sbar{display:grid;grid-template-columns:62px 1fr 30px;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.sbar em{font-style:normal}
+.sbar i{height:5px;background:var(--line);border-radius:3px;overflow:hidden;display:block}
+.sbar u{display:block;height:100%;background:var(--ember);text-decoration:none}
+.card .sbar b{font-family:var(--ui);font-size:11px;color:var(--ink);text-align:right;font-weight:600}
+@keyframes lbob{50%{transform:translateY(-4px)}}
+.cdetail{background:var(--stone);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:13px;line-height:1.5}
+.cdetail p{margin:0}
+.cdetail .abil{color:var(--ember)}
+.cdetail .meta{color:var(--muted);font-size:12px}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:max-content;max-width:100%}
+.seg button{background:var(--stone);color:var(--muted);border:0;border-right:1px solid var(--line);font:600 14px var(--ui);padding:9px 16px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button.sel{background:var(--stone2);color:var(--ember);box-shadow:inset 0 -2px 0 var(--ember)}
+.cards.pets{grid-template-columns:repeat(auto-fit, minmax(150px, 1fr))}
+.cards.pets .card b{font-size:18px}
+.beasts{display:grid;grid-template-columns:repeat(auto-fill, minmax(92px, 1fr));gap:6px}
+.beasts div{background:var(--stone2);border:1px solid var(--line);border-radius:6px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;font-size:11px;color:var(--muted)}
+.beasts img{height:40px;image-rendering:pixelated}
+.beasts i{height:40px;font-style:normal;font-size:28px;line-height:40px;color:var(--ember)}
+.beasts b{color:var(--ink);font-size:12px;line-height:1.2}
+.beasts .off img{filter:brightness(0) drop-shadow(0 0 1px #6b6480)}
+.beasts .off i{color:#2e2a3c}
+.lbar{position:sticky;bottom:0;z-index:2;align-self:stretch;margin:auto calc(-1 * var(--opx, 16px)) 0;padding:12px var(--opx, 16px) calc(12px + env(safe-area-inset-bottom, 0px));
+  display:flex;justify-content:center;gap:10px 16px;flex-wrap:wrap;align-items:center;
+  background:linear-gradient(rgba(8,7,12,0), rgba(8,7,12,.96) 30%);border-top:1px solid rgba(46,42,60,.6)}
+.lbar .row{flex-wrap:nowrap}
+.lsum{margin:0;font-size:12px;color:var(--muted);flex:1 1 220px;max-width:760px;min-width:0}
+.lsum b{color:var(--ink)}
+@media (max-height:500px) and (orientation:landscape){
+  .lhead h1{font-size:32px}
+  #ovStart .lead{display:none}
+  .card.ch .por{width:56px;height:68px}
+  .card.ch .por img{width:52px}
+  .lbar{padding-block:8px}
+  .lbar button.primary,.lbar button.ghost{padding:9px 14px;font-size:14px}
+}
+@media (max-width:640px){
+  .cards.chars{grid-template-columns:1fr}
+  .lbar{gap:6px}
+  .lbar .row{width:100%;flex-wrap:nowrap}
+  .lbar .row button{flex:1 1 0;padding:11px 8px;font-size:14px}
+  .lsum{flex-basis:100%;text-align:center}
+}
+@media (prefers-reduced-motion:reduce){.card.ch.sel .por img{animation:none}}
+
 #touch{position:absolute;inset:0;pointer-events:none}
 /* los botones de acción van juntos en un bloque abajo a la derecha: se sube (--tb) o se achica entero según la pantalla */
 .tpad{position:absolute;right:0;bottom:var(--tb, 0px);width:270px;height:270px;pointer-events:none;transform-origin:100% 100%;transform:scale(var(--ts, 1))}
@@ -180,7 +247,7 @@ details.codex[open]{padding-bottom:12px}
 @media (max-width:640px), (max-height:500px){
   body{margin:0;padding:env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px)}
   #frame{border:0;border-radius:0}
-  .overlay{padding:16px 12px}
+  .overlay{padding:16px 12px;--opx:12px}
   h1{font-size:clamp(34px, 10vw, 60px)}
   h2{font-size:clamp(28px, 8vw, 44px)}
   .panel{gap:10px}

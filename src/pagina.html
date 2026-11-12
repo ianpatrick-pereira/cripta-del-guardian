@@ -23,41 +23,64 @@
     <button class="tbtn" id="bPause" type="button" aria-label="Pausa">II</button>
   </div>
 
-  <div class="overlay" id="ovStart">
+  <div class="overlay lobby" id="ovStart">
     <div class="panel">
-      <p class="eyebrow">Prototipo jugable · <span>v0.44</span></p>
-      <h1>Cripta del Guardián</h1>
+      <header class="lhead">
+        <div><p class="eyebrow">Prototipo jugable · <span>v0.45</span></p><h1>Cripta del Guardián</h1></div>
+        <span class="gempill" id="gemCount"></span>
+      </header>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
-      <div class="row"><h3>Elige personaje</h3><span class="gems" id="gemCount"></span></div>
-      <div class="cards" id="charCards"></div>
-      <h3>Dificultad</h3>
-      <div class="cards diffs" id="diffCards"></div>
-      <h3>Compañero</h3>
-      <div class="cards pets" id="petCards"></div>
-      <h3>Altar de almas</h3>
-      <div class="upgs" id="upgList"></div>
-      <details class="codex"><summary>Arma inicial <span id="swCount"></span></summary><p class="hint">Solo las armas grises de 1★ se compran como arma inicial para la próxima partida; las demás se consiguen dentro de la cripta. Reemplaza la primera arma del personaje.</p><div class="chips" id="swList"></div></details>
-      <details class="codex"><summary>Logros <span id="achCount"></span></summary><div class="clist" id="achList"></div></details>
-      <details class="codex"><summary>Bestiario <span id="beastCount"></span></summary><div class="clist" id="beastList"></div></details>
-      <details class="codex"><summary>Diario <span id="noteCount"></span></summary><div class="clist" id="noteList"></div></details>
-      <details class="codex"><summary>Historial <span id="histCount"></span></summary><div class="clist" id="histList"></div></details>
-      <details class="codex"><summary>Sinergias <span id="synCount"></span></summary><div class="clist" id="synList"></div></details>
-      <details class="codex"><summary>Opciones</summary><div class="opts" id="menuOpts"></div></details>
-      <div class="keys">
-        <div><kbd>WASD</kbd> moverse</div>
-        <div><kbd>Clic</kbd> atacar</div>
-        <div><kbd>Clic der.</kbd> mantén y suelta: ataque cargado</div>
-        <div><kbd>Espacio</kbd> esquiva</div>
-        <div><kbd>F</kbd> habilidad del personaje</div>
-        <div><kbd>Q</kbd> / <kbd>Rueda</kbd> cambiar arma</div>
-        <div><kbd>E</kbd> tomar, abrir, comprar</div>
-        <div>Mejores armas gastan más energía; la espada la recupera al golpear</div>
-        <div><kbd>!</kbd> va a atacar · círculo rojo: sal de ahí</div>
-        <div>Armas de 1★ a 5★ (4★ y 5★ desde el piso 3) · forja en la tienda</div>
-        <div><kbd>R</kbd> habilidad elemental (armas de 3★+ con 3 cristales)</div>
-        <div><kbd>Esc</kbd> pausa · <kbd>M</kbd> sonido</div>
-      </div>
-      <p class="hint">En móvil: arrastra el lado izquierdo para moverte; los botones apuntan solos al enemigo más cercano. Mejor en horizontal. El progreso se guarda en este navegador.</p>
+      <nav class="tabs" role="tablist" aria-label="Menú">
+        <button type="button" role="tab" data-tab="pj" aria-selected="true">Personaje</button>
+        <button type="button" role="tab" data-tab="prep" aria-selected="false">Preparación</button>
+        <button type="button" role="tab" data-tab="arch" aria-selected="false">Archivo</button>
+        <button type="button" role="tab" data-tab="opt" aria-selected="false">Opciones</button>
+      </nav>
+      <section class="pane" data-pane="pj" role="tabpanel">
+        <div class="cards chars" id="charCards"></div>
+        <div class="cdetail" id="charDetail"></div>
+      </section>
+      <section class="pane" data-pane="prep" role="tabpanel" hidden>
+        <h3>Dificultad</h3>
+        <div class="seg" id="diffCards"></div>
+        <p class="hint" id="diffDesc"></p>
+        <h3>Compañero</h3>
+        <div class="cards pets" id="petCards"></div>
+        <h3>Arma inicial <span class="hint" id="swCount"></span></h3>
+        <p class="hint">Solo las armas grises de 1★ se compran como arma inicial para la próxima partida; las demás se consiguen dentro de la cripta. Reemplaza la primera arma del personaje.</p>
+        <div class="chips" id="swList"></div>
+        <h3>Altar de almas</h3>
+        <div class="upgs" id="upgList"></div>
+      </section>
+      <section class="pane" data-pane="arch" role="tabpanel" hidden>
+        <details class="codex" open><summary>Bestiario <span id="beastCount"></span></summary><div class="beasts" id="beastList"></div></details>
+        <details class="codex"><summary>Logros <span id="achCount"></span></summary><div class="clist" id="achList"></div></details>
+        <details class="codex"><summary>Diario <span id="noteCount"></span></summary><div class="clist" id="noteList"></div></details>
+        <details class="codex"><summary>Historial <span id="histCount"></span></summary><div class="clist" id="histList"></div></details>
+        <details class="codex"><summary>Sinergias <span id="synCount"></span></summary><div class="clist" id="synList"></div></details>
+      </section>
+      <section class="pane" data-pane="opt" role="tabpanel" hidden>
+        <div class="opts" id="menuOpts"></div>
+        <h3>Controles</h3>
+        <div class="keys">
+          <div><kbd>WASD</kbd> moverse</div>
+          <div><kbd>Clic</kbd> atacar</div>
+          <div><kbd>Clic der.</kbd> mantén y suelta: ataque cargado</div>
+          <div><kbd>Espacio</kbd> esquiva</div>
+          <div><kbd>F</kbd> habilidad del personaje</div>
+          <div><kbd>Q</kbd> / <kbd>Rueda</kbd> cambiar arma</div>
+          <div><kbd>E</kbd> tomar, abrir, comprar</div>
+          <div>Mejores armas gastan más energía; la espada la recupera al golpear</div>
+          <div><kbd>!</kbd> va a atacar · círculo rojo: sal de ahí</div>
+          <div>Armas de 1★ a 5★ (4★ y 5★ desde el piso 3) · forja en la tienda</div>
+          <div><kbd>R</kbd> habilidad elemental (armas de 3★+ con 3 cristales)</div>
+          <div><kbd>Esc</kbd> pausa · <kbd>M</kbd> sonido</div>
+        </div>
+        <p class="hint">En móvil: arrastra el lado izquierdo para moverte; los botones apuntan solos al enemigo más cercano. Mejor en horizontal. El progreso se guarda en este navegador.</p>
+      </section>
+    </div>
+    <div class="lbar">
+      <p class="lsum" id="lobbySum"></p>
       <div class="row"><button class="primary" id="btnContinue" type="button" hidden>Continuar</button><button class="primary" id="btnStart" type="button">Entrar a la cripta</button><button class="ghost" id="btnDaily" type="button">Reto diario</button></div>
     </div>
   </div>
