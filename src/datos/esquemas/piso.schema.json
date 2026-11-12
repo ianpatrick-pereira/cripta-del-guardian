@@ -304,6 +304,11 @@
       "additionalProperties": false,
       "description": "decoración del piso"
     },
+    "baldosa": {
+      "type": "string",
+      "enum": ["losas", "piedra", "grandes", "hielo", "rejilla", "raices", "mosaico", "carne"],
+      "description": "forma de las baldosas del suelo (losas por defecto)"
+    },
     "mar": {
       "type": "object",
       "description": "lo que rodea la mazmorra (el fondo fuera de las salas)",

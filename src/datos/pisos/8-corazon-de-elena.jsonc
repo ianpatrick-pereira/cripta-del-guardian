@@ -23,6 +23,8 @@
   },
   // lo que rodea la mazmorra (carne y seda): fondo, manchas [caliente, media, fría], placas que flotan y su borde,
   // puntitos de luz, burbujas, llamas en los bordes (null = sin llamas), vapor y cuánta luz propia da (0 a 1)
+  // forma de las baldosas del suelo: losas, piedra, grandes, hielo, rejilla, raices, mosaico o carne
+  "baldosa": "carne",
   "mar": {"fondo": "#16040c", "manchas": ["#e0507e", "#7a1236", "#320818"], "costra": "rgba(20,4,10,.82)", "grietas": "rgba(255,110,160,.38)", "chispas": ["rgba(255,200,220,.5)", "rgba(255,110,160,.45)"], "burbujas": "#7a1236", "llamas": "#ff4f8b", "vapor": "#f0c8d6", "luz": 0.42},
   // decoración: colores de antorchas, brillos, estandartes, plantas (oscura y clara), flores y charcos;
   // partículas que flotan (polvo, esporas, brasas, nieve, luciernagas, chispas o petalos) y la viñeta de los bordes

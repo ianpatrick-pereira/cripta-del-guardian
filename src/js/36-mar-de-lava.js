@@ -183,6 +183,74 @@ function drawLighting(w, h, camX, camY, px, py, r0, r1, al, lk) {
   ctx.restore();
 }
 
+// v0.52: cada piso tiene su propia forma de baldosa (FLOORS[].baldosa, desde src/datos/pisos/*.jsonc)
+const JUNTA = 'rgba(0,0,0,.24)', BRILLO = 'rgba(255,240,220,.035)';
+function paintFloorTile(ctx, forma, P, tx, ty, x, y, h) {
+  const T = TILE, fill = c => { ctx.fillStyle = c; ctx.fillRect(x, y, T, T); }, r = (c, a, b, w, hh) => { ctx.fillStyle = c; ctx.fillRect(x + a, y + b, w, hh); };
+  if (forma === 'grandes') {
+    // losas de 2×2 casillas: juntas solo en los bordes de cada losa grande
+    fill(((tx >> 1) + (ty >> 1)) & 1 ? P.fa : P.fb);
+    if (hash(tx >> 1, ty >> 1) > .75) fill('rgba(0,0,0,.1)');
+    if (!(ty & 1)) { r(JUNTA, 0, 0, T, 2); r(BRILLO, 0, 2, T, 1); }
+    if (!(tx & 1)) { r(JUNTA, 0, 0, 2, T); r(BRILLO, 2, 0, 1, T); }
+    return;
+  }
+  if (forma === 'piedra') {
+    // adoquines: cuatro piedras por casilla, desplazadas en filas alternas
+    fill(P.fb); fill('rgba(0,0,0,.35)'); const o = (ty & 1) ? T / 4 : 0;
+    for (let j = 0; j < 2; j++) for (let i = -1; i < 2; i++) {
+      const hx = hash(tx * 2 + i + 7, ty * 2 + j), px = i * T / 2 + o + 1, py = j * T / 2 + 1, a = Math.max(0, px), b = Math.min(T, px + T / 2 - 2);
+      if (b <= a) continue;
+      ctx.fillStyle = hx > .5 ? P.fa : P.fb; ctx.fillRect(x + a, y + py, b - a, T / 2 - 2);
+      ctx.fillStyle = hx > .7 ? 'rgba(255,240,220,.05)' : 'rgba(0,0,0,.08)'; ctx.fillRect(x + a, y + py, b - a, 1);
+    }
+    return;
+  }
+  if (forma === 'hielo') {
+    // hielo: tono uniforme, vetas diagonales y algún brillo
+    fill((tx + ty) & 1 ? P.fa : P.fb); r(BRILLO, 0, 0, T, 1);
+    ctx.fillStyle = 'rgba(200,235,255,.06)'; for (let k = 0; k < 3; k++) ctx.fillRect(x + ((k * 11 + Math.floor(h * 20)) % T), y + k * 10, 6, 1);
+    if (h > .7) { ctx.strokeStyle = 'rgba(190,230,255,.13)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 3, y + T * h); ctx.lineTo(x + T * .6, y + 4); ctx.stroke(); }
+    if (h < .2) r('rgba(0,0,0,.08)', 0, 0, T, T);
+    return;
+  }
+  if (forma === 'rejilla') {
+    // forja: planchas de metal con remaches y una rejilla de vez en cuando
+    fill(P.fb); r(JUNTA, 0, 0, T, 2); r(JUNTA, 0, 0, 2, T);
+    ctx.fillStyle = 'rgba(255,200,150,.08)'; ctx.fillRect(x + 3, y + 3, 2, 2); ctx.fillRect(x + T - 5, y + 3, 2, 2); ctx.fillRect(x + 3, y + T - 5, 2, 2); ctx.fillRect(x + T - 5, y + T - 5, 2, 2);
+    if (h > .78) { r('rgba(0,0,0,.45)', 6, 6, T - 12, T - 12); ctx.fillStyle = 'rgba(255,120,40,.18)'; for (let k = 8; k < T - 8; k += 4) ctx.fillRect(x + k, y + 7, 2, T - 14); }
+    return;
+  }
+  if (forma === 'raices') {
+    // tierra: sin juntas, manchas y raíces que cruzan el suelo
+    fill(h > .5 ? P.fa : P.fb);
+    ctx.fillStyle = 'rgba(0,0,0,.16)'; ctx.beginPath(); ctx.arc(x + T * hash(ty, tx), y + T * h, 6 + 6 * h, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(120,150,80,.06)'; ctx.fillRect(x + T * h * .6, y + 4, 4, 2);
+    if (h > .82) { ctx.strokeStyle = 'rgba(90,60,30,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y + T * hash(ty, tx)); ctx.quadraticCurveTo(x + T / 2, y + T * h, x + T, y + T * (1 - h)); ctx.stroke(); }
+    return;
+  }
+  if (forma === 'mosaico') {
+    // catedral: damero con un rombo incrustado en cada casilla
+    fill((tx + ty) & 1 ? P.fa : P.fb); r(JUNTA, 0, 0, T, 1); r(JUNTA, 0, 0, 1, T);
+    ctx.fillStyle = (tx + ty) & 1 ? 'rgba(255,230,200,.05)' : 'rgba(0,0,0,.12)';
+    ctx.beginPath(); ctx.moveTo(x + T / 2, y + 6); ctx.lineTo(x + T - 6, y + T / 2); ctx.lineTo(x + T / 2, y + T - 6); ctx.lineTo(x + 6, y + T / 2); ctx.fill();
+    return;
+  }
+  if (forma === 'carne') {
+    // carne: sin juntas, bultos redondeados y venas
+    fill(P.fb); fill('rgba(0,0,0,.28)');
+    ctx.fillStyle = P.fa; ctx.beginPath(); ctx.arc(x + T * (.3 + .4 * h), y + T * (.3 + .4 * hash(ty, tx)), T * .4, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(255,140,160,.06)'; ctx.beginPath(); ctx.arc(x + T * (.25 + .4 * h), y + T * (.22 + .4 * hash(ty, tx)), T * .18, 0, TAU); ctx.fill();
+    if (h > .8) { ctx.strokeStyle = 'rgba(120,20,40,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, y + T * .7); ctx.quadraticCurveTo(x + T * .5, y + T * h, x + T, y + T * .3); ctx.stroke(); }
+    return;
+  }
+  // losas (por defecto): juntas, borde iluminado y alguna más oscura
+  fill((tx + ty) & 1 ? P.fa : P.fb);
+  if (h > .6 && h < .7) fill('rgba(0,0,0,.13)');
+  else if (h > .4 && h < .46) fill('rgba(255,235,210,.025)');
+  r(JUNTA, 0, 0, T, 1); r(JUNTA, 0, 0, 1, T);
+  r(BRILLO, 1, 1, T - 2, 1); r(BRILLO, 1, 1, 1, T - 2);
+}
 function paintTiles(ctx, tx0, ty0, tx1, ty1) {
   const P = FLOORS[G.fi].pal;
   for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
@@ -195,14 +263,8 @@ function paintTiles(ctx, tx0, ty0, tx1, ty1) {
       continue;
     }
     if (t === FLOOR || t === DOOR) {
-      ctx.fillStyle = (tx + ty) & 1 ? P.fa : P.fb;
-      ctx.fillRect(x, y, TILE, TILE);
       const h = hash(tx, ty);
-      // losas: juntas, borde iluminado, alguna más oscura y sombra que proyectan los muros
-      if (h > .6 && h < .7) { ctx.fillStyle = 'rgba(0,0,0,.13)'; ctx.fillRect(x, y, TILE, TILE); }
-      else if (h > .4 && h < .46) { ctx.fillStyle = 'rgba(255,235,210,.025)'; ctx.fillRect(x, y, TILE, TILE); }
-      ctx.fillStyle = 'rgba(0,0,0,.24)'; ctx.fillRect(x, y, TILE, 1); ctx.fillRect(x, y, 1, TILE);
-      ctx.fillStyle = 'rgba(255,240,220,.035)'; ctx.fillRect(x + 1, y + 1, TILE - 2, 1); ctx.fillRect(x + 1, y + 1, 1, TILE - 2);
+      paintFloorTile(ctx, FLOORS[G.fi].baldosa, P, tx, ty, x, y, h);
       const up = ty > 0 ? G.tiles[(ty - 1) * MW + tx] : VOID, lf = G.tiles[ty * MW + tx - 1], rt = G.tiles[ty * MW + tx + 1];
       if (up === WALL || up === CRACK) { ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.fillRect(x, y, TILE, 5); ctx.fillStyle = 'rgba(0,0,0,.14)'; ctx.fillRect(x, y + 5, TILE, 6); }
       if (lf === WALL || lf === CRACK) { ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(x, y, 5, TILE); }
