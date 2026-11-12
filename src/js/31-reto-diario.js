@@ -16,8 +16,8 @@ function buildFloor(n) {
 function startDaily() {
   const I = dailyInfo(); DAILY = I;
   // el reto es igual para todos: sin mejoras del altar, compañero ni arma inicial, en dificultad normal
-  const keep = { upg: SAVE.upg, pet: SAVE.pet, startW: SAVE.startW, diff: SAVE.diff };
-  Object.assign(SAVE, { upg: { hp: 0, coin: 0, en: 0 }, pet: '', startW: '', diff: 'normal' });
+  const keep = { upg: SAVE.upg, pet: SAVE.pet, startW: SAVE.startW, diff: SAVE.diff, circSel: SAVE.circSel };
+  Object.assign(SAVE, { upg: { hp: 0, coin: 0, en: 0 }, pet: '', startW: '', diff: 'normal', circSel: 0 });
   setSelChar(I.char); newRun(I.char);
   Object.assign(SAVE, keep);
   G.daily = I.date;

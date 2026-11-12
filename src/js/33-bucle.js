@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, esc, rand } from './01-utilidades.js';
 import { ROOM_DEFS, roomList } from './01a-registro.js';
-import { D, FLOORS, RELICS } from './03-datos-del-juego.js';
+import { CIRC_MAX, CIRCLES, D, FLOORS, RELICS } from './03-datos-del-juego.js';
 import { SAVE, writeSave } from './04-guardado.js';
 import { noise, sfx } from './05-audio.js';
 import { G, rc } from './07-estado.js';
@@ -32,6 +32,7 @@ function endGame(won) {
   G.gemsBanked = true;
   G.gemGain = Math.round(G.gems * D().gem);
   SAVE.gems += G.gemGain; SAVE.best = Math.max(SAVE.best, G.floor); if (won && !G.wonOnce) SAVE.wins++;
+  if (won && !G.wonOnce && !G.daily && (G.circ || 0) >= (SAVE.circ || 0) && (SAVE.circ || 0) < CIRC_MAX) { SAVE.circ = (SAVE.circ || 0) + 1; G.circNew = SAVE.circ; }
   SAVE.run = null;
   saveHistory(won);
   if (G.daily) {
@@ -54,6 +55,7 @@ function showEnd() {
     : tr('Las gemas que juntaste se guardaron. Úsalas en el Altar de almas para volver más fuerte.');
   if (G.daily) $('endText').textContent = tr`Reto diario del ${G.daily}: ${G.dailyPts} puntos${G.dailyRec ? tr(' · ¡nuevo récord!') : tr` · tu récord: ${SAVE.daily.best}`}. Puntos: 1000 por piso superado, 10 por baja y 1 por moneda (+3000 si ganas).`;
   if (!won && G.hitBy) $('endText').textContent += tr` Te derrotó: ${G.hitBy}.`;
+  if (G.circNew) $('endText').textContent += tr` Se abrió el ${CIRCLES[G.circNew].n.toLowerCase()} del Abismo: elígelo en Preparación.`;
   const s = Math.floor(G.time);
   $('stFloor').textContent = G.floor;
   $('stTime').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');

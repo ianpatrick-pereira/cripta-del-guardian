@@ -1,7 +1,7 @@
 // ================= Enemigos que se adaptan a tu arsenal =================
 // cuanto más fuerte tu mejor arma respecto a lo esperado en el piso, más duros los enemigos
 import { tr } from './00b-textos.js';
-import { DIFFS, RORDER } from './03-datos-del-juego.js';
+import { DIFFS, RORDER, circMod } from './03-datos-del-juego.js';
 import { G } from './07-estado.js';
 import { addText } from './09-efectos.js';
 const EXPECT = [0, 2.0, 2.8, 3.6];
@@ -13,7 +13,7 @@ function arsenalPower() {
 function updateAdapt(announce) {
   const gap = Math.max(0, arsenalPower() - (EXPECT[Math.min(3, G.floor)] + .4 * Math.max(0, G.floor - 3)));
   const lvl = gap + (G.player.slots.some(w => w.stars === 5) ? 1.2 : 0);
-  const old = G.threat || 0, b = DIFFS[G.diff] || DIFFS.normal;
+  const old = G.threat || 0, b = circMod(DIFFS[G.diff] || DIFFS.normal);
   G.threat = lvl;
   G.dx = { ...b, hp: b.hp * (1 + .16 * lvl), rate: b.rate * (1 + .05 * lvl), elite: b.elite + .04 * lvl, count: b.count + Math.floor(lvl / 1.5),
     lead: Math.min(1, b.lead + .08 * lvl), dodge: Math.min(.85, b.dodge + .06 * lvl), tokens: b.tokens + Math.floor(lvl / 2) };

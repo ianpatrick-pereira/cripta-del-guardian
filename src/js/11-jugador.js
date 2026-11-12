@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
 import { TAU, angDiff, angTo, dist, rand } from './01-utilidades.js';
 import { ROOM_OBJ } from './01a-registro.js';
-import { CHARS, RARITY, chgName, cu } from './03-datos-del-juego.js';
+import { CHARS, RARITY, chgName, circ, cu } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
 import { G, rc } from './07-estado.js';
 import { moveEnt, pushOutProps } from './08-colisiones.js';
@@ -147,7 +147,7 @@ function updatePlayer(dt) {
   p.inv -= dt; p.sqT = (p.sqT || 0) - dt;
   p.shT += dt;
   const maxSh = p.maxSh + rc('escudo') + armorSh(p);
-  if (p.shT > (tl('aguante') ? 1.5 : 3) && p.sh < maxSh) { p.shAcc += dt; if (p.shAcc > (tl('aguante') ? .35 : .7)) { p.shAcc = 0; p.sh++; sfx(880, .05, 'sine', .02); } }
+  if (p.shT > (tl('aguante') ? 1.5 : 3) * (circ(5) ? 2 : 1) && p.sh < maxSh) { p.shAcc += dt; if (p.shAcc > (tl('aguante') ? .35 : .7)) { p.shAcc = 0; p.sh++; sfx(880, .05, 'sine', .02); } }
 
   // latido con poca vida (antes solo en los pisos de terror)
   if (p.hp <= 2 && p.hp > 0 && p.maxHp > 2) { G.heartT -= dt; if (G.heartT <= 0) { G.heartT = .9; sfx(60, .12, 'sine', .12); later(.16, () => sfx(52, .12, 'sine', .1)); } }
