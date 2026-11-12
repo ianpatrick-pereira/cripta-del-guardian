@@ -1206,5 +1206,19 @@
 
   // v0.47 elecciones
   "Energía: {0} → {1} · ": "Energy: {0} → {1} · ",
-  "Energía de la carga: {0} → {1}": "Charge energy: {0} → {1}"
+  "Energía de la carga: {0} → {1}": "Charge energy: {0} → {1}",
+
+  // v0.49 primer piso guiado
+  "Muévete con WASD o las flechas": "Move with WASD or the arrow keys",
+  "Muévete con el joystick de la izquierda": "Move with the joystick on the left",
+  "Ataca con clic izquierdo: apuntas con el ratón": "Attack with left click: aim with the mouse",
+  "Pulsa ATACAR: apunta solo al enemigo más cercano": "Press ATTACK: it aims at the nearest enemy",
+  "Ataque cargado: mantén clic derecho y suelta": "Charged attack: hold right click and release",
+  "Ataque cargado: mantén CARGA y suelta": "Charged attack: hold CHARGE and release",
+  "Esquiva con Espacio: eres invulnerable un instante": "Dodge with Space: you are invulnerable for a moment",
+  "Pulsa ESQUIVA: eres invulnerable un instante": "Press DODGE: you are invulnerable for a moment",
+  "Habilidad de clase: tecla F (se recarga con el tiempo)": "Class ability: F key (recharges over time)",
+  "Pulsa HABIL.: la habilidad de tu clase": "Press SKILL: your class ability",
+  "Cruza una puerta y limpia tu primera sala": "Go through a door and clear your first room",
+  "GUÍA · PASO {0} DE {1}": "GUIDE · STEP {0} OF {1}"
 }

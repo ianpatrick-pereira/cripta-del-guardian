@@ -1,6 +1,6 @@
 {
   "name": "cripta-del-guardian",
-  "version": "0.48.0",
+  "version": "0.49.0",
   "private": true,
   "description": "Roguelike de mazmorras en el navegador: un solo cripta.html generado desde src/.",
   "scripts": {

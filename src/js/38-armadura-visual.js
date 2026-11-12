@@ -13,6 +13,7 @@ import { maxEnergy } from './11-jugador.js';
 import { drawStyles, elAbName } from './12-armas-con-estilo-propio.js';
 import { ARMOR, armorDesc, armorSh, drawArmor } from './13-armadura.js';
 import { SYNERGIES } from './18-sinergias.js';
+import { drawGuide } from './21b-guia.js';
 import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
@@ -591,6 +592,7 @@ function drawHUD(w, h) {
   drawWeaponBar(p, w, h);
 
   const mmBottom = drawMinimap(w);
+  drawGuide(w, h);
   const r = G.cur;
   let status = tr`Piso ${G.floor} · ${FLOORS[G.fi].name} · enemigos Nv${G.floor}`, sc = '#9d95ab';
   if (G.elFight) { status = tr`Elemental de ${ELEMS[G.elFight.el].n.toLowerCase()}`; sc = ELEMS[G.elFight.el].c; }
