@@ -18,6 +18,14 @@ jobs:
         run: npm run tipos
       - name: Pruebas automáticas
         run: npm test
+      # cómo se ve el juego en escritorio y en el celular: se descargan desde la ejecución (sección Artifacts)
+      - name: Capturas
+        run: npm run capturas
+      - uses: actions/upload-artifact@v4
+        with:
+          name: capturas
+          path: pruebas/capturas/
+          retention-days: 14
 
   # Balance con bots (unos 4 minutos, en paralelo con las pruebas): comprueba pruebas/balance-limites.jsonc.
   # Los avisos (⚠) solo se muestran; un límite de «fallo» roto pone la ejecución en rojo.

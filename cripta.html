@@ -290,7 +290,7 @@ details.codex[open]{padding-bottom:12px}
   <div class="overlay lobby" id="ovStart">
     <div class="panel">
       <header class="lhead">
-        <div><p class="eyebrow">Prototipo jugable · <span>v0.45</span></p><h1>Cripta del Guardián</h1></div>
+        <div><p class="eyebrow">Prototipo jugable · <span>v0.46</span></p><h1>Cripta del Guardián</h1></div>
         <span class="gempill" id="gemCount"></span>
       </header>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
@@ -7608,8 +7608,9 @@ function drawMinimap(w) {
     ctx.fillStyle = r === G.cur ? '#e3a24a' : r.visited ? '#6b6480' : '#2a2638';
     ctx.fillRect(x, y, cw, ch);
     if (!r.visited) { ctx.strokeStyle = '#4a4458'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, y + .5, cw - 1, ch - 1); }
-    const dot = r.ev ? '#ff8a3a' : { boss: '#d4474b', treasure: '#c77dff', shop: '#f0c040', secret: '#c77dff' }[r.type];
-    if (dot) { ctx.fillStyle = dot; ctx.fillRect(x + cw / 2 - 2, y + ch / 2 - 2, 4, 4); }
+    // un símbolo por tipo de sala: jefe, tienda, tesoro, evento, secreta
+    const ic = r.ev ? ['!', '#ff8a3a'] : { boss: ['☠', '#ff5a5f'], treasure: ['◆', '#c77dff'], shop: ['$', '#f0c040'], secret: ['?', '#c77dff'] }[r.type];
+    if (ic) { ctx.font = '700 10px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#0c0b11'; ctx.fillText(ic[0], x + cw / 2 + .5, y + ch / 2 + 1.5); ctx.fillStyle = ic[1]; ctx.fillText(ic[0], x + cw / 2, y + ch / 2 + 1); }
   }
   return oy + GRID * (ch + gap) + pad;
 }
@@ -7624,9 +7625,10 @@ function hudText(txt, x, y, size = 13, color = '#ece4cf', align = 'left', weight
 
 // barra de armas y habilidad (abajo). En un celular en vertical va a lo ancho y en formato compacto.
 function drawWeaponBar(p, w, h) {
-  const vert = hudVertical(w, h), H = vert ? 46 : 54;
-  const avail = vert || !touch.on ? w - 20 : w - touchPadW;   // en horizontal deja sitio a los botones táctiles
-  const sw = vert ? (avail - 16) / 3 : clamp((avail - 16) / 3, 96, 186), sy = h - H - 10;
+  // en un celular (vertical u horizontal bajito) las cajas son compactas: dibujo del arma, daño y estrellas
+  const vert = hudVertical(w, h) || (touch.on && window.innerHeight < 520), H = vert ? 46 : 54;
+  const avail = hudVertical(w, h) || !touch.on ? w - 20 : w - touchPadW;   // en horizontal deja sitio a los botones táctiles
+  const sw = hudVertical(w, h) ? (avail - 16) / 3 : vert ? clamp((avail - 16) / 3, 96, 132) : clamp((avail - 16) / 3, 96, 186), sy = h - H - 10;
   const small = sw < 140;
   for (let i = 0; i < 2; i++) {
     const wpn = p.slots[i], x = 10 + i * (sw + 8), act = i === p.cur;
@@ -7685,6 +7687,17 @@ function fitText(txt, x, y, maxW, size, color, align = 'left', weight = 600) {
 // pantalla de celular en vertical: la barra de armas va abajo a lo ancho y los botones táctiles suben encima
 const hudVertical = (w, h) => h > w && w < 600;
 
+// corazón de píxeles (13×11) y placa de escudo (11×11) del HUD
+const HEART = ['.##...##.', '#####.###', '#########', '.#######.', '..#####..', '...###...', '....#....'];
+function drawHeart(x, y, c, hi) {
+  ctx.fillStyle = c;
+  for (let r = 0; r < HEART.length; r++) for (let k = 0; k < 9; k++) if (HEART[r][k] === '#') ctx.fillRect(x + k * 1.5, y - 1 + r * 1.75, 1.5, 1.75);
+  ctx.fillStyle = hi; ctx.fillRect(x + 2, y + 1, 2, 2);
+}
+function drawShieldPip(x, y, c, hi) {
+  ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 11, y); ctx.lineTo(x + 11, y + 5); ctx.lineTo(x + 5.5, y + 11); ctx.lineTo(x, y + 5); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = hi; ctx.fillRect(x + 2, y + 2, 2, 3);
+}
 function drawHUD(w, h) {
   const p = G.player;
   ctx.fillStyle = 'rgba(12,11,17,.72)'; ctx.fillRect(10, 10, 200, 108);
@@ -7695,8 +7708,19 @@ function drawHUD(w, h) {
     hudText(label, 18, y + 6, 10, '#9d95ab');
     hudText(`${Math.floor(val)}/${max}`, 196, y + 6, 10, '#ece4cf', 'right');
   };
-  bar(18, p.hp, p.maxHp, '#d4474b', tr('VIDA'), true);
-  bar(34, p.sh, p.maxSh + rc('escudo') + armorSh(p), '#8fb7d9', tr('ESC.'), true);
+  // vida en corazones y escudo en placas: se cuentan de un vistazo (si no caben, vuelve a la barra)
+  const pips = (y, val, max, kind, label) => {
+    if (max > 12) { bar(y, val, max, kind === 'heart' ? '#d4474b' : '#8fb7d9', label, true); return; }
+    const step = Math.min(16, 148 / Math.max(1, max));
+    hudText(label, 18, y + 6, 10, '#9d95ab');
+    for (let i = 0; i < max; i++) {
+      const x = Math.round(52 + i * step), full = i < Math.floor(val);
+      if (kind === 'heart') drawHeart(x, y, full ? '#e0474f' : '#2a2638', full ? '#ff9aa0' : '#3a3448');
+      else drawShieldPip(x, y, full ? '#8fb7d9' : '#2a2638', full ? '#d6ecff' : '#3a3448');
+    }
+  };
+  pips(18, p.hp, p.maxHp, 'heart', tr('VIDA'));
+  pips(34, p.sh, p.maxSh + rc('escudo') + armorSh(p), 'shield', tr('ESC.'));
   bar(50, p.en, maxEnergy(p), '#5aa4e8', tr('ENER.'), false);
   {
     // barra de subclase: gris hasta desbloquearla, azul cuando crece con las bajas
