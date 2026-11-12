@@ -1077,6 +1077,8 @@
   " · {0} victorias": " · {0} wins",
   "{0} gemas": "{0} gems",
   "1 gema": "1 gem",
+  "gema": "gem",
+  "gemas": "gems",
   " · récord: piso {0}{1}": " · record: floor {0}{1}",
   "<label>Música <input type=\"range\" min=\"0\" max=\"1\" step=\".05\" value=\"{0}\" data-o=\"music\"></label>\n    <label>Efectos <input type=\"range\" min=\"0\" max=\"1\" step=\".05\" value=\"{1}\" data-o=\"sfx\"></label>\n    <label><input type=\"checkbox\" data-o=\"shake\" {2}> Reducir la sacudida de pantalla</label>\n    <label><input type=\"checkbox\" data-o=\"fps\" {3}> Mostrar fotogramas por segundo (FPS)</label>\n    <label>Calidad gráfica <select data-o=\"gfx\">{4}</select></label>": "<label>Music <input type=\"range\" min=\"0\" max=\"1\" step=\".05\" value=\"{0}\" data-o=\"music\"></label>\n    <label>Effects <input type=\"range\" min=\"0\" max=\"1\" step=\".05\" value=\"{1}\" data-o=\"sfx\"></label>\n    <label><input type=\"checkbox\" data-o=\"shake\" {2}> Reduce screen shake</label>\n    <label><input type=\"checkbox\" data-o=\"fps\" {3}> Show frames per second (FPS)</label>\n    <label>Graphics quality <select data-o=\"gfx\">{4}</select></label>",
   "Piso {0} · {1} · {2} · {3}": "Floor {0} · {1} · {2} · {3}",

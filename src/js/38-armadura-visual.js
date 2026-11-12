@@ -208,7 +208,11 @@ function drawPlayer(p) {
   armorAura(p);
   const spr = p.armor && SPR[p.spr + '_A' + p.armor] ? p.spr + '_A' + p.armor : p.spr;
   if (back) drawW();
-  if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1 });
+  // se estira al esquivar y se aplasta al recibir daño
+  let psx = 1, psy = 1;
+  if (p.dashT > 0) { psx = 1.14; psy = .88; }
+  if (p.sqT > 0) { const k = p.sqT / .18; psx *= 1 + .2 * k; psy *= 1 - .16 * k; }
+  if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1, sx: psx, sy: psy });
   if (!back) drawW();
   setWREACT(1);
   drawAbilityFx(p);
@@ -259,6 +263,7 @@ function drawSub(e) {
   let sx = 1, sy = 1;
   if (sd.forma) { const f = { sx, sy }; sd.forma(e, f); sx = f.sx; sy = f.sy; }
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
+  if (e.hitT > 0) { const k = e.hitT / .14; sx *= 1 + .14 * k; sy *= 1 - .12 * k; }
   drawSpr(e.spr, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
   if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
@@ -277,6 +282,9 @@ function drawEnemy(e) {
   // cada enemigo ajusta su forma y dibuja sus detalles en su archivo de 01b-enemigos/
   const ed = ENEMIES[e.type] || /** @type {any} */ ({}), f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
   if (ed.forma) ed.forma(e, f);
+  // respira en reposo y se aplasta al recibir un golpe
+  f.sy *= 1 + .035 * Math.sin(e.t * 5);
+  if (e.hitT > 0) { const k = e.hitT / .14; f.sx *= 1 + .22 * k; f.sy *= 1 - .18 * k; }
   if (ed.debajo) ed.debajo(e, la);
   if (e.shield > 0) { ctx.strokeStyle = `rgba(155,216,255,${.5 + .2 * Math.sin(G.time * 8)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 6, 0, TAU); ctx.stroke(); }
   if (e.elite) {
@@ -590,6 +598,14 @@ function drawHUD(w, h) {
     ctx.globalAlpha = 1;
   }
 
+  // poca vida: un borde rojo que late
+  const P0 = G.player;
+  if (P0 && !G.over && P0.hp > 0 && P0.hp <= Math.min(2, P0.maxHp - 1)) {
+    const k = .16 + .12 * Math.max(0, Math.sin(G.time * 6.5)) ** 4;
+    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .38, w / 2, h / 2, Math.max(w, h) * .72);
+    g.addColorStop(0, 'rgba(160,20,30,0)'); g.addColorStop(1, `rgba(160,20,30,${k})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  }
   if (G.hurtFlash > 0) {
     const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .3, w / 2, h / 2, Math.max(w, h) * .7);
     g.addColorStop(0, 'rgba(212,71,75,0)'); g.addColorStop(1, `rgba(212,71,75,${G.hurtFlash})`);
@@ -617,7 +633,8 @@ function render0() {
   if (G.floor === 1) {
     const s = G.startRoom;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(236,228,207,.22)';
+    // aparece cuando se va el cartel del piso, para no encimarse con él
+    ctx.fillStyle = `rgba(236,228,207,${G.banner ? .22 * Math.max(0, 1 - G.banner.t / .4) : .22})`;
     ctx.font = '800 26px "Grenze Gotisch", Georgia, serif';
     ctx.fillText(tr('Cripta del Guardián'), s.cx, s.cy - 120);
     ctx.font = '600 12px "Chakra Petch", ui-monospace, monospace';
@@ -641,6 +658,11 @@ function render0() {
     for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(T.x, T.y - i * 10, 12 + i * 7, 5 + i * 2, 0, G.time * 9 + i, G.time * 9 + i + 4); ctx.stroke(); }
   }
   for (const pt of G.parts) {
+    if (pt.spr) {   // cuerpo de un enemigo que muere: blanco, se aplasta y se ensancha
+      const k = 1 - pt.life / pt.max;
+      drawSpr(pt.spr, pt.x, pt.y + k * 6, pt.s, { flip: pt.flip, white: true, sx: 1 + k * .6, sy: Math.max(.05, 1 - k), alpha: Math.max(0, 1 - k * .7) });
+      continue;
+    }
     ctx.globalAlpha = Math.max(0, pt.life / pt.max); ctx.fillStyle = pt.color;
     ctx.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
   }

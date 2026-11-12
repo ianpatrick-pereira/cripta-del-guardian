@@ -3,9 +3,10 @@ import { tr } from './00b-textos.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, rand, randi } from './01-utilidades.js';
 import { ENEMIES } from './01a-registro.js';
 import { mirrorDefeated } from './01d-salas/mirror.js';
+import { SPR_DEFS } from './02-pixel-art.js';
 import { BOSSES, BOTIN, D, ENEMY, OLEADAS, rollWeapon } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
-import { sfx } from './05-audio.js';
+import { noise, sfx } from './05-audio.js';
 import { G, freeSpot, rc } from './07-estado.js';
 import { moveEnt, pushOutProps, solidAt } from './08-colisiones.js';
 import { addText, burst, explode, later, shake } from './09-efectos.js';
@@ -47,7 +48,11 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
     if (dmg <= 0) { e.flash = .06; addText(e.x + rand(-6, 6), e.y - e.r - 4, ab, '#9bd8ff', 12); return; }
   }
   if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * .7));
-  e.hp -= dmg; e.flash = .1;
+  e.hp -= dmg; e.flash = .1; e.hitT = .14;
+  // golpe fuerte (crítico, cargado, habilidad): micropausa y el enemigo se frena un instante
+  const heavy = crit || kb >= 300 || o.cls;
+  if (heavy && !o.explosion) G.hitstop = Math.max(G.hitstop, crit ? .045 : .03);
+  if (!e.isBoss && (heavy || o.melee)) e.stagT = Math.max(e.stagT || 0, heavy ? .22 : .1);
   if (o.fx === 'push') kb *= 2.5;
   if (o.fx === 'stun' && !e.isBoss) e.slowT = Math.max(e.slowT || 0, 1.2);
   const el = o.src && o.src.elOn ? o.src.el : null;
@@ -64,7 +69,8 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
   if (o.fx === 'slow') e.slowT = 2;
   addText(e.x + rand(-6, 6), e.y - e.r - 4, dmg, crit ? '#ffd27a' : '#ece4cf', crit ? 16 : 13);
   burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', 4, 110, 2.5, .3);
-  sfx(crit ? 340 : 260, .05, 'square', .025, -120);
+  if (o.melee) { sfx(crit ? 200 : 150, .06, 'square', .025, -70); noise(.05, crit ? .06 : .04, 1400); }   // impacto seco
+  else sfx(crit ? 340 : 260, .05, 'square', .025, -120);
   if (e.hp <= 0) killEnemy(e, o.src);
 }
 function dropCoin(x, y) {
@@ -75,7 +81,13 @@ function killEnemy(e, src) {
   if (e.dead) return;
   e.dead = true; G.kills++;
   const p = G.player;
-  burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', e.isBoss ? 60 : 14, e.isBoss ? 320 : 170, e.isBoss ? 6 : 3.5, e.isBoss ? 1.1 : .5);
+  burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', e.isBoss ? 30 : 6, e.isBoss ? 320 : 170, e.isBoss ? 6 : 3.5, e.isBoss ? 1.1 : .4);
+  // muerte con forma: el cuerpo se aplasta en blanco y se deshace en píxeles de su propio color
+  if (!e.isBoss && e.spr && SPR_DEFS[e.spr]) {
+    G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .28, max: .28, spr: e.spr, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
+    const cols = Object.values(SPR_DEFS[e.spr][1]);
+    for (let i = 0; i < 14; i++) { const a = rand(0, TAU), v = rand(40, 150); G.parts.push({ x: e.x + rand(-6, 6), y: e.y + rand(-8, 6), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, g: 260, life: rand(.35, .6), max: .6, color: cols[i % cols.length], size: rand(2, 4) }); }
+  }
   shake(e.isBoss ? 20 : 4); G.hitstop = e.isBoss ? .3 : .035;
   sfx(e.isBoss ? 70 : 150, e.isBoss ? .6 : .12, 'sawtooth', .04, -60);
   if (!e.isBoss && !e.isSub) {
@@ -242,7 +254,8 @@ function updateEnemy(e, dt) {
       if (Math.random() < Df.dodge) { const s = th.a + Math.PI / 2 * th.side; e.dodge = .2; e.dvx = Math.cos(s) * 280; e.dvy = Math.sin(s) * 280; }
     }
   }
-  const sm = e.slowT > 0 ? .45 : 1;
+  e.stagT = (e.stagT || 0) - dt; e.hitT = (e.hitT || 0) - dt;
+  const sm = (e.slowT > 0 ? .45 : 1) * (e.stagT > 0 ? .15 : 1);   // aturdido un instante tras un golpe
   moveEnt(e, (vx * sm + e.kx) * dt, (vy * sm + e.ky) * dt);
   pushOutProps(e);
   const f = Math.exp(-10 * dt); e.kx *= f; e.ky *= f;

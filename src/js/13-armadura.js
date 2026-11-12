@@ -138,7 +138,7 @@ function hurtPlayer(d, por) {
     if (d >= 2) d -= ARMOR.red[i];
   }
   const absorbed = Math.min(p.sh, d); p.sh -= absorbed; d -= absorbed;
-  p.hp -= d; p.inv = .8; p.shT = 0; p.shAcc = 0;
+  p.hp -= d; p.inv = .8; p.shT = 0; p.shAcc = 0; p.sqT = .18;
   classHurt(p);
   if (G.dare && G.dare.kind === 'nohit') dareFail(tr('te golpearon'));
   shake(7); G.hurtFlash = .35;

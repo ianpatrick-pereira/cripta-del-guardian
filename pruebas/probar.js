@@ -83,7 +83,9 @@ const casoClase = (ch, piso) => ({ grupo: 'clases', id: `${NOMBRE[ch]} · piso $
     // pasa de oleada, se abre y se da por terminada (el bot no busca equilibrar la dificultad)
     for (let k = 0; k < 12 && !sala.cleared && !G.over; k++) {
       for (const e of G.enemies.filter(e => !e.dead && !e.ally && !e.stray)) { T.kill(e); rematados++; }
-      T.sim(90); while (T.resolve());
+      // también aquí con la vida llena, como el bot: esta parte prueba que la sala se cierre bien, no si el
+      // jugador sobrevive (sin esto, una bala perdida en el piso 8 podía terminar la partida y la prueba fallaba)
+      for (let f = 0; f < 90; f++) { p.hp = p.maxHp; T.sim(1); } while (T.resolve());
       if (!sala.locked && !sala.cleared && !G.enemies.some(e => !e.dead && !e.stray)) { p.x = sala.cx; p.y = sala.cy; T.sim(30); }
     }
     if (!sala.cleared) { const q = G.enemies.filter(e => !e.dead); fallos.push(`${r === 'jefe' ? 'jefe' : (r.sub ? 'subjefe' : 'sala')} sin terminar (quedan ${q.length}: ${q.slice(0, 4).map(e => (e.type || e.kind) + (e.stray ? '(pasillo)' : '') + ' ' + Math.round(e.hp) + 'pv ' + Math.round(Math.hypot(e.x - p.x, e.y - p.y)) + 'px').join(', ')}; oleada ${sala.wave}/${sala.waves}, marcadores ${G.markers.length})`); }
