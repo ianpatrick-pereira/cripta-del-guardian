@@ -166,6 +166,14 @@ const DIFFS = {
   normal: { name: tr('Guardián'),  desc: tr('La experiencia pensada: los enemigos te rodean, anticipan y esquivan.'), hp: 1, rate: 1, count: 0, elite: 0, lead: .6, dodge: .4, tokens: 3, gem: 1 },
   hard:   { name: tr('Pesadilla'), desc: tr('Más vida, más enemigos y élites, ataques más rápidos y puntería casi perfecta. Gemas ×1,5.'), hp: 1.3, rate: 1.22, count: 1, elite: .08, lead: .9, dodge: .65, tokens: 5, gem: 1.5 },
 };
+// Aspectos (v0.51): cambian los colores de detalle del personaje; se compran una vez con gemas y son solo estéticos
+const SKINS = {
+  ceniza:    { n: tr('Ceniza'),    cost: 4, cols: ['#d8d4cc', '#6e6a78'] },
+  sangre:    { n: tr('Sangre'),    cost: 6, cols: ['#ff4f5a', '#5a1020'] },
+  espectral: { n: tr('Espectral'), cost: 8, cols: ['#7ff0e8', '#2a7a9a'] },
+};
+// el aspecto elegido para una clase, si está comprado
+const skinOf = ch => { const k = SAVE.skin && SAVE.skin[ch]; return k && SKINS[k] && SAVE.skins && SAVE.skins[ch + ':' + k] ? k : ''; };
 // Círculos del Abismo (v0.50): cada victoria abre uno más; las reglas se suman y dan más gemas
 const CIRCLES = [
   null,
@@ -204,4 +212,4 @@ for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 // Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
 function setCUR_CHAR(v) { return (CUR_CHAR = v); }
 
-export { applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };
+export { applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, skinOf, SKINS, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };

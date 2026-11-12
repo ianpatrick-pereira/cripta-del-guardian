@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { FLOOR, MW, TILE, pick, rand, randi, shuffle } from './01-utilidades.js';
 import { ROOM_DEFS, roomList } from './01a-registro.js';
 import { CHARS, CUR_CHAR, FLOORS, RELICS, UPG, WEAPONS, rollWeapon, setCUR_CHAR,
-  starterW } from './03-datos-del-juego.js';
+  skinOf, starterW } from './03-datos-del-juego.js';
 import { SAVE, writeSave } from './04-guardado.js';
 import { buildMap, generate } from './06-generacion.js';
 import { hitsWall } from './08-colisiones.js';
@@ -32,7 +32,7 @@ function newRun(charId) {
   const ch = CHARS[charId];
   setCUR_CHAR(charId);
   const p = {
-    char: charId, spr: ch.spr, x: 0, y: 0, r: 11,
+    char: charId, spr: ch.spr, skin: skinOf(charId), x: 0, y: 0, r: 11,
     hp: ch.hp + SAVE.upg.hp, maxHp: ch.hp + SAVE.upg.hp, sh: ch.sh, maxSh: ch.sh, shT: 0, shAcc: 0,
     en: ch.en + SAVE.upg.en * 15, maxEn: ch.en + SAVE.upg.en * 15,
     inv: 0, slots: startKit(ch).map(starterW), cur: 0, cd: 0, aim: 0, charge: 0,

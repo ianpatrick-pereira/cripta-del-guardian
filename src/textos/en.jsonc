@@ -1239,5 +1239,13 @@
   "Gana una partida para abrir el primer Círculo del Abismo: reglas más duras y más gemas.": "Win a run to open the first Circle of the Abyss: harder rules and more gems.",
   "Círculos abiertos: {0} de {1}. Cada uno suma una regla y +25 % de gemas.": "Circles open: {0} of {1}. Each adds a rule and +25% gems.",
   " · Gemas ×{0}": " · Gems ×{0}",
-  " · círculo {0}": " · circle {0}"
+  " · círculo {0}": " · circle {0}",
+
+  // v0.51 aspectos
+  "Ceniza": "Ash",
+  "Sangre": "Blood",
+  "Espectral": "Spectral",
+  "<p class=\"meta\" style=\"margin-top:10px\"><b>Aspecto</b> · solo cambia los colores; se compra una vez</p>": "<p class=\"meta\" style=\"margin-top:10px\"><b>Look</b> · only changes colors; you buy it once</p>",
+  "Clásico": "Classic",
+  " · {0} gemas": " · {0} gems"
 }

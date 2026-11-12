@@ -4,7 +4,7 @@ import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
 import { MAPS, SPR, SPR_DEFS, drawSpr } from './02-pixel-art.js';
-import { BOSSES, CHARS, FLOORS, RARITY, RELICS, weaponStats } from './03-datos-del-juego.js';
+import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { musicTick } from './05-audio.js';
 import { G, paused, rc, started } from './07-estado.js';
@@ -30,17 +30,25 @@ import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco }
 // colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí)
 const ARMOR_PARTS = { knight: ['#9a97a8', '#c9c3b4'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
+// colores de detalle que cambia cada aspecto (penacho y hombreras, cinturón y botas, ojos y bufanda)
+const SKIN_PARTS = { knight: ['#e3a24a', '#9b2f3a'], archer: ['#6b4a2a', '#4a3a2a'], rogue: ['#ffd34a', '#b0303a'] };
+// por cada aspecto (y sin aspecto) se crean el dibujo base (clase_Saspecto) y uno por armadura (…_A1 a _A5)
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
     const [mapName, pal] = SPR_DEFS[ch], rows = MAPS[mapName], h = rows.length, wd = rows[0].length;
-    for (let s = 1; s <= 5; s++) {
-      const P = { ...pal }; for (const k in P) { const i = ARMOR_PARTS[ch].indexOf(P[k].toLowerCase()); if (i >= 0) P[k] = ARMOR_COLS[s - 1][i]; }
-      const mk = white => {
-        const c = document.createElement('canvas'); c.width = wd; c.height = h; const g = c.getContext('2d');
-        for (let y = 0; y < h; y++) for (let x = 0; x < wd; x++) { const k = rows[y][x]; if (k === '.' || !P[k]) continue; g.fillStyle = white ? '#fff' : P[k]; g.fillRect(x, y, 1, 1); }
-        return c;
-      };
-      SPR[ch + '_A' + s] = { n: mk(false), w: mk(true), wd, ht: h };
+    const swap = (P, from, to) => { for (const k in P) { const i = from.indexOf(P[k].toLowerCase()); if (i >= 0) P[k] = to[i]; } return P; };
+    for (const sk of ['', ...Object.keys(SKINS)]) {
+      const base = sk ? swap({ ...pal }, SKIN_PARTS[ch], SKINS[sk].cols) : pal, key = ch + (sk ? '_S' + sk : '');
+      for (let s = 0; s <= 5; s++) {
+        if (s === 0 && !sk) continue;   // el dibujo base sin aspecto ya existe
+        const P = s ? swap({ ...base }, ARMOR_PARTS[ch], ARMOR_COLS[s - 1]) : base;
+        const mk = white => {
+          const c = document.createElement('canvas'); c.width = wd; c.height = h; const g = c.getContext('2d');
+          for (let y = 0; y < h; y++) for (let x = 0; x < wd; x++) { const k = rows[y][x]; if (k === '.' || !P[k]) continue; g.fillStyle = white ? '#fff' : P[k]; g.fillRect(x, y, 1, 1); }
+          return c;
+        };
+        SPR[key + (s ? '_A' + s : '')] = { n: mk(false), w: mk(true), wd, ht: h };
+      }
     }
   }
 }
@@ -207,7 +215,8 @@ function drawPlayer(p) {
   };
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
   armorAura(p);
-  const spr = p.armor && SPR[p.spr + '_A' + p.armor] ? p.spr + '_A' + p.armor : p.spr;
+  const sb = p.skin && SPR[p.spr + '_S' + p.skin] ? p.spr + '_S' + p.skin : p.spr;
+  const spr = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
   if (back) drawW();
   // se estira al esquivar y se aplasta al recibir daño
   let psx = 1, psy = 1;

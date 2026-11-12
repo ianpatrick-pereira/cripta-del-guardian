@@ -273,3 +273,6 @@ details.codex[open]{padding-bottom:12px}
   #choiceCards{grid-template-columns:repeat(auto-fit, minmax(160px, 1fr))}
 }
 /* pantallas bajitas (celular en horizontal): botones un poco más chicos para no tapar el juego ni los textos */
+/* v0.51: aspectos en el detalle del personaje */
+.chips.skins button{display:inline-flex;align-items:center;gap:6px}
+.chips.skins img{width:18px;height:21px;image-rendering:pixelated}
