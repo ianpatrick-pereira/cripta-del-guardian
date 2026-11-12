@@ -83,6 +83,27 @@ export interface Piso {
     /** decoración del resto del suelo: tipo y peso */
     centro: Record<"huesos" | "velas" | "cristales" | "musgo" | "hierba" | "charcos" | "runas" | "hongos" | "espinas" | "escarcha" | "lava" | "flores" | "vidrios" | "rosas", number>;
   };
+  /** lo que rodea la mazmorra (el fondo fuera de las salas) */
+  mar: {
+    /** color de base del fondo */
+    fondo: string;
+    /** manchas: [caliente, media, fría] */
+    manchas: [string, string, string];
+    /** placas que flotan encima */
+    costra: string;
+    /** borde brillante de las placas */
+    grietas: string;
+    /** puntitos de luz: [color 1, color 2] */
+    chispas: [string, string];
+    /** color de las burbujas (también el del reventón) */
+    burbujas: string;
+    /** color de las llamas en los bordes, o null si no hay */
+    llamas: any;
+    /** color del vapor que sale de los bordes */
+    vapor: string;
+    /** cuánta luz propia da el fondo (0 = nada, 1 = mucha) */
+    luz: number;
+  };
 }
 
 /** Oleadas de las salas de combate */

@@ -21,6 +21,9 @@
     "sueloA": "#24222e", "sueloB": "#272532", "grietas": "#1c1a24", "manchas": "#2d2a39",
     "muroArriba": "#3f3852", "muroFrente": "#2a2438", "muroBorde": "#5a5070"
   },
+  // lo que rodea la mazmorra (sombra morada): fondo, manchas [caliente, media, fría], placas que flotan y su borde,
+  // puntitos de luz, burbujas, llamas en los bordes (null = sin llamas), vapor y cuánta luz propia da (0 a 1)
+  "mar": {"fondo": "#0b0812", "manchas": ["#6a4aa8", "#3a2560", "#1c1230"], "costra": "rgba(6,4,10,.8)", "grietas": "rgba(150,110,220,.3)", "chispas": ["rgba(210,190,255,.45)", "rgba(150,110,220,.4)"], "burbujas": "#4a3278", "llamas": null, "vapor": "#b8a8d8", "luz": 0.22},
   // decoración: colores de antorchas, brillos, estandartes, plantas (oscura y clara), flores y charcos;
   // partículas que flotan (polvo, esporas, brasas, nieve, luciernagas, chispas o petalos) y la viñeta de los bordes
   "ambiente": {

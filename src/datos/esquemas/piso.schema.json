@@ -303,6 +303,90 @@
       ],
       "additionalProperties": false,
       "description": "decoración del piso"
+    },
+    "mar": {
+      "type": "object",
+      "description": "lo que rodea la mazmorra (el fondo fuera de las salas)",
+      "properties": {
+        "fondo": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de base del fondo"
+        },
+        "manchas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+            "description": "color: #rrggbb o rgba(r,g,b,a)"
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "manchas: [caliente, media, fría]"
+        },
+        "costra": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "placas que flotan encima"
+        },
+        "grietas": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "borde brillante de las placas"
+        },
+        "chispas": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+            "description": "color: #rrggbb o rgba(r,g,b,a)"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "puntitos de luz: [color 1, color 2]"
+        },
+        "burbujas": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color de las burbujas (también el del reventón)"
+        },
+        "llamas": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+              "description": "color: #rrggbb o rgba(r,g,b,a)"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "color de las llamas en los bordes, o null si no hay"
+        },
+        "vapor": {
+          "type": "string",
+          "pattern": "^(#[0-9a-fA-F]{3,8}|rgba?\\(.+\\))$",
+          "description": "color del vapor que sale de los bordes"
+        },
+        "luz": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "cuánta luz propia da el fondo (0 = nada, 1 = mucha)"
+        }
+      },
+      "required": [
+        "fondo",
+        "manchas",
+        "costra",
+        "grietas",
+        "chispas",
+        "burbujas",
+        "llamas",
+        "vapor",
+        "luz"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -316,7 +400,8 @@
     "luz",
     "musica",
     "colores",
-    "ambiente"
+    "ambiente",
+    "mar"
   ],
   "additionalProperties": false
 }
