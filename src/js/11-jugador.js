@@ -37,7 +37,7 @@ function nearestInteract(p) {
   }
   return best;
 }
-const dmgMul = () => (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1);
+const dmgMul = () => (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1) * (G.player && G.player.earthT > 0 ? 1 + (G.player.earthK || .35) : 1);
 const critChance = () => G.player.shadowT > 0 ? 1 : (.1 + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1);
 const maxEnergy = p => p.maxEn + 40 * rc('bateria');
 
@@ -75,7 +75,7 @@ function updatePlayer(dt) {
     if (rc('polvora')) { const bx = p.x, by = p.y; G.parts.push({ x: bx, y: by, vx: 0, vy: 0, life: .8, max: .8, color: '#2a2433', size: 10 }); later(.8, () => explode(bx, by, 70, 8, true)); }
   }
   setWantDash(false);
-  const speedMul = (1 + .15 * rc('botas') + (tl('frio') ? .1 : 0) + (p.slots[p.cur].spd || 0) + .03 * cu('r_veil') + (subIs('shade') ? .04 * subLv(p) : 0)) * (p.shadowT > 0 ? 1.25 : 1) * (p.rageT > 0 ? 1.2 : 1) * (pact('frenzy') ? 1.2 : 1) * (p.slow > 0 ? .55 : 1) * (p.charge > 0 ? .55 : 1);
+  const speedMul = (1 + .15 * rc('botas') + (tl('frio') ? .1 : 0) + (p.slots[p.cur].spd || 0) + .03 * cu('r_veil') + (subIs('shade') ? .04 * subLv(p) : 0)) * (p.shadowT > 0 ? 1.25 : 1) * (p.rageT > 0 ? 1.2 : 1) * (pact('frenzy') ? 1.2 : 1) * (p.slow > 0 ? .55 : 1) * (p.charge > 0 ? .55 : 1) * (p.windT > 0 ? 1.35 : 1);
   if (p.dashT > 0) {
     p.dashT -= dt;
     const dsp = p.lunge ? 720 : p.blink ? 1150 : 560;
@@ -125,11 +125,14 @@ function updatePlayer(dt) {
   if (charging && !G.over) { p.charge += dt; if (p.charge >= .55 && p.charge - dt < .55) sfx(900, .08, 'sine', .03); }
   else if (p.charge > 0) { if (p.charge >= .55 && !G.over) chargedAttack(p); p.charge = 0; }
   const attacking = touch.on ? touch.atk : mouse.down;
-  if (attacking && p.cd <= 0 && !G.over && p.charge <= 0) attack(p);
+  if (attacking && p.cd <= 0 && !G.over && p.charge <= 0 && !(p.flame && p.flame.arma && p.flame.t > 0)) attack(p);   // con el lanzallamas de fuego, el arma solo echa fuego
   if (p.swing) { p.swing.t += dt; if (p.swing.t > p.swing.dur) p.swing = null; }
 
   p.abilCd -= dt; p.bulwarkT -= dt; p.shadowT -= dt;
   p.veilT -= dt; p.parryT -= dt; p.parryCd -= dt; p.rageT -= dt;
+  // poderes elementales del arma que duran (v0.58): viento = velocidad, roca = resistencia y daño
+  if (p.windT > 0) { p.windT -= dt; if (Math.random() < dt * 20) G.parts.push({ x: p.x + rand(-10, 10), y: p.y + rand(-6, 10), vx: -(p.svx || 0) * .3, vy: -(p.svy || 0) * .3, life: .3, max: .3, color: 'rgba(200,240,224,.8)', size: 2 }); }
+  if (p.earthT > 0) { p.earthT -= dt; if (Math.random() < dt * 10) G.parts.push({ x: p.x + rand(-14, 14), y: p.y + rand(-4, 12), vx: 0, vy: -30, life: .4, max: .4, color: '#c09060', size: 3 }); if (p.earthT <= 0) addText(p.x, p.y - 30, tr('La piel de roca se agrieta'), '#c09060', 11); }
   if ((p.comboT -= dt) <= 0) p.combo = 0;
   if (p.revUsed) { p.revenge = 0; p.revUsed = false; }
   if (wantAbil && p.abilCd <= 0 && !G.over) useAbility(p);

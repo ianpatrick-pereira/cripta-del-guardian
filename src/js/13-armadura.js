@@ -137,6 +137,8 @@ function hurtPlayer(d, por) {
     if (Math.random() < ARMOR.block[i]) { p.inv = .4; addText(p.x, p.y - 26, tr('¡Bloqueado!'), RARITY['s' + p.armor].c, 12); sfx(1100, .06, 'square', .03, -500); burst(p.x, p.y, '#d8d0b8', 6, 120); return false; }
     if (d >= 2) d -= ARMOR.red[i];
   }
+  // piel de roca (poder de tierra del arma): la mitad de daño; los golpes de 1 rebotan
+  if (p.earthT > 0) { d = Math.floor(d / 2); if (d <= 0) { p.inv = .5; addText(p.x, p.y - 26, tr('¡Roca!'), '#c09060', 12); sfx(300, .08, 'square', .03, -100); return false; } }
   const absorbed = Math.min(p.sh, d); p.sh -= absorbed; d -= absorbed;
   p.hp -= d; p.inv = .8; p.shT = 0; p.shAcc = 0; p.sqT = .18;
   classHurt(p);

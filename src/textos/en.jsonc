@@ -551,9 +551,6 @@
   "Carga: necesitas {0} de energía": "Charge: you need {0} energy",
 
   // src/js/12-armas-con-estilo-propio.js
-  "quema y estalla": "burns and bursts",
-  "empapa y frena": "soaks and slows",
-  "Su ataque cargado en su forma de 5★ y, durante unos segundos, cada golpe {0}.": "Its charged attack in its 5★ form and, for a few seconds, every hit {0}.",
   "Atrapado": "Caught",
 
   // src/js/13-armadura.js
@@ -721,22 +718,15 @@
   // src/js/23-elementos.js
   "Fuego": "Fire",
   "Lanzallamas": "Flamethrower",
-  "Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.": "You spew a jet of fire that follows your aim for a few seconds and burns everything it touches.",
   "te quema y deja el suelo ardiendo": "burns you and sets the ground ablaze",
   "Señor de las Brasas": "Lord of Embers",
   "Agua": "Water",
-  "Maremoto": "Tidal wave",
-  "Una ola en anillo empuja, frena y daña; desde Nv3 te cura 1.": "A ring-shaped wave shoves, slows and damages; from Lv3 it heals you 1.",
   "te empapa y te ralentiza": "soaks you and slows you down",
   "Leviatán de la Fuente": "Leviathan of the Spring",
   "Aire": "Air",
-  "Tornado": "Tornado",
-  "Lanza un tornado que arrastra y tritura a los enemigos.": "Unleashes a tornado that drags and shreds enemies.",
   "te lanza hacia atrás": "throws you back",
   "Djinn del Vendaval": "Djinn of the Gale",
   "Tierra": "Earth",
-  "Fisura": "Fissure",
-  "Una línea de picos de roca aturde y te da escudo.": "A line of rock spikes stuns and gives you shield.",
   "golpea +1 y resiste el daño": "hits +1 and shrugs off damage",
   "Gólem de Roca": "Rock Golem",
   "{0} · Nv{1}": "{0} · Lv{1}",
@@ -744,7 +734,6 @@
   "Esta arma no tiene poder elemental": "This weapon has no elemental power",
   "{0}: necesitas {1} de energía": "{0}: you need {1} energy",
   "{0} Nv{1}": "{0} Lv{1}",
-  "+{0} escudo": "+{0} shield",
   "¡Escudo roto!": "Shield broken!",
 
   // src/js/24-forja.js
@@ -1253,5 +1242,15 @@
   "En guardia": "Guarding",
   "¡Expuesto!": "Exposed!",
   "Va en guardia": "It's on guard",
-  "Golpéalo justo después de cada ataque, cuando brille en dorado": "Hit it right after each attack, while it glows gold"
+  "Golpéalo justo después de cada ataque, cuando brille en dorado": "Hit it right after each attack, while it glows gold",
+
+  // v0.58 poderes elementales de las armas
+  "La piel de roca se agrieta": "Your stone skin cracks",
+  "¡Roca!": "Rock!",
+  "5 s: tu arma lanza fuego sin parar hacia donde apuntas. Mucho daño y quema 3 s.": "5 s: your weapon spews fire nonstop where you aim. High damage and 3 s of burn.",
+  "Tsunami": "Tsunami",
+  "Una ola hacia donde apuntas: daña y frena un 75 % a los enemigos 3 s.": "A wave where you aim: damages and slows enemies by 75% for 3 s.",
+  "Viento a tu alrededor: aleja a los enemigos con poco daño y te da +35 % de velocidad 3 s.": "Wind around you: pushes enemies away for light damage and gives you +35% speed for 3 s.",
+  "Piel de roca": "Stone skin",
+  "10 s: recibes la mitad de daño y tu arma pega +35 %.": "10 s: you take half damage and your weapon hits 35% harder."
 }

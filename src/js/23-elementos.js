@@ -8,21 +8,21 @@ import { G, rc } from './07-estado.js';
 import { moveEnt, roomAt, solidAt } from './08-colisiones.js';
 import { addText, breakCracks, burst, later, shake, showBanner } from './09-efectos.js';
 import { dmgMul } from './11-jugador.js';
-import { elAbName, styleElem } from './12-armas-con-estilo-propio.js';
+import { elAbName } from './12-armas-con-estilo-propio.js';
 import { armorSh } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { drawShadow } from './36-mar-de-lava.js';
 const ELEMS = {
-  fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('Escupes un chorro de fuego que sigue tu puntería unos segundos y quema todo lo que toca.'),
+  fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('5 s: tu arma lanza fuego sin parar hacia donde apuntas. Mucho daño y quema 3 s.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
            boss: { name: tr('Señor de las Brasas'), r: 24, hp: 300, speed: 92, want: 170, p1: ['lanzallamas', 'bolafuego', 'brasas'], p2: ['lanzallamas', 'bolafuego', 'brasas', 'lanzallamas', 'rain'] } },
-  water: { n: tr('Agua'),   c: '#4ab0e8', ab: tr('Maremoto'), abd: tr('Una ola en anillo empuja, frena y daña; desde Nv3 te cura 1.'),
+  water: { n: tr('Agua'),   c: '#4ab0e8', ab: tr('Tsunami'), abd: tr('Una ola hacia donde apuntas: daña y frena un 75 % a los enemigos 3 s.'),
            hitd: tr('te empapa y te ralentiza'),
            boss: { name: tr('Leviatán de la Fuente'), r: 26, hp: 320, speed: 78, want: 150, p1: ['wave', 'burbujas', 'charcos'], p2: ['wave', 'burbujas', 'charcos', 'whirl', 'wave'] } },
-  air:   { n: tr('Aire'),   c: '#c8f0e0', ab: tr('Tornado'),  abd: tr('Lanza un tornado que arrastra y tritura a los enemigos.'),
+  air:   { n: tr('Aire'),   c: '#c8f0e0', ab: tr('Ráfaga'),  abd: tr('Viento a tu alrededor: aleja a los enemigos con poco daño y te da +35 % de velocidad 3 s.'),
            hitd: tr('te lanza hacia atrás'),
            boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 270, speed: 155, want: 190, p1: ['flechas', 'gust', 'atraer'], p2: ['flechas', 'gust', 'atraer', 'rafaga', 'charge3'] } },
-  earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Fisura'),   abd: tr('Una línea de picos de roca aturde y te da escudo.'),
+  earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Piel de roca'),   abd: tr('10 s: recibes la mitad de daño y tu arma pega +35 %.'),
            hitd: tr('golpea +1 y resiste el daño'),
            boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'slam'], p2: ['pedrusco', 'gravilla', 'muralla', 'slam', 'pedrusco'] } },
 };
@@ -52,29 +52,43 @@ function elemAbility(p) {
   if (p.elCd > 0) return;
   const cost = elemCost(w);
   if (p.en < cost) { addText(p.x, p.y - 26, tr`${elAbName(w)}: necesitas ${cost} de energía`, '#5aa4e8', 12); return; }
-  p.en -= cost; p.elCd = Math.max(4, 9 - w.elLv);
+  // v0.58: cada elemento tiene su poder, igual para todas las armas
   const L = w.elLv, a = p.aim, E = ELEMS[w.el], dm = k => Math.max(1, Math.round(w.dmg * k * dmgMul()));
+  p.en -= cost; p.elCd = Math.max(4, EL_CD[w.el] - L);
   addText(p.x, p.y - 32, tr`${elAbName(w)} Nv${L}`, E.c, 13);
-  if (w.style) { styleElem(p, w, L, E, dm); return; }
   if (w.el === 'fire') {
-    // lanzallamas: dura más, llega más lejos y se abre más con cada nivel
-    p.flame = { t: 1.6 + .4 * L, tick: 0, L, dmg: dm(.32 + .1 * L), range: 130 + 20 * L, half: .3 + .04 * L, f: [] };
+    // tu arma se vuelve un lanzallamas constante 5 s (mientras dura no ataca normal; ver 11-jugador.js)
+    p.flame = { t: 5, tick: 0, L, dmg: dm(.42 + .08 * L), range: 160 + 15 * L, half: .32 + .03 * L, f: [], arma: true };
     sfx(120, .4, 'sawtooth', .05, 80); noise(.4, .06, 900);
   } else if (w.el === 'water') {
-    const n = 16 + 4 * L;
-    for (let i = 0; i < n; i++) { const an = i * TAU / n; G.proj.push({ x: p.x, y: p.y, vx: Math.cos(an) * 340, vy: Math.sin(an) * 340, r: 12, dmg: dm(.8 + .4 * L), owner: 'player', kind: 'wave', pierce: 99, hit: new Set(), life: .6, color: E.c, src: w, fx: 'slow', kb: 420 }); }
-    if (L >= 3 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 46, tr('+1 vida'), '#4ab0e8', 12); }
-    noise(.5, .08, 600); sfx(300, .4, 'sine', .05, -150);
+    // tsunami: un muro de agua que avanza hacia donde apuntas
+    const nx = -Math.sin(a), ny = Math.cos(a), n = 9 + 2 * L;
+    for (let i = 0; i < n; i++) {
+      const off = (i - (n - 1) / 2) * 16, sx = p.x + Math.cos(a) * 20 + nx * off, sy = p.y + Math.sin(a) * 20 + ny * off;
+      G.proj.push({ x: sx, y: sy, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, r: 14, dmg: dm(.7 + .25 * L), owner: 'player', kind: 'wave', pierce: 99, hit: new Set(), life: .85, color: E.c, src: w, fx: 'tsunami', kb: 300 });
+    }
+    noise(.6, .08, 600); sfx(240, .5, 'sine', .05, -120); shake(5);
   } else if (w.el === 'air') {
-    G.tornados.push({ x: p.x + Math.cos(a) * 30, y: p.y + Math.sin(a) * 30, vx: Math.cos(a) * 150, vy: Math.sin(a) * 150, t: 2.2 + .5 * L, tick: 0, dmg: Math.max(1, Math.round(w.dmg * (.35 + .15 * L))), R: 90 + 10 * L });
+    // ráfaga: aleja a todos los que estén cerca, con poco daño, y te da velocidad 3 s
+    const R = 150 + 20 * L;
+    for (const e of G.enemies) {
+      if (e.dead || e.air || dist(e, p) > R + e.r) continue;
+      const an = angTo(p, e), push = e.isBoss ? 40 : e.isSub ? 90 : 220;
+      hurtEnemy(e, dm(.25 + .08 * L), an, 0, { explosion: true });
+      e.kx = (e.kx || 0) + Math.cos(an) * push * 4; e.ky = (e.ky || 0) + Math.sin(an) * push * 4;
+      moveEnt(e, Math.cos(an) * push * .35, Math.sin(an) * push * .35);
+    }
+    G.proj = G.proj.filter(pr => pr.owner === 'player' || dist(pr, p) > R * .7);   // también se lleva las balas cercanas
+    for (let i = 0; i < 36; i++) { const an = i * TAU / 36, sp = rand(280, 420); G.parts.push({ x: p.x, y: p.y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp, life: .45, max: .45, color: 'rgba(200,240,224,.85)', size: 3 }); }
+    p.windT = 3;
     noise(.8, .06, 2500); sfx(500, .6, 'sine', .03, 400);
   } else {
-    const n = 7 + 2 * L;
-    for (let i = 1; i <= n; i++) { const x = p.x + Math.cos(a) * i * 28, y = p.y + Math.sin(a) * i * 28; later(i * .045, () => { if (!solidAt(Math.floor(x / TILE), Math.floor(y / TILE))) elemBlast(x, y, 30, dm(1.1 + .4 * L), 'stun', E.c); }); }
-    const maxSh = p.maxSh + rc('escudo') + armorSh(p), gain = L >= 2 ? 2 : 1; p.sh = Math.min(maxSh, p.sh + gain); addText(p.x, p.y - 46, tr`+${gain} escudo`, '#8fb7d9', 12);
-    shake(10); sfx(80, .4, 'sawtooth', .05, -30);
+    // piel de roca: 10 s de resistencia y más daño
+    p.earthT = 10; p.earthK = .35 + .05 * (L - 1);
+    burst(p.x, p.y, E.c, 20, 160, 4, .5); shake(8); sfx(80, .4, 'sawtooth', .05, -30);
   }
 }
+const EL_CD = { fire: 13, water: 9, air: 8, earth: 19 };
 // estallido elemental: solo daña a enemigos
 function elemBlast(x, y, R, dmg, fx, color) {
   burst(x, y, color, 10, 170, 4, .4);

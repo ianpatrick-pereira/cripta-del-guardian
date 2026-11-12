@@ -18,9 +18,9 @@ import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
-const EL_PROC = { fire: tr('quema y estalla'), water: tr('empapa y frena'), air: tr('empuja lejos'), earth: tr('aturde') };
-const elAbName = w => w.style ? STYLE[w.style].el[w.el] : ELEMS[w.el].ab;
-const elAbDesc = w => w.style ? tr`Su ataque cargado en su forma de 5★ y, durante unos segundos, cada golpe ${EL_PROC[w.el]}.` : ELEMS[w.el].abd;
+// v0.58: el poder elemental depende solo del elemento, no del estilo del arma
+const elAbName = w => ELEMS[w.el].ab;
+const elAbDesc = w => ELEMS[w.el].abd;
 const espLv = w => (w.up && w.up.esp) || 0;
 const thrownOut = kind => G.proj.filter(pr => pr.main === kind && pr.life > 0).length;
 function throwIt(p, w, kind, a, dmg, o = {}) {
@@ -162,11 +162,6 @@ function elemProc(el, e, w) {
   else if (el === 'air') { for (const o of G.enemies) if (!o.dead && !o.isBoss && !o.isSub && dist(o, e) < 70) { const a = angTo(G.player, o); o.kx += Math.cos(a) * 520; o.ky += Math.sin(a) * 520; } burst(e.x, e.y, ELEMS.air.c, 8, 200); }
   else { if (!e.isBoss) e.slowT = Math.max(e.slowT || 0, 1.4); elemBlast(e.x, e.y, 30, d, 'stun', ELEMS.earth.c); }
 }
-function styleElem(p, w, L, E, dm) {
-  w.elBoost = 2.5 + .5 * L;
-  styleCharge(p, w, 5, k => dm(k * (1 + .25 * L)), E.c);
-  burst(p.x, p.y, E.c, 24, 220, 4);
-}
 function updateStyles(dt) {
   const p = G.player;
   p.blockT = (p.blockT || 0) - dt;
@@ -224,5 +219,5 @@ function drawStyles() {
 }
 
 export { STYLE, beamHit, beamLen, drawStyles, elAbDesc, elAbName, elemProc, espLv, maxBones, shieldBash,
-  shieldBlock, styleAttack, styleCharge, styleElem, summonBones, throwIt, thrownOut, updateStyles,
+  shieldBlock, styleAttack, styleCharge, summonBones, throwIt, thrownOut, updateStyles,
   updateThrown, whipCircle, whipLash };
