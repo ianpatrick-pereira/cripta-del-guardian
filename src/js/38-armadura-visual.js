@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
-import { MAPS, SPR, SPR_DEFS, drawSpr } from './02-pixel-art.js';
+import { MAPS, SPR, SPR_DEFS, drawSpr, walkFrame, walkKey } from './02-pixel-art.js';
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { musicTick } from './05-audio.js';
@@ -216,7 +216,8 @@ function drawPlayer(p) {
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
   armorAura(p);
   const sb = p.skin && SPR[p.spr + '_S' + p.skin] ? p.spr + '_S' + p.skin : p.spr;
-  const spr = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
+  const spr0 = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
+  const spr = p.dashT > 0 ? spr0 : walkKey(spr0, walkFrame(p.walk, Math.hypot(G.pv.x, G.pv.y) > 40));
   if (back) drawW();
   // se estira al esquivar y se aplasta al recibir daño
   let psx = 1, psy = 1;
@@ -309,7 +310,8 @@ function drawEnemy(e) {
   }
   if (e.el) { ctx.fillStyle = ELEMS[e.el].c + '44'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 7, 0, TAU); ctx.fill(); }
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
-  drawSpr(e.spr, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
+  const ek = walkKey(e.spr, walkFrame(e.t * 9 + e.wob, e.st === 'walk' && e.speed > 0 && !(e.stagT > 0)));   // los que tienen piernas caminan
+  drawSpr(ek, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
   if (ed.encima) ed.encima(e, la, white);
   if (e.hp < e.max) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(e.x - 14, e.y - e.r - 12, 28, 4);

@@ -303,7 +303,7 @@ details.codex[open]{padding-bottom:12px}
   <div class="overlay lobby" id="ovStart">
     <div class="panel">
       <header class="lhead">
-        <div><p class="eyebrow">Prototipo jugable · <span>v0.52</span></p><h1>Cripta del Guardián</h1></div>
+        <div><p class="eyebrow">Prototipo jugable · <span>v0.53</span></p><h1>Cripta del Guardián</h1></div>
         <span class="gempill" id="gemCount"></span>
       </header>
       <p class="lead">Desciende ocho pisos, despeja cada sala, junta reliquias y derrota al jefe de cada nivel. Las gemas que encuentres se guardan aunque mueras.</p>
@@ -2768,6 +2768,34 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   ctx.drawImage(o.white ? sp.w : sp.n, -w / 2, -h / 2, w, h);
   ctx.restore();
 }
+
+// v0.53: cuadros de caminar sin dibujar nada nuevo. Si la última fila del dibujo tiene dos piernas
+// (píxeles a los lados y hueco en el centro), el cuadro 1 levanta la pierna izquierda y el 2 la derecha:
+// las 3 filas de abajo de esa mitad suben un píxel. Sirve para cualquier dibujo (aspectos, armaduras).
+const LEGS = {};
+function hasLegs(key) {
+  if (key in LEGS) return LEGS[key];
+  const sp = SPR[key]; if (!sp || sp.ht < 8) return (LEGS[key] = false);
+  const d = sp.n.getContext('2d').getImageData(0, sp.ht - 1, sp.wd, 1).data, a = i => d[i * 4 + 3] > 0, m = sp.wd >> 1;
+  let L = false, R = false; for (let i = 0; i < m - 1; i++) L = L || a(i); for (let i = m + 1; i < sp.wd; i++) R = R || a(i);
+  return (LEGS[key] = L && R && !a(m - 1) && !a(m));
+}
+function walkKey(key, f) {
+  if (!f || !hasLegs(key)) return key;
+  const k = key + '_W' + f; if (SPR[k]) return k;
+  const sp = SPR[key], m = sp.wd >> 1, x0 = f === 1 ? 0 : m, w = f === 1 ? m : sp.wd - m;
+  const mk = src => {
+    const c = document.createElement('canvas'); c.width = sp.wd; c.height = sp.ht; const g = c.getContext('2d');
+    g.drawImage(src, 0, 0);
+    g.clearRect(x0, sp.ht - 3, w, 3);
+    g.drawImage(src, x0, sp.ht - 2, w, 2, x0, sp.ht - 3, w, 2);   // la pierna sube un píxel
+    return c;
+  };
+  SPR[k] = { n: mk(sp.n), w: mk(sp.w), wd: sp.wd, ht: sp.ht };
+  return k;
+}
+// cuadro de caminar según una fase que avanza al moverse (0 = quieto)
+const walkFrame = (fase, moving) => !moving ? 0 : Math.sin(fase) > .35 ? 1 : Math.sin(fase) < -.35 ? 2 : 0;
 
 
 // ================= Datos del juego =================
@@ -7633,7 +7661,8 @@ function drawPlayer(p) {
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
   armorAura(p);
   const sb = p.skin && SPR[p.spr + '_S' + p.skin] ? p.spr + '_S' + p.skin : p.spr;
-  const spr = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
+  const spr0 = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
+  const spr = p.dashT > 0 ? spr0 : walkKey(spr0, walkFrame(p.walk, Math.hypot(G.pv.x, G.pv.y) > 40));
   if (back) drawW();
   // se estira al esquivar y se aplasta al recibir daño
   let psx = 1, psy = 1;
@@ -7726,7 +7755,8 @@ function drawEnemy(e) {
   }
   if (e.el) { ctx.fillStyle = ELEMS[e.el].c + '44'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 7, 0, TAU); ctx.fill(); }
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
-  drawSpr(e.spr, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
+  const ek = walkKey(e.spr, walkFrame(e.t * 9 + e.wob, e.st === 'walk' && e.speed > 0 && !(e.stagT > 0)));   // los que tienen piernas caminan
+  drawSpr(ek, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
   if (ed.encima) ed.encima(e, la, white);
   if (e.hp < e.max) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(e.x - 14, e.y - e.r - 12, 28, 4);
