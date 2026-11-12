@@ -3,6 +3,7 @@
   // cuántas oleadas tiene cada sala de combate: las salas a partir de "profundidadDificil" tienen más
   "oleadasPorSala": { "normal": 2, "dificil": 3, "profundidadDificil": 3 },
   // las salas con profundidad menor que esta usan "enemigosCerca" del piso; las demás, "enemigosLejos"
+  // (desde v0.55 los pisos traen un solo monstruo en las dos listas)
   "profundidadLejos": 2,
   // enemigos de cada oleada = base + porProfundidad × profundidad (hasta profundidadMaxima)
   //                          + porOleada × número de oleada + porPiso × (piso − 1) + lo que sume la dificultad

@@ -75,6 +75,8 @@ function applyW(w) {
   w.elOn = !!w.el && w.elC >= 3;
   return w;
 }
+// poder real de un arma comparado con una 1★ normal: estrellas, forja, elemento y afinidad (v0.55, lo usan los enemigos que se adaptan)
+const wPower = w => STAR_MUL[w.stars - 1] * (1 + .08 * w.up.dmg) * (w.elMul || 1) * (1 + .3 * (w.aff || 0)) / Math.pow(.9, w.up.rate);
 const W = id => mkW(id, 1);
 // arma inicial: siempre 1★; las que no son del personaje se compran con gemas
 const START_COST = { common: 2, uncommon: 3, rare: 5, epic: 7 };
@@ -212,4 +214,4 @@ for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 // Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
 function setCUR_CHAR(v) { return (CUR_CHAR = v); }
 
-export { applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, skinOf, SKINS, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };
+export { wPower, applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, skinOf, SKINS, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };

@@ -3,11 +3,13 @@ import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
 import { TAU, pick, rand } from '../01-utilidades.js';
 import { defRoom } from '../01a-registro.js';
-import { D, FLOORS } from '../03-datos-del-juego.js';
+import { D, ENEMY } from '../03-datos-del-juego.js';
 import { sfx } from '../05-audio.js';
 import { G, freeSpot } from '../07-estado.js';
 import { burst, shake, showBanner } from '../09-efectos.js';
 import { ach } from '../21-logros-y-bestiario.js';
+// el desafío es la excepción a «un monstruo por piso»: una horda mezclada de todos los tipos
+const HORDA = () => Object.keys(ENEMY).filter(t => t !== 'mini');
 defRoom('challenge', {
   orden: 1,
   objeto: 'trial',
@@ -36,7 +38,7 @@ defRoom('challenge', {
       if (C.spawn <= 0 && G.enemies.length + G.markers.length < 7) {
         C.spawn = 1.5 / D().rate;
         const pos = freeSpot(C.room, 2, 20, G.player, 140);
-        if (pos) G.markers.push({ x: pos.x, y: pos.y, t: .8, type: pick(FLOORS[G.fi].pool2), depth: 3, elite: Math.random() < .15 });
+        if (pos) G.markers.push({ x: pos.x, y: pos.y, t: .8, type: pick(HORDA()), depth: 3, elite: Math.random() < .15 });
       }
       if (C.t <= 0) {
         for (const e of G.enemies) if (!e.dead) { e.dead = true; burst(e.x, e.y, '#ece4cf', 10); }

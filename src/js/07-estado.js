@@ -90,7 +90,7 @@ function buildFloor0(n) {
   if (subRoom) { subRoom.sub = true; subRoom.waves = 1; }
   // desde el piso 4 hay subjefes extra (de pisos anteriores) en otras salas: 1 más, y 2 desde el piso 7
   const extraSubs = G.fi >= 6 ? 2 : G.fi >= 3 ? 1 : 0;
-  shuffle(G.rooms.filter(r => r.type === 'combat' && !r.sub && r.depth >= 1)).slice(0, extraSubs).forEach(r => { r.sub = true; r.waves = 1; r.subK = randi(1, G.fi); });
+  shuffle(G.rooms.filter(r => r.type === 'combat' && !r.sub && r.depth >= 1)).slice(0, extraSubs).forEach(r => { r.sub = true; r.waves = 1; r.subK = G.fi + 1; r.subExtra = true; });
   // salas de evento: 2 o 3 de las de 01d-salas/
   const evKinds = shuffle(roomList()).slice(0, randi(2, 3));
   const evRooms = shuffle(G.rooms.filter(r => r.type === 'combat' && !r.sub && r.depth >= 1));
@@ -126,7 +126,7 @@ function buildFloor0(n) {
     }
   }
   G.dx = null; updateAdapt(false);
-  if (G.threat > 0) later(2.8, () => showBanner(tr('Los enemigos se adaptan'), '#d4474b', tr`Tu arsenal es fuerte: amenaza +${Math.round(G.threat * 16)} %`));
+  if (G.threat > 0) later(2.8, () => showBanner(tr('Los enemigos se adaptan'), '#d4474b', tr`Tu arsenal es fuerte: amenaza +${Math.round(G.threat * 100)} %`));
   G.snap = snapRun();
   if (started) { SAVE.run = G.snap; writeSave(); }
   if (!G.player.spec && G.player.preK >= SUB_UNLOCK) later(1.2, offerSpec);

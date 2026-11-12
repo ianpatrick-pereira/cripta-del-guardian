@@ -613,7 +613,7 @@ function drawHUD(w, h) {
   else if (r && r.locked && r.type === 'boss') { status = tr('Sala del jefe'); sc = '#d4474b'; }
   hudText(status, w - 12, mmBottom + 8, 11, sc, 'right');
   let hy = mmBottom + 24;
-  if (G.threat > .05) { hudText(tr`Amenaza +${Math.round(G.threat * 16)} %`, w - 12, hy, 10, '#d4474b', 'right', 600); hy += 16; }
+  if (G.threat > .05) { hudText(tr`Amenaza +${Math.round(G.threat * 100)} %`, w - 12, hy, 10, '#d4474b', 'right', 600); hy += 16; }
   if (G.dare) { hudText(dareText(), w - 12, hy, 10, G.dare.fail ? '#6b6480' : '#ffd27a', 'right', 600); hy += 16; }
   if (G.pact) { hudText(tr('Pacto: ') + PACTS[G.pact].n, w - 12, hy, 10, PACTS[G.pact].c, 'right', 600); hy += 16; }
   if (G.daily) hudText(tr`Reto diario · ${dailyScore()} pts`, w - 12, hy, 10, '#9be0c8', 'right', 600);
