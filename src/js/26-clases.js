@@ -191,7 +191,9 @@ function subKill(p, e) {
   const before = subLv(p); p.subK = (p.subK || 0) + 1;
   const L = subLv(p), S = SPECS[p.spec];
   if (L > before) {
-    showBanner(tr`${S.n} Nv${L}`, S.c, tr`${S.abil} y tu pasiva se vuelven más fuertes`);
+    // v0.59: cada nivel también sube tus estadísticas: +1 de vida máxima y +8 % de daño (ver dmgMul)
+    p.maxHp += 1; p.hp = Math.min(p.maxHp, p.hp + 1);
+    showBanner(tr`${S.n} Nv${L}`, S.c, tr`+1 vida máxima · +8 % de daño · ${S.abil} más fuerte`);
     burst(p.x, p.y, S.c, 26, 200); sfx(520, .2, 'triangle', .05, 400);
     if (p.spec === 'paladin' && (L === 2 || L === 4)) { p.maxSh++; p.sh++; }
   }

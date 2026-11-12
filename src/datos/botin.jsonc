@@ -18,7 +18,7 @@
   // al romper una caja: probabilidad de soltar monedas y cuántas
   "caja": { "monedas": 0.35, "cuantasMonedas": [1, 2], "energia": 0.12, "pocion": 0.05, "llave": 0.04 },
   // al despejar una sala de combate: probabilidad de que aparezca un cofre dorado o uno normal
-  "salaDespejada": { "cofreDorado": 0.22, "cofre": 0.38 },
+  "salaDespejada": { "cofreDorado": 0.09, "cofre": 0.15 },   // v0.59: un 60 % menos que antes (0.22 y 0.38)
   // al abrir un cofre (siempre trae un arma)
   "cofre": { "monedas": [3, 6], "pocion": 0.45, "armadura": 0.12 },
   // el cofre dorado necesita una llave y trae además una reliquia
