@@ -76,6 +76,7 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
   if (o.fx === 'poison') e.poison = 3;
   if (o.fx === 'burn') e.burn = 3;
   if (o.fx === 'slow') e.slowT = 2;
+  if (o.fx === 'tsunami') { e.slowT = Math.max(e.slowT || 0, 3); e.slowK = .25; }   // tsunami: −75 % de velocidad 3 s
   addText(e.x + rand(-6, 6), e.y - e.r - 4, dmg, crit ? '#ffd27a' : '#ece4cf', crit ? 16 : 13);
   burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', 4, 110, 2.5, .3);
   if (o.melee) { sfx(crit ? 200 : 150, .06, 'square', .025, -70); noise(.05, crit ? .06 : .04, 1400); }   // impacto seco
@@ -241,7 +242,7 @@ function updateEnemy(e, dt) {
     if (Math.random() < dt * 12) G.parts.push({ x: e.x + rand(-8, 8), y: e.y + rand(-8, 4), vx: 0, vy: -50, life: .35, max: .35, color: '#ff8a3a', size: 3 });
     if (e.bt >= .5) { e.bt = 0; e.hp -= 1; e.flash = .06; addText(e.x, e.y - e.r - 4, 1, '#ff8a3a', 11); if (e.hp <= 0) { killEnemy(e); return; } }
   }
-  e.slowT = (e.slowT || 0) - dt;
+  e.slowT = (e.slowT || 0) - dt; if (e.slowT <= 0) e.slowK = 0;
   if (e.type === 'boss') { updateBoss(e, dt); return; }
   if (e.isSub) { G.elSrc = e.elem ? e : null; updateSub(e, dt); G.elSrc = null; return; }
   const cdt = dt * Df.rate * enemyPace();
@@ -271,7 +272,7 @@ function updateEnemy(e, dt) {
     }
   }
   e.stagT = (e.stagT || 0) - dt; e.hitT = (e.hitT || 0) - dt;
-  const sm = (e.slowT > 0 ? .45 : 1) * (e.stagT > 0 ? .15 : 1);   // aturdido un instante tras un golpe
+  const sm = (e.slowT > 0 ? e.slowK || .45 : 1) * (e.stagT > 0 ? .15 : 1);   // aturdido un instante tras un golpe
   moveEnt(e, (vx * sm + e.kx) * dt, (vy * sm + e.ky) * dt);
   pushOutProps(e);
   const f = Math.exp(-10 * dt); e.kx *= f; e.ky *= f;

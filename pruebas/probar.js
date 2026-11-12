@@ -82,7 +82,8 @@ const casoClase = (ch, piso) => ({ grupo: 'clases', id: `${NOMBRE[ch]} · piso $
       const k0 = G.kills, b = window.__bot(600, true); hits += b.hits;
       if (b.nan) { fallos.push('posición o vida NaN'); break; }
       const vivos = G.enemies.filter(e => !e.dead && !e.ally && !e.stray);
-      if (!sala.locked && !sala.cleared && !vivos.length) { p.x = sala.cx; p.y = sala.cy; }   // volver a entrar si salió
+      // volver a entrar si salió (también si la sala sigue cerrada: el fuego puede abrir una pared agrietada)
+      if (!sala.cleared && !vivos.length && (!sala.locked || G.cur !== sala)) { p.x = sala.cx; p.y = sala.cy; }
     }
     // si el bot no pudo con todo a tiempo, se remata lo que quede: así se prueba igualmente que la sala
     // pasa de oleada, se abre y se da por terminada (el bot no busca equilibrar la dificultad)
@@ -91,7 +92,7 @@ const casoClase = (ch, piso) => ({ grupo: 'clases', id: `${NOMBRE[ch]} · piso $
       // también aquí con la vida llena, como el bot: esta parte prueba que la sala se cierre bien, no si el
       // jugador sobrevive (sin esto, una bala perdida en el piso 8 podía terminar la partida y la prueba fallaba)
       for (let f = 0; f < 90; f++) { p.hp = p.maxHp + 100; T.sim(1); } p.hp = p.maxHp; while (T.resolve());
-      if (!sala.locked && !sala.cleared && !G.enemies.some(e => !e.dead && !e.stray)) { p.x = sala.cx; p.y = sala.cy; T.sim(30); }
+      if ((!sala.locked || G.cur !== sala) && !sala.cleared && !G.enemies.some(e => !e.dead && !e.stray)) { p.x = sala.cx; p.y = sala.cy; T.sim(30); }
     }
     if (!sala.cleared) { const q = G.enemies.filter(e => !e.dead); fallos.push(`${r === 'jefe' ? 'jefe' : (r.sub ? 'subjefe' : 'sala')} sin terminar (quedan ${q.length}: ${q.slice(0, 4).map(e => (e.type || e.kind) + (e.stray ? '(pasillo)' : '') + ' ' + Math.round(e.hp) + 'pv ' + Math.round(Math.hypot(e.x - p.x, e.y - p.y)) + 'px').join(', ')}; oleada ${sala.wave}/${sala.waves}, marcadores ${G.markers.length})`); }
   }
