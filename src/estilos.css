@@ -160,6 +160,12 @@ details.codex[open]{padding-bottom:12px}
 .choice .ric{display:inline-grid;place-items:center;width:30px;height:30px;border:2px solid;border-radius:4px;background:rgba(12,11,17,.85);font:600 16px var(--ui);margin:2px 0}
 .choice .nums{display:block;font-size:12px;color:#9be0c8;line-height:1.45;margin-top:4px;font-variant-numeric:tabular-nums}
 .choice .synx{display:block;font-size:12px;font-weight:600;margin-top:4px}
+/* v0.59: carta con imagen + título + una línea */
+.choice.pic{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.choice.pic .key{align-self:flex-start}
+.choice .cico{width:72px;height:72px;image-rendering:pixelated;filter:drop-shadow(0 0 10px rgba(0,0,0,.6))}
+.choice .short{font-size:15px;line-height:1.35;color:var(--text,#ece4cf);max-width:26ch}
+.choice .tag{display:block;font-size:12px;color:var(--muted)}
 .choice.syn{box-shadow:0 0 0 1px var(--glow),0 0 18px -2px var(--glow);animation:synGlow 1.6s ease-in-out infinite}
 @keyframes synGlow{50%{box-shadow:0 0 0 1px var(--glow),0 0 28px 2px var(--glow)}}
 @media (prefers-reduced-motion:reduce){.choice.syn{animation:none}}

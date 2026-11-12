@@ -862,7 +862,6 @@
   "No hay nadie cerca": "There's no one nearby",
   "Subclase desbloqueada": "Subclass unlocked",
   "Elige tu camino": "Choose your path",
-  "{0} y tu pasiva se vuelven más fuertes": "{0} and your passive get stronger",
   "esquivaste": "you dodged",
   "Disparo concentrado": "Focused shot",
   "¡Desvío!": "Deflect!",
@@ -945,7 +944,6 @@
 
   // src/js/32-eleccion-de-reliquia.js
   "<span class=\"abil\">F · {0}: {1}</span><span class=\"meta\">Al subir de nivel (Nv1 a Nv5): {2}</span>": "<span class=\"abil\">F · {0}: {1}</span><span class=\"meta\">On level up (Lv1 to Lv5): {2}</span>",
-  "<span class=\"abil\">Ya tienes {0}</span>": "<span class=\"abil\">You already have {0}</span>",
 
   // src/js/33-bucle.js
   "Victoria": "Victory",
@@ -1185,12 +1183,6 @@
   "Daño: {0} → {1}": "Damage: {0} → {1}",
   "Ataques por segundo: {0} → {1}": "Attacks per second: {0} → {1}",
   "Carga: ×{0} → ×{1}": "Charge: ×{0} → ×{1}",
-  "Daño": "Damage",
-  "Crítico": "Crit",
-  "Energía máx.": "Max energy",
-  "Escudo máx.": "Max shield",
-  "Vida máx.: {0} → {1}": "Max health: {0} → {1}",
-  "<span class=\"synx\" style=\"color:{0}\">✦ Activa la sinergia {1}</span>": "<span class=\"synx\" style=\"color:{0}\">✦ Unlocks the synergy {1}</span>",
   "<button class=\"ghost small\" id=\"btnReroll\" type=\"button\" {0}>↻ Volver a tirar · {1} monedas (tecla R, una vez por piso)</button>": "<button class=\"ghost small\" id=\"btnReroll\" type=\"button\" {0}>↻ Reroll · {1} coins (R key, once per floor)</button>",
 
   // v0.47 elecciones
@@ -1252,5 +1244,10 @@
   "Una ola hacia donde apuntas: daña y frena un 75 % a los enemigos 3 s.": "A wave where you aim: damages and slows enemies by 75% for 3 s.",
   "Viento a tu alrededor: aleja a los enemigos con poco daño y te da +35 % de velocidad 3 s.": "Wind around you: pushes enemies away for light damage and gives you +35% speed for 3 s.",
   "Piel de roca": "Stone skin",
-  "10 s: recibes la mitad de daño y tu arma pega +35 %.": "10 s: you take half damage and your weapon hits 35% harder."
+  "10 s: recibes la mitad de daño y tu arma pega +35 %.": "10 s: you take half damage and your weapon hits 35% harder.",
+
+  // v0.59 cartas con imagen y niveles
+  "+1 vida máxima · +8 % de daño · {0} más fuerte": "+1 max health · +8% damage · stronger {0}",
+  "<span class=\"tag\">Ya tienes {0}</span>": "<span class=\"tag\">You have {0}</span>",
+  "<span class=\"tag synx\" style=\"color:{0}\">✦ Sinergia: {1}</span>": "<span class=\"tag synx\" style=\"color:{0}\">✦ Synergy: {1}</span>"
 }

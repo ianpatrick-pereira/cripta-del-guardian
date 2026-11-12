@@ -26,7 +26,7 @@ function mkSub(floor, x, y, extra = false) {
   // los subjefes extra (otra sala del mismo piso) llegan con el 75 % de la vida
   const S = SUBS[floor], base = S.hp * SUB_VIDA * (extra ? .75 : 1), hp = Math.round(base * D().hp * (1 + .8 * (G.cycle - 1)));
   const fd = 1 + (G.floor >= 5 ? 1 : 0) + (D().dmgAdd || 0);
-  return { def: S, type: 'sub', isSub: true, sk: S.sk, name: S.name, spr: S.spr, s: S.s, r: S.r, x, y, hp, max: hp, speed: S.speed, dmg: 1 + fd, fd, resist: SUB_RESISTE, tint: S.tint,
+  return { def: S, type: 'sub', isSub: true, sk: S.sk, name: S.name, spr: S.spr, s: S.s, r: S.r, x, y, hp, max: hp, speed: S.speed, dmg: 1 + fd, fd, resist: SUB_RESISTE, extra, tint: S.tint,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 const enemyPace = () => Math.min(1.4, 1 + .05 * (G.floor - 1));
@@ -72,7 +72,8 @@ function subDefeated(e) {
     return;
   }
   showBanner(e.name + tr(' cae'), '#e3a24a', tr('Subjefe derrotado'));
-  later(.9, offerTalent);
+  // v0.59: menos elecciones de mejora: el talento sale en los pisos impares (el jefe da reliquia en los pares)
+  if (G.floor % 2 === 1 && !e.extra) later(.9, offerTalent);
   for (let i = 0; i < BOTIN.subjefe.monedas; i++) dropCoin(e.x, e.y);
   G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-90, 90), vy: rand(-90, 90) });
   G.pickups.push({ kind: 'potion', x: e.x + 20, y: e.y });

@@ -37,7 +37,7 @@ function nearestInteract(p) {
   }
   return best;
 }
-const dmgMul = () => (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1) * (G.player && G.player.earthT > 0 ? 1 + (G.player.earthK || .35) : 1);
+const dmgMul = () => (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1) * (G.player && G.player.earthT > 0 ? 1 + (G.player.earthK || .35) : 1) * (G.player && G.player.spec ? 1 + .08 * (subLv(G.player) - 1) : 1);
 const critChance = () => G.player.shadowT > 0 ? 1 : (.1 + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1);
 const maxEnergy = p => p.maxEn + 40 * rc('bateria');
 

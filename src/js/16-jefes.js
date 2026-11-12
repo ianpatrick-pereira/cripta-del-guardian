@@ -90,11 +90,14 @@ function bossDefeated(e) {
     G.wonOnce = true; SAVE.wins++; ach('win'); if (G.diff === 'hard') ach('nightmare'); writeSave();
     showBanner(tr('¡La cripta ha caído!'), '#e3a24a', tr('Sal victorioso o desciende al Abismo eterno'));
   } else showBanner(BOSSES[e.kind].name + tr(' cae'), '#e3a24a', tr`Piso ${G.floor} superado`);
-  later(1.4, () => openChoice(tr('Recompensa del jefe'), tr('Elige una reliquia'), randomRelics(3), () => {
+  const portal = () => {
     G.pickups.push({ kind: 'portal', x: room.cx, y: room.cy });
     addText(room.cx, room.cy - 40, G.floor >= 8 ? tr('El portal baja al Abismo eterno') : tr('Se abre un portal'), '#c77dff', 15);
     if (G.floor >= 8) G.pickups.push({ kind: 'exit', x: room.cx + 100, y: room.cy });
-  }));
+  };
+  // v0.59: la reliquia del jefe sale en los pisos pares (en los impares el subjefe da un talento)
+  if (G.floor % 2 === 0) later(1.4, () => openChoice(tr('Recompensa del jefe'), tr('Elige una reliquia'), randomRelics(3), portal));
+  else later(1.4, portal);
 }
 
 export { bossCap, bossExposeK, bossDefeated, bossIdle, bossRing, updateBoss };
