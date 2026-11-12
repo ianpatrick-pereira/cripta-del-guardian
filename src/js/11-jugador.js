@@ -171,6 +171,7 @@ function useAbility(p) {
 }
 
 function attack(p) {
+  p.atkN = (p.atkN || 0) + 1;   // la guía del primer piso cuenta los ataques
   const w = p.slots[p.cur], cost = w.type === 'staff' && syn('arcano') ? Math.ceil((w.en || 0) / 2) : (w.en || 0);
   p.cd = w.cd * (p.rageT > 0 ? .7 : 1) * (subIs('ranger') && w.type !== 'melee' ? 1 - .04 * subLv(p) : 1);
   if (p.char === 'knight' && w.type === 'melee') p.parryT = tl('egida') ? .3 : .2;
@@ -241,7 +242,7 @@ function reflect(pr, a, dmg) {
 function chargedAttack(p) {
   const w = p.slots[p.cur], cost = w.chgEn || 10;
   if (p.en < cost) { addText(p.x, p.y - 26, tr`Carga: necesitas ${cost} de energía`, '#5aa4e8', 12); sfx(120, .08, 'square', .03); return; }
-  p.en -= cost;
+  p.en -= cost; p.chgN = (p.chgN || 0) + 1;
   p.cd = Math.max(p.cd, .3);
   const a = p.aim, S = w.stars || 1, M = w.chgMul || 1, col = RARITY[w.rarity].c;
   const dm = k => Math.max(1, Math.round(w.dmg * k * M));

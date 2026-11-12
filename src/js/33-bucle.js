@@ -19,6 +19,7 @@ import { SUBS, mkSub } from './15-subjefes.js';
 import { updateRooms } from './17-salas.js';
 import { updateSyn } from './18-sinergias.js';
 import { updatePet } from './19-companeros.js';
+import { updateGuide } from './21b-guia.js';
 import { openEpilogue } from './20-historia.js';
 import { ach } from './21-logros-y-bestiario.js';
 import { ELEMS, mkElem, shredShield, updateFlamer, updateTornados } from './23-elementos.js';
@@ -78,6 +79,7 @@ function update(dt) {
   else {
     const p0x = G.player.x, p0y = G.player.y;
     updatePlayer(dt);
+    updateGuide(dt);
     if (dt > 0) {
       const k = 1 - Math.exp(-8 * dt);
       G.pv.x += (clamp((G.player.x - p0x) / dt, -260, 260) - G.pv.x) * k;
