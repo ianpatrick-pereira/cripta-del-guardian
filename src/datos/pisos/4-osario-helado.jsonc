@@ -23,6 +23,8 @@
   },
   // lo que rodea la mazmorra (agua helada): fondo, manchas [caliente, media, fría], placas que flotan y su borde,
   // puntitos de luz, burbujas, llamas en los bordes (null = sin llamas), vapor y cuánta luz propia da (0 a 1)
+  // forma de las baldosas del suelo: losas, piedra, grandes, hielo, rejilla, raices, mosaico o carne
+  "baldosa": "hielo",
   "mar": {"fondo": "#05101a", "manchas": ["#5fa8d3", "#1b4a6b", "#0b2236"], "costra": "rgba(170,205,230,.22)", "grietas": "rgba(190,230,255,.4)", "chispas": ["rgba(230,245,255,.6)", "rgba(150,200,240,.45)"], "burbujas": "#1d4a6a", "llamas": null, "vapor": "#dceaf5", "luz": 0.25},
   // decoración: colores de antorchas, brillos, estandartes, plantas (oscura y clara), flores y charcos;
   // partículas que flotan (polvo, esporas, brasas, nieve, luciernagas, chispas o petalos) y la viñeta de los bordes
