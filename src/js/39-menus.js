@@ -4,10 +4,10 @@ import { $ } from './00-inicio.js';
 import { esc, fmtNum } from './01-utilidades.js';
 import { WEAPON_DEFS, roomList } from './01a-registro.js';
 import { SPR } from './02-pixel-art.js';
-import { BOSSES, CHARS, CIRC_MAX, CIRCLES, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
+import { BOSSES, CHARS, CIRC_MAX, CIRCLES, SKINS, skinOf, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
   setCUR_CHAR, starterW, weaponStats } from './03-datos-del-juego.js';
 import { SAVE, selChar, setSelChar, writeSave } from './04-guardado.js';
-import { AC, setAC } from './05-audio.js';
+import { AC, setAC, sfx } from './05-audio.js';
 import { G, newRun, paused, setPaused, setStarted, started } from './07-estado.js';
 import { keys, mouse, setWantAbil, setWantDash, setWantElem, touch, wantAbil, wantDash,
   wantElem } from './10-entrada.js';
@@ -54,7 +54,7 @@ function renderMenu() {
   $('charCards').innerHTML = Object.entries(CHARS).map(([id, c]) => {
     const own = SAVE.chars[id];
     return `<button class="card ch${selChar === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-c="${id}">
-      <span class="por"><img src="${sprURL(c.spr, 6)}" alt=""></span>
+      <span class="por"><img src="${sprURL(c.spr + (skinOf(id) ? '_S' + skinOf(id) : ''), 6)}" alt=""></span>
       <span class="ci"><b>${esc(c.name)}</b><span class="abil">${esc(c.role)}</span>
       <span class="sbars">${statBar(tr('Vida'), c.hp + SAVE.upg.hp, (c.hp + SAVE.upg.hp) / 10)}${statBar(tr('Escudo'), c.sh, c.sh / 5)}${statBar(tr('Energía'), c.en + SAVE.upg.en * 15, (c.en + SAVE.upg.en * 15) / 180)}${statBar(tr('Velocidad'), c.speed, (c.speed - 140) / 80)}</span>
       ${own ? `<span class="meta">F · ${esc(c.abil)}</span>` : tr`<span class="gems">🔒 Desbloquear · ${c.cost} gemas</span>`}</span>
@@ -65,7 +65,19 @@ function renderMenu() {
       <p><b class="abil">F · ${esc(c.abil)}:</b> ${esc(c.abilDesc)}</p>
       <p>${esc(c.mech)}</p>
       <p class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}. Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %; bastones neutrales.</p>
-      <p class="meta">Subclases: ${Object.values(SPECS).filter(S => S.cls === selChar).map(S => `${S.n} (${S.d.replace('.', '').toLowerCase()})`).join(', ')}. Se desbloquea tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas.</p>`; }
+      <p class="meta">Subclases: ${Object.values(SPECS).filter(S => S.cls === selChar).map(S => `${S.n} (${S.d.replace('.', '').toLowerCase()})`).join(', ')}. Se desbloquea tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas.</p>`;
+    // aspectos: se compran una vez con gemas y se eligen aquí (solo cambian colores)
+    if (SAVE.chars[selChar]) {
+      const cur = skinOf(selChar), own = k => !!(SAVE.skins && SAVE.skins[selChar + ':' + k]);
+      $('charDetail').innerHTML += tr`<p class="meta" style="margin-top:10px"><b>Aspecto</b> · solo cambia los colores; se compra una vez</p>` + `<div class="chips skins">` +
+        [['', tr('Clásico'), 0], ...Object.entries(SKINS).map(([k, S]) => [k, S.n, S.cost])].map(([k, n, cost]) =>
+          `<button class="small${cur === k ? ' sel' : ''}" type="button" data-skin="${k}" ${!k || own(k) || SAVE.gems >= cost ? '' : 'disabled'}><img src="${sprURL(c.spr + (k ? '_S' + k : ''), 3)}" alt=""> ${esc(n)}${!k || own(k) ? '' : tr` · ${cost} gemas`}</button>`).join('') + '</div>';
+      $('charDetail').querySelectorAll('[data-skin]').forEach(b => b.addEventListener('click', () => {
+        const k = /** @type {HTMLElement} */ (b).dataset.skin || '';
+        if (k && !own(k)) { const cost = SKINS[k].cost; if (SAVE.gems < cost) return; SAVE.gems -= cost; SAVE.skins = { ...(SAVE.skins || {}), [selChar + ':' + k]: true }; sfx(660, .15, 'triangle', .05, 300); }
+        SAVE.skin = { ...(SAVE.skin || {}), [selChar]: k }; writeSave(); renderMenu();
+      }));
+    } }
   $('charCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.c, c = CHARS[id];
     if (!SAVE.chars[id]) {
