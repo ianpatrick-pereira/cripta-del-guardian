@@ -4,7 +4,7 @@ import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, rand, randi } from './01-utilidades.js';
 import { ROOM_OBJ } from './01a-registro.js';
-import { BOTIN, RARITY, RELICS, rollStars, rollWeapon } from './03-datos-del-juego.js';
+import { BOTIN, RARITY, potMul, RELICS, rollStars, rollWeapon } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { noise, sfx } from './05-audio.js';
 import { G, randomRelics, rc } from './07-estado.js';
@@ -77,7 +77,7 @@ function interact(p, it) {
     if (Math.random() < (it.gold ? BOTIN.cofreDorado.armadura : BOTIN.cofre.armadura)) dropArmor(it.x - 40, it.y + 26, it.gold ? 'gold' : 'chest');
     if (it.gold) { const rr = randomRelics(1)[0]; if (rr) G.pickups.push({ kind: 'relic', relic: rr, x: it.x + 46, y: it.y + 26 }); }
     for (let i = 0; i < randi(BOTIN.cofre.monedas[0], BOTIN.cofre.monedas[1]); i++) dropCoin(it.x, it.y);
-    if (!pact('fasting') && (Math.random() < BOTIN.cofre.pocion || luck)) G.pickups.push({ kind: 'potion', x: it.x + rand(-26, 26), y: it.y + 20 + rand(0, 14) });
+    if (!pact('fasting') && (Math.random() < BOTIN.cofre.pocion * potMul() || luck)) G.pickups.push({ kind: 'potion', x: it.x + rand(-26, 26), y: it.y + 20 + rand(0, 14) });
     burst(it.x, it.y, '#e3a24a', 14, 160);
     sfx(400, .2, 'triangle', .05, 500);
   } else if (it.kind === 'shop') {

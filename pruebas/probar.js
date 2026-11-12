@@ -1,6 +1,6 @@
 // Pruebas automáticas de Cripta del Guardián.
 // Uso:  node juego/pruebas/probar.js               ejecuta todas las pruebas
-//       node juego/pruebas/probar.js clases         solo un grupo (clases, idioma, armas, salas, guardado, finales)
+//       node juego/pruebas/probar.js clases         solo un grupo (clases, idioma, armas, salas, guardado, finales, circulos)
 //       node juego/pruebas/probar.js --referencia   guarda los resultados actuales como referencia
 // Un bot juega solo con azar repetible (misma semilla = misma partida). Cada prueba falla si hay
 // errores de JavaScript, valores imposibles (NaN) o salas que no se pueden terminar. Además compara
@@ -176,6 +176,20 @@ const casoFinal = (id, notas, titulo) => ({ grupo: 'finales', id, seed: 11, save
 } });
 escenarios.push(casoFinal('final verdadero con el diario completo', 9, 'El círculo roto'));
 escenarios.push(casoFinal('final incompleto con 5 notas', 5, 'Otro turno'));
+// 6) Círculos del Abismo: ganar abre el siguiente; con el quinto elegido las reglas se notan
+escenarios.push({ grupo: 'circulos', id: 'ganar abre el primer círculo', seed: 12, run: async pg => {
+  await pg.evaluate(() => { const T = window.__cripta; T.run('knight'); const G = T.state(); T.floor(8); window.__simR(2); G.pickups.push({ kind: 'exit', x: G.player.x, y: G.player.y }); T.use('exit'); window.__simR(240); });
+  const s = await pg.evaluate(() => JSON.parse(localStorage.getItem('cripta-guardian-v1') || 'null')), fallos = [];
+  if (!s || s.circ !== 1) fallos.push(`tras ganar el círculo abierto es ${s && s.circ} (se esperaba 1)`);
+  return { fallos, huella: [s && s.circ], info: `círculo abierto: ${s && s.circ}` };
+} });
+escenarios.push({ grupo: 'circulos', id: 'el quinto círculo endurece la partida', seed: 13, save: { ...SAVE_BASE, circ: 5, circSel: 5 }, run: async pg => {
+  const r = await pg.evaluate(() => { const T = window.__cripta; T.run('knight'); const G = T.state(); window.__simR(2); return { circ: G.circ, hp: G.dx.hp, rate: G.dx.rate, gem: G.dx.gem }; });
+  const fallos = [];
+  if (r.circ !== 5) fallos.push(`la partida empezó en el círculo ${r.circ}`);
+  if (!(r.hp >= 1.19 && r.rate >= 1.11 && r.gem >= 2.24)) fallos.push(`reglas sin aplicar: vida ×${r.hp}, ritmo ×${r.rate}, gemas ×${r.gem}`);
+  return { fallos, huella: [r.circ, +r.hp.toFixed(2), +r.rate.toFixed(2), r.gem], info: `vida ×${r.hp.toFixed(2)}, gemas ×${r.gem}` };
+} });
 
 // ---------- traducir «cripta.html:línea» al archivo de src/ donde está ese código ----------
 const mapa = (() => {

@@ -42,7 +42,7 @@ function newRun(charId) {
     talents: [], spec: '', subK: 0, preK: 0, parryT: 0, parryCd: 0, revenge: 0, focus: 0, combo: 0, comboT: 0, veilT: 0, rageT: 0, backN: 0, meleeKills: 0, atkN: 0, chgN: 0,
   };
   G = {
-    floor: 1, player: p, time: 0, kills: 0, coins: SAVE.upg.coin * 10, gems: 0, petKind: SAVE.pet, keys: 0, roomsCleared: 0, rerollF: 0, guia: null,
+    floor: 1, player: p, time: 0, kills: 0, coins: SAVE.upg.coin * 10, gems: 0, petKind: SAVE.pet, keys: 0, roomsCleared: 0, rerollF: 0, guia: null, circ: Math.min(SAVE.circSel || 0, SAVE.circ || 0),
     over: false, endT: 0, won: false, choice: null, darkT: 0, heartT: 0, diff: SAVE.diff, pv: { x: 0, y: 0 },
     crystals: { fire: 0, water: 0, air: 0, earth: 0 },
   };

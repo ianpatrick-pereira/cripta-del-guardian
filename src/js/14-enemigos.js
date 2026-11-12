@@ -4,7 +4,7 @@ import { TAU, TILE, angDiff, angTo, clamp, dist, rand, randi } from './01-utilid
 import { ENEMIES } from './01a-registro.js';
 import { mirrorDefeated } from './01d-salas/mirror.js';
 import { SPR_DEFS } from './02-pixel-art.js';
-import { BOSSES, BOTIN, D, ENEMY, OLEADAS, rollWeapon } from './03-datos-del-juego.js';
+import { BOSSES, BOTIN, D, ENEMY, OLEADAS, potMul, rollWeapon } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { noise, sfx } from './05-audio.js';
 import { G, freeSpot, rc } from './07-estado.js';
@@ -109,7 +109,7 @@ function killEnemy(e, src) {
   const coins = Math.round((randi(BE.monedas[0], BE.monedas[1]) + (rc('iman') ? 1 : 0) + (e.elite ? BE.monedasElite : 0)) * (pact('volatile') ? 1.5 : 1) * (pact('dark') ? 2 : 1));
   for (let i = 0; i < coins; i++) dropCoin(e.x, e.y);
   if (Math.random() < BE.energia) G.pickups.push({ kind: 'energy', x: e.x, y: e.y, vx: 0, vy: 0 });
-  if (!pact('fasting') && Math.random() < BE.pocion) G.pickups.push({ kind: 'potion', x: e.x, y: e.y });
+  if (!pact('fasting') && Math.random() < BE.pocion * potMul()) G.pickups.push({ kind: 'potion', x: e.x, y: e.y });
   if (Math.random() < BE.arma) G.pickups.push({ kind: 'weapon', x: e.x, y: e.y, weapon: rollWeapon('enemy'), bob: 0 });
   if (e.elite) {
     if (Math.random() < BL.gema) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-60, 60), vy: rand(-60, 60) });

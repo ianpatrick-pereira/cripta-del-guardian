@@ -1220,5 +1220,24 @@
   "Habilidad de clase: tecla F (se recarga con el tiempo)": "Class ability: F key (recharges over time)",
   "Pulsa HABIL.: la habilidad de tu clase": "Press SKILL: your class ability",
   "Cruza una puerta y limpia tu primera sala": "Go through a door and clear your first room",
-  "GUÍA · PASO {0} DE {1}": "GUIDE · STEP {0} OF {1}"
+  "GUÍA · PASO {0} DE {1}": "GUIDE · STEP {0} OF {1}",
+
+  // v0.50 círculos del abismo
+  "Primer círculo": "First circle",
+  "Los enemigos atacan un 12 % más rápido.": "Enemies attack 12% faster.",
+  "Segundo círculo": "Second circle",
+  "Caen la mitad de pociones.": "Half as many potions drop.",
+  "Tercer círculo": "Third circle",
+  "Los enemigos tienen +20 % de vida.": "Enemies have +20% health.",
+  "Cuarto círculo": "Fourth circle",
+  "Más élites y un enemigo más por oleada.": "More elites and one more enemy per wave.",
+  "Quinto círculo": "Fifth circle",
+  "Tu escudo tarda el doble en empezar a recargarse.": "Your shield takes twice as long to start recharging.",
+  " Se abrió el {0} del Abismo: elígelo en Preparación.": " The {0} of the Abyss is now open: pick it in Preparation.",
+  "Círculo {0}": "Circle {0}",
+  "Sin círculo": "No circle",
+  "Gana una partida para abrir el primer Círculo del Abismo: reglas más duras y más gemas.": "Win a run to open the first Circle of the Abyss: harder rules and more gems.",
+  "Círculos abiertos: {0} de {1}. Cada uno suma una regla y +25 % de gemas.": "Circles open: {0} of {1}. Each adds a rule and +25% gems.",
+  " · Gemas ×{0}": " · Gems ×{0}",
+  " · círculo {0}": " · circle {0}"
 }

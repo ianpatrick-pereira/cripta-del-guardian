@@ -166,7 +166,22 @@ const DIFFS = {
   normal: { name: tr('Guardián'),  desc: tr('La experiencia pensada: los enemigos te rodean, anticipan y esquivan.'), hp: 1, rate: 1, count: 0, elite: 0, lead: .6, dodge: .4, tokens: 3, gem: 1 },
   hard:   { name: tr('Pesadilla'), desc: tr('Más vida, más enemigos y élites, ataques más rápidos y puntería casi perfecta. Gemas ×1,5.'), hp: 1.3, rate: 1.22, count: 1, elite: .08, lead: .9, dodge: .65, tokens: 5, gem: 1.5 },
 };
-function D() { return (G && G.dx) || DIFFS[(G && G.diff) || SAVE.diff] || DIFFS.normal; }
+// Círculos del Abismo (v0.50): cada victoria abre uno más; las reglas se suman y dan más gemas
+const CIRCLES = [
+  null,
+  { n: tr('Primer círculo'),  d: tr('Los enemigos atacan un 12 % más rápido.') },
+  { n: tr('Segundo círculo'), d: tr('Caen la mitad de pociones.') },
+  { n: tr('Tercer círculo'),  d: tr('Los enemigos tienen +20 % de vida.') },
+  { n: tr('Cuarto círculo'),  d: tr('Más élites y un enemigo más por oleada.') },
+  { n: tr('Quinto círculo'),  d: tr('Tu escudo tarda el doble en empezar a recargarse.') },
+];
+const CIRC_MAX = CIRCLES.length - 1;
+const circ = n => ((G && G.circ) || 0) >= n;
+// aplica las reglas de los círculos a una dificultad
+const circMod = b => ({ ...b, rate: b.rate * (circ(1) ? 1.12 : 1), hp: b.hp * (circ(3) ? 1.2 : 1), elite: b.elite + (circ(4) ? .06 : 0), count: b.count + (circ(4) ? 1 : 0),
+  gem: b.gem * (1 + .25 * ((G && G.circ) || 0)) });
+const potMul = () => circ(2) ? .5 : 1;
+function D() { return (G && G.dx) || circMod(DIFFS[(G && G.diff) || SAVE.diff] || DIFFS.normal); }
 
 // las estadísticas de cada enemigo viven en su archivo de 01b-enemigos/
 const ENEMY = {};
@@ -189,6 +204,4 @@ for (const id of bossList()) BOSSES[id] = BOSS_DEFS[id].datos;
 // Otros módulos no pueden reasignar estas variables directamente (un import es de solo lectura): usan estas funciones.
 function setCUR_CHAR(v) { return (CUR_CHAR = v); }
 
-export { BOSSES, BOTIN, CHARS, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, OLEADAS, RARITY, RELICS, RORDER, START_COST,
-  STAR_MUL, UPG, W, WEAPONS, applyW, chgName, cu, mkW, rollStars, rollWeapon, setCUR_CHAR, starterW,
-  weaponStats };
+export { applyW, BOSSES, BOTIN, CHARS, chgName, circ, CIRC_MAX, CIRCLES, circMod, cu, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, mkW, OLEADAS, potMul, RARITY, RELICS, rollStars, rollWeapon, RORDER, setCUR_CHAR, STAR_MUL, START_COST, starterW, UPG, W, WEAPONS, weaponStats };

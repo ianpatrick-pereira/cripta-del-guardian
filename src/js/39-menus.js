@@ -1,10 +1,10 @@
 // ================= Menús =================
 import { IDIOMA, IDIOMAS, setIdioma, tr } from './00b-textos.js';
 import { $ } from './00-inicio.js';
-import { esc } from './01-utilidades.js';
+import { esc, fmtNum } from './01-utilidades.js';
 import { WEAPON_DEFS, roomList } from './01a-registro.js';
 import { SPR } from './02-pixel-art.js';
-import { BOSSES, CHARS, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
+import { BOSSES, CHARS, CIRC_MAX, CIRCLES, CUR_CHAR, D, DIFFS, ENEMY, FLOORS, RARITY, START_COST, UPG, W, WEAPONS, mkW, rollWeapon,
   setCUR_CHAR, starterW, weaponStats } from './03-datos-del-juego.js';
 import { SAVE, selChar, setSelChar, writeSave } from './04-guardado.js';
 import { AC, setAC } from './05-audio.js';
@@ -132,6 +132,15 @@ function renderMenu() {
     `<button class="${SAVE.diff === id ? 'sel' : ''}" type="button" data-d="${id}" aria-pressed="${SAVE.diff === id}">${esc(d.name)}</button>`).join('');
   $('diffDesc').textContent = (DIFFS[SAVE.diff] || DIFFS.normal).desc;
   $('diffCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { SAVE.diff = b.dataset.d; writeSave(); renderMenu(); }));
+  // Círculos del Abismo: cada victoria abre uno; las reglas se suman
+  { const top = SAVE.circ || 0, sel = Math.min(SAVE.circSel || 0, top);
+    $('circCards').hidden = !top;
+    $('circCards').innerHTML = Array.from({ length: top + 1 }, (_, i) =>
+      `<button class="${sel === i ? 'sel' : ''}" type="button" data-c="${i}" aria-pressed="${sel === i}">${i ? tr`Círculo ${i}` : tr('Sin círculo')}</button>`).join('');
+    $('circDesc').innerHTML = !top ? tr('Gana una partida para abrir el primer Círculo del Abismo: reglas más duras y más gemas.')
+      : !sel ? tr`Círculos abiertos: ${top} de ${CIRC_MAX}. Cada uno suma una regla y +25 % de gemas.`
+      : CIRCLES.slice(1, sel + 1).map((c, i) => `<b>${i + 1}.</b> ${esc(c.d)}`).join(' ') + tr` · Gemas ×${fmtNum(1 + .25 * sel)}`;
+    $('circCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { SAVE.circSel = +b.dataset.c; writeSave(); renderMenu(); })); }
   $('upgList').innerHTML = Object.entries(UPG).filter(([, u]) => !u.cls || u.cls === selChar).map(([id, u]) => {
     const lv = SAVE.upg[id] || 0, maxed = lv >= u.max, cost = u.cost[lv];
     return `<div class="upg${u.cls ? ' cls' : ''}"><div class="nm">${u.cls ? `<em>${esc(CHARS[u.cls].name)}</em> ` : ''}${esc(u.name)}<span>${esc(u.desc)}</span></div>
@@ -149,7 +158,7 @@ function renderMenu() {
   // resumen de lo elegido, siempre visible junto al botón de entrar
   const nUpg = Object.entries(UPG).filter(([, u]) => !u.cls || u.cls === selChar).reduce((a, [k]) => a + (SAVE.upg[k] || 0), 0);
   const sw = SAVE.startW && WEAPONS.find(w => w.id === SAVE.startW);
-  $('lobbySum').innerHTML = [`<b>${esc(CHARS[selChar].name)}</b>`, esc((DIFFS[SAVE.diff] || DIFFS.normal).name), SAVE.pet ? esc(PETS[SAVE.pet].n) : tr('sin compañero'),
+  $('lobbySum').innerHTML = [`<b>${esc(CHARS[selChar].name)}</b>`, esc((DIFFS[SAVE.diff] || DIFFS.normal).name) + (Math.min(SAVE.circSel || 0, SAVE.circ || 0) ? tr` · círculo ${Math.min(SAVE.circSel || 0, SAVE.circ || 0)}` : ''), SAVE.pet ? esc(PETS[SAVE.pet].n) : tr('sin compañero'),
     sw ? esc(sw.name) : '', nUpg ? (nUpg === 1 ? tr('1 mejora del altar') : tr`${nUpg} mejoras del altar`) : ''].filter(Boolean).join(' · ');
   setLobbyTab(lobbyTab);
 }
