@@ -1,4 +1,4 @@
-// ================= Iconos de las cartas de mejora (v0.59) =================
+// ================= Iconos de las cartas de mejora (v0.59, v0.61) =================
 // Cada reliquia, talento y pacto lleva un dibujo pixelado que dice de un vistazo qué hace.
 // Los dibujos usan 'a' (color de la mejora) y 'b' (brillo); el contorno oscuro se añade solo.
 const GLIFOS = {
@@ -24,6 +24,11 @@ const GLIFOS = {
   pluma:   ['.......aa', '.....aaba', '....aaba.', '...aaba..', '..aaba...', '..aba....', '.aaa.....', '.a.......', 'a........'],
   mira:    ['....a....', '..aaaaa..', '.a..a..a.', '.a.....a.', 'aaa.b.aaa', '.a.....a.', '.a..a..a.', '..aaaaa..', '....a....'],
   capa:    ['...aaa...', '..abbaa..', '..aaaaa..', '.aaaaaaa.', '.aaaaaaa.', 'aaaaaaaaa', 'aaaaaaaaa', 'aa.aaa.aa'],
+  moneda:  ['..aaaaa..', '.abaaaaa.', 'abaa.aaaa', 'aaaa.aaaa', 'aaaa.aaaa', 'aaaa.aaaa', '.aaaaaaa.', '..aaaaa..'],
+  cruz:    ['...aaa...', '...aba...', 'aaaabaaaa', 'abbbbbbba', 'aaaabaaaa', '...aba...', '...aba...', '...aba...', '...aaa...'],
+  trampa:  ['a.a.a.a.a', 'aaaaaaaaa', '.a.....a.', '.a..b..a.', '.a.....a.', 'aaaaaaaaa', 'a.a.a.a.a'],
+  buho:    ['a.......a', 'aa.....aa', 'aaaaaaaaa', 'a.b.a.b.a', 'aaaaaaaaa', '.aaaaaaa.', '.aaabaaa.', '..aaaaa..', '..a...a..'],
+  lobo:    ['a.......a', 'aa.....aa', 'aaa...aaa', 'aaaaaaaaa', 'aabaaabaa', 'aaaaaaaaa', '.aaaaaaa.', '..aaaaa..', '...aba...', '....a....'],
   llama:   ['....a....', '...aa....', '...aaa...', '..aaaa.a.', '.aaabaaaa', '.aabbbaaa', '.aabbbaa.', '..aaaaa..'],
 };
 // qué dibujo lleva cada mejora (reliquias, talentos y pactos)
@@ -36,14 +41,23 @@ const ICONO = {
   vigor: 'corazon', muro: 'escudo', furia: 'llama', egida: 'escudo', contra: 'espada', puas: 'espinas', embestida: 'escudo', aguante: 'escudo', sed: 'corazon',
   ojo2: 'ojo', rafaga: 'rayo', perfora: 'flecha', cazador: 'ojo', hielo: 'copo', rebote2: 'flecha', carcaj2: 'flecha', voltereta: 'flecha', frio: 'copo',
   verdugo: 'calavera', toxina: 'gota', frenesi: 'llama', sombra: 'humo', sangre: 'corazon', filo: 'espada', humo: 'humo', punales: 'espada', acecho: 'ojo',
+  // mejoras del altar (upg:), habilidades de clase (abil:), subclases (spec:) y compañeros (pet:) (v0.61)
+  'upg:hp': 'corazon', 'upg:coin': 'moneda', 'upg:en': 'rayo', 'upg:k_parry': 'escudo', 'upg:k_bash': 'puno',
+  'upg:a_focus': 'ojo', 'upg:a_gold': 'flecha', 'upg:r_back': 'espada', 'upg:r_veil': 'humo',
+  'abil:knight': 'escudo', 'abil:archer': 'flecha', 'abil:rogue': 'capa',
+  'spec:paladin': 'cruz', 'spec:berserker': 'llama', 'spec:guardian': 'escudo', 'spec:sniper': 'mira', 'spec:trapper': 'trampa',
+  'spec:ranger': 'flecha', 'spec:shade': 'bota', 'spec:poisoner': 'gota', 'spec:ghost': 'capa',
+  'pet:owl': 'buho', 'pet:wolf': 'lobo', 'pet:fairy': 'estrella',
   // pactos
   volatile: 'bomba', glass: 'escudo', fragile: 'corazon', frenzy: 'bota', dark: 'ojo', blood: 'gota', fasting: 'calavera', none: 'estrella',
 };
-const cache = {};
-// devuelve la imagen (data URL) del icono de una mejora, pintada con su color
-function iconURL(id, color) {
+const cache = {}, canv = {};
+// color propio de cada clase (iconos de habilidades y mejoras de clase)
+const CLS_COLOR = { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff' };
+// el icono de una mejora como lienzo (para dibujarlo dentro del juego)
+function iconCanvas(id, color) {
   const key = id + color;
-  if (cache[key]) return cache[key];
+  if (canv[key]) return canv[key];
   const G0 = GLIFOS[ICONO[id] || 'estrella'], h = G0.length, w = Math.max(...G0.map(r => r.length)), S = 1;
   const c = document.createElement('canvas'); c.width = (w + 2) * S; c.height = (h + 2) * S;
   const g = c.getContext('2d');
@@ -55,7 +69,14 @@ function iconURL(id, color) {
     const ch = G0[y][x]; if (ch === '.') continue;
     g.fillStyle = ch === 'b' ? '#fff8e8' : color; g.fillRect((x + 1) * S, (y + 1) * S, S, S);
   }
-  return (cache[key] = c.toDataURL());
+  return (canv[key] = c);
 }
+// devuelve la imagen (data URL) del icono de una mejora, pintada con su color
+function iconURL(id, color) {
+  const key = id + color;
+  return cache[key] || (cache[key] = iconCanvas(id, color).toDataURL());
+}
+// <img> de icono para los menús
+const iconImg = (id, color, cls = 'uico') => `<img class="${cls}" src="${iconURL(id, color)}" alt="">`;
 
-export { ICONO, iconURL };
+export { CLS_COLOR, ICONO, iconCanvas, iconImg, iconURL };

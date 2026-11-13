@@ -282,3 +282,12 @@ details.codex[open]{padding-bottom:12px}
 /* v0.51: aspectos en el detalle del personaje */
 .chips.skins button{display:inline-flex;align-items:center;gap:6px}
 .chips.skins img{width:18px;height:21px;image-rendering:pixelated}
+/* v0.61: iconos pixelados en el altar, la ficha del personaje, los compañeros y las listas de reliquias */
+.uico{width:40px;height:40px;flex:0 0 40px;image-rendering:pixelated;filter:drop-shadow(0 0 6px rgba(0,0,0,.6))}
+.rico{width:18px;height:18px;image-rendering:pixelated;vertical-align:-4px;margin-right:4px}
+.irow{display:flex;align-items:center;gap:10px}
+.specs{display:grid;gap:8px;margin-top:6px}
+.specs .irow{background:var(--stone);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:13px}
+.card.pet .uico{display:block;margin:0 auto 4px}
+.choice.spec{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}
+.choice.spec .key{align-self:flex-start}

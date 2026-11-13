@@ -39,7 +39,7 @@ function renderChoice() {
     // la subclase conserva su explicación (cambia tu forma de pelear); el resto es imagen + título + una línea
     if (kind === 'spec') {
       const extra = tr`<span class="abil">F · ${esc(R.abil)}: ${esc(R.abilDesc)}</span><span class="meta">Al subir de nivel (Nv1 a Nv5): ${esc(R.grow)}</span>`;
-      return `<button class="card choice" type="button" data-i="${i}" style="border-color:${R.c}"><span class="key">${i + 1}</span><b style="color:${R.c}">${esc(R.n)}</b><span class="meta">${esc(R.d)}</span>${extra}</button>`;
+      return `<button class="card choice spec" type="button" data-i="${i}" style="border-color:${R.c}"><span class="key">${i + 1}</span><img class="cico" src="${iconURL('spec:' + id, R.c)}" alt=""><b style="color:${R.c}">${esc(R.n)}</b><span class="meta">${esc(R.d)}</span>${extra}</button>`;
     }
     const n = kind === 'relic' ? G.player.relics.filter(x => x === id).length : 0;
     let tags = n ? tr`<span class="tag">Ya tienes ${n}</span>` : '', cls = '', glow = '';

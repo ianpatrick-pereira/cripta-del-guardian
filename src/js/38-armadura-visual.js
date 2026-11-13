@@ -23,6 +23,7 @@ import { dareText } from './28-desafios-dentro-del-piso.js';
 import { drawCheatForm, drawCheatRoom, gamEase, gamTick } from './30-sala-de-apuestas.js';
 import { dailyScore } from './31-reto-diario.js';
 import { update } from './33-bucle.js';
+import { iconCanvas } from './31b-iconos.js';
 import { QL, dpr, drawElemRooms, gfxLevel, perfEma, resize, setPerfEma, setQL, setSlowT, setZoom, slowT,
   zoom } from './34-dibujo.js';
 import { drawDecor, drawMotesFlat, drawMotesGlow, hexA, tickMotes } from './35-ambiente.js';
@@ -340,8 +341,11 @@ function drawRelicIcon(id, x, y, s = 1) {
   const R = RELICS[id]; if (!R) return;
   ctx.fillStyle = 'rgba(12,11,17,.85)'; ctx.fillRect(x - 9 * s, y - 9 * s, 18 * s, 18 * s);
   ctx.strokeStyle = R.c; ctx.lineWidth = 2; ctx.strokeRect(x - 9 * s, y - 9 * s, 18 * s, 18 * s);
-  ctx.fillStyle = R.c; ctx.font = `600 ${Math.round(11 * s)}px "Chakra Petch", ui-monospace, monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(R.n[0], x, y + 1);
+  // el mismo dibujo pixelado de la carta (v0.61), no la inicial
+  const ic = iconCanvas(id, R.c), k = Math.max(1, Math.floor(15 * s / Math.max(ic.width, ic.height) * 2) / 2), sm = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(ic, Math.round(x - ic.width * k / 2), Math.round(y - ic.height * k / 2), ic.width * k, ic.height * k);
+  ctx.imageSmoothingEnabled = sm;
 }
 function drawPickup(it) {
   const b = Math.sin((it.bob || 0) * 3) * 3;
