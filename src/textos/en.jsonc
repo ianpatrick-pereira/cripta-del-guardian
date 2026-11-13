@@ -1168,7 +1168,6 @@
   "Energía": "Energy",
   "Velocidad": "Speed",
   "<span class=\"gems\">🔒 Desbloquear · {0} gemas</span>": "<span class=\"gems\">🔒 Unlock · {0} gems</span>",
-  "<h3>{0}</h3>\n      <p><b class=\"abil\">F · {1}:</b> {2}</p>\n      <p>{3}</p>\n      <p class=\"meta\">Empieza con {4}. Armas afines (+30 %): {5}. Las de otra clase −30 %; bastones neutrales.</p>\n      <p class=\"meta\">Subclases: {6}. Se desbloquea tras {7} bajas y luego crece con cada enemigo que matas.</p>": "<h3>{0}</h3>\n      <p><b class=\"abil\">F · {1}:</b> {2}</p>\n      <p>{3}</p>\n      <p class=\"meta\">Starts with {4}. Affine weapons (+30 %): {5}. Other classes' weapons −30 %; staves are neutral.</p>\n      <p class=\"meta\">Subclasses: {6}. Unlocks after {7} kills and then grows with every enemy you kill.</p>",
   "<div title=\"{0}\">{1}<b>{2}</b><span>Derrotados: {3}</span></div>": "<div title=\"{0}\">{1}<b>{2}</b><span>Defeated: {3}</span></div>",
   "sin compañero": "no companion",
   "1 mejora del altar": "1 altar upgrade",
@@ -1270,5 +1269,8 @@
   "Los golpes por la espalda hacen +50 % de daño.": "Hits from behind deal +50 % damage.",
   "Brazalete del duelista": "Duelist's Bracelet",
   "El combo suma +2 % más por golpe y dura un 50 % más.": "Combo adds +2 % more per hit and lasts 50 % longer.",
-  "<span class=\"tag\">★ De tu clase</span>": "<span class=\"tag\">★ Your class</span>"
+  "<span class=\"tag\">★ De tu clase</span>": "<span class=\"tag\">★ Your class</span>",
+
+  // v0.61 iconos
+  "<h3>{0}</h3>\n      <p class=\"irow\">{1}<span><b class=\"abil\">F · {2}:</b> {3}</span></p>\n      <p>{4}</p>\n      <p class=\"meta\">Empieza con {5}. Armas afines (+30 %): {6}. Las de otra clase −30 %; bastones neutrales.</p>\n      <p class=\"meta\" style=\"margin-top:10px\"><b>Subclases</b> · se elige una tras {7} bajas y luego crece con cada enemigo que matas</p>": "<h3>{0}</h3>\n      <p class=\"irow\">{1}<span><b class=\"abil\">F · {2}:</b> {3}</span></p>\n      <p>{4}</p>\n      <p class=\"meta\">Starts with {5}. Affine weapons (+30 %): {6}. Other classes' weapons −30 %; staves are neutral.</p>\n      <p class=\"meta\" style=\"margin-top:10px\"><b>Subclasses</b> · pick one after {7} kills; it then grows with every enemy you kill</p>"
 }

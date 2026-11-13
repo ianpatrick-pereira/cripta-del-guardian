@@ -27,6 +27,7 @@ import { updateElemPowers } from './23b-poderes-elementales.js';
 import { updateClass } from './26-clases.js';
 import { dailyScore } from './31-reto-diario.js';
 import { saveHistory } from './38b-historial.js';
+import { iconImg } from './31b-iconos.js';
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -69,7 +70,7 @@ function showEnd() {
 }
 function relicChips(list) {
   const counts = {}; list.forEach(id => counts[id] = (counts[id] || 0) + 1);
-  return Object.entries(counts).map(([id, n]) => `<span style="color:${RELICS[id].c}">${esc(RELICS[id].n)}${n > 1 ? ' ×' + n : ''}</span>`).join('') || tr('<span>Sin reliquias</span>');
+  return Object.entries(counts).map(([id, n]) => `<span style="color:${RELICS[id].c}">${iconImg(id, RELICS[id].c, 'rico')}${esc(RELICS[id].n)}${n > 1 ? ' ×' + n : ''}</span>`).join('') || tr('<span>Sin reliquias</span>');
 }
 
 function update(dt) {

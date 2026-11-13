@@ -31,6 +31,9 @@ import { relicChips, update } from './33-bucle.js';
 import { GFX_NAME, QL, QL0, resize, setQL, setSlowT, slowT } from './34-dibujo.js';
 import { render } from './38-armadura-visual.js';
 import { renderHistory } from './38b-historial.js';
+import { CLS_COLOR, iconImg } from './31b-iconos.js';
+// color del icono de las mejoras generales del altar
+const UPG_COLOR = { hp: '#d4474b', coin: '#f0c040', en: '#5aa4e8' };
 // dibujo de un sprite como imagen (para el menú): se escala sin suavizar y se guarda
 const SPR_URL = {};
 function sprURL(key, scale = 4) {
@@ -57,15 +60,16 @@ function renderMenu() {
       <span class="por"><img src="${sprURL(c.spr + (skinOf(id) ? '_S' + skinOf(id) : ''), 6)}" alt=""></span>
       <span class="ci"><b>${esc(c.name)}</b><span class="abil">${esc(c.role)}</span>
       <span class="sbars">${statBar(tr('Vida'), c.hp + SAVE.upg.hp, (c.hp + SAVE.upg.hp) / 10)}${statBar(tr('Escudo'), c.sh, c.sh / 5)}${statBar(tr('Energía'), c.en + SAVE.upg.en * 15, (c.en + SAVE.upg.en * 15) / 180)}${statBar(tr('Velocidad'), c.speed, (c.speed - 140) / 80)}</span>
-      ${own ? `<span class="meta">F · ${esc(c.abil)}</span>` : tr`<span class="gems">🔒 Desbloquear · ${c.cost} gemas</span>`}</span>
+      ${own ? `<span class="meta">${iconImg('abil:' + id, CLS_COLOR[id], 'rico')}F · ${esc(c.abil)}</span>` : tr`<span class="gems">🔒 Desbloquear · ${c.cost} gemas</span>`}</span>
     </button>`;
   }).join('');
   { const c = CHARS[selChar];
     $('charDetail').innerHTML = tr`<h3>${esc(c.name)}</h3>
-      <p><b class="abil">F · ${esc(c.abil)}:</b> ${esc(c.abilDesc)}</p>
+      <p class="irow">${iconImg('abil:' + selChar, CLS_COLOR[selChar])}<span><b class="abil">F · ${esc(c.abil)}:</b> ${esc(c.abilDesc)}</span></p>
       <p>${esc(c.mech)}</p>
       <p class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}. Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %; bastones neutrales.</p>
-      <p class="meta">Subclases: ${Object.values(SPECS).filter(S => S.cls === selChar).map(S => `${S.n} (${S.d.replace('.', '').toLowerCase()})`).join(', ')}. Se desbloquea tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas.</p>`;
+      <p class="meta" style="margin-top:10px"><b>Subclases</b> · se elige una tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas</p>` +
+      `<div class="specs">${Object.entries(SPECS).filter(([, S]) => S.cls === selChar).map(([k, S]) => `<div class="irow">${iconImg('spec:' + k, S.c)}<span><b style="color:${S.c}">${esc(S.n)}</b> · ${esc(S.d)}<br><span class="meta">F · ${esc(S.abil)}</span></span></div>`).join('')}</div>`;
     // aspectos: se compran una vez con gemas y se eligen aquí (solo cambian colores)
     if (SAVE.chars[selChar]) {
       const cur = skinOf(selChar), own = k => !!(SAVE.skins && SAVE.skins[selChar + ':' + k]);
@@ -92,7 +96,7 @@ function renderMenu() {
   // compañeros
   $('petCards').innerHTML = /** @type {[string, any][]} */ ([['', { n: tr('Ninguno'), d: tr('Vas solo.'), c: '#9d95ab', cost: 0 }], ...Object.entries(PETS)]).map(([id, P]) => {
     const own = !id || SAVE.pets[id];
-    return `<button class="card${SAVE.pet === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-p="${id}"><b style="color:${P.c}">${esc(P.n)}</b><span class="meta">${esc(P.d)}</span>${own ? (id ? tr('<span class="gems">Listo para la próxima partida</span>') : '') : tr`<span class="gems">Llevar · ${P.cost} gemas</span>`}</button>`;
+    return `<button class="card pet${SAVE.pet === id ? ' sel' : ''}${own ? '' : ' locked'}" type="button" data-p="${id}">${id ? iconImg('pet:' + id, P.c) : ''}<b style="color:${P.c}">${esc(P.n)}</b><span class="meta">${esc(P.d)}</span>${own ? (id ? tr('<span class="gems">Listo para la próxima partida</span>') : '') : tr`<span class="gems">Llevar · ${P.cost} gemas</span>`}</button>`;
   }).join('');
   $('petCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     const id = b.dataset.p;
@@ -155,7 +159,7 @@ function renderMenu() {
     $('circCards').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { SAVE.circSel = +b.dataset.c; writeSave(); renderMenu(); })); }
   $('upgList').innerHTML = Object.entries(UPG).filter(([, u]) => !u.cls || u.cls === selChar).map(([id, u]) => {
     const lv = SAVE.upg[id] || 0, maxed = lv >= u.max, cost = u.cost[lv];
-    return `<div class="upg${u.cls ? ' cls' : ''}"><div class="nm">${u.cls ? `<em>${esc(CHARS[u.cls].name)}</em> ` : ''}${esc(u.name)}<span>${esc(u.desc)}</span></div>
+    return `<div class="upg${u.cls ? ' cls' : ''}">${iconImg('upg:' + id, u.cls ? CLS_COLOR[u.cls] : UPG_COLOR[id] || '#ece4cf')}<div class="nm">${u.cls ? `<em>${esc(CHARS[u.cls].name)}</em> ` : ''}${esc(u.name)}<span>${esc(u.desc)}</span></div>
       <div class="dots">${Array.from({ length: u.max }, (_, i) => `<i class="${i < lv ? 'on' : ''}"></i>`).join('')}</div>
       <button class="small" type="button" data-u="${id}" ${maxed || SAVE.gems < cost ? 'disabled' : ''}>${maxed ? tr('Máximo') : (cost === 1 ? tr`Mejorar · ${cost} gema` : tr`Mejorar · ${cost} gemas`)}</button></div>`;
   }).join('');
