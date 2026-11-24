@@ -33,7 +33,10 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   const sp = SPR[key]; if (!sp) return;
   const w = sp.wd * s * sp.k * (o.sx || 1), h = sp.ht * s * sp.k * (o.sy || 1);
   ctx.save();
-  ctx.imageSmoothingEnabled = false;
+  // un dibujo con mucho detalle que en pantalla queda más chico que sus píxeles se achica suave (si no, se pierden líneas)
+  const pant = Math.abs(ctx.getTransform().a) * s * sp.k;
+  ctx.imageSmoothingEnabled = pant < .95;
+  if (pant < .95) ctx.imageSmoothingQuality = 'high';
   if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
   ctx.translate(Math.round(x), Math.round(y));
   if (o.flip) ctx.scale(-1, 1);
