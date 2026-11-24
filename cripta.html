@@ -7082,6 +7082,7 @@ function update(dt) {
 
 
 let dpr = 1, zoom = 1;
+const CERCA = 1.5;
 // calidad gráfica: 2 alta (pantallas retina a resolución completa), 1 media, 0 baja (se dibuja a 3/4 y el navegador lo estira).
 // En «auto» empieza en alta (en media si la pantalla es táctil: los celulares tienen muchos píxeles y poca
 // potencia) y baja un nivel si el juego va lento varios segundos seguidos.
@@ -7094,8 +7095,9 @@ function resize() {
   dpr = Math.min(GFX_DPR[gfxLevel()], window.devicePixelRatio || 1);
   cv.width = Math.max(1, Math.round(r.width * dpr));
   cv.height = Math.max(1, Math.round(r.height * dpr));
-  // en un celular (pantalla chica) la cámara se aleja un poco más para ver más de la sala
-  zoom = clamp(Math.min(r.width / 720, r.height / 470) * (Math.min(r.width, r.height) < 500 ? .82 : 1), .42, 2.4);
+  // en un celular (pantalla chica) la cámara se aleja un poco más para ver más de la sala.
+  // v0.63: CERCA acerca la cámara para que se luzcan los dibujos HD (1 = como antes; más = personajes más grandes)
+  zoom = clamp(Math.min(r.width / 720, r.height / 470) * (Math.min(r.width, r.height) < 500 ? .82 : 1), .42, 2.4) * CERCA;
 }
 new ResizeObserver(resize).observe(frame);
 resize();
