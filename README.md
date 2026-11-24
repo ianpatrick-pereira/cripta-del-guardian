@@ -86,7 +86,7 @@ Los personajes, los enemigos y los objetos (cofres, cajas, barriles, poción) so
 
 ### Hojas de animación (desde v0.62)
 
-Un personaje puede tener una **hoja**: un solo PNG con varios cuadros del mismo tamaño puestos en filas. El caballero (`knight.png`) y el esqueleto (`skel.png`) son hojas de 4×3 en pixel art HD (`detalle` 4): fila 0 reposo, fila 1 caminar, fila 2 herido + 3 de muerte. Se describe en `src/sprites/animaciones.jsonc`:
+Un personaje puede tener una **hoja**: un solo PNG con varios cuadros del mismo tamaño puestos en filas. El caballero (`knight.png`), el esqueleto (`skel.png`) y el murciélago (`bat.png`) son hojas de 4×3 en pixel art HD (`detalle` 4): fila 0 reposo, fila 1 caminar, fila 2 herido + 3 de muerte. Se describe en `src/sprites/animaciones.jsonc`:
 
 - `cuadro`: ancho y alto de cada cuadro (máximo 96×96).
 - `detalle`: cuántos píxeles del dibujo caben en un píxel normal del juego. Con `2` el dibujo tiene el doble de píxeles y se pinta a la mitad: ocupa lo mismo que antes, pero se ve más fino.
