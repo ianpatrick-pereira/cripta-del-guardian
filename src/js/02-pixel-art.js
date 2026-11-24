@@ -4,8 +4,14 @@ import { SPRITES } from '../sprites/index.js';
 // Los dibujos viven como imágenes en src/sprites/<clave>.png (una por personaje, enemigo u objeto).
 // build.js las convierte en SPRITES: { clave: [filas de letras, { letra: color }] }, con '.' = transparente.
 // Para cambiar un dibujo, edita su PNG (Aseprite, Piskel, Paint...); para uno nuevo, añade otro PNG.
-const MAPS = {}, SPR_DEFS = {};
-for (const [clave, [filas, paleta]] of Object.entries(SPRITES)) { MAPS[clave] = filas; SPR_DEFS[clave] = [clave, paleta]; }
+// Hojas de animación (v0.62, src/sprites/animaciones.jsonc): ANIM[clave] = { reposo: { cuadros, fps }, caminar, herido, muerte }
+// y DET[clave] = detalle (2 = el dibujo tiene el doble de píxeles y se pinta a la mitad: mismo tamaño, más fino).
+const MAPS = {}, SPR_DEFS = {}, ANIM = {}, DET = {};
+for (const [clave, [filas, paleta, extra]] of Object.entries(SPRITES)) {
+  MAPS[clave] = filas; SPR_DEFS[clave] = [clave, paleta];
+  if (extra && extra.detalle) DET[clave] = extra.detalle;
+  if (extra && extra.anim) ANIM[clave] = extra.anim;
+}
 const SPR = {};
 function buildSprites() {
   for (const [key, [mapName, pal]] of Object.entries(SPR_DEFS)) {
@@ -19,13 +25,13 @@ function buildSprites() {
       }
       return c;
     };
-    SPR[key] = { n: mk(false), w: mk(true), wd: w, ht: h };
+    SPR[key] = { n: mk(false), w: mk(true), wd: w, ht: h, k: 1 / (DET[mapName] || 1) };
   }
 }
 buildSprites();
 function drawSpr(key, x, y, s = 2, o = {}) {
   const sp = SPR[key]; if (!sp) return;
-  const w = sp.wd * s * (o.sx || 1), h = sp.ht * s * (o.sy || 1);
+  const w = sp.wd * s * sp.k * (o.sx || 1), h = sp.ht * s * sp.k * (o.sy || 1);
   ctx.save();
   ctx.imageSmoothingEnabled = false;
   if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
@@ -41,7 +47,7 @@ function drawSpr(key, x, y, s = 2, o = {}) {
 const LEGS = {};
 function hasLegs(key) {
   if (key in LEGS) return LEGS[key];
-  const sp = SPR[key]; if (!sp || sp.ht < 8) return (LEGS[key] = false);
+  const sp = SPR[key]; if (!sp || sp.ht < 8 || sp.k !== 1) return (LEGS[key] = false);   // las hojas traen sus propios cuadros
   const d = sp.n.getContext('2d').getImageData(0, sp.ht - 1, sp.wd, 1).data, a = i => d[i * 4 + 3] > 0, m = sp.wd >> 1;
   let L = false, R = false; for (let i = 0; i < m - 1; i++) L = L || a(i); for (let i = m + 1; i < sp.wd; i++) R = R || a(i);
   return (LEGS[key] = L && R && !a(m - 1) && !a(m));
@@ -57,10 +63,16 @@ function walkKey(key, f) {
     g.drawImage(src, x0, sp.ht - 2, w, 2, x0, sp.ht - 3, w, 2);   // la pierna sube un píxel
     return c;
   };
-  SPR[k] = { n: mk(sp.n), w: mk(sp.w), wd: sp.wd, ht: sp.ht };
+  SPR[k] = { n: mk(sp.n), w: mk(sp.w), wd: sp.wd, ht: sp.ht, k: 1 };
   return k;
 }
 // cuadro de caminar según una fase que avanza al moverse (0 = quieto)
 const walkFrame = (fase, moving) => !moving ? 0 : Math.sin(fase) > .35 ? 1 : Math.sin(fase) < -.35 ? 2 : 0;
+// cuadro de una animación de la hoja: t en segundos (o fase), «una vez» se queda en el último cuadro
+function animKey(clave, nombre, t, unaVez = false) {
+  const a = ANIM[clave] && ANIM[clave][nombre]; if (!a) return null;
+  const n = a.cuadros.length, i = Math.floor(t * a.fps);
+  return a.cuadros[unaVez ? Math.min(n - 1, Math.max(0, i)) : ((i % n) + n) % n];
+}
 
-export { MAPS, SPR, SPR_DEFS, drawSpr, walkFrame, walkKey };
+export { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, walkFrame, walkKey };

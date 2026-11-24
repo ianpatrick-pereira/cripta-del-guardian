@@ -171,29 +171,71 @@ function textos() {
 
 // ---------- dibujos (src/sprites/<clave>.png) ----------
 // Cada PNG se convierte en filas de letras + paleta, el formato con el que el juego pinta sus píxeles.
+// Hojas de animación (v0.62): si src/sprites/animaciones.jsonc nombra un PNG, ese PNG es una hoja con varios
+// cuadros del mismo tamaño en filas (reposo, caminar...). El build la corta: el primer cuadro de «reposo» queda
+// con el nombre del PNG (lo que usan los menús) y cada cuadro con «clave~animación~número».
 const { leerPng } = require('./herramientas/png.js');
 const LETRAS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const ANIMS_OK = ['reposo', 'caminar', 'herido', 'muerte'];
+function leerAnimaciones() {
+  const f = path.join(sprDir, 'animaciones.jsonc');
+  if (!fs.existsSync(f)) return {};
+  const t = sinComentarios(fs.readFileSync(f, 'utf8'));
+  try { return JSON.parse(t); }
+  catch (e) { throw new Error(`src/sprites/animaciones.jsonc: ${e.message}. Revisa comas, comillas y llaves.`); }
+}
+// un rectángulo del PNG -> [filas de letras, { letra: color }]
+function aLetras(nombre, ancho, rgba, x0, y0, w, h) {
+  const color = new Map(), filas = [];
+  for (let y = y0; y < y0 + h; y++) {
+    let fila = '';
+    for (let x = x0; x < x0 + w; x++) {
+      const i = (y * ancho + x) * 4, a = rgba[i + 3];
+      if (!a) { fila += '.'; continue; }
+      const hex = '#' + [rgba[i], rgba[i + 1], rgba[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
+      const c = a === 255 ? hex : `rgba(${rgba[i]},${rgba[i + 1]},${rgba[i + 2]},${+(a / 255).toFixed(3)})`;
+      if (!color.has(c)) { if (color.size >= LETRAS.length) throw new Error(`${nombre}: usa más de ${LETRAS.length} colores`); color.set(c, LETRAS[color.size]); }
+      fila += color.get(c);
+    }
+    filas.push(fila);
+  }
+  return [filas, Object.fromEntries([...color].map(([c, l]) => [l, c]))];
+}
 function sprites() {
-  const out = {};
+  const out = {}, ANIM = leerAnimaciones();
   for (const f of fs.readdirSync(sprDir).filter(f => f.endsWith('.png')).sort()) {
     const clave = f.slice(0, -4), nombre = `src/sprites/${f}`;
     if (!/^[a-z][a-z0-9_]*$/.test(clave)) throw new Error(`${nombre}: el nombre tiene que ir en minúsculas, sin espacios ni acentos (es el id que usa el juego)`);
     const { ancho, alto, rgba } = leerPng(fs.readFileSync(path.join(sprDir, f)), nombre);
-    if (ancho > 64 || alto > 64) throw new Error(`${nombre}: mide ${ancho}×${alto}; el máximo es 64×64 (el juego lo agranda al dibujarlo)`);
-    const color = new Map(), filas = [];
-    for (let y = 0; y < alto; y++) {
-      let fila = '';
-      for (let x = 0; x < ancho; x++) {
-        const i = (y * ancho + x) * 4, a = rgba[i + 3];
-        if (!a) { fila += '.'; continue; }
-        const hex = '#' + [rgba[i], rgba[i + 1], rgba[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('');
-        const c = a === 255 ? hex : `rgba(${rgba[i]},${rgba[i + 1]},${rgba[i + 2]},${+(a / 255).toFixed(3)})`;
-        if (!color.has(c)) { if (color.size >= LETRAS.length) throw new Error(`${nombre}: usa más de ${LETRAS.length} colores`); color.set(c, LETRAS[color.size]); }
-        fila += color.get(c);
-      }
-      filas.push(fila);
+    const A = ANIM[clave];
+    if (!A) {
+      if (ancho > 64 || alto > 64) throw new Error(`${nombre}: mide ${ancho}×${alto}; el máximo es 64×64 (el juego lo agranda al dibujarlo). Si es una hoja de animación, descríbela en src/sprites/animaciones.jsonc`);
+      out[clave] = aLetras(nombre, ancho, rgba, 0, 0, ancho, alto);
+      continue;
     }
-    out[clave] = [filas, Object.fromEntries([...color].map(([c, l]) => [l, c]))];
+    const donde = `src/sprites/animaciones.jsonc ("${clave}")`;
+    const [cw, ch] = A.cuadro || [], det = A.detalle || 1;
+    if (!(cw > 0 && ch > 0)) throw new Error(`${donde}: falta "cuadro": [ancho, alto] de cada cuadro`);
+    if (cw > 64 || ch > 64) throw new Error(`${donde}: cada cuadro puede medir como mucho 64×64 (es ${cw}×${ch})`);
+    if (ancho % cw || alto % ch) throw new Error(`${nombre}: mide ${ancho}×${alto}, que no se divide en cuadros de ${cw}×${ch}`);
+    if (![1, 2, 3, 4].includes(det)) throw new Error(`${donde}: "detalle" tiene que ser 1, 2, 3 o 4`);
+    if (!A.reposo) throw new Error(`${donde}: falta la animación "reposo" (su primer cuadro es el dibujo de los menús)`);
+    const anim = {};
+    for (const [nom, a] of Object.entries(A)) {
+      if (nom === 'cuadro' || nom === 'detalle') continue;
+      if (!ANIMS_OK.includes(nom)) throw new Error(`${donde}: "${nom}" no es una animación que el juego conozca (${ANIMS_OK.join(', ')})`);
+      const fila = a.fila, desde = a.desde || 0, n = a.cuadros || 1;
+      if (!Number.isInteger(fila) || fila < 0 || (fila + 1) * ch > alto) throw new Error(`${donde}: "${nom}.fila" tiene que estar entre 0 y ${alto / ch - 1}`);
+      if (desde < 0 || (desde + n) * cw > ancho) throw new Error(`${donde}: "${nom}" pide cuadros ${desde}-${desde + n - 1}, pero la fila solo tiene ${ancho / cw}`);
+      const cuadros = [];
+      for (let k = 0; k < n; k++) {
+        const key = `${clave}~${nom}~${k}`;
+        out[key] = [...aLetras(nombre, ancho, rgba, (desde + k) * cw, fila * ch, cw, ch), { detalle: det }];
+        cuadros.push(key);
+      }
+      anim[nom] = { cuadros, fps: a.fps || 6 };
+    }
+    out[clave] = [out[anim.reposo.cuadros[0]][0], out[anim.reposo.cuadros[0]][1], { detalle: det, anim }];
   }
   return out;
 }

@@ -39,6 +39,7 @@ const SPR_URL = {};
 function sprURL(key, scale = 4) {
   const k = key + '@' + scale; if (SPR_URL[k]) return SPR_URL[k];
   const sp = SPR[key]; if (!sp) return '';
+  scale = Math.max(1, Math.round(scale * sp.k));   // un dibujo con más detalle (hoja de animación) se agranda menos
   const c = document.createElement('canvas'); c.width = sp.wd * scale; c.height = sp.ht * scale;
   const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(sp.n, 0, 0, c.width, c.height);
   try { return SPR_URL[k] = c.toDataURL(); } catch (_) { return ''; }
