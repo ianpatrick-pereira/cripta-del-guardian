@@ -7,10 +7,10 @@
 //            0 si no se pone), cuántos cuadros y a cuántos cuadros por segundo (fps).
 //            «caminar» va al ritmo de los pasos (fps no se usa). «muerte» se reproduce una vez y se queda quieta.
 {
-  // Caballero dibujado por IA (v0.62). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
+  // Caballero dibujado por IA (v0.62; v0.63 a resolución completa: 64×64 y detalle 4). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
   "knight": {
-    "cuadro": [34, 34],
-    "detalle": 2,
+    "cuadro": [64, 64],
+    "detalle": 4,
     "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
     "caminar": { "fila": 1, "cuadros": 4 },
     "herido":  { "fila": 2, "cuadros": 1 },
