@@ -78,4 +78,12 @@ function animKey(clave, nombre, t, unaVez = false) {
   return a.cuadros[unaVez ? Math.min(n - 1, Math.max(0, i)) : ((i % n) + n) % n];
 }
 
-export { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, walkFrame, walkKey };
+// cuadro de un enemigo o subjefe con hoja: herido (justo tras un golpe) > caminar > reposo
+function mobKey(spr, t, moving, hurt) {
+  const A = ANIM[spr]; if (!A) return null;
+  if (hurt && A.herido) return A.herido.cuadros[0];
+  if (moving && A.caminar) return animKey(spr, 'caminar', t);
+  return animKey(spr, 'reposo', t);
+}
+
+export { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, mobKey, walkFrame, walkKey };

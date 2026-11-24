@@ -1,10 +1,11 @@
 // Hojas de animación: un PNG con varios cuadros del mismo tamaño puestos en filas.
 // El build corta la hoja en cuadros; el juego elige el cuadro según lo que hace el personaje.
-//   cuadro:  ancho y alto de cada cuadro, en píxeles (máximo 64×64)
+//   cuadro:  ancho y alto de cada cuadro, en píxeles (máximo 96×96)
 //   detalle: píxeles del dibujo por cada píxel normal del juego. Con 2 el dibujo tiene el doble de píxeles
 //            y se pinta a la mitad: ocupa lo mismo que antes, pero se ve más fino.
 //   reposo, caminar, herido, muerte: en qué fila están (la primera es la 0), desde qué columna («desde»,
 //            0 si no se pone), cuántos cuadros y a cuántos cuadros por segundo (fps).
+//   cuadro puede medir hasta 96×96 (para que quepan los cuadros de muerte, que van tendidos).
 //            «caminar» va al ritmo de los pasos (fps no se usa). «muerte» se reproduce una vez y se queda quieta.
 {
   // Caballero dibujado por IA (v0.62; v0.63 a resolución completa: 64×64 y detalle 4). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
@@ -15,5 +16,15 @@
     "caminar": { "fila": 1, "cuadros": 4 },
     "herido":  { "fila": 2, "cuadros": 1 },
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
+  // Esqueleto (v0.64, IA con fondo magenta): arquero del piso 1, Capitán Hueso, esqueletos invocados.
+  // Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte (se deshace en huesos).
+  "skel": {
+    "cuadro": [76, 66],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 8 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 5 }
   }
 }

@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
-import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, walkFrame, walkKey } from './02-pixel-art.js';
+import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, mobKey, walkFrame, walkKey } from './02-pixel-art.js';
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { musicTick } from './05-audio.js';
@@ -311,7 +311,8 @@ function drawSub(e) {
   if (sd.forma) { const f = { sx, sy }; sd.forma(e, f); sx = f.sx; sy = f.sy; }
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
   if (e.hitT > 0) { const k = e.hitT / .14; sx *= 1 + .14 * k; sy *= 1 - .12 * k; }
-  drawSpr(e.spr, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
+  const sk = mobKey(e.spr, e.t || G.time, Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk', e.hitT > -.06) || e.spr;
+  drawSpr(sk, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
   if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
   // corona: distingue al subjefe
@@ -329,8 +330,9 @@ function drawEnemy(e) {
   // cada enemigo ajusta su forma y dibuja sus detalles en su archivo de 01b-enemigos/
   const ed = ENEMIES[e.type] || /** @type {any} */ ({}), f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
   if (ed.forma) ed.forma(e, f);
-  // respira en reposo y se aplasta al recibir un golpe
-  f.sy *= 1 + .035 * Math.sin(e.t * 5);
+  // respira en reposo y se aplasta al recibir un golpe (con hoja de animación respira el propio dibujo)
+  const hoja = !!ANIM[e.spr];
+  if (!hoja) f.sy *= 1 + .035 * Math.sin(e.t * 5);
   if (e.hitT > 0) { const k = e.hitT / .14; f.sx *= 1 + .22 * k; f.sy *= 1 - .18 * k; }
   if (ed.debajo) ed.debajo(e, la);
   if (e.shield > 0) { ctx.strokeStyle = `rgba(155,216,255,${.5 + .2 * Math.sin(G.time * 8)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 6, 0, TAU); ctx.stroke(); }
@@ -346,7 +348,9 @@ function drawEnemy(e) {
   }
   if (e.el) { ctx.fillStyle = ELEMS[e.el].c + '44'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 7, 0, TAU); ctx.fill(); }
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
-  const ek = walkKey(e.spr, walkFrame(e.t * 9 + e.wob, e.st === 'walk' && e.speed > 0 && !(e.stagT > 0)));   // los que tienen piernas caminan
+  const anda = e.st === 'walk' && e.speed > 0 && !(e.stagT > 0);
+  const ek = hoja ? mobKey(e.spr, e.t + (e.wob || 0), anda, e.hitT > -.06)   // hoja: reposo, caminar o herido
+    : walkKey(e.spr, walkFrame(e.t * 9 + e.wob, anda));   // los que tienen piernas caminan
   drawSpr(ek, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
   if (ed.encima) ed.encima(e, la, white);
   if (e.hp < e.max) {
@@ -742,6 +746,10 @@ function render0() {
     for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(T.x, T.y - i * 10, 12 + i * 7, 5 + i * 2, 0, G.time * 9 + i, G.time * 9 + i + 4); ctx.stroke(); }
   }
   for (const pt of G.parts) {
+    if (pt.muerte) {   // enemigo con hoja de animación: cae con sus propios cuadros y se desvanece al final
+      drawSpr(animKey(pt.spr, 'muerte', pt.max - pt.life, true), pt.x, pt.y, pt.s, { flip: pt.flip, alpha: Math.min(1, pt.life / .3) });
+      continue;
+    }
     if (pt.spr) {   // cuerpo de un enemigo que muere: blanco, se aplasta y se ensancha
       const k = 1 - pt.life / pt.max;
       drawSpr(pt.spr, pt.x, pt.y + k * 6, pt.s, { flip: pt.flip, white: true, sx: 1 + k * .6, sy: Math.max(.05, 1 - k), alpha: Math.max(0, 1 - k * .7) });

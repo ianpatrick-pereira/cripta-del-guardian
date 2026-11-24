@@ -216,7 +216,7 @@ function sprites() {
     const donde = `src/sprites/animaciones.jsonc ("${clave}")`;
     const [cw, ch] = A.cuadro || [], det = A.detalle || 1;
     if (!(cw > 0 && ch > 0)) throw new Error(`${donde}: falta "cuadro": [ancho, alto] de cada cuadro`);
-    if (cw > 64 || ch > 64) throw new Error(`${donde}: cada cuadro puede medir como mucho 64×64 (es ${cw}×${ch})`);
+    if (cw > 96 || ch > 96) throw new Error(`${donde}: cada cuadro puede medir como mucho 96×96 (es ${cw}×${ch})`);
     if (ancho % cw || alto % ch) throw new Error(`${nombre}: mide ${ancho}×${alto}, que no se divide en cuadros de ${cw}×${ch}`);
     if (![1, 2, 3, 4].includes(det)) throw new Error(`${donde}: "detalle" tiene que ser 1, 2, 3 o 4`);
     if (!A.reposo) throw new Error(`${donde}: falta la animación "reposo" (su primer cuadro es el dibujo de los menús)`);

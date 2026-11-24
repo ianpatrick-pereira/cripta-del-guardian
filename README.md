@@ -86,13 +86,13 @@ Los personajes, los enemigos y los objetos (cofres, cajas, barriles, poción) so
 
 ### Hojas de animación (desde v0.62)
 
-Un personaje puede tener una **hoja**: un solo PNG con varios cuadros del mismo tamaño puestos en filas. El caballero (`knight.png`) es una hoja de 4×3 cuadros de 64×64 (pixel art HD, `detalle` 4): fila 0 reposo, fila 1 caminar, fila 2 herido + 3 de muerte. Se describe en `src/sprites/animaciones.jsonc`:
+Un personaje puede tener una **hoja**: un solo PNG con varios cuadros del mismo tamaño puestos en filas. El caballero (`knight.png`) y el esqueleto (`skel.png`) son hojas de 4×3 en pixel art HD (`detalle` 4): fila 0 reposo, fila 1 caminar, fila 2 herido + 3 de muerte. Se describe en `src/sprites/animaciones.jsonc`:
 
-- `cuadro`: ancho y alto de cada cuadro (máximo 64×64).
+- `cuadro`: ancho y alto de cada cuadro (máximo 96×96).
 - `detalle`: cuántos píxeles del dibujo caben en un píxel normal del juego. Con `2` el dibujo tiene el doble de píxeles y se pinta a la mitad: ocupa lo mismo que antes, pero se ve más fino.
 - `reposo`, `caminar`, `herido`, `muerte`: fila, desde qué columna, cuántos cuadros y a qué velocidad (fps). El primer cuadro de `reposo` es el que se ve en los menús.
 
-El juego elige el cuadro solo: muerte (al perder), herido (justo tras un golpe), caminar (al moverse, al ritmo de los pasos) o reposo. El arma la sigue dibujando el juego encima, apuntando hacia donde miras, así que el personaje se dibuja con la mano vacía. Las armaduras y los aspectos tiñen todos los cuadros (los colores que se tiñen están en `ARMOR_PARTS` y `SKIN_PARTS` de `38-armadura-visual.js`).
+Los enemigos y subjefes con hoja también la usan (reposo, caminar, herido y, al morir, caen con sus cuadros de muerte). El jugador elige el cuadro solo: muerte (al perder), herido (justo tras un golpe), caminar (al moverse, al ritmo de los pasos) o reposo. El arma la sigue dibujando el juego encima, apuntando hacia donde miras, así que el personaje se dibuja con la mano vacía. Las armaduras y los aspectos tiñen todos los cuadros (los colores que se tiñen están en `ARMOR_PARTS` y `SKIN_PARTS` de `38-armadura-visual.js`).
 
 - El build convierte cada PNG en filas de píxeles y una paleta (`herramientas/png.js` los lee, sin dependencias), así que el juego sigue siendo un solo `cripta.html`.
 - La armadura tiñe dos colores de cada clase (por ejemplo, el gris de la cota del caballero). Están en `ARMOR_PARTS`, en `38-armadura-visual.js`: si cambias esos colores en el PNG, cámbialos también ahí.

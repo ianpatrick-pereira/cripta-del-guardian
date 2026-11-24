@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, rand, randi } from './01-utilidades.js';
 import { ENEMIES } from './01a-registro.js';
 import { mirrorDefeated } from './01d-salas/mirror.js';
-import { SPR_DEFS } from './02-pixel-art.js';
+import { ANIM, SPR_DEFS } from './02-pixel-art.js';
 import { BOSSES, BOTIN, D, ENEMY, OLEADAS, potMul, rollWeapon } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { noise, sfx } from './05-audio.js';
@@ -94,7 +94,8 @@ function killEnemy(e, src) {
   burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', e.isBoss ? 30 : 6, e.isBoss ? 320 : 170, e.isBoss ? 6 : 3.5, e.isBoss ? 1.1 : .4);
   // muerte con forma: el cuerpo se aplasta en blanco y se deshace en píxeles de su propio color
   if (!e.isBoss && e.spr && SPR_DEFS[e.spr]) {
-    G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .28, max: .28, spr: e.spr, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
+    if (ANIM[e.spr] && ANIM[e.spr].muerte) G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 1.1, max: 1.1, spr: e.spr, muerte: true, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
+    else G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .28, max: .28, spr: e.spr, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
     const cols = Object.values(SPR_DEFS[e.spr][1]);
     for (let i = 0; i < 14; i++) { const a = rand(0, TAU), v = rand(40, 150); G.parts.push({ x: e.x + rand(-6, 6), y: e.y + rand(-8, 6), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, g: 260, life: rand(.35, .6), max: .6, color: cols[i % cols.length], size: rand(2, 4) }); }
   }
