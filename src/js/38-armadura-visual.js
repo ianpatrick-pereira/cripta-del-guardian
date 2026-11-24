@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
-import { MAPS, SPR, SPR_DEFS, drawSpr, walkFrame, walkKey } from './02-pixel-art.js';
+import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, walkFrame, walkKey } from './02-pixel-art.js';
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { musicTick } from './05-audio.js';
@@ -29,27 +29,42 @@ import { QL, dpr, drawElemRooms, gfxLevel, perfEma, resize, setPerfEma, setQL, s
 import { drawDecor, drawMotesFlat, drawMotesGlow, hexA, tickMotes } from './35-ambiente.js';
 import { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles } from './36-mar-de-lava.js';
 import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco } from './37-armas-visual.js';
-// colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí)
-const ARMOR_PARTS = { knight: ['#9a97a8', '#c9c3b4'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
+// colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí).
+// El caballero (v0.62, dibujo de la IA) tiene 5 tonos de acero, de oscuro a claro: se tiñen con una escala hecha con los 2 colores.
+const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
-// colores de detalle que cambia cada aspecto (penacho y hombreras, cinturón y botas, ojos y bufanda)
-const SKIN_PARTS = { knight: ['#e3a24a', '#9b2f3a'], archer: ['#6b4a2a', '#4a3a2a'], rogue: ['#ffd34a', '#b0303a'] };
-// por cada aspecto (y sin aspecto) se crean el dibujo base (clase_Saspecto) y uno por armadura (…_A1 a _A5)
+// colores de detalle que cambia cada aspecto (penacho y hombreras, cinturón y botas, ojos y bufanda).
+// Caballero: penacho y capa; el 3.º y 4.º (sus sombras) se oscurecen solos a partir de los 2 colores del aspecto.
+const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#6b4a2a', '#4a3a2a'], rogue: ['#ffd34a', '#b0303a'] };
+// mezcla dos colores #rrggbb (t = 0 da a, t = 1 da b)
+const mixHex = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
+// si el dibujo tiene más tonos que colores trae el aspecto o la armadura, se completan los que faltan
+function fillCols(to, n, ramp) {
+  if (to.length >= n) return to;
+  if (!ramp) return [...to, ...to.map(c => mixHex(c, '#000000', .38))].slice(0, n);
+  const stops = [mixHex(to[0], '#000000', .45), mixHex(to[0], '#000000', .2), to[0], to[1], mixHex(to[1], '#ffffff', .4)];
+  return Array.from({ length: n }, (_, i) => stops[Math.round(i * (stops.length - 1) / (n - 1))]);
+}
+// por cada aspecto (y sin aspecto) se crean el dibujo base (clase_Saspecto) y uno por armadura (…_A1 a _A5);
+// si la clase tiene hoja de animación, lo mismo para cada cuadro (knight~caminar~2_S…_A…)
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
-    const [mapName, pal] = SPR_DEFS[ch], rows = MAPS[mapName], h = rows.length, wd = rows[0].length;
-    const swap = (P, from, to) => { for (const k in P) { const i = from.indexOf(P[k].toLowerCase()); if (i >= 0) P[k] = to[i]; } return P; };
-    for (const sk of ['', ...Object.keys(SKINS)]) {
-      const base = sk ? swap({ ...pal }, SKIN_PARTS[ch], SKINS[sk].cols) : pal, key = ch + (sk ? '_S' + sk : '');
-      for (let s = 0; s <= 5; s++) {
-        if (s === 0 && !sk) continue;   // el dibujo base sin aspecto ya existe
-        const P = s ? swap({ ...base }, ARMOR_PARTS[ch], ARMOR_COLS[s - 1]) : base;
-        const mk = white => {
-          const c = document.createElement('canvas'); c.width = wd; c.height = h; const g = c.getContext('2d');
-          for (let y = 0; y < h; y++) for (let x = 0; x < wd; x++) { const k = rows[y][x]; if (k === '.' || !P[k]) continue; g.fillStyle = white ? '#fff' : P[k]; g.fillRect(x, y, 1, 1); }
-          return c;
-        };
-        SPR[key + (s ? '_A' + s : '')] = { n: mk(false), w: mk(true), wd, ht: h };
+    const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros)];
+    for (const fk of cuadros) {
+      const [mapName, pal] = SPR_DEFS[fk], rows = MAPS[mapName], h = rows.length, wd = rows[0].length, k = SPR[fk].k;
+      const swap = (P, from, to, ramp) => { to = fillCols(to, from.length, ramp); for (const c in P) { const i = from.indexOf(P[c].toLowerCase()); if (i >= 0) P[c] = to[i]; } return P; };
+      for (const sk of ['', ...Object.keys(SKINS)]) {
+        const base = sk ? swap({ ...pal }, SKIN_PARTS[ch], SKINS[sk].cols, false) : pal, key = fk + (sk ? '_S' + sk : '');
+        for (let s = 0; s <= 5; s++) {
+          if (s === 0 && !sk) continue;   // el dibujo base sin aspecto ya existe
+          const P = s ? swap({ ...base }, ARMOR_PARTS[ch], ARMOR_COLS[s - 1], true) : base;
+          const mk = white => {
+            const c = document.createElement('canvas'); c.width = wd; c.height = h; const g = c.getContext('2d');
+            for (let y = 0; y < h; y++) for (let x = 0; x < wd; x++) { const q = rows[y][x]; if (q === '.' || !P[q]) continue; g.fillStyle = white ? '#fff' : P[q]; g.fillRect(x, y, 1, 1); }
+            return c;
+          };
+          SPR[key + (s ? '_A' + s : '')] = { n: mk(false), w: mk(true), wd, ht: h, k };
+        }
       }
     }
   }
@@ -184,10 +199,21 @@ function drawWeapon(w, x, y, a, scale = 1) {
   ctx.restore();
 }
 
+// cuadro de la hoja de animación del personaje (si tiene): muerte > herido > caminar > reposo
+function playerFrame(p) {
+  const A = ANIM[p.spr]; if (!A) return p.spr;
+  if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
+  if (A.herido && p.sqT > -.08) return A.herido.cuadros[0];   // golpe recibido: ~0,26 s
+  if (A.caminar && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40) {
+    const c = A.caminar.cuadros; return c[Math.floor(p.walk / TAU * c.length) % c.length];   // 1 vuelta de p.walk = 1 paso de cada pierna
+  }
+  return animKey(p.spr, 'reposo', G.time);
+}
 function drawPlayer(p) {
+  const dead = G.over && !G.won;
   drawShadow(p.x, p.y + 4, p.r);
-  const blink = p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
-  const bob = Math.abs(Math.sin(p.walk)) * -2;
+  const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
+  const bob = dead ? 0 : Math.abs(Math.sin(p.walk)) * -2;
   const w = p.slots[p.cur];
   const back = Math.sin(p.aim) < -.3;
   const drawW = () => {
@@ -217,17 +243,19 @@ function drawPlayer(p) {
   };
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
   armorAura(p);
-  const sb = p.skin && SPR[p.spr + '_S' + p.skin] ? p.spr + '_S' + p.skin : p.spr;
+  const fk = playerFrame(p);
+  const sb = p.skin && SPR[fk + '_S' + p.skin] ? fk + '_S' + p.skin : fk;
   const spr0 = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
-  const spr = p.dashT > 0 ? spr0 : walkKey(spr0, walkFrame(p.walk, Math.hypot(G.pv.x, G.pv.y) > 40));
-  if (back) drawW();
+  const spr = p.dashT > 0 || ANIM[p.spr] ? spr0 : walkKey(spr0, walkFrame(p.walk, Math.hypot(G.pv.x, G.pv.y) > 40));
+  if (back && !dead) drawW();
   // se estira al esquivar y se aplasta al recibir daño
   let psx = 1, psy = 1;
   if (p.dashT > 0) { psx = 1.14; psy = .88; }
   if (p.sqT > 0) { const k = p.sqT / .18; psx *= 1 + .2 * k; psy *= 1 - .16 * k; }
   if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1, sx: psx, sy: psy });
-  if (!back) drawW();
+  if (!back && !dead) drawW();
   setWREACT(1);
+  if (dead) return;
   drawAbilityFx(p);
   if (p.rageT > 0) { ctx.strokeStyle = `rgba(212,71,75,${.45 + .3 * Math.sin(G.time * 16)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, TAU); ctx.stroke(); }
   if (p.charge > 0) {
@@ -702,7 +730,7 @@ function render0() {
   for (const it of G.pickups) if (it.kind === 'coin') drawPickup(it);
   const ents = [...G.props, ...G.enemies, G.player].sort((a, b) => a.y - b.y);
   for (const e of ents) {
-    if (e === G.player) { if (!(G.over && !G.won)) drawPlayer(e); }
+    if (e === G.player) { if (!(G.over && !G.won) || (ANIM[e.spr] && ANIM[e.spr].muerte)) drawPlayer(e); }   // con animación de muerte se le ve caer
     else if (e.kind && !e.isBoss) drawProp(e);
     else drawEnemy(e);
   }
