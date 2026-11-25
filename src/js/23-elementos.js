@@ -171,7 +171,9 @@ function drawElemental(e) {
     // vórtice de almas bajo el Djinn mientras te atrae
     if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice)
       drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6, { alpha: .7, rot: -G.time * 3 });
-    drawSpr(mobKey(hoja, t, anda, e.hitT > -.06) || hoja, e.x, y - 14, e.s, { flip: G.player.x < e.x, white });
+    // el Gólem pisa fuerte: se mece y sube un poco con cada paso
+    const pisa = e.elem === 'earth' && anda, rot = pisa ? Math.sin(t * 6) * .06 : 0, dy = pisa ? -Math.abs(Math.sin(t * 6)) * 3 : 0;
+    drawSpr(mobKey(hoja, t, anda, e.hitT > -.06) || hoja, e.x, y - 14 + dy, e.s, { flip: G.player.x < e.x, white, rot });
     // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro
     if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento)
       for (let i = 0; i < 4; i++) {

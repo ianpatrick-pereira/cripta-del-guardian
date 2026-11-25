@@ -200,6 +200,9 @@ function drawWeapon(w, x, y, a, scale = 1) {
 }
 
 // cuadro de la hoja de animación del personaje (si tiene): muerte > herido > caminar > reposo
+// v0.64: los dibujos HD con pies se mecen al caminar (de lado a lado y un saltito por paso) mientras no tengan hoja de caminata propia
+const CON_PIES = new Set(['knight', 'skel', 'captain', 'elem_earth']);
+const paso = (fase, anda) => anda ? { rot: Math.sin(fase) * .07, dy: -Math.abs(Math.sin(fase)) * 2.5 } : { rot: 0, dy: 0 };
 function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
   if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
@@ -252,7 +255,8 @@ function drawPlayer(p) {
   let psx = 1, psy = 1;
   if (p.dashT > 0) { psx = 1.14; psy = .88; }
   if (p.sqT > 0) { const k = p.sqT / .18; psx *= 1 + .2 * k; psy *= 1 - .16 * k; }
-  if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1, sx: psx, sy: psy });
+  const pp = paso(p.walk, CON_PIES.has(p.spr) && !dead && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40);
+  if (!blink) drawSpr(spr, p.x, p.y - 2 + bob + pp.dy * .4, 2, { flip: p.flip, rot: pp.rot, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1, sx: psx, sy: psy });
   if (!back && !dead) drawW();
   setWREACT(1);
   if (dead) return;
@@ -322,7 +326,8 @@ function drawSub(e) {
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
   if (e.hitT > 0) { const k = e.hitT / .14; sx *= 1 + .14 * k; sy *= 1 - .12 * k; }
   const sk = mobKey(e.spr, e.t || G.time, Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk', e.hitT > -.06) || e.spr;
-  drawSpr(sk, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
+  const ps = paso((e.t || G.time) * 7, CON_PIES.has(e.spr) && (Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk'));
+  drawSpr(sk, e.x, e.y - lift + ps.dy, e.s, { flip: Math.cos(angTo(e, p)) < 0, rot: ps.rot, white, sx, sy });
   if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
   // corona: distingue al subjefe (las hojas HD ya traen la suya dibujada)
@@ -362,7 +367,8 @@ function drawEnemy(e) {
   const anda = e.st === 'walk' && e.speed > 0 && !(e.stagT > 0);
   const ek = hoja ? mobKey(e.spr, e.t + (e.wob || 0), anda, e.hitT > -.06)   // hoja: reposo, caminar o herido
     : walkKey(e.spr, walkFrame(e.t * 9 + e.wob, anda));   // los que tienen piernas caminan
-  drawSpr(ek, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
+  const pe = paso(e.t * 9 + (e.wob || 0), hoja && anda && CON_PIES.has(e.spr));
+  drawSpr(ek, e.x, e.y + f.oy + pe.dy, e.s, { flip: Math.cos(la) < 0, rot: pe.rot, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
   if (ed.encima) ed.encima(e, la, white);
   if (e.hp < e.max) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(e.x - 14, e.y - e.r - 12, 28, 4);
