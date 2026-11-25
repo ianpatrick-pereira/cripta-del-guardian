@@ -232,9 +232,13 @@ function blinkAway(e, minD) {
   return true;
 }
 
+// distancia (px) de un ciclo de pasos de un enemigo con piernas (esqueleto a velocidad 85: ~1,5 ciclos por segundo)
+const ZANCADA_MOB = 55;
+
 function updateEnemy(e, dt) {
   const p = G.player, hidden = p.shadowT > 0 || p.veilT > 0, Df = D();
   if (e.lx !== undefined) { const mx = e.x - e.lx, my = e.y - e.ly; if (mx * mx + my * my > .25) { const ta = Math.atan2(my, mx); e.face2 = e.face2 === undefined ? ta : e.face2 + clamp(angDiff(ta, e.face2), -5 * dt, 5 * dt); } }
+  if (e.lx !== undefined) e.paso = (e.paso || 0) + Math.min(12, Math.hypot(e.x - e.lx, e.y - e.ly)) / ZANCADA_MOB * TAU;   // pasos según lo que de verdad avanzó
   e.lx = e.x; e.ly = e.y;
   e.t += dt; e.flash -= dt; e.tele = (e.tele || 0) - dt;
   if (e.poison > 0) {

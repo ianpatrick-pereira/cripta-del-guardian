@@ -200,8 +200,8 @@ function drawWeapon(w, x, y, a, scale = 1) {
 }
 
 // cuadro de la hoja de animación del personaje (si tiene): muerte > herido > caminar > reposo
-// v0.64: el caballero camina con piernas por cuadros (8). Los demás dibujos HD con pies se mecen al caminar (de lado a lado y un saltito por paso) mientras no tengan hoja de caminata propia
-const CON_PIES = new Set(['skel', 'captain', 'elem_earth']);
+// v0.64: el caballero y el esqueleto caminan con piernas por cuadros (8). Los demás dibujos HD con pies se mecen al caminar (de lado a lado y un saltito por paso) mientras no tengan hoja de caminata propia
+const CON_PIES = new Set(['captain', 'elem_earth']);
 const paso = (fase, anda) => anda ? { rot: Math.sin(fase) * .07, dy: -Math.abs(Math.sin(fase)) * 2.5 } : { rot: 0, dy: 0 };
 function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
@@ -365,7 +365,9 @@ function drawEnemy(e) {
   if (e.el) { ctx.fillStyle = ELEMS[e.el].c + '44'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 7, 0, TAU); ctx.fill(); }
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
   const anda = e.st === 'walk' && e.speed > 0 && !(e.stagT > 0);
-  const ek = hoja ? mobKey(e.spr, e.t + (e.wob || 0), anda, e.hitT > -.06)   // hoja: reposo, caminar o herido
+  const pasos = hoja && anda && !(e.hitT > -.06) && ANIM[e.spr].caminar?.cuadros.length >= 8 ? ANIM[e.spr].caminar.cuadros : null;   // caminata de 8 cuadros: sigue a lo que avanza
+  const ek = pasos ? pasos[Math.floor((e.paso || 0) / TAU * pasos.length) % pasos.length]
+    : hoja ? mobKey(e.spr, e.t + (e.wob || 0), anda, e.hitT > -.06)   // hoja: reposo, caminar o herido
     : walkKey(e.spr, walkFrame(e.t * 9 + e.wob, anda));   // los que tienen piernas caminan
   const pe = paso(e.t * 9 + (e.wob || 0), hoja && anda && CON_PIES.has(e.spr));
   drawSpr(ek, e.x, e.y + f.oy + pe.dy, e.s, { flip: Math.cos(la) < 0, rot: pe.rot, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
