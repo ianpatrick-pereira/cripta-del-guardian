@@ -2,7 +2,7 @@
 import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angTo, clamp, dist, pick, rand } from './01-utilidades.js';
-import { ANIM, animKey, drawSpr, mobKey } from './02-pixel-art.js';
+import { ANIM, animKey, drawSpr, luzSuelo, mobKey } from './02-pixel-art.js';
 import { D } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
 import { G, rc } from './07-estado.js';
@@ -13,6 +13,7 @@ import { elAbName } from './12-armas-con-estilo-propio.js';
 import { armorSh } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { drawShadow } from './36-mar-de-lava.js';
+import { fondoElem, frenteElem, poseElem } from './23c-movimiento-elemental.js';
 const ELEMS = {
   fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('5 s: tu arma lanza fuego sin parar hacia donde apuntas. Mucho daño y quema 3 s.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
@@ -162,31 +163,38 @@ function shredShield() {
 }
 function drawElemental(e) {
   const c = e.tint, t = e.t, lift = e.lift || 0, y = e.y - lift, white = e.flash > 0;
-  drawShadow(e.x, e.y, e.r);
-  const g = ctx.createRadialGradient(e.x, y, 2, e.x, y, e.r + 22); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, y, e.r + 22, 0, TAU); ctx.fill();
   const hoja = elemSpr(e.elem);
   if (hoja) {
-    const anda = Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk';
-    // vórtice de almas bajo el Djinn mientras te atrae
-    if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice)
-      drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6, { alpha: .7, rot: -G.time * 3 });
-    // el Gólem pisa fuerte: se mece y sube un poco con cada paso
-    const pisa = e.elem === 'earth' && anda, rot = pisa ? Math.sin(t * 6) * .06 : 0, dy = pisa ? -Math.abs(Math.sin(t * 6)) * 3 : 0;
-    drawSpr(mobKey(hoja, t, anda, e.hitT > -.06) || hoja, e.x, y - 14 + dy, e.s, { flip: G.player.x < e.x, white, rot });
-    // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro
-    if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento)
+    // v0.64: cada Elemental se mueve según su forma (23c-movimiento-elemental.js)
+    const P = poseElem(e);
+    drawShadow(e.x, e.y, e.elem === 'air' ? e.r * (.75 + .08 * Math.sin(t * 2.2)) : e.r);   // el Djinn flota: sombra más chica que respira
+    fondoElem(e, y, P);
+    // vórtice de almas bajo el Djinn mientras te atrae (pegado al suelo: borde suave y se abre girando)
+    if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice) {
+      const k = Math.min(1, (e.timer - .3) / .3, (1.7 - e.timer) / .25);
+      drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6 * (.4 + .6 * k), { alpha: .75 * k, rot: -G.time * 3, suave: true, luz: .25 });
+    }
+    drawSpr(mobKey(hoja, t, P.anda, e.hitT > -.06) || hoja, e.x + P.dx, y - 14 + P.dy, e.s, { flip: G.player.x < e.x, white, rot: P.rot, sx: P.sx, sy: P.sy, luz: P.brillo });
+    frenteElem(e, y, P);
+    // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro y alumbran el suelo
+    if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento) {
+      const k = Math.min(1, (e.timer - .55) / .2, (2.4 - e.timer) / .2);
       for (let i = 0; i < 4; i++) {
-        const d = e.r + 18 + i * 46;
-        drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), e.x + Math.cos(e.ca) * d, y - 6 + Math.sin(e.ca) * d, 1.7 + i * .45, { rot: e.ca - .45, alpha: i === 3 ? .75 : .95 });
+        const d = (e.r + 18 + i * 46) * (.5 + .5 * k), x = e.x + Math.cos(e.ca) * d, yy = y - 6 + Math.sin(e.ca) * d;
+        luzSuelo(x, yy + 16, 30 + i * 12, '255,110,40', .3 * k);
+        drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), x, yy, (1.7 + i * .45) * (.6 + .4 * k), { rot: e.ca - .45, alpha: (i === 3 ? .75 : .95) * k, luz: .4 });
       }
-    // ráfaga del Djinn: muro de viento maldito delante de él; vórtice de almas mientras te atrae
+    }
+    // ráfaga del Djinn: muro de viento maldito delante de él
     if (e.elem === 'air' && e.st === 'gust' && e.timer > .5 && e.timer < 2.1 && ANIM.v_rafaga) {
-      const A = angTo(e, G.player);
-      drawSpr(animKey('v_rafaga', 'reposo', e.timer), e.x + Math.cos(A) * 60, y + Math.sin(A) * 60, 3.6, { rot: A, alpha: .85 });
+      const A = angTo(e, G.player), k = Math.min(1, (e.timer - .5) / .2, (2.1 - e.timer) / .25);
+      drawSpr(animKey('v_rafaga', 'reposo', e.timer), e.x + Math.cos(A) * 60, y + Math.sin(A) * 60, 3.6 * (.6 + .4 * k), { rot: A, alpha: .85 * k, luz: .3 });
     }
     return;
   }
+  drawShadow(e.x, e.y, e.r);
+  const g = ctx.createRadialGradient(e.x, y, 2, e.x, y, e.r + 22); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, y, e.r + 22, 0, TAU); ctx.fill();
   ctx.save(); ctx.translate(e.x, y);
   const col = white ? '#ffffff' : c;
   if (e.elem === 'fire') {

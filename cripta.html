@@ -3193,6 +3193,36 @@ function tinted(sp, col) {
   g.globalCompositeOperation = 'lighter'; g.globalAlpha = .2; g.drawImage(sp.n, 0, 0);
   return (T[col] = c);
 }
+// v0.64: borde suave (para lo que está en el suelo: charcos, runas, vórtices). Se funde con las baldosas en vez de verse como una pegatina
+function bordeSuave(sp) {
+  if (sp.sv) return sp.sv;
+  const c = document.createElement('canvas'); c.width = sp.wd; c.height = sp.ht; const g = c.getContext('2d');
+  g.drawImage(sp.n, 0, 0);
+  g.globalCompositeOperation = 'destination-in';
+  g.translate(sp.wd / 2, sp.ht / 2); g.scale(sp.wd / 2, sp.ht / 2);
+  const r = g.createRadialGradient(0, 0, 0, 0, 0, 1); r.addColorStop(0, '#000'); r.addColorStop(.55, '#000'); r.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = r; g.fillRect(-1, -1, 2, 2);
+  return (sp.sv = c);
+}
+// v0.64: luz de los efectos. Cada familia de efectos brilla con su color y alumbra el suelo que tiene debajo
+const FX_LUZ = { f_: ['255,120,40', .45, 1], g_: ['199,125,255', .3, .7], a_: ['120,200,255', .2, .45], v_: ['190,240,230', .3, .45], t_: ['255,170,90', 0, 0], orbe: ['255,255,255', .25, .4] };
+function fxLuz(key) {
+  for (const k in FX_LUZ) if (key && key.startsWith(k)) return FX_LUZ[k];
+  return null;
+}
+// mancha de luz en el suelo (se suma a lo que hay debajo)
+function luzSuelo(x, y, r, rgb, a) {
+  if (a <= .01 || r <= 1) return;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, r, r * .6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+// sombra en el suelo de algo que vuela (balas, rocas lanzadas): así se ve a qué altura va
+function sombraSuelo(x, y, r, a = .28) {
+  ctx.fillStyle = `rgba(0,0,0,${a})`; ctx.beginPath(); ctx.ellipse(x, y, r, r * .45, 0, 0, Math.PI * 2); ctx.fill();
+}
+// opciones extra (v0.64): luz = brillo sumado encima (0-1), suave = borde que se funde con el suelo
 function drawSpr(key, x, y, s = 2, o = {}) {
   const sp = SPR[key]; if (!sp) return;
   const w = sp.wd * s * sp.k * (o.sx || 1), h = sp.ht * s * sp.k * (o.sy || 1);
@@ -3205,7 +3235,9 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   ctx.translate(Math.round(x), Math.round(y));
   if (o.rot) ctx.rotate(o.rot);
   if (o.flip) ctx.scale(-1, 1);
-  ctx.drawImage(o.white ? sp.w : o.tint ? tinted(sp, o.tint) : sp.n, -w / 2, -h / 2, w, h);
+  const img = o.white ? sp.w : o.tint ? tinted(sp, o.tint) : o.suave ? bordeSuave(sp) : sp.n;
+  ctx.drawImage(img, -w / 2, -h / 2, w, h);
+  if (o.luz && !o.white) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha *= o.luz; ctx.drawImage(img, -w / 2, -h / 2, w, h); }
   ctx.restore();
 }
 
@@ -5753,6 +5785,7 @@ function resumeRun(s) {
 
 
 
+
 const ELEMS = {
   fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('5 s: tu arma lanza fuego sin parar hacia donde apuntas. Mucho daño y quema 3 s.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
@@ -5902,31 +5935,38 @@ function shredShield() {
 }
 function drawElemental(e) {
   const c = e.tint, t = e.t, lift = e.lift || 0, y = e.y - lift, white = e.flash > 0;
-  drawShadow(e.x, e.y, e.r);
-  const g = ctx.createRadialGradient(e.x, y, 2, e.x, y, e.r + 22); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, y, e.r + 22, 0, TAU); ctx.fill();
   const hoja = elemSpr(e.elem);
   if (hoja) {
-    const anda = Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk';
-    // vórtice de almas bajo el Djinn mientras te atrae
-    if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice)
-      drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6, { alpha: .7, rot: -G.time * 3 });
-    // el Gólem pisa fuerte: se mece y sube un poco con cada paso
-    const pisa = e.elem === 'earth' && anda, rot = pisa ? Math.sin(t * 6) * .06 : 0, dy = pisa ? -Math.abs(Math.sin(t * 6)) * 3 : 0;
-    drawSpr(mobKey(hoja, t, anda, e.hitT > -.06) || hoja, e.x, y - 14 + dy, e.s, { flip: G.player.x < e.x, white, rot });
-    // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro
-    if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento)
+    // v0.64: cada Elemental se mueve según su forma (23c-movimiento-elemental.js)
+    const P = poseElem(e);
+    drawShadow(e.x, e.y, e.elem === 'air' ? e.r * (.75 + .08 * Math.sin(t * 2.2)) : e.r);   // el Djinn flota: sombra más chica que respira
+    fondoElem(e, y, P);
+    // vórtice de almas bajo el Djinn mientras te atrae (pegado al suelo: borde suave y se abre girando)
+    if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice) {
+      const k = Math.min(1, (e.timer - .3) / .3, (1.7 - e.timer) / .25);
+      drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6 * (.4 + .6 * k), { alpha: .75 * k, rot: -G.time * 3, suave: true, luz: .25 });
+    }
+    drawSpr(mobKey(hoja, t, P.anda, e.hitT > -.06) || hoja, e.x + P.dx, y - 14 + P.dy, e.s, { flip: G.player.x < e.x, white, rot: P.rot, sx: P.sx, sy: P.sy, luz: P.brillo });
+    frenteElem(e, y, P);
+    // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro y alumbran el suelo
+    if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento) {
+      const k = Math.min(1, (e.timer - .55) / .2, (2.4 - e.timer) / .2);
       for (let i = 0; i < 4; i++) {
-        const d = e.r + 18 + i * 46;
-        drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), e.x + Math.cos(e.ca) * d, y - 6 + Math.sin(e.ca) * d, 1.7 + i * .45, { rot: e.ca - .45, alpha: i === 3 ? .75 : .95 });
+        const d = (e.r + 18 + i * 46) * (.5 + .5 * k), x = e.x + Math.cos(e.ca) * d, yy = y - 6 + Math.sin(e.ca) * d;
+        luzSuelo(x, yy + 16, 30 + i * 12, '255,110,40', .3 * k);
+        drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), x, yy, (1.7 + i * .45) * (.6 + .4 * k), { rot: e.ca - .45, alpha: (i === 3 ? .75 : .95) * k, luz: .4 });
       }
-    // ráfaga del Djinn: muro de viento maldito delante de él; vórtice de almas mientras te atrae
+    }
+    // ráfaga del Djinn: muro de viento maldito delante de él
     if (e.elem === 'air' && e.st === 'gust' && e.timer > .5 && e.timer < 2.1 && ANIM.v_rafaga) {
-      const A = angTo(e, G.player);
-      drawSpr(animKey('v_rafaga', 'reposo', e.timer), e.x + Math.cos(A) * 60, y + Math.sin(A) * 60, 3.6, { rot: A, alpha: .85 });
+      const A = angTo(e, G.player), k = Math.min(1, (e.timer - .5) / .2, (2.1 - e.timer) / .25);
+      drawSpr(animKey('v_rafaga', 'reposo', e.timer), e.x + Math.cos(A) * 60, y + Math.sin(A) * 60, 3.6 * (.6 + .4 * k), { rot: A, alpha: .85 * k, luz: .3 });
     }
     return;
   }
+  drawShadow(e.x, e.y, e.r);
+  const g = ctx.createRadialGradient(e.x, y, 2, e.x, y, e.r + 22); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, y, e.r + 22, 0, TAU); ctx.fill();
   ctx.save(); ctx.translate(e.x, y);
   const col = white ? '#ffffff' : c;
   if (e.elem === 'fire') {
@@ -6044,8 +6084,11 @@ function drawPuddles() {
     const k = Math.min(1, c.t / .8, (c.max - c.t) / .3);
     // v0.64: charco maldito con manos (hoja a_charco): se extiende, se agita y al final se seca
     if (ANIM.a_charco) {
+      // se extiende desde el centro, ondula y al secarse se encoge; borde suave para fundirse con el suelo
       const age = c.max - c.t, key = age < .35 ? 'a_charco~reposo~0' : c.t < .8 ? 'a_charco~muerte~0' : animKey('a_charco', 'caminar', age + c.wob);
-      drawSpr(key, c.x, c.y, c.r * .135, { alpha: Math.max(.25, k) });
+      const sale = 1 - Math.pow(1 - Math.min(1, age / .4), 3), seca = c.t < .8 ? .85 + .15 * c.t / .8 : 1, o = Math.sin(G.time * 2.2 + c.wob) * .035;
+      luzSuelo(c.x, c.y, c.r * 1.1, '90,170,230', .12 * k);
+      drawSpr(key, c.x, c.y, c.r * .135 * (.35 + .65 * sale) * seca, { alpha: .85 * Math.max(.25, k), suave: true, sx: 1 + o, sy: 1 - o });
       continue;
     }
     ctx.globalAlpha = .55 * k; ctx.fillStyle = '#2a6f9a';
@@ -6104,6 +6147,141 @@ function flameCone(e, a, reach, half, dt) {
 function windPull(e, k, dt) {
   const p = G.player, a = angTo(p, e);
   moveEnt(p, Math.cos(a) * k * dt, Math.sin(a) * k * dt);
+}
+
+
+// v0.64: cómo se mueve cada Elemental (solo dibujo: no cambia la jugabilidad ni usa números al azar).
+// Cada uno tiene una forma distinta, así que se mueve distinto:
+//   fuego  Señor de las Brasas: arde. Parpadea como una llama, suelta brasas que suben y alumbra el suelo
+//   agua   Leviatán de la Fuente: sale de su charco. Ondula como una serpiente y su charco hace ondas
+//   aire   Djinn del Vendaval: flota alto con su cola de tornado, se ladea al volar y lo rodean ráfagas
+//   tierra Gólem de Roca: pesa. Cada pisada lo aplasta un poco y levanta polvo
+// Todos anuncian su ataque (los primeros 0,5 s, con el «!»): se recogen, tiemblan y brillan; y al soltarlo se estiran hacia ti.
+
+
+
+
+
+const COLOR_EL = { fire: '255,110,40', water: '110,190,255', air: '190,240,230', earth: '170,130,90' };
+// ataques en los que el cuerpo entero empuja hacia ti al soltarlos
+const EMPUJA_EL = new Set(['lanzallamas', 'wave', 'gust', 'rafaga', 'charge3', 'slam', 'pedrusco']);
+
+// velocidad aproximada entre dos dibujos
+function velElem(e) {
+  const dt = G.time - (e.anTv ?? G.time);
+  if (dt > 0) { e.anVx = (e.x - e.anX) / dt; e.anVy = (e.y - e.anY) / dt; }
+  e.anX = e.x; e.anY = e.y; e.anTv = G.time;
+  return { vx: e.anVx || 0, vy: e.anVy || 0 };
+}
+
+/** @returns {{ dx: number, dy: number, rot: number, sx: number, sy: number, brillo: number, anda: boolean }} */
+function poseElem(e) {
+  const t = e.t || G.time, { vx, vy } = velElem(e), v = Math.hypot(vx, vy), lado = clamp(vx / 140, -1, 1);
+  const P = { dx: 0, dy: 0, rot: 0, sx: 1, sy: 1, brillo: 0, anda: v > 15 || e.st === 'walk' };
+  const tiembla = a => { P.dx += Math.sin(G.time * 63) * a; P.dy += Math.cos(G.time * 51) * a * .5; };
+  switch (e.elem) {
+    case 'fire': {   // llama viva: se estira y encoge rápido y de forma irregular
+      const f = Math.sin(t * 13) * .035 + Math.sin(t * 31 + 1) * .02;
+      P.sy = 1 + f; P.sx = 1 - f * .7; P.rot = lado * .14; P.dy = Math.sin(t * 3) * 1.5; P.brillo = .1 + .06 * Math.sin(t * 17);
+      break;
+    }
+    case 'water': {  // serpiente que sale del charco: ondula sin parar
+      const o = Math.sin(t * 2.1);
+      P.rot = o * .05 + lado * .1; P.sx = 1 + Math.sin(t * 2.6) * .03; P.sy = 1 - Math.sin(t * 2.6) * .03; P.dx = o * 2;
+      if (P.anda) P.dy = Math.sin(t * 5) * 1.5;
+      break;
+    }
+    case 'air': {    // flota alto y se ladea mucho al volar
+      P.dy = -10 + Math.sin(t * 2.2) * 5; P.rot = Math.sin(t * 1.4) * .06 + lado * .28;
+      P.sx = 1 + Math.sin(t * 6) * .02; P.sy = 1 - Math.sin(t * 6) * .02;
+      break;
+    }
+    case 'earth': {  // pisadas pesadas, según lo que de verdad avanza (e.paso)
+      if (P.anda) {
+        const ph = e.paso || 0, s = Math.abs(Math.sin(ph)), apoyo = s < .3 ? 1 - s / .3 : 0;
+        P.dy = -s * 5; P.rot = Math.sin(ph) * .06; P.sx = 1 + apoyo * .07; P.sy = 1 - apoyo * .07;
+      } else { P.sy = 1 + Math.sin(t * 1.5) * .015; }
+      break;
+    }
+  }
+  // anuncia el ataque: se recoge, tiembla y brilla; al soltarlo se estira hacia ti
+  if (e.st !== 'idle' && e.st !== 'walk') {
+    const a = angTo(e, G.player);
+    if (e.tele > 0) {
+      const k = 1 - clamp(e.tele / .5, 0, 1);
+      P.sx *= 1 + .1 * k; P.sy *= 1 - .1 * k; tiembla(1.6 * k); P.brillo += .35 * k;
+      if (e.elem === 'earth' && e.st === 'slam') { P.dy -= 18 * k; P.sy *= 1 + .16 * k; P.sx *= 1 - .1 * k; }   // el Gólem se alza para golpear el suelo
+      if (e.elem === 'air') P.dy -= 8 * k;
+    } else if (e.tele > -.25) {
+      const k = 1 - clamp(-e.tele / .25, 0, 1);
+      if (EMPUJA_EL.has(e.st)) { P.dx += Math.cos(a) * 10 * k; P.dy += Math.sin(a) * 5 * k; P.rot += Math.cos(a) * .12 * k; }
+      if (e.elem === 'earth' && e.st === 'slam') { P.sx *= 1 + .25 * k; P.sy *= 1 - .2 * k; }                 // y cae aplastando
+      else { P.sx *= 1 - .06 * k; P.sy *= 1 + .1 * k; }
+      P.brillo += .25 * k;
+    } else P.brillo += .12;
+    if (e.st === 'whirl') P.rot += Math.sin(G.time * 14) * .12;          // remolino: se retuerce
+    if (e.st === 'lanzallamas') P.rot += Math.cos(e.ca) * .1;            // se inclina hacia el chorro
+  }
+  // golpe recibido: retrocede un poco
+  if (e.hitT > 0) { const k = clamp(e.hitT / .14, 0, 1), a = angTo(e, G.player); P.dx -= Math.cos(a) * 3 * k; P.sx *= 1 + .05 * k; P.sy *= 1 - .05 * k; }
+  return P;
+}
+
+// lo que va detrás y debajo del cuerpo: luz en el suelo, ondas del charco, ráfagas, polvo
+function fondoElem(e, y, P) {
+  const t = e.t || G.time, col = COLOR_EL[e.elem] || '255,255,255';
+  ctx.save();
+  switch (e.elem) {
+    case 'fire':
+      luzSuelo(e.x, e.y + 4, e.r * 3.4, col, .3 + .08 * Math.sin(t * 11) + P.brillo * .6);
+      break;
+    case 'water':
+      luzSuelo(e.x, e.y + 4, e.r * 2.6, col, .12 + P.brillo * .4);
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {   // ondas que se abren desde la base
+        const f = (t * .55 + i / 3) % 1;
+        ctx.strokeStyle = `rgba(170,225,255,${.4 * (1 - f)})`;
+        ctx.beginPath(); ctx.ellipse(e.x + P.dx * .5, e.y + 6, e.r * (.8 + 1.5 * f), e.r * (.8 + 1.5 * f) * .38, 0, 0, TAU); ctx.stroke();
+      }
+      break;
+    case 'air':
+      luzSuelo(e.x, e.y + 4, e.r * 2.2, col, .08 + P.brillo * .4);
+      ctx.globalCompositeOperation = 'lighter'; ctx.lineWidth = 2;
+      for (let i = 0; i < 4; i++) {   // ráfagas que giran a su alrededor
+        const a0 = t * (3.4 + i * .5) + i * 1.7, R = e.r * (1 + i * .22);
+        ctx.strokeStyle = `rgba(${col},${.22 + .08 * Math.sin(t * 5 + i)})`;
+        ctx.beginPath(); ctx.ellipse(e.x, y + P.dy + 10 - i * 8, R, R * .35, 0, a0, a0 + 1.6); ctx.stroke();
+      }
+      break;
+    case 'earth': {
+      luzSuelo(e.x, e.y + 4, e.r * 2, '255,150,60', .06 + P.brillo * .5);
+      // polvo en cada pisada: dos nubes a los lados de los pies que se abren y se desvanecen
+      if (P.anda) {
+        const f = ((e.paso || 0) / Math.PI) % 1;
+        if (f < .45) {
+          const k = f / .45;
+          ctx.fillStyle = `rgba(120,100,80,${.38 * (1 - k)})`;
+          for (const s of [-1, 1]) { ctx.beginPath(); ctx.ellipse(e.x + s * (e.r * .6 + k * 14), e.y + 8, 7 + k * 10, 4 + k * 4, 0, 0, TAU); ctx.fill(); }
+        }
+      }
+      break;
+    }
+  }
+  ctx.restore();
+}
+
+// lo que va delante: brasas del fuego que suben (con un patrón fijo, sin azar)
+function frenteElem(e, y, P) {
+  if (e.elem !== 'fire') return;
+  const t = e.t || G.time;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 9; i++) {
+    const f = (t * (.7 + (i % 3) * .15) + i / 9) % 1;
+    const x = e.x + Math.sin(i * 12.9 + t * 1.3) * e.r * .9 + Math.sin(f * 8 + i) * 4, yy = y - 10 - f * 80 + P.dy;
+    ctx.globalAlpha = (1 - f) * .9; ctx.fillStyle = i % 3 ? '#ff8a3a' : '#ffd27a';
+    const s = i % 2 ? 3 : 2; ctx.fillRect(Math.round(x), Math.round(yy), s, s);
+  }
+  ctx.restore();
 }
 
 
@@ -8391,6 +8569,19 @@ function auraJefe(x, y, r, col, a) {
 
 
 
+// efectos que están pegados al suelo: se dibujan con borde suave y aparecen extendiéndose
+const SUELO = new Set(['a_charco', 'g_runas', 'v_vortice', 'g_impacto']);
+// punto de luz redondo y difuso de un color (se guarda uno por color)
+const PUNTOS = {};
+function puntoLuz(col) {
+  if (PUNTOS[col]) return PUNTOS[col];
+  const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+  const r = g.createRadialGradient(16, 16, 0, 16, 16, 16); r.addColorStop(0, '#ffffff'); r.addColorStop(.25, col); r.addColorStop(1, col + '00');
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32);
+  return (PUNTOS[col] = c);
+}
+// colores de chispa que brillan (fuego, magia, rayos)
+const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 
 
 
@@ -9157,7 +9348,11 @@ function render0() {
     // efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
     if (pt.fx) {
       const el = pt.max - pt.life, pre = pt.pre || 0;
-      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s, { alpha: Math.min(1, pt.life / .15) });
+      const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
+      if (L && L[2]) luzSuelo(pt.x, pt.y + (suelo ? 0 : 14), pt.s * 14, L[0], L[2] * .35 * a);
+      // aparece creciendo un poco en vez de saltar a su tamaño
+      const crece = Math.min(1, .7 + el * 3);
+      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo });
       continue;
     }
     // copia fantasma de un jefe que embiste
@@ -9171,8 +9366,14 @@ function render0() {
       drawSpr(pt.spr, pt.x, pt.y + k * 6, pt.s, { flip: pt.flip, white: true, sx: 1 + k * .6, sy: Math.max(.05, 1 - k), alpha: Math.max(0, 1 - k * .7) });
       continue;
     }
-    ctx.globalAlpha = Math.max(0, pt.life / pt.max); ctx.fillStyle = pt.color;
-    ctx.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
+    // v0.64: las chispas se achican al apagarse, y las de fuego y magia brillan (se suman a la luz) en vez de tapar el suelo
+    const vida = Math.max(0, pt.life / pt.max), sz = pt.size > 3 ? pt.size * (.45 + .55 * vida) : pt.size;
+    const brilla = CHISPA.has(pt.color);
+    if (brilla) ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = brilla ? vida * .85 : vida; ctx.fillStyle = pt.color;
+    if (brilla && sz > 4) { const r = sz * 1.3; ctx.drawImage(puntoLuz(pt.color), pt.x - r, pt.y - r, r * 2, r * 2); }   // las grandes son llamaradas redondas, no cuadros
+    else ctx.fillRect(pt.x - sz / 2, pt.y - sz / 2, sz, sz);
+    if (brilla) ctx.globalCompositeOperation = 'source-over';
   }
   ctx.globalAlpha = 1;
   drawVfx();
@@ -9237,7 +9438,13 @@ function render0() {
     ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
     ctx.globalAlpha = 1;
     // aviso con dibujo (v0.64): grieta que brilla o espada que cae
-    if (h.fx) drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - (h.caida ? (1 - k) * h.caida : 0), h.s || 3, { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k });
+    if (h.fx) {
+      const L = fxLuz(h.fx), cae = h.caida ? (1 - k) * h.caida : 0, suelo = SUELO.has(h.fx);
+      if (h.caida) sombraSuelo(h.x, h.y, 6 + 10 * k, .15 + .2 * k);   // lo que cae: su sombra crece al acercarse
+      if (L && L[2]) luzSuelo(h.x, h.y, (h.s || 3) * 12, L[0], L[2] * .3 * (.4 + .6 * k));
+      drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - cae, (h.s || 3) * (suelo ? .75 + .25 * Math.min(1, k * 3) : 1),
+        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo });
+    }
   }
   // «!»: este enemigo está a punto de atacar
   ctx.font = '800 18px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -9262,11 +9469,19 @@ function render0() {
   }
   for (const pr of G.proj) {
     // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
-    if (pr.anim) { drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, pr.ss || 2.4, { rot: Math.atan2(pr.vy, pr.vx) + (pr.rotOff || 0) }); continue; }
-    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, pr.ss || 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
+    // v0.64: lo que vuela lleva sombra en el suelo y, si es de energía, alumbra lo que tiene debajo
+    if (pr.anim || pr.spr) {
+      const key = pr.anim || pr.spr, L = fxLuz(key), ss = pr.ss || 2.3;
+      sombraSuelo(pr.x, pr.y + 14, 3 + ss * 2, .22);
+      if (L && L[2]) luzSuelo(pr.x, pr.y + 10, ss * 16, L[0], L[2] * .3);
+      if (pr.anim) drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, ss, { rot: Math.atan2(pr.vy, pr.vx) + (pr.rotOff || 0), luz: L ? L[1] : 0 });
+      else drawSpr(pr.spr, pr.x, pr.y, ss, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 });
+      continue;
+    }
     // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
     if (pr.owner === 'enemy' && pr.kind === 'orb') {
       const f = 1 + 2 * (Math.floor((pr.life + pr.x * .01) * 8) % 2);   // alterna los dos cuadros medianos
+      sombraSuelo(pr.x, pr.y + 12, 2 + pr.r * .6, .16);
       drawSpr('orbe~reposo~' + f, pr.x, pr.y, pr.r * .32, { tint: pr.color });
       continue;
     }

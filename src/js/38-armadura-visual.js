@@ -3,7 +3,20 @@ import { tr } from './00b-textos.js';
 import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
-import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, mobKey, walkFrame, walkKey } from './02-pixel-art.js';
+import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, fxLuz, luzSuelo, mobKey, sombraSuelo, walkFrame, walkKey } from './02-pixel-art.js';
+// efectos que están pegados al suelo: se dibujan con borde suave y aparecen extendiéndose
+const SUELO = new Set(['a_charco', 'g_runas', 'v_vortice', 'g_impacto']);
+// punto de luz redondo y difuso de un color (se guarda uno por color)
+const PUNTOS = {};
+function puntoLuz(col) {
+  if (PUNTOS[col]) return PUNTOS[col];
+  const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+  const r = g.createRadialGradient(16, 16, 0, 16, 16, 16); r.addColorStop(0, '#ffffff'); r.addColorStop(.25, col); r.addColorStop(1, col + '00');
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32);
+  return (PUNTOS[col] = c);
+}
+// colores de chispa que brillan (fuego, magia, rayos)
+const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { musicTick } from './05-audio.js';
@@ -770,7 +783,11 @@ function render0() {
     // efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
     if (pt.fx) {
       const el = pt.max - pt.life, pre = pt.pre || 0;
-      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s, { alpha: Math.min(1, pt.life / .15) });
+      const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
+      if (L && L[2]) luzSuelo(pt.x, pt.y + (suelo ? 0 : 14), pt.s * 14, L[0], L[2] * .35 * a);
+      // aparece creciendo un poco en vez de saltar a su tamaño
+      const crece = Math.min(1, .7 + el * 3);
+      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo });
       continue;
     }
     // copia fantasma de un jefe que embiste
@@ -784,8 +801,14 @@ function render0() {
       drawSpr(pt.spr, pt.x, pt.y + k * 6, pt.s, { flip: pt.flip, white: true, sx: 1 + k * .6, sy: Math.max(.05, 1 - k), alpha: Math.max(0, 1 - k * .7) });
       continue;
     }
-    ctx.globalAlpha = Math.max(0, pt.life / pt.max); ctx.fillStyle = pt.color;
-    ctx.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
+    // v0.64: las chispas se achican al apagarse, y las de fuego y magia brillan (se suman a la luz) en vez de tapar el suelo
+    const vida = Math.max(0, pt.life / pt.max), sz = pt.size > 3 ? pt.size * (.45 + .55 * vida) : pt.size;
+    const brilla = CHISPA.has(pt.color);
+    if (brilla) ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = brilla ? vida * .85 : vida; ctx.fillStyle = pt.color;
+    if (brilla && sz > 4) { const r = sz * 1.3; ctx.drawImage(puntoLuz(pt.color), pt.x - r, pt.y - r, r * 2, r * 2); }   // las grandes son llamaradas redondas, no cuadros
+    else ctx.fillRect(pt.x - sz / 2, pt.y - sz / 2, sz, sz);
+    if (brilla) ctx.globalCompositeOperation = 'source-over';
   }
   ctx.globalAlpha = 1;
   drawVfx();
@@ -850,7 +873,13 @@ function render0() {
     ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
     ctx.globalAlpha = 1;
     // aviso con dibujo (v0.64): grieta que brilla o espada que cae
-    if (h.fx) drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - (h.caida ? (1 - k) * h.caida : 0), h.s || 3, { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k });
+    if (h.fx) {
+      const L = fxLuz(h.fx), cae = h.caida ? (1 - k) * h.caida : 0, suelo = SUELO.has(h.fx);
+      if (h.caida) sombraSuelo(h.x, h.y, 6 + 10 * k, .15 + .2 * k);   // lo que cae: su sombra crece al acercarse
+      if (L && L[2]) luzSuelo(h.x, h.y, (h.s || 3) * 12, L[0], L[2] * .3 * (.4 + .6 * k));
+      drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - cae, (h.s || 3) * (suelo ? .75 + .25 * Math.min(1, k * 3) : 1),
+        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo });
+    }
   }
   // «!»: este enemigo está a punto de atacar
   ctx.font = '800 18px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -875,11 +904,19 @@ function render0() {
   }
   for (const pr of G.proj) {
     // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
-    if (pr.anim) { drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, pr.ss || 2.4, { rot: Math.atan2(pr.vy, pr.vx) + (pr.rotOff || 0) }); continue; }
-    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, pr.ss || 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
+    // v0.64: lo que vuela lleva sombra en el suelo y, si es de energía, alumbra lo que tiene debajo
+    if (pr.anim || pr.spr) {
+      const key = pr.anim || pr.spr, L = fxLuz(key), ss = pr.ss || 2.3;
+      sombraSuelo(pr.x, pr.y + 14, 3 + ss * 2, .22);
+      if (L && L[2]) luzSuelo(pr.x, pr.y + 10, ss * 16, L[0], L[2] * .3);
+      if (pr.anim) drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, ss, { rot: Math.atan2(pr.vy, pr.vx) + (pr.rotOff || 0), luz: L ? L[1] : 0 });
+      else drawSpr(pr.spr, pr.x, pr.y, ss, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 });
+      continue;
+    }
     // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
     if (pr.owner === 'enemy' && pr.kind === 'orb') {
       const f = 1 + 2 * (Math.floor((pr.life + pr.x * .01) * 8) % 2);   // alterna los dos cuadros medianos
+      sombraSuelo(pr.x, pr.y + 12, 2 + pr.r * .6, .16);
       drawSpr('orbe~reposo~' + f, pr.x, pr.y, pr.r * .32, { tint: pr.color });
       continue;
     }

@@ -39,6 +39,36 @@ function tinted(sp, col) {
   g.globalCompositeOperation = 'lighter'; g.globalAlpha = .2; g.drawImage(sp.n, 0, 0);
   return (T[col] = c);
 }
+// v0.64: borde suave (para lo que está en el suelo: charcos, runas, vórtices). Se funde con las baldosas en vez de verse como una pegatina
+function bordeSuave(sp) {
+  if (sp.sv) return sp.sv;
+  const c = document.createElement('canvas'); c.width = sp.wd; c.height = sp.ht; const g = c.getContext('2d');
+  g.drawImage(sp.n, 0, 0);
+  g.globalCompositeOperation = 'destination-in';
+  g.translate(sp.wd / 2, sp.ht / 2); g.scale(sp.wd / 2, sp.ht / 2);
+  const r = g.createRadialGradient(0, 0, 0, 0, 0, 1); r.addColorStop(0, '#000'); r.addColorStop(.55, '#000'); r.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = r; g.fillRect(-1, -1, 2, 2);
+  return (sp.sv = c);
+}
+// v0.64: luz de los efectos. Cada familia de efectos brilla con su color y alumbra el suelo que tiene debajo
+const FX_LUZ = { f_: ['255,120,40', .45, 1], g_: ['199,125,255', .3, .7], a_: ['120,200,255', .2, .45], v_: ['190,240,230', .3, .45], t_: ['255,170,90', 0, 0], orbe: ['255,255,255', .25, .4] };
+function fxLuz(key) {
+  for (const k in FX_LUZ) if (key && key.startsWith(k)) return FX_LUZ[k];
+  return null;
+}
+// mancha de luz en el suelo (se suma a lo que hay debajo)
+function luzSuelo(x, y, r, rgb, a) {
+  if (a <= .01 || r <= 1) return;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`);
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(x, y, r, r * .6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+// sombra en el suelo de algo que vuela (balas, rocas lanzadas): así se ve a qué altura va
+function sombraSuelo(x, y, r, a = .28) {
+  ctx.fillStyle = `rgba(0,0,0,${a})`; ctx.beginPath(); ctx.ellipse(x, y, r, r * .45, 0, 0, Math.PI * 2); ctx.fill();
+}
+// opciones extra (v0.64): luz = brillo sumado encima (0-1), suave = borde que se funde con el suelo
 function drawSpr(key, x, y, s = 2, o = {}) {
   const sp = SPR[key]; if (!sp) return;
   const w = sp.wd * s * sp.k * (o.sx || 1), h = sp.ht * s * sp.k * (o.sy || 1);
@@ -51,7 +81,9 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   ctx.translate(Math.round(x), Math.round(y));
   if (o.rot) ctx.rotate(o.rot);
   if (o.flip) ctx.scale(-1, 1);
-  ctx.drawImage(o.white ? sp.w : o.tint ? tinted(sp, o.tint) : sp.n, -w / 2, -h / 2, w, h);
+  const img = o.white ? sp.w : o.tint ? tinted(sp, o.tint) : o.suave ? bordeSuave(sp) : sp.n;
+  ctx.drawImage(img, -w / 2, -h / 2, w, h);
+  if (o.luz && !o.white) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha *= o.luz; ctx.drawImage(img, -w / 2, -h / 2, w, h); }
   ctx.restore();
 }
 
@@ -97,4 +129,4 @@ function mobKey(spr, t, moving, hurt) {
   return animKey(spr, 'reposo', t);
 }
 
-export { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, mobKey, walkFrame, walkKey };
+export { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, fxLuz, luzSuelo, mobKey, sombraSuelo, walkFrame, walkKey };

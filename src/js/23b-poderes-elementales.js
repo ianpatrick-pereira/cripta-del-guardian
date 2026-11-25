@@ -6,7 +6,7 @@
 //   aire   → más rápido, flechas de viento, empuja, atrae y suelta una ráfaga
 // Aquí viven las cosas que dejan en el mundo: charcos, pedruscos y columnas.
 import { ctx } from './00-inicio.js';
-import { ANIM, animKey, drawSpr } from './02-pixel-art.js';
+import { ANIM, animKey, drawSpr, luzSuelo } from './02-pixel-art.js';
 import { TAU, TILE, angTo, dist, rand } from './01-utilidades.js';
 import { noise, sfx } from './05-audio.js';
 import { G } from './07-estado.js';
@@ -74,8 +74,11 @@ function drawPuddles() {
     const k = Math.min(1, c.t / .8, (c.max - c.t) / .3);
     // v0.64: charco maldito con manos (hoja a_charco): se extiende, se agita y al final se seca
     if (ANIM.a_charco) {
+      // se extiende desde el centro, ondula y al secarse se encoge; borde suave para fundirse con el suelo
       const age = c.max - c.t, key = age < .35 ? 'a_charco~reposo~0' : c.t < .8 ? 'a_charco~muerte~0' : animKey('a_charco', 'caminar', age + c.wob);
-      drawSpr(key, c.x, c.y, c.r * .135, { alpha: Math.max(.25, k) });
+      const sale = 1 - Math.pow(1 - Math.min(1, age / .4), 3), seca = c.t < .8 ? .85 + .15 * c.t / .8 : 1, o = Math.sin(G.time * 2.2 + c.wob) * .035;
+      luzSuelo(c.x, c.y, c.r * 1.1, '90,170,230', .12 * k);
+      drawSpr(key, c.x, c.y, c.r * .135 * (.35 + .65 * sale) * seca, { alpha: .85 * Math.max(.25, k), suave: true, sx: 1 + o, sy: 1 - o });
       continue;
     }
     ctx.globalAlpha = .55 * k; ctx.fillStyle = '#2a6f9a';
