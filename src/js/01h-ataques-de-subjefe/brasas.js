@@ -16,7 +16,7 @@ defSubMove('brasas', {
       e.n++;
       for (const side of ph2 ? [-.35, 0, .35] : [0]) {
         const a = e.ca + side, d = e.r + e.n * 38, x = e.x + Math.cos(a) * d, y = e.y + Math.sin(a) * d;
-        if (!hitsWall(x, y, 10)) hazard(x, y, 30, .45, 1, S.pc, { owner: e, el: 'fire' });
+        if (!hitsWall(x, y, 10)) hazard(x, y, 30, .45, 1, S.pc, { owner: e, el: 'fire', fx: 'f_linea', s: 2.6, fy: 14, fxT: .5 });   // v0.64: el suelo se agrieta y brota fuego con cadenas
       }
       noise(.1, .03, 500);
     }

@@ -828,6 +828,8 @@ function render0() {
     const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
     g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
+    // v0.64: fuego infernal con cadenas (hoja f_linea); al apagarse quedan brasas
+    if (f.fight && ANIM.f_linea) drawSpr(f.t < .7 ? 'f_linea~muerte~2' : 'f_linea~muerte~0', f.x, f.y - f.r * .45, f.r / 13, { alpha: Math.min(1, f.t / .4), flip: Math.floor(G.time * 7 + f.x * .1) % 2 === 0 });
   }
   // círculos de área: el relleno crece hasta el borde y entonces estalla
   for (const h of G.hazards) {
@@ -838,7 +840,7 @@ function render0() {
     ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
     ctx.globalAlpha = 1;
     // aviso con dibujo (v0.64): grieta que brilla o espada que cae
-    if (h.fx) drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x, h.y - (h.fy || 0) - (h.caida ? (1 - k) * h.caida : 0), h.s || 3, { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k });
+    if (h.fx) drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - (h.caida ? (1 - k) * h.caida : 0), h.s || 3, { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k });
   }
   // «!»: este enemigo está a punto de atacar
   ctx.font = '800 18px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -863,7 +865,7 @@ function render0() {
   }
   for (const pr of G.proj) {
     // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
-    if (pr.anim) { drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, pr.ss || 2.4, { rot: Math.atan2(pr.vy, pr.vx) }); continue; }
+    if (pr.anim) { drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, pr.ss || 2.4, { rot: Math.atan2(pr.vy, pr.vx) + (pr.rotOff || 0) }); continue; }
     if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, pr.ss || 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
     // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
     if (pr.owner === 'enemy' && pr.kind === 'orb') {

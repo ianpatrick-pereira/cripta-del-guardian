@@ -2,6 +2,7 @@
 import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angTo, clamp, dist, pick, rand } from './01-utilidades.js';
+import { ANIM, animKey, drawSpr, mobKey } from './02-pixel-art.js';
 import { D } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
 import { G, rc } from './07-estado.js';
@@ -27,11 +28,14 @@ const ELEMS = {
            boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'slam'], p2: ['pedrusco', 'gravilla', 'muralla', 'slam', 'pedrusco'] } },
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
+// v0.64: los elementales con hoja HD (src/sprites/elem_<elemento>.png) se dibujan con ella, a esta escala
+const ELEM_S = { fire: 5.2, water: 5, air: 4.8, earth: 5.6 };
+const elemSpr = el => ANIM['elem_' + el] ? 'elem_' + el : null;
 function mkElem(el, x, y) {
   const E = ELEMS[el], B = E.boss;
   const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el };
   const lv = G.floor, hp = Math.round(B.hp * D().hp * (1 + .65 * (lv - 1)));
-  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), fd: el === 'earth' ? 1 : 0, tint: E.c,
+  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: elemSpr(el) || 'brute', s: elemSpr(el) ? ELEM_S[el] : 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), fd: el === 'earth' ? 1 : 0, tint: E.c,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 function totemElement() { return pick(EL_ORDER); }
@@ -161,6 +165,18 @@ function drawElemental(e) {
   drawShadow(e.x, e.y, e.r);
   const g = ctx.createRadialGradient(e.x, y, 2, e.x, y, e.r + 22); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, y, e.r + 22, 0, TAU); ctx.fill();
+  const hoja = elemSpr(e.elem);
+  if (hoja) {
+    const anda = Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk';
+    drawSpr(mobKey(hoja, t, anda, e.hitT > -.06) || hoja, e.x, y - 14, e.s, { flip: G.player.x < e.x, white });
+    // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro
+    if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento)
+      for (let i = 0; i < 4; i++) {
+        const d = e.r + 18 + i * 46;
+        drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), e.x + Math.cos(e.ca) * d, y - 6 + Math.sin(e.ca) * d, 1.7 + i * .45, { rot: e.ca - .45, alpha: i === 3 ? .75 : .95 });
+      }
+    return;
+  }
   ctx.save(); ctx.translate(e.x, y);
   const col = white ? '#ffffff' : c;
   if (e.elem === 'fire') {

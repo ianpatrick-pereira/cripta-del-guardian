@@ -73,5 +73,19 @@
   "g_impacto": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 11 } },
   "g_puas":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 4 } },
   "g_espada":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 7 } },
-  "g_runas":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 6 } }
+  "g_runas":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 6 } },
+  // Elementales (v0.64). Señor de las Brasas: fila 2 = destello blanco (no se usa: el juego hace su propio destello), herido, muerte.
+  "elem_fire": {
+    "cuadro": [96, 96],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 6 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 2, "desde": 1, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 2 }
+  },
+  // Poderes del Señor de las Brasas (v0.64)
+  "f_bola":    { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } },
+  "f_aliento": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 10 } },
+  "f_meteoro": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 3 } },
+  "f_linea":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 6 } }
 }
