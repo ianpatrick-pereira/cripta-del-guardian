@@ -13,7 +13,7 @@ defSubMove('burbujas', {
     const n = ph2 ? 4 : 3;
     if (e.timer > .45 && e.k < n && e.timer >= .45 + e.k * .45) {
       const A = angTo(e, p);
-      for (let i = -2; i <= 2; i++) enemyShoot(e, A + i * .14 + rand(-.03, .03), 210 + 15 * Math.abs(i), 8, S.pc);
+      for (let i = -2; i <= 2; i++) { const pr = enemyShoot(e, A + i * .14 + rand(-.03, .03), 210 + 15 * Math.abs(i), 8, S.pc); pr.anim = 'a_bola'; pr.ss = 2.8; }   // v0.64: orbe con calavera ahogada
       addPuddle(p.x + rand(-40, 40), p.y + rand(-40, 40), 38, 5);
       e.k++; sfx(420, .15, 'sine', .04, -260);
     }

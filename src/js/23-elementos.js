@@ -29,7 +29,7 @@ const ELEMS = {
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
 // v0.64: los elementales con hoja HD (src/sprites/elem_<elemento>.png) se dibujan con ella, a esta escala
-const ELEM_S = { fire: 5.2, water: 5, air: 4.8, earth: 5.6 };
+const ELEM_S = { fire: 5.2, water: 5, air: 4.8, earth: 5.4 };
 const elemSpr = el => ANIM['elem_' + el] ? 'elem_' + el : null;
 function mkElem(el, x, y) {
   const E = ELEMS[el], B = E.boss;
@@ -168,6 +168,9 @@ function drawElemental(e) {
   const hoja = elemSpr(e.elem);
   if (hoja) {
     const anda = Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk';
+    // vórtice de almas bajo el Djinn mientras te atrae
+    if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice)
+      drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6, { alpha: .7, rot: -G.time * 3 });
     drawSpr(mobKey(hoja, t, anda, e.hitT > -.06) || hoja, e.x, y - 14, e.s, { flip: G.player.x < e.x, white });
     // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro
     if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento)
@@ -175,6 +178,11 @@ function drawElemental(e) {
         const d = e.r + 18 + i * 46;
         drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), e.x + Math.cos(e.ca) * d, y - 6 + Math.sin(e.ca) * d, 1.7 + i * .45, { rot: e.ca - .45, alpha: i === 3 ? .75 : .95 });
       }
+    // ráfaga del Djinn: muro de viento maldito delante de él; vórtice de almas mientras te atrae
+    if (e.elem === 'air' && e.st === 'gust' && e.timer > .5 && e.timer < 2.1 && ANIM.v_rafaga) {
+      const A = angTo(e, G.player);
+      drawSpr(animKey('v_rafaga', 'reposo', e.timer), e.x + Math.cos(A) * 60, y + Math.sin(A) * 60, 3.6, { rot: A, alpha: .85 });
+    }
     return;
   }
   ctx.save(); ctx.translate(e.x, y);

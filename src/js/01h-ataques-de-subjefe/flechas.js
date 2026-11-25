@@ -13,7 +13,7 @@ defSubMove('flechas', {
     if (e.timer > .3 && e.k < n && e.timer >= .3 + e.k * .28) {
       // apunta adonde vas a estar
       const t = .35, A = angTo(e, { x: p.x + G.pv.x * t, y: p.y + G.pv.y * t });
-      for (let i = -1; i <= 1; i++) enemyShoot(e, A + i * .1 + rand(-.02, .02), 420, 4, S.pc, 1, 'arrow');
+      for (let i = -1; i <= 1; i++) { const pr = enemyShoot(e, A + i * .1 + rand(-.02, .02), 420, 4, S.pc, 1, 'arrow'); if (S.el === 'air') { pr.anim = 'v_cuchilla'; pr.ss = 1.7; } }   // v0.64: cuchillas que gritan
       e.k++; sfx(900, .06, 'triangle', .03, 500);
     }
     if (e.timer > .4 + n * .28) subIdle(e);

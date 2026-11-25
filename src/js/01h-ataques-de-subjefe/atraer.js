@@ -21,7 +21,8 @@ defSubMove('atraer', {
       e.k = 1;
       // ráfaga: daña y empuja si estás cerca, y lanza un anillo de cuchillas de viento
       if (!G.over && dist(e, p) < 130 && hurtPlayer(e.dmg, e.name)) elemHit('air', e);
-      for (let i = 0; i < (ph2 ? 16 : 12); i++) enemyShoot(e, i * TAU / (ph2 ? 16 : 12) + angTo(e, p), 260, 5, S.pc);
+      for (let i = 0; i < (ph2 ? 16 : 12); i++) { const pr = enemyShoot(e, i * TAU / (ph2 ? 16 : 12) + angTo(e, p), 260, 5, S.pc); pr.anim = 'v_cuchilla'; pr.ss = 1.3; }
+      G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .45, max: .45, fx: 'v_vortice', s: 6, color: '', size: 0 });   // v0.64: el vórtice de almas estalla
       burst(e.x, e.y, '#c8f0e0', 26, 320, 4, .5); shake(8); sfx(600, .3, 'sine', .05, -400);
     }
     if (e.timer > 2.1) subIdle(e);
