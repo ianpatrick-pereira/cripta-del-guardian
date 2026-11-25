@@ -111,6 +111,7 @@ function update(dt) {
       const pl = G.player;
       if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg, h.por) && h.el) elemHit(h.el, h); }
       burst(h.x, h.y, h.color, 12, 190, 4, .4); shake(4); noise(.12, .05, 700);
+      if (h.fx) G.parts.push({ x: h.x, y: h.y - (h.fy || 0), vx: 0, vy: 0, life: h.fxT || .5, max: h.fxT || .5, fx: h.fx, s: h.s || 3, color: '', size: 0 });
       if (h.el === 'fire') { if (!G.flames) G.flames = []; G.flames.push({ x: h.x, y: h.y, r: h.r * .9, t: 3.2, fight: true }); }
       const prevSrc = G.elSrc; G.elSrc = h.src || null;
       if (h.ring) for (let i = 0; i < h.ring; i++) enemyShoot({ x: h.x, y: h.y, r: 10 }, i * TAU / h.ring, 150, 6, h.color);

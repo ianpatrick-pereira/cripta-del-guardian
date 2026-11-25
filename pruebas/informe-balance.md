@@ -19,7 +19,7 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 
 | Piso | Caballero | Tirador | Asesino | Salas | Subjefe | Jefe |
 |---|---|---|---|---|---|---|
-| 1 | 11.2 | 3.7 | 22.0 | 0.2 | 1.6 | 10.5 |
+| 1 | 11.9 | 4.3 | 21.9 | 0.2 | 1.6 | 10.9 |
 | 2 | 9.5 | 9.6 | 21.5 | 0.9 | 3.4 | 9.3 |
 | 3 | 30.8 | 31.5 | 69.5 | 8.4 | 11.8 | 23.7 |
 | 4 | 58.0 | 69.2 | 119.9 | 20.2 | 18.9 | 43.3 |
@@ -30,8 +30,8 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 
 | Clase | Vidas por piso (media) | Minutos por piso | Salas que no pudo terminar |
 |---|---|---|---|
-| Caballero | 38.9 | 3.4 | 3 |
-| Tirador | 49.4 | 5.7 | 36 |
+| Caballero | 39.0 | 3.4 | 3 |
+| Tirador | 49.5 | 5.8 | 36 |
 | Asesino | 99.1 | 4.7 | 11 |
 
 ### Quién hace más daño

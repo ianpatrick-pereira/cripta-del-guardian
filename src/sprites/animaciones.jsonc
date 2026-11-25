@@ -67,5 +67,11 @@
     "detalle": 4,
     "reposo":  { "fila": 0, "cuadros": 4, "fps": 8 },
     "muerte":  { "fila": 1, "cuadros": 4, "fps": 14 }
-  }
+  },
+  // Efectos de los 5 ataques del Guardián (v0.64). "reposo" = aviso o vuelo; "muerte" = el golpe (se ve una vez).
+  "g_alma":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } },
+  "g_impacto": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 11 } },
+  "g_puas":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 4 } },
+  "g_espada":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 7 } },
+  "g_runas":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 6 } }
 }
