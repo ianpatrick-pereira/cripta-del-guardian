@@ -214,6 +214,13 @@ function sprites() {
       continue;
     }
     const donde = `src/sprites/animaciones.jsonc ("${clave}")`;
+    // dibujo suelto con más detalle (v0.64: arcos y flechas de enemigos): solo { "detalle": n }, sin cuadros
+    if (!A.cuadro && Object.keys(A).every(k => k === 'detalle')) {
+      if (![1, 2, 3, 4].includes(A.detalle)) throw new Error(`${donde}: "detalle" tiene que ser 1, 2, 3 o 4`);
+      if (ancho > 96 || alto > 96) throw new Error(`${nombre}: mide ${ancho}×${alto}; el máximo es 96×96`);
+      out[clave] = [...aLetras(nombre, ancho, rgba, 0, 0, ancho, alto), { detalle: A.detalle }];
+      continue;
+    }
     const [cw, ch] = A.cuadro || [], det = A.detalle || 1;
     if (!(cw > 0 && ch > 0)) throw new Error(`${donde}: falta "cuadro": [ancho, alto] de cada cuadro`);
     if (cw > 96 || ch > 96) throw new Error(`${donde}: cada cuadro puede medir como mucho 96×96 (es ${cw}×${ch})`);

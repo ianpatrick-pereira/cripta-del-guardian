@@ -154,8 +154,9 @@ function extraDmg(e) {
 function enemyShoot(e, a, speed, r = 5, color = '#e86a8a', dmg = 1, kind = 'orb') {
   const S = G.elSrc;
   dmg += extraDmg(e);   // los disparos también pegan más en los pisos hondos
-  G.proj.push({ x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) });
+  const pr = { x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
+    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) };
+  G.proj.push(pr); return pr;
 }
 
 // ---- herramientas de IA ----

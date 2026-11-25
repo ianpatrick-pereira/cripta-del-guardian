@@ -758,7 +758,7 @@ function render0() {
   }
   for (const pt of G.parts) {
     if (pt.muerte) {   // enemigo con hoja de animación: cae con sus propios cuadros y se desvanece al final
-      drawSpr(animKey(pt.spr, 'muerte', pt.max - pt.life, true), pt.x, pt.y, pt.s, { flip: pt.flip, alpha: Math.min(1, pt.life / .3) });
+      drawSpr(animKey(pt.spr, 'muerte', pt.max - pt.life, true), pt.x, pt.y, pt.s, { flip: pt.flip, alpha: Math.min(1, pt.life / .3), tint: pt.tint });
       continue;
     }
     if (pt.spr) {   // cuerpo de un enemigo que muere: blanco, se aplasta y se ensancha
@@ -852,6 +852,14 @@ function render0() {
     }
   }
   for (const pr of G.proj) {
+    // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
+    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
+    // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
+    if (pr.owner === 'enemy' && pr.kind === 'orb') {
+      const f = 1 + 2 * (Math.floor((pr.life + pr.x * .01) * 8) % 2);   // alterna los dos cuadros medianos
+      drawSpr('orbe~reposo~' + f, pr.x, pr.y, pr.r * .32, { tint: pr.color });
+      continue;
+    }
     if (pr.kind === 'boomer') {
       ctx.save(); ctx.translate(pr.x, pr.y); ctx.rotate(pr.spinA || 0);
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.moveTo(-10, -9); ctx.lineTo(4, 0); ctx.lineTo(-10, 9); ctx.lineTo(-5, 0); ctx.fill();

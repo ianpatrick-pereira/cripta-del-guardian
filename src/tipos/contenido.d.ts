@@ -113,6 +113,8 @@ export interface DefSubjefe {
     minion: string; want: number;
     /** color de sus balas */
     pc?: string;
+    /** sprite de sus flechas (volley, retreat), p. ej. flecha_capitan */
+    flecha?: string;
     /** ataques de cada fase (ids de src/js/01h-ataques-de-subjefe/) */
     p1: string[]; p2: string[];
   };

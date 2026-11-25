@@ -29,6 +29,16 @@ function buildSprites() {
   }
 }
 buildSprites();
+// dibujo blanco/gris teñido de un color (orbes de los ataques): se multiplica por el color y el centro sigue brillando
+function tinted(sp, col) {
+  const T = sp.t || (sp.t = {}); if (T[col]) return T[col];
+  const c = document.createElement('canvas'); c.width = sp.wd; c.height = sp.ht; const g = c.getContext('2d');
+  g.drawImage(sp.n, 0, 0);
+  g.globalCompositeOperation = 'multiply'; g.fillStyle = col; g.fillRect(0, 0, sp.wd, sp.ht);
+  g.globalCompositeOperation = 'destination-in'; g.drawImage(sp.n, 0, 0);
+  g.globalCompositeOperation = 'lighter'; g.globalAlpha = .2; g.drawImage(sp.n, 0, 0);
+  return (T[col] = c);
+}
 function drawSpr(key, x, y, s = 2, o = {}) {
   const sp = SPR[key]; if (!sp) return;
   const w = sp.wd * s * sp.k * (o.sx || 1), h = sp.ht * s * sp.k * (o.sy || 1);
@@ -39,8 +49,9 @@ function drawSpr(key, x, y, s = 2, o = {}) {
   if (pant < .95) ctx.imageSmoothingQuality = 'high';
   if (o.alpha !== undefined) ctx.globalAlpha = o.alpha;
   ctx.translate(Math.round(x), Math.round(y));
+  if (o.rot) ctx.rotate(o.rot);
   if (o.flip) ctx.scale(-1, 1);
-  ctx.drawImage(o.white ? sp.w : sp.n, -w / 2, -h / 2, w, h);
+  ctx.drawImage(o.white ? sp.w : o.tint ? tinted(sp, o.tint) : sp.n, -w / 2, -h / 2, w, h);
   ctx.restore();
 }
 

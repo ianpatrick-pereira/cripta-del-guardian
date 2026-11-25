@@ -53,5 +53,19 @@
     "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
     "herido":  { "fila": 2, "cuadros": 2, "fps": 6 },
     "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 2 }
+  },
+  // Armas y ataques de enemigos del piso 1 (v0.64). Los dibujos sueltos solo llevan "detalle".
+  // Arcos: verticales, apuntan a la derecha (el juego los gira hacia donde apunta el enemigo).
+  "arco_hueso":     { "detalle": 4 },
+  "arco_capitan":   { "detalle": 4 },
+  // Flechas: dibujadas en diagonal (punta arriba a la derecha); el juego suma 45° al girarlas.
+  "flecha_hueso":   { "detalle": 4 },
+  "flecha_capitan": { "detalle": 4 },
+  // Orbe de energía en blanco y gris: el juego lo tiñe del color de cada ataque. reposo = late; muerte = estalla.
+  "orbe": {
+    "cuadro": [62, 62],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 8 },
+    "muerte":  { "fila": 1, "cuadros": 4, "fps": 14 }
   }
 }

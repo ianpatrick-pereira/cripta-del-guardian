@@ -201,6 +201,9 @@ function update(dt) {
       else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, tr('Atrapado'), '#e8e8d8', 12); } pr.life = 0; }
     }
   }
+  // los orbes de los enemigos estallan al chocar o apagarse (v0.64)
+  for (const pr of G.proj) if (pr.life <= 0 && pr.owner === 'enemy' && pr.kind === 'orb' && !pr.spr && G.parts.length < 400)
+    G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .29, max: .29, spr: 'orbe', muerte: true, s: pr.r * .32, tint: pr.color, flip: false, color: '', size: 0 });
   G.proj = G.proj.filter(pr => pr.life > 0);
   G.enemies = G.enemies.filter(e => !e.dead);
   for (const b of G.bolts) b.life -= dt;
