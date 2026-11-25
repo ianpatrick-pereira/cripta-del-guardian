@@ -9,6 +9,7 @@
 //   enrage   cambio de fase: tiembla, crece y brilla en rojo
 import { ctx } from './00-inicio.js';
 import { TAU, angTo, clamp } from './01-utilidades.js';
+import { ANIM, animKey, mobKey } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 const suave = k => k * k * (3 - 2 * k);   // 0→1 con arranque y frenada suaves
@@ -105,6 +106,32 @@ function poseJefe(e) {
   return P;
 }
 
+// v0.64: cuadro del cuerpo del jefe según lo que hace. Si tiene hoja de ataques (BH.spr + '_atq', ver animaciones.jsonc)
+// cada ataque usa su pose dibujada; si no, reposo / se desliza / herido, y en fase 2 su versión furiosa (BH.spr + '_furia')
+const ATQ = {   // [animación de la hoja de ataques, cuadro] (dos cuadros = alterna)
+  almas: ['reposo', 0, 1], espadas: ['reposo', 2, 3], embestida: ['caminar', 0], salto: ['caminar', 2], golpe: ['caminar', 3],
+  invocar: ['herido', 0, 1], furia: ['herido', 2, 3]
+};
+function cuadroJefe(e, spr, P, ph2) {
+  const t = e.t || G.time, u = G.time - (e.anT0 ?? G.time), A = ANIM[spr + '_atq'];
+  const atq = (n, rapido = 6) => {
+    const [anim, a, b] = ATQ[n], c = A[anim].cuadros;
+    return c[b === undefined ? a : Math.floor(G.time * rapido) % 2 ? b : a];
+  };
+  if (A) {
+    if (e.st === 'enrage') return atq('furia', 8);
+    if (e.st === 'prep') return e.next === 'puas' ? atq('salto') : e.next === 'embestida' ? atq('embestida') : ATQ[e.next] ? atq(e.next, 4) : null;
+    if (e.st === 'almas') return atq('almas', 7);
+    if (e.st === 'espadas') return A.reposo.cuadros[e.timer < .3 ? 2 : 3];
+    if (e.st === 'embestida') return e.k === 0 ? atq('embestida') : A.caminar.cuadros[1];
+    if (e.st === 'puas') return u < .07 ? atq('salto') : u < .75 ? atq('golpe') : null;
+    if (e.st === 'invocar') return atq('invocar', 5);
+  }
+  const herido = e.hitT > -.06;
+  if (ph2 && ANIM[spr + '_furia'] && !P.anda) return herido && ANIM[spr + '_furia'].herido ? ANIM[spr + '_furia'].herido.cuadros[0] : animKey(spr + '_furia', 'reposo', t);
+  return mobKey(spr, t, P.anda, herido);
+}
+
 // aura del ataque: un halo suave detrás del jefe
 function auraJefe(x, y, r, col, a) {
   if (a <= .01) return;
@@ -113,4 +140,4 @@ function auraJefe(x, y, r, col, a) {
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
 }
 
-export { auraJefe, poseJefe };
+export { auraJefe, cuadroJefe, poseJefe };

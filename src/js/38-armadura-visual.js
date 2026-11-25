@@ -15,6 +15,17 @@ function puntoLuz(col) {
   g.fillStyle = r; g.fillRect(0, 0, 32, 32);
   return (PUNTOS[col] = c);
 }
+// efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
+function drawFxPart(pt) {
+  const el = pt.max - pt.life, pre = pt.pre || 0;
+  const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
+  if (L && L[2]) luzSuelo(pt.x, pt.y + (suelo || BAJO.has(pt.fx) ? 0 : 14), pt.s * 14, L[0], L[2] * .35 * a);
+  // aparece creciendo un poco en vez de saltar a su tamaño
+  const crece = Math.min(1, .7 + el * 3);
+  drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo, rot: pt.rot || 0 });
+}
+// marcas que quedan en el suelo: se pintan antes que los personajes
+const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice']);
 // colores de chispa que brillan (fuego, magia, rayos)
 const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
@@ -30,7 +41,7 @@ import { drawGuide } from './21b-guia.js';
 import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
-import { auraJefe, poseJefe } from './37b-poses-del-jefe.js';
+import { auraJefe, cuadroJefe, poseJefe } from './37b-poses-del-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
 import { dareText } from './28-desafios-dentro-del-piso.js';
@@ -310,9 +321,10 @@ function drawBoss(e) {
     // pose según lo que está haciendo (37b-poses-del-jefe.js): anticipa cada ataque, se cansa al quedar expuesto...
     const P = poseJefe(e), anda = P.anda || e.st === 'charge';
     auraJefe(e.x + P.dx, e.y - lift - 10 + P.dy, e.r * 2.2 * P.auraR, P.aura, P.auraA);
-    // en fase 2 se enfurece: ojos rojos (cuadros de herido) mientras no carga
-    const sk = (ph2 && !anda && ANIM[BH.spr].herido ? animKey(BH.spr, 'herido', e.t || G.time) : mobKey(BH.spr, e.t || G.time, anda, e.hitT > -.06)) || BH.spr;
-    drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { flip: G.player.x < e.x, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && Math.floor(G.time * 12) % 2 === 0) });
+    // cuadro: la pose dibujada de cada ataque; si no ataca, reposo / se desliza / herido (en fase 2, su versión furiosa)
+    const sk = cuadroJefe(e, BH.spr, { ...P, anda }, ph2) || BH.spr;
+    const mira = e.st === 'embestida' ? Math.cos(e.ca) < 0 : G.player.x < e.x;   // al embestir mira hacia donde va
+    drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { flip: mira, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && e.st !== 'enrage' && Math.floor(G.time * 12) % 2 === 0) });
     return;
   }
   // se dibuja a media resolución y se escala para que se vea pixelado
@@ -764,6 +776,37 @@ function render0() {
     ctx.fillText(tr('Los muros agrietados esconden salas secretas'), s.cx, s.cy - 74);
   }
 
+  // v0.64: todo lo que está en el suelo va DEBAJO de personajes y enemigos (antes se pintaba encima y parecía pegado):
+  // charcos, fuego del suelo, avisos de área y marcas de los ataques (grietas, zarpazos, cráteres, ondas)
+  for (const pt of G.parts) if (pt.fx && BAJO.has(pt.fx)) drawFxPart(pt);
+  // suelo en llamas del Señor de las Brasas
+  drawPuddles(); drawBoulders();
+  for (const f of G.flames || []) {
+    const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
+    g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
+    // v0.64: fuego infernal con cadenas (hoja f_linea); al apagarse quedan brasas
+    if (f.fight && ANIM.f_linea) drawSpr(f.t < .7 ? 'f_linea~muerte~2' : 'f_linea~muerte~0', f.x, f.y - f.r * .45, f.r / 13, { alpha: Math.min(1, f.t / .4), flip: Math.floor(G.time * 7 + f.x * .1) % 2 === 0 });
+  }
+  // círculos de área: el relleno crece hasta el borde y entonces estalla
+  for (const h of G.hazards) {
+    const k = clamp(1 - h.t / h.max, 0, 1);
+    if (!h.sinCirculo) {   // la grieta del Gólem ya es su propio aviso: sin círculo encima
+      ctx.fillStyle = h.color;
+      ctx.globalAlpha = .14; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = .4; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * k, 0, TAU); ctx.fill();
+      ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    // aviso con dibujo (v0.64): grieta que brilla o espada que cae
+    if (h.fx) {
+      const L = fxLuz(h.fx), cae = h.caida ? (1 - k) * h.caida : 0, suelo = SUELO.has(h.fx);
+      if (h.caida) sombraSuelo(h.x, h.y, 6 + 10 * k, .15 + .2 * k);   // lo que cae: su sombra crece al acercarse
+      if (L && L[2]) luzSuelo(h.x, h.y, (h.s || 3) * 12, L[0], L[2] * .3 * (.4 + .6 * k));
+      drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - cae, (h.s || 3) * (suelo ? .75 + .25 * Math.min(1, k * 3) : 1),
+        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo, rot: h.rot || 0 });
+    }
+  }
   for (const it of G.pickups) if (it.kind !== 'coin') drawPickup(it);
   for (const it of G.pickups) if (it.kind === 'coin') drawPickup(it);
   const ents = [...G.props, ...G.enemies, G.player].sort((a, b) => a.y - b.y);
@@ -781,15 +824,7 @@ function render0() {
   }
   for (const pt of G.parts) {
     // efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
-    if (pt.fx) {
-      const el = pt.max - pt.life, pre = pt.pre || 0;
-      const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
-      if (L && L[2]) luzSuelo(pt.x, pt.y + (suelo ? 0 : 14), pt.s * 14, L[0], L[2] * .35 * a);
-      // aparece creciendo un poco en vez de saltar a su tamaño
-      const crece = Math.min(1, .7 + el * 3);
-      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo, rot: pt.rot || 0 });
-      continue;
-    }
+    if (pt.fx) { if (!BAJO.has(pt.fx)) drawFxPart(pt); continue; }
     // copia fantasma de un jefe que embiste
     if (pt.ghost) { drawSpr(pt.ghost, pt.x, pt.y, pt.s, { alpha: .5 * pt.life / pt.max, tint: '#c77dff', flip: pt.flip }); continue; }
     if (pt.muerte) {   // enemigo con hoja de animación: cae con sus propios cuadros y se desvanece al final
@@ -855,34 +890,6 @@ function render0() {
     if (B) { ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(B.x, B.y, 6, 0, TAU); ctx.fill(); }
   }
   for (const it of G.pickups) if (it.kind === 'portal' && Math.random() < .3) G.parts.push({ x: it.x + rand(-20, 20), y: it.y + rand(-28, 28), vx: 0, vy: -40, life: .6, max: .6, color: '#c77dff', size: 3 });
-  // suelo en llamas del Señor de las Brasas
-  drawPuddles(); drawBoulders();
-  for (const f of G.flames || []) {
-    const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
-    g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
-    // v0.64: fuego infernal con cadenas (hoja f_linea); al apagarse quedan brasas
-    if (f.fight && ANIM.f_linea) drawSpr(f.t < .7 ? 'f_linea~muerte~2' : 'f_linea~muerte~0', f.x, f.y - f.r * .45, f.r / 13, { alpha: Math.min(1, f.t / .4), flip: Math.floor(G.time * 7 + f.x * .1) % 2 === 0 });
-  }
-  // círculos de área: el relleno crece hasta el borde y entonces estalla
-  for (const h of G.hazards) {
-    const k = clamp(1 - h.t / h.max, 0, 1);
-    if (!h.sinCirculo) {   // la grieta del Gólem ya es su propio aviso: sin círculo encima
-      ctx.fillStyle = h.color;
-      ctx.globalAlpha = .14; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.fill();
-      ctx.globalAlpha = .4; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * k, 0, TAU); ctx.fill();
-      ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
-      ctx.globalAlpha = 1;
-    }
-    // aviso con dibujo (v0.64): grieta que brilla o espada que cae
-    if (h.fx) {
-      const L = fxLuz(h.fx), cae = h.caida ? (1 - k) * h.caida : 0, suelo = SUELO.has(h.fx);
-      if (h.caida) sombraSuelo(h.x, h.y, 6 + 10 * k, .15 + .2 * k);   // lo que cae: su sombra crece al acercarse
-      if (L && L[2]) luzSuelo(h.x, h.y, (h.s || 3) * 12, L[0], L[2] * .3 * (.4 + .6 * k));
-      drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - cae, (h.s || 3) * (suelo ? .75 + .25 * Math.min(1, k * 3) : 1),
-        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo, rot: h.rot || 0 });
-    }
-  }
   // «!»: este enemigo está a punto de atacar
   ctx.font = '800 18px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const e of G.enemies) {

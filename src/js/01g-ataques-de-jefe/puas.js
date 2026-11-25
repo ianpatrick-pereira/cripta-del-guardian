@@ -17,7 +17,7 @@ defBossMove('puas', {
     if (e.k === 0) {
       e.k = 1; e.gap = angTo(e, G.player) + rand(-1.2, 1.2);
       shake(8); sfx(70, .35, 'sawtooth', .06);
-      G.parts.push({ x: e.x, y: e.y + 10, vx: 0, vy: 0, life: .4, max: .4, fx: 'g_impacto', s: 5, color: '', size: 0 });
+      G.parts.push({ x: e.x, y: e.y + 22, vx: 0, vy: 0, life: .8, max: .8, fx: 'g_onda', s: 5.5, color: '', size: 0 });   // onda: el suelo se rompe en anillo bajo él
     }
     while (e.k <= anillos && e.timer >= .2 + (e.k - 1) * .32) {
       const R = 58 + e.k * 62, n = Math.round(TAU * R / 46), hueco = .5 - e.k * .04;

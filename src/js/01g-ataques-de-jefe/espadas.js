@@ -13,7 +13,7 @@ defBossMove('espadas', {
     while (e.k < n && e.timer >= e.k * .14) {
       const t = .5, j = e.k === 0 ? 0 : 90;
       hazard(p.x + G.pv.x * t * .8 + rand(-j, j), p.y + G.pv.y * t * .8 + rand(-j, j), 40, .85, 1, '#c77dff',
-        { shred: true, fx: 'g_espada', s: 3.6, fy: 18, fxT: .5, caida: 150 });
+        { shred: true, fx: 'g_espada', s: 3.6, fy: 18, fxT: 1.1, caida: 150, fxFin: 'g_crater', sFin: 2.8, fyFin: 0 });   // al clavarse deja un cráter con una calavera
       e.k++;
     }
     if (e.timer > n * .14 + .6) bossIdle(e);

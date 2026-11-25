@@ -45,15 +45,26 @@
     "herido":  { "fila": 2, "cuadros": 1 },
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 4 }
   },
-  // El Guardián de la Cripta (v0.64), jefe del piso 1: flota; fila 2 = herido (ojos rojos, también en fase 2) + armadura que se rompe.
+  // El Guardián de la Cripta (v0.64, rediseño IA): fantasma acorazado con cola de fuego morado. Fila 0 reposo, 1 se desliza, 2 herido + muerte.
   "guardian": {
-    "cuadro": [76, 76],
+    "cuadro": [80, 80],
     "detalle": 4,
-    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "reposo":  { "fila": 0, "cuadros": 2, "fps": 3 },
     "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
-    "herido":  { "fila": 2, "cuadros": 2, "fps": 6 },
-    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 2 }
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.5 }
   },
+  // Fase 2 del Guardián (ojos rojos): reposo con los brazos abajo y su cuadro de herido.
+  "guardian_furia": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 }, "herido": { "fila": 0, "desde": 2, "cuadros": 1 } },
+  // Ataques del Guardián (v0.64, IA). Se usan cuadro a cuadro desde 37b-poses-del-jefe.js:
+  //   reposo  = almas 0, almas 1, espadas 0, espadas 1
+  //   caminar = embestida (prepara), embestida (se lanza), salto, golpe al suelo
+  //   herido  = invocar 0, invocar 1, furia 0, furia 1
+  "guardian_atq": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 }, "herido": { "fila": 2, "cuadros": 4 } },
+  // Marcas del Guardián en el suelo: onda del golpe, estela de la embestida (zarpazos en diagonal) y cráter de cada espada.
+  "g_onda":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 5 } },
+  "g_estela": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 2.5 } },
+  "g_crater": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 3 } },
   // Armas y ataques de enemigos del piso 1 (v0.64). Los dibujos sueltos solo llevan "detalle".
   // Arcos: verticales, apuntan a la derecha (el juego los gira hacia donde apunta el enemigo).
   "arco_hueso":     { "detalle": 4 },

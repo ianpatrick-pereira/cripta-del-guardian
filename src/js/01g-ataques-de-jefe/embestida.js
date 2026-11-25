@@ -2,7 +2,7 @@
 // Como la carga, pero deja una estela de copias fantasma y al chocar levanta polvo y piedras (src/sprites/g_impacto.png).
 import { ctx } from '../00-inicio.js';
 import { defBossMove } from '../01a-registro.js';
-import { mobKey } from '../02-pixel-art.js';
+import { ANIM, mobKey } from '../02-pixel-art.js';
 import { BOSSES } from '../03-datos-del-juego.js';
 import { sfx } from '../05-audio.js';
 import { G } from '../07-estado.js';
@@ -27,7 +27,10 @@ defBossMove('embestida', {
       // estela: copias moradas del Guardián que se desvanecen
       e.ghT = (e.ghT || 0) - dt;
       const B = BOSSES[e.kind];
-      if (e.ghT <= 0 && B.spr) { e.ghT = .05; G.parts.push({ x: e.x, y: e.y - 10, vx: 0, vy: 0, life: .32, max: .32, ghost: mobKey(B.spr, e.t || G.time, true, false), s: B.s || 4, flip: G.player.x < e.x, color: '', size: 0 }); }
+      if (e.ghT <= 0 && B.spr) { e.ghT = .05; G.parts.push({ x: e.x, y: e.y - 10, vx: 0, vy: 0, life: .32, max: .32, ghost: ANIM[B.spr + '_atq'] ? ANIM[B.spr + '_atq'].caminar.cuadros[1] : mobKey(B.spr, e.t || G.time, true, false), s: B.s || 4, flip: Math.cos(e.ca) < 0, color: '', size: 0 }); }
+      // zarpazos en el suelo por donde pasa (el dibujo va en diagonal: se gira para seguir la carga)
+      e.estD = (e.estD || 0) + sp * dt;
+      if (e.estD > 44) { e.estD = 0; G.parts.push({ x: e.x, y: e.y + 16, vx: 0, vy: 0, life: 1.4, max: 1.4, fx: 'g_estela', pre: .55, s: 2.6, rot: e.ca + Math.PI / 4, color: '', size: 0 }); }
       if (hit || e.timer > .75) {
         if (hit) { shake(12); burst(e.x, e.y, '#7a6f8a', 16, 200); impacto(e.x + Math.cos(e.ca) * e.r, e.y + Math.sin(e.ca) * e.r, 5.5); if (ph2) bossRing(e, 12, 170, bcol); }
         if (--e.reps > 0) { e.k = 0; e.timer = .3; } else bossIdle(e);

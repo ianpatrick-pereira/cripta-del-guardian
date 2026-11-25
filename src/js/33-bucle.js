@@ -111,7 +111,7 @@ function update(dt) {
       const pl = G.player;
       if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg, h.por) && h.el) elemHit(h.el, h); }
       if (!h.sinChispas) { burst(h.x, h.y, h.color, 12, 190, 4, .4); shake(4); noise(.12, .05, 700); }
-      if (h.fx || h.fxFin) G.parts.push({ x: h.x, y: h.y - (h.fy || 0), vx: 0, vy: 0, life: h.fxT || .5, max: h.fxT || .5, fx: h.fxFin || h.fx, s: h.sFin || h.s || 3, rot: h.rotFin || 0, color: '', size: 0 });   // fxFin: lo que aparece al estallar (si no, el mismo dibujo del aviso)
+      if (h.fx || h.fxFin) G.parts.push({ x: h.x, y: h.y - (h.fxFin ? h.fyFin || 0 : h.fy || 0), vx: 0, vy: 0, life: h.fxT || .5, max: h.fxT || .5, fx: h.fxFin || h.fx, s: h.sFin || h.s || 3, rot: h.rotFin || 0, color: '', size: 0 });   // fxFin: lo que aparece al estallar (si no, el mismo dibujo del aviso)
       if (h.el === 'fire') { if (!G.flames) G.flames = []; G.flames.push({ x: h.x, y: h.y, r: h.r * .9, t: 3.2, fight: true }); }
       const prevSrc = G.elSrc; G.elSrc = h.src || null;
       if (h.ring) for (let i = 0; i < h.ring; i++) enemyShoot({ x: h.x, y: h.y, r: 10 }, i * TAU / h.ring, 150, 6, h.color);
