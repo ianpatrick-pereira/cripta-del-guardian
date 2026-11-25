@@ -53,7 +53,7 @@ function poseElem(e) {
     }
   }
   // anuncia el ataque: se recoge, tiembla y brilla; al soltarlo se estira hacia ti
-  if (e.st !== 'idle' && e.st !== 'walk') {
+  if (e.st !== 'idle' && e.st !== 'walk' && e.st !== 'golpe') {   // el golpe del Gólem ya trae sus propios cuadros
     const a = angTo(e, G.player);
     if (e.tele > 0) {
       const k = 1 - clamp(e.tele / .5, 0, 1);

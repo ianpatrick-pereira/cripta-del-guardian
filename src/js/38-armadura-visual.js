@@ -787,7 +787,7 @@ function render0() {
       if (L && L[2]) luzSuelo(pt.x, pt.y + (suelo ? 0 : 14), pt.s * 14, L[0], L[2] * .35 * a);
       // aparece creciendo un poco en vez de saltar a su tamaño
       const crece = Math.min(1, .7 + el * 3);
-      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo });
+      drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo, rot: pt.rot || 0 });
       continue;
     }
     // copia fantasma de un jefe que embiste
@@ -867,18 +867,20 @@ function render0() {
   // círculos de área: el relleno crece hasta el borde y entonces estalla
   for (const h of G.hazards) {
     const k = clamp(1 - h.t / h.max, 0, 1);
-    ctx.fillStyle = h.color;
-    ctx.globalAlpha = .14; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.fill();
-    ctx.globalAlpha = .4; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * k, 0, TAU); ctx.fill();
-    ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
-    ctx.globalAlpha = 1;
+    if (!h.sinCirculo) {   // la grieta del Gólem ya es su propio aviso: sin círculo encima
+      ctx.fillStyle = h.color;
+      ctx.globalAlpha = .14; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = .4; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * k, 0, TAU); ctx.fill();
+      ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
     // aviso con dibujo (v0.64): grieta que brilla o espada que cae
     if (h.fx) {
       const L = fxLuz(h.fx), cae = h.caida ? (1 - k) * h.caida : 0, suelo = SUELO.has(h.fx);
       if (h.caida) sombraSuelo(h.x, h.y, 6 + 10 * k, .15 + .2 * k);   // lo que cae: su sombra crece al acercarse
       if (L && L[2]) luzSuelo(h.x, h.y, (h.s || 3) * 12, L[0], L[2] * .3 * (.4 + .6 * k));
       drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - cae, (h.s || 3) * (suelo ? .75 + .25 * Math.min(1, k * 3) : 1),
-        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo });
+        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo, rot: h.rot || 0 });
     }
   }
   // «!»: este enemigo está a punto de atacar

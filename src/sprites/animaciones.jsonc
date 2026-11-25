@@ -121,6 +121,14 @@
   "v_cuchilla": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 10 } },
   "v_rafaga":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 8 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
   "v_vortice":  { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 4 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Golpe del Gólem (v0.64, IA): cerca, puñetazo hacia ti; lejos, golpe al suelo que abre una grieta con picos.
+  // Cuadros: 0 se prepara, 1 golpea, 2 impacto, 3 se recupera (los pies en el mismo sitio que su cuerpo de 80x80).
+  "golem_puno":  { "cuadro": [112, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "golem_suelo": { "cuadro": [112, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Efectos del golpe: impacto del puño, picos de piedra que brotan y grieta que avanza (horizontal, se gira hacia ti).
+  "t_golpe":  { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 7 } },
+  "t_picos":  { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 5 } },
+  "t_grieta": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 4 }, "caminar": { "fila": 0, "desde": 2, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
   // Poderes del Gólem
   "t_roca":     { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 6 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
   "t_esquirla": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 12 } },

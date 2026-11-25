@@ -97,4 +97,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de marea | rare | Caballero | 19.1 | 0.66 | 12.2 | 2/3 | 18 % |
 | Arco triple | rare | Tirador | 18.9 | 0.65 | 12.7 | 1/3 | 4 % |
 
-_294 partidas en 226 s._
+_294 partidas en 295 s._

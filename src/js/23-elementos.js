@@ -26,7 +26,7 @@ const ELEMS = {
            boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 270, speed: 155, want: 190, p1: ['flechas', 'gust', 'atraer'], p2: ['flechas', 'gust', 'atraer', 'rafaga', 'charge3'] } },
   earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Piel de roca'),   abd: tr('10 s: recibes la mitad de daño y tu arma pega +35 %.'),
            hitd: tr('golpea +1 y resiste el daño'),
-           boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'slam'], p2: ['pedrusco', 'gravilla', 'muralla', 'slam', 'pedrusco'] } },
+           boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'golpe'], p2: ['pedrusco', 'golpe', 'gravilla', 'muralla', 'golpe'] } },
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
 // v0.64: los elementales con hoja HD (src/sprites/elem_<elemento>.png) se dibujan con ella, a esta escala
@@ -174,7 +174,13 @@ function drawElemental(e) {
       const k = Math.min(1, (e.timer - .3) / .3, (1.7 - e.timer) / .25);
       drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6 * (.4 + .6 * k), { alpha: .75 * k, rot: -G.time * 3, suave: true, luz: .25 });
     }
-    drawSpr(mobKey(hoja, t, P.anda, e.hitT > -.06) || hoja, e.x + P.dx, y - 14 + P.dy, e.s, { flip: G.player.x < e.x, white, rot: P.rot, sx: P.sx, sy: P.sy, luz: P.brillo });
+    const golpe = e.elem === 'earth' && e.st === 'golpe' && e.modo && ANIM.golem_puno;
+    if (golpe) {
+      // golpe del Gólem: cuadros propios (112×96), con los pies en el mismo sitio que su cuerpo
+      const ks = e.s * .25, dir = Math.cos(e.ca) < 0 ? -1 : 1, tt = e.timer;
+      const i = e.modo === 'puno' ? (tt < .45 ? 0 : tt < .62 ? 1 : tt < .82 ? 2 : 3) : (tt < .45 ? 0 : tt < .55 ? 1 : tt < (e.t0 || 9) + .45 ? 2 : 3);
+      drawSpr(`golem_${e.modo}~reposo~${i}`, e.x + P.dx + 15 * ks * dir, y - 14 - 8 * ks + P.dy, e.s, { flip: dir < 0, white, rot: P.rot * .3 });
+    } else drawSpr(mobKey(hoja, t, P.anda, e.hitT > -.06) || hoja, e.x + P.dx, y - 14 + P.dy, e.s, { flip: G.player.x < e.x, white, rot: P.rot, sx: P.sx, sy: P.sy, luz: P.brillo });
     frenteElem(e, y, P);
     // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro y alumbran el suelo
     if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento) {
