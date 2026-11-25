@@ -672,7 +672,7 @@ function defSubMove(id, def) { SUB_MOVES[id] = typeof def === 'string' ? SUB_MOV
 
 
 // las flechas del esqueleto se ven como flechas de hueso (antes eran bolitas color crema)
-const flecha = pr => { pr.spr = 'flecha_hueso'; };
+const flecha = pr => { pr.spr = 'flecha_hueso'; pr.ss = 1.6; };
 defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
@@ -2888,7 +2888,7 @@ defSubMove('retreat', {
     const { S, a, ph2, move } = c;
     e.timer += dt;
     if (e.timer < .35) move(a + Math.PI, 380);
-    else if (e.k === 0) { e.k = 1; const n = ph2 ? 14 : 10; for (let i = 0; i < n; i++) { const pr = enemyShoot(e, a + i * TAU / n, 170, 5, S.pc || '#f0e6c8'); if (S.flecha) pr.spr = S.flecha; } sfx(300, .1, 'square', .03); }
+    else if (e.k === 0) { e.k = 1; const n = ph2 ? 14 : 10; for (let i = 0; i < n; i++) { const pr = enemyShoot(e, a + i * TAU / n, 170, 5, S.pc || '#f0e6c8'); if (S.flecha) { pr.spr = S.flecha; pr.ss = S.s * .85; } } sfx(300, .1, 'square', .03); }
     if (e.timer > .8) subIdle(e);
   }
 });
@@ -2947,7 +2947,7 @@ defSubMove('volley', {
     const { S, ph2 } = c;
     e.timer += dt; e.aimA = leadAng(e, 270);
     const vols = ph2 ? 4 : 3, n = ph2 ? 5 : 4;
-    if (e.timer > .5 && e.k < vols && e.timer >= .5 + e.k * .28) { for (let i = 0; i < n; i++) { const pr = enemyShoot(e, e.aimA + (i - (n - 1) / 2) * .17, 270, 5, S.pc || '#f0e6c8'); if (S.flecha) pr.spr = S.flecha; } e.k++; sfx(500, .05, 'triangle', .025, -200); }
+    if (e.timer > .5 && e.k < vols && e.timer >= .5 + e.k * .28) { for (let i = 0; i < n; i++) { const pr = enemyShoot(e, e.aimA + (i - (n - 1) / 2) * .17, 270, 5, S.pc || '#f0e6c8'); if (S.flecha) { pr.spr = S.flecha; pr.ss = S.s * .85; } } e.k++; sfx(500, .05, 'triangle', .025, -200); }
     if (e.timer > .5 + vols * .28 + .3) subIdle(e);
   },
   // aviso que se dibuja antes que el subjefe
@@ -8919,7 +8919,7 @@ function render0() {
   }
   for (const pr of G.proj) {
     // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
-    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
+    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, pr.ss || 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
     // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
     if (pr.owner === 'enemy' && pr.kind === 'orb') {
       const f = 1 + 2 * (Math.floor((pr.life + pr.x * .01) * 8) % 2);   // alterna los dos cuadros medianos

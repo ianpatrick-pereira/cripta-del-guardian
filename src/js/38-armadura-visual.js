@@ -853,7 +853,7 @@ function render0() {
   }
   for (const pr of G.proj) {
     // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
-    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
+    if (pr.spr) { drawSpr(pr.spr, pr.x, pr.y, pr.ss || 2.2, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 }); continue; }
     // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
     if (pr.owner === 'enemy' && pr.kind === 'orb') {
       const f = 1 + 2 * (Math.floor((pr.life + pr.x * .01) * 8) % 2);   // alterna los dos cuadros medianos

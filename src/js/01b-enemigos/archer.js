@@ -9,7 +9,7 @@ import { blinkAway, enemyShoot, flankPoint, hazard, leadAng, takeToken, telegrap
 import { drawWeapon } from '../38-armadura-visual.js';
 import { drawSpr } from '../02-pixel-art.js';
 // las flechas del esqueleto se ven como flechas de hueso (antes eran bolitas color crema)
-const flecha = pr => { pr.spr = 'flecha_hueso'; };
+const flecha = pr => { pr.spr = 'flecha_hueso'; pr.ss = 1.6; };
 defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
