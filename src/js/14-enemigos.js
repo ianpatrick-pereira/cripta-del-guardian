@@ -251,6 +251,7 @@ function updateEnemy(e, dt) {
     if (e.bt >= .5) { e.bt = 0; e.hp -= 1; e.flash = .06; addText(e.x, e.y - e.r - 4, 1, '#ff8a3a', 11); if (e.hp <= 0) { killEnemy(e); return; } }
   }
   e.slowT = (e.slowT || 0) - dt; if (e.slowT <= 0) e.slowK = 0;
+  if (e.type === 'boss' || e.isSub) e.hitT = (e.hitT || 0) - dt;   // solo dibujo (retroceso y cuadro de herido); los normales lo bajan más abajo
   if (e.type === 'boss') { updateBoss(e, dt); return; }
   if (e.isSub) { G.elSrc = e.elem ? e : null; updateSub(e, dt); G.elSrc = null; return; }
   const cdt = dt * Df.rate * enemyPace();

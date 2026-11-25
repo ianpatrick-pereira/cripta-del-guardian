@@ -17,6 +17,7 @@ import { drawGuide } from './21b-guia.js';
 import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
+import { auraJefe, poseJefe } from './37b-poses-del-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
 import { dareText } from './28-desafios-dentro-del-piso.js';
@@ -293,11 +294,12 @@ function drawBoss(e) {
   // jefe con hoja HD propia (datos.spr + entrada en animaciones.jsonc); los que reutilizan su look siguen dibujados por código
   const BH = BOSSES[e.kind];
   if (!BH.look && BH.spr && ANIM[BH.spr]) {
-    const anda = e.st === 'charge' || Math.hypot(e.vx || 0, e.vy || 0) > 20;
+    // pose según lo que está haciendo (37b-poses-del-jefe.js): anticipa cada ataque, se cansa al quedar expuesto...
+    const P = poseJefe(e), anda = P.anda || e.st === 'charge';
+    auraJefe(e.x + P.dx, e.y - lift - 10 + P.dy, e.r * 2.2 * P.auraR, P.aura, P.auraA);
     // en fase 2 se enfurece: ojos rojos (cuadros de herido) mientras no carga
     const sk = (ph2 && !anda && ANIM[BH.spr].herido ? animKey(BH.spr, 'herido', e.t || G.time) : mobKey(BH.spr, e.t || G.time, anda, e.hitT > -.06)) || BH.spr;
-    const flota = Math.sin((e.t || G.time) * 2.4) * 3;
-    drawSpr(sk, e.x, e.y - lift - 10 + flota, BH.s || 4, { flip: G.player.x < e.x, white: white || (e.invuln && Math.floor(G.time * 12) % 2 === 0) });
+    drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { flip: G.player.x < e.x, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && Math.floor(G.time * 12) % 2 === 0) });
     return;
   }
   // se dibuja a media resolución y se escala para que se vea pixelado
