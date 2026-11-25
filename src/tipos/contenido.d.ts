@@ -95,6 +95,9 @@ export interface DefJefe {
     tint?: string; scale?: number;
     /** id de otro jefe cuyo dibujo reutiliza */
     look?: string;
+    /** hoja HD propia (clave de src/sprites/animaciones.jsonc) y su escala; sin ella se dibuja con aspecto() */
+    spr?: string;
+    s?: number;
     /** ataques de cada fase (ids de src/js/01g-ataques-de-jefe/) */
     p1: string[]; p2: string[]; p3: string[];
   };

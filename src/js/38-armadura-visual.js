@@ -286,6 +286,16 @@ function drawBoss(e) {
     ctx.strokeStyle = `rgba(255,216,74,${.45 + .4 * Math.abs(Math.sin(G.time * 12))})`; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(e.x, e.y, e.r * (1.1 + .5 * k), 0, TAU); ctx.stroke();
   }
+  // jefe con hoja HD propia (datos.spr + entrada en animaciones.jsonc); los que reutilizan su look siguen dibujados por código
+  const BH = BOSSES[e.kind];
+  if (!BH.look && BH.spr && ANIM[BH.spr]) {
+    const anda = e.st === 'charge' || Math.hypot(e.vx || 0, e.vy || 0) > 20;
+    // en fase 2 se enfurece: ojos rojos (cuadros de herido) mientras no carga
+    const sk = (ph2 && !anda && ANIM[BH.spr].herido ? animKey(BH.spr, 'herido', e.t || G.time) : mobKey(BH.spr, e.t || G.time, anda, e.hitT > -.06)) || BH.spr;
+    const flota = Math.sin((e.t || G.time) * 2.4) * 3;
+    drawSpr(sk, e.x, e.y - lift - 10 + flota, BH.s || 4, { flip: G.player.x < e.x, white: white || (e.invuln && Math.floor(G.time * 12) % 2 === 0) });
+    return;
+  }
   // se dibuja a media resolución y se escala para que se vea pixelado
   const g = bctx; g.clearRect(0, 0, 64, 64);
   g.save(); g.translate(32, 32); g.scale(.5, .5);
