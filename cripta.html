@@ -4142,6 +4142,9 @@ function setWantElem(v) { return (wantElem = v); }
 
 
 
+// distancia (px) que recorre el personaje en un ciclo completo de pasos (las dos piernas): a velocidad 175, ~2 ciclos por segundo
+const ZANCADA = 85;
+
 function nearestEnemy(p, maxD) {
   let best = null, bd = maxD;
   for (const e of G.enemies) { if (e.air) continue; const d = dist(p, e); if (d < bd) { bd = d; best = e; } }
@@ -4223,7 +4226,10 @@ function updatePlayer(dt) {
   } else { p.svx = mx * ch.speed * speedMul; p.svy = my * ch.speed * speedMul; moveEnt(p, p.svx * dt, p.svy * dt); }
   if (p.kbx || p.kby) { moveEnt(p, p.kbx * dt, p.kby * dt); const f = Math.exp(-7 * dt); p.kbx *= f; p.kby *= f; if (Math.abs(p.kbx) + Math.abs(p.kby) < 10) p.kbx = p.kby = 0; }
   pushOutProps(p);
-  p.walk += ml * dt * 10;
+  // v0.64: los pasos siguen a la distancia que de verdad recorre (más rápido = pasos más seguidos; contra una pared, quieto)
+  const anduvo = Math.min(12, Math.hypot(p.x - (p.lx ?? p.x), p.y - (p.ly ?? p.y)));
+  p.lx = p.x; p.ly = p.y;
+  p.walk += p.dashT > 0 ? 0 : anduvo / ZANCADA * TAU;
   p.slow -= dt;
   if (p.burnT > 0) {
     p.burnT -= dt; p.burnTick -= dt;
