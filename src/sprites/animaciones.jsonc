@@ -35,5 +35,14 @@
     "caminar": { "fila": 1, "cuadros": 4, "fps": 12 },
     "herido":  { "fila": 2, "cuadros": 1 },
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
+  // Capitán Hueso (v0.64), subjefe del piso 1: el juego lo agranda (s 3.4) y le dibuja el arco largo.
+  "captain": {
+    "cuadro": [80, 68],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 4 }
   }
 }

@@ -315,7 +315,8 @@ function drawSub(e) {
   drawSpr(sk, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
   if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
-  // corona: distingue al subjefe
+  // corona: distingue al subjefe (las hojas HD ya traen la suya dibujada)
+  if (ANIM[e.spr]) return;
   const cy = e.y - lift - e.r - 14;
   ctx.fillStyle = '#e3a24a'; ctx.fillRect(e.x - 9, cy, 18, 4);
   for (const dx of [-9, -2, 5]) ctx.fillRect(e.x + dx, cy - 5, 4, 5);
