@@ -13,7 +13,7 @@
     "cuadro": [64, 64],
     "detalle": 4,
     "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
-    "caminar": { "fila": 1, "cuadros": 4 },
+    "caminar": { "fila": 1, "cuadros": 8 },
     "herido":  { "fila": 2, "cuadros": 1 },
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
   },

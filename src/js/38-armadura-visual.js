@@ -200,8 +200,8 @@ function drawWeapon(w, x, y, a, scale = 1) {
 }
 
 // cuadro de la hoja de animación del personaje (si tiene): muerte > herido > caminar > reposo
-// v0.64: los dibujos HD con pies se mecen al caminar (de lado a lado y un saltito por paso) mientras no tengan hoja de caminata propia
-const CON_PIES = new Set(['knight', 'skel', 'captain', 'elem_earth']);
+// v0.64: el caballero camina con piernas por cuadros (8). Los demás dibujos HD con pies se mecen al caminar (de lado a lado y un saltito por paso) mientras no tengan hoja de caminata propia
+const CON_PIES = new Set(['skel', 'captain', 'elem_earth']);
 const paso = (fase, anda) => anda ? { rot: Math.sin(fase) * .07, dy: -Math.abs(Math.sin(fase)) * 2.5 } : { rot: 0, dy: 0 };
 function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
@@ -216,7 +216,7 @@ function drawPlayer(p) {
   const dead = G.over && !G.won;
   drawShadow(p.x, p.y + 4, p.r);
   const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
-  const bob = dead ? 0 : Math.abs(Math.sin(p.walk)) * -2;
+  const bob = dead || ANIM[p.spr] ? 0 : Math.abs(Math.sin(p.walk)) * -2;   // con hoja, el rebote ya viene en los cuadros
   const w = p.slots[p.cur];
   const back = Math.sin(p.aim) < -.3;
   const drawW = () => {
