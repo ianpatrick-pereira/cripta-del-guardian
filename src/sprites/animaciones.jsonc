@@ -275,6 +275,9 @@
   //   c_tajo, c_reves, c_estocada  el corte de cada golpe del combo (4 cuadros: aparece, lleno, se adelgaza, chispas)
   //   c_giro      el anillo del giro cargado (2); c_impacto: chispa al pegar (muerte = 2 cuadros)
   //   c_fire, c_water, c_air, c_earth  cortes con elemento: media luna, estocada, anillo e impacto
+  // Disparo de la Arquera (v0.68, IA con fondo verde; el arma se dibuja aparte, en su mano). reposo = arco
+  // (apunta, tensa, suelta, vuelve), caminar = arma pesada a dos manos (apunta, dispara, retroceso, vuelve)
+  "archer_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
   "knight_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
                   "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
   "espada":     { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
