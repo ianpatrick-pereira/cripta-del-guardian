@@ -352,7 +352,7 @@ function drawSub(e) {
   if (sd.forma) { const f = { sx, sy }; sd.forma(e, f); sx = f.sx; sy = f.sy; }
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
   if (e.hitT > 0) { const k = e.hitT / .14; sx *= 1 + .14 * k; sy *= 1 - .12 * k; }
-  const sk = mobKey(e.spr, e.t || G.time, Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk', e.hitT > -.06) || e.spr;
+  const sk = (ANIM[e.spr] && sd.cuadro && !(e.hitT > -.06) && sd.cuadro(e)) || mobKey(e.spr, e.t || G.time, Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk', e.hitT > -.06) || e.spr;
   const ps = paso((e.t || G.time) * 7, CON_PIES.has(e.spr) && (Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk'));
   drawSpr(sk, e.x, e.y - lift + ps.dy, e.s, { flip: Math.cos(angTo(e, p)) < 0, rot: ps.rot, white, sx, sy });
   if (sd.encima) sd.encima(e, lift, p);
@@ -393,9 +393,9 @@ function drawEnemy(e) {
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
   const anda = e.st === 'walk' && e.speed > 0 && !(e.stagT > 0);
   const pasos = hoja && anda && !(e.hitT > -.06) && ANIM[e.spr].caminar?.cuadros.length >= 8 ? ANIM[e.spr].caminar.cuadros : null;   // caminata de 8 cuadros: sigue a lo que avanza
-  const ek = pasos ? pasos[Math.floor((e.paso || 0) / TAU * pasos.length) % pasos.length]
+  const ek = (hoja && ed.cuadro && !(e.hitT > -.06) && ed.cuadro(e, anda)) || (pasos ? pasos[Math.floor((e.paso || 0) / TAU * pasos.length) % pasos.length]
     : hoja ? mobKey(e.spr, e.t + (e.wob || 0), anda, e.hitT > -.06)   // hoja: reposo, caminar o herido
-    : walkKey(e.spr, walkFrame(e.t * 9 + e.wob, anda));   // los que tienen piernas caminan
+    : walkKey(e.spr, walkFrame(e.t * 9 + e.wob, anda)));   // los que tienen piernas caminan
   const pe = paso(e.t * 9 + (e.wob || 0), hoja && anda && CON_PIES.has(e.spr));
   drawSpr(ek, e.x, e.y + f.oy + pe.dy, e.s, { flip: Math.cos(la) < 0, rot: pe.rot, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
   if (ed.encima) ed.encima(e, la, white);
@@ -969,14 +969,10 @@ function render0() {
     } else if (pr.kind === 'power') {
       ctx.fillStyle = 'rgba(255,230,160,.4)'; ctx.beginPath(); ctx.arc(pr.x, pr.y, 12, 0, TAU); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(pr.x, pr.y, 6, 0, TAU); ctx.fill();
-    } else if (pr.kind === 'web' && pr.shred) {
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 2, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = pr.color; ctx.lineWidth = 2;
-      ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(pr.x - Math.cos(a) * pr.r, pr.y - Math.sin(a) * pr.r); ctx.lineTo(pr.x + Math.cos(a) * pr.r, pr.y + Math.sin(a) * pr.r); } ctx.stroke();
     } else if (pr.kind === 'web') {
-      ctx.strokeStyle = pr.color; ctx.lineWidth = 2;
-      ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(pr.x - Math.cos(a) * pr.r, pr.y - Math.sin(a) * pr.r); ctx.lineTo(pr.x + Math.cos(a) * pr.r, pr.y + Math.sin(a) * pr.r); } ctx.stroke();
-      ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r * .6, 0, TAU); ctx.stroke();
+      // v0.65: bola de telaraña dibujada (hilos hacia atrás); la de la Reina rompe escudos y lleva un halo blanco
+      if (pr.shred) { ctx.strokeStyle = `rgba(255,255,255,${.5 + .3 * Math.sin(G.time * 14)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 4, 0, TAU); ctx.stroke(); }
+      drawSpr(animKey('telarana', 'reposo', G.time + pr.r), pr.x, pr.y, pr.r * .34, { rot: Math.atan2(pr.vy, pr.vx) });
     } else {
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r, 0, TAU); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r * .45, 0, TAU); ctx.fill();

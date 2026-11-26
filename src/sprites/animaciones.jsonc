@@ -144,4 +144,41 @@
   "t_roca":     { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 6 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
   "t_esquirla": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 12 } },
   "t_pilar":    { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "caminar": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 4 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } }
+  ,
+  // ── Piso 2: Catacumbas Pútridas (v0.65, IA) ──
+  // Limo tóxico (y los limitos, más chicos). Fila 0 reposo; fila 1 el salto (se aplasta, se estira, en el aire, cae): el juego elige
+  // el cuadro según el ritmo de sus saltitos; fila 2 herido + 3 de muerte (revienta y queda un charco con la calavera).
+  "toxic": {
+    "cuadro": [64, 64], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 5 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 5 }
+  },
+  // Matriarca del Limo (subjefe). Igual que el limo: fila 1 = el salto pesado, cuadro a cuadro según el ataque.
+  "matriarch": {
+    "cuadro": [80, 80], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 5 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 3 }
+  },
+  // La Reina Tejedora (jefe). herido trae 2 cuadros: 0 = golpe recibido, 1 = se alza furiosa (cambio de fase y antes de saltar).
+  "queen": {
+    "cuadro": [96, 96], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 9 },
+    "herido":  { "fila": 2, "cuadros": 2 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.5 }
+  },
+  // Araña (crías de la Reina y arañas del piso 2).
+  "spider": {
+    "cuadro": [64, 64], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 8 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 16 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 1 }
+  },
+  // Bola de telaraña que escupen (va hacia la derecha con los hilos detrás; el juego la gira hacia donde vuela).
+  "telarana": { "cuadro": [48, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } }
 }

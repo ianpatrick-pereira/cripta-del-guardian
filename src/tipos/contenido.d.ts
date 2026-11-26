@@ -17,6 +17,8 @@ export interface DefEnemigo {
   /** comportamiento cada fotograma, o el id de otro enemigo para copiar el suyo */
   ia: ((e: any, c: any) => void) | string;
   forma?: Fn; debajo?: Fn; encima?: Fn;
+  /** con hoja HD: elige el cuadro (clave) según lo que hace; null = el de siempre */
+  cuadro?: (e: any, anda: boolean) => string | null;
   /** devuelve el daño que recibe de verdad */
   alRecibir?: (e: any, dmg: number, ang: number, o: any) => number;
   alMorir?: (e: any) => void;
@@ -98,6 +100,8 @@ export interface DefJefe {
     /** hoja HD propia (clave de src/sprites/animaciones.jsonc) y su escala; sin ella se dibuja con aspecto() */
     spr?: string;
     s?: number;
+    /** true si camina por el suelo (no flota como el Guardián) */
+    rastrero?: boolean;
     /** ataques de cada fase (ids de src/js/01g-ataques-de-jefe/) */
     p1: string[]; p2: string[]; p3: string[];
   };
@@ -119,6 +123,8 @@ export interface DefSubjefe {
     p1: string[]; p2: string[];
   };
   forma?: Fn; encima?: Fn; alMorir?: Fn;
+  /** con hoja HD: elige el cuadro (clave) según el ataque; null = el de siempre */
+  cuadro?: (e: any) => string | null;
   rompeAlCaminar?: boolean;
 }
 

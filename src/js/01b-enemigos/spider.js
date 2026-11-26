@@ -6,7 +6,7 @@ import { G } from '../07-estado.js';
 import { enemyShoot, flankPoint, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('spider', {
   orden: 7,
-  stats: { hp: 6, r: 12, speed: 210, dmg: 1, spr: 'spider', s: 2 },
+  stats: { hp: 6, r: 12, speed: 210, dmg: 1, spr: 'spider', s: 2.5 },
   bestiario: { n: tr('Araña'), d: tr('Zigzag veloz; escupe telaraña que frena.') },
   esquiva: true,
   // Arañas: zigzag rápido hacia su flanco; desde lejos escupen telaraña que te frena

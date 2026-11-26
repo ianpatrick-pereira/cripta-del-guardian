@@ -10,6 +10,7 @@
 import { ctx } from './00-inicio.js';
 import { TAU, angTo, clamp } from './01-utilidades.js';
 import { ANIM, animKey, mobKey } from './02-pixel-art.js';
+import { BOSSES } from './03-datos-del-juego.js';
 import { G } from './07-estado.js';
 
 const suave = k => k * k * (3 - 2 * k);   // 0→1 con arranque y frenada suaves
@@ -38,6 +39,9 @@ function poseJefe(e) {
   const P = { dx: 0, dy: Math.sin(t * 2.4) * 3, rot: 0, sx: 1, sy: 1 + Math.sin(t * 1.3) * .02, aura: MORADO, auraA: 0, auraR: 1, anda: false };
   const tiembla = a => { P.dx += Math.sin(G.time * 61) * a; P.dy += Math.cos(G.time * 47) * a * .6; };
   const aPj = angTo(e, p);
+  // v0.65: los jefes que caminan (la Reina) no flotan: quietos solo respiran
+  const ras = !!(BOSSES[e.kind] && BOSSES[e.kind].rastrero);
+  if (ras) { P.dy = 0; P.sy = 1 + Math.sin(t * 1.6) * .015; }
 
   if (e.st === 'enrage') {
     const k = clamp(u / 1.2, 0, 1);
@@ -55,7 +59,8 @@ function poseJefe(e) {
       case 'espadas':  P.dy -= 26 * k; P.rot = -.1 * k; P.auraA = .45 * k; break;                                // sube a ordenar las espadas
       case 'puas':     P.dy -= 34 * k; P.sx = 1 - .1 * k; P.sy = 1 + .12 * k; break;                             // salta para caer con fuerza
       case 'invocar':  P.dy += 4 * k; P.sx = 1 + .06 * k; P.sy = 1 - .06 * k; tiembla(1.2 * k); P.auraA = .5 * k; P.auraR = 1.6; break;   // se encoge y llama a sus esbirros
-      default:         P.dy -= 6 * k; tiembla(1 * k);
+      case 'leap':     P.dy += 4 * k; P.sx = 1 + .1 * k; P.sy = 1 - .1 * k; tiembla(1.4 * k); P.aura = ROJO; P.auraA = .3 * k; break;   // la Reina se agazapa para saltar
+      default:         P.dy -= (ras ? 2 : 6) * k; tiembla(1 * k);
     }
     return P;
   }
@@ -96,10 +101,10 @@ function poseJefe(e) {
   }
 
   // idle: flota; al moverse se inclina hacia donde va. Expuesto: cansado y bajo
-  if (v > 15) { P.anda = true; P.rot = clamp(vx / 120, -1, 1) * .12; P.dy = Math.sin(t * 4) * 3; }
+  if (v > 15) { P.anda = true; P.rot = clamp(vx / 120, -1, 1) * (ras ? .05 : .12); P.dy = ras ? -Math.abs(Math.sin(t * 9)) * 1.5 : Math.sin(t * 4) * 3; }
   if (e.exposeT > 0) {
     const k = clamp(e.exposeT / .8, 0, 1);
-    P.dy = Math.sin(t * 1.2) * 1.5 + 10 * k; P.rot += .09 * k * (p.x < e.x ? -1 : 1); P.sy = 1 - .04 * k; P.sx = 1 + .03 * k;
+    P.dy = ras ? 3 * k : Math.sin(t * 1.2) * 1.5 + 10 * k; P.rot += .09 * k * (p.x < e.x ? -1 : 1); P.sy = 1 - .04 * k; P.sx = 1 + .03 * k;
   }
   // golpe recibido: retrocede un poco
   if (e.hitT > 0) { const k = clamp(e.hitT / .14, 0, 1); P.dx -= Math.cos(aPj) * 3 * k; P.sx *= 1 + .05 * k; P.sy *= 1 - .05 * k; }
@@ -114,6 +119,13 @@ const ATQ = {   // [animación de la hoja de ataques, cuadro] (dos cuadros = alt
 };
 function cuadroJefe(e, spr, P, ph2) {
   const t = e.t || G.time, u = G.time - (e.anT0 ?? G.time), A = ANIM[spr + '_atq'];
+  // v0.65 jefes sin hoja de ataques pero con un 2.º cuadro de «herido» (la Reina): ese cuadro es alzarse furiosa,
+  // al cambiar de fase y al preparar el salto; en el aire mueve las patas
+  const H = ANIM[spr].herido;
+  if (!A && H && H.cuadros.length > 1) {
+    if (e.st === 'enrage' || (e.st === 'prep' && e.next === 'leap')) return H.cuadros[1];
+    if (e.air) return animKey(spr, 'caminar', G.time * 1.6);
+  }
   const atq = (n, rapido = 6) => {
     const [anim, a, b] = ATQ[n], c = A[anim].cuadros;
     return c[b === undefined ? a : Math.floor(G.time * rapido) % 2 ? b : a];
