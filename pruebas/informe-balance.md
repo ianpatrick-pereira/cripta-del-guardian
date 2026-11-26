@@ -20,7 +20,7 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 | Piso | Caballero | Tirador | Asesino | Salas | Subjefe | Jefe |
 |---|---|---|---|---|---|---|
 | 1 | 11.9 | 4.3 | 21.9 | 0.2 | 1.6 | 10.9 |
-| 2 | 9.5 | 9.6 | 21.5 | 0.9 | 3.4 | 9.3 |
+| 2 | 9.5 | 10.0 | 20.8 | 0.9 | 3.2 | 9.4 |
 | 3 | 30.8 | 31.5 | 69.5 | 8.4 | 11.8 | 23.7 |
 | 4 | 58.0 | 69.2 | 119.9 | 20.2 | 18.9 | 43.3 |
 | 5 | 65.4 | 56.4 | 167.4 | 29.0 | 32.3 | 35.1 |
@@ -32,7 +32,7 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 |---|---|---|---|
 | Caballero | 39.0 | 3.4 | 3 |
 | Tirador | 49.5 | 5.8 | 36 |
-| Asesino | 99.1 | 4.7 | 11 |
+| Asesino | 99.0 | 4.7 | 11 |
 
 ### Quién hace más daño
 
@@ -97,4 +97,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de marea | rare | Caballero | 19.1 | 0.66 | 12.2 | 2/3 | 18 % |
 | Arco triple | rare | Tirador | 18.9 | 0.65 | 12.7 | 1/3 | 4 % |
 
-_294 partidas en 295 s._
+_294 partidas en 279 s._

@@ -16,6 +16,22 @@ function puntoLuz(col) {
   return (PUNTOS[col] = c);
 }
 // efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
+// v0.65: Hilos de Muerte de la Reina: un hilo de seda fino que tiembla como aviso y, al cortar, brilla blanco y rojo
+function drawHilo(b) {
+  const ex = b.x + Math.cos(b.a) * b.largo, ey = b.y + Math.sin(b.a) * b.largo, nx = -Math.sin(b.a), ny = Math.cos(b.a);
+  ctx.save();
+  if (!b.on) {
+    const tiembla = Math.sin(G.time * 40) * (1 - b.k) * 1.5;
+    ctx.strokeStyle = `rgba(232,232,216,${.25 + .55 * b.k})`; ctx.lineWidth = 1 + b.k * 1.5;
+    ctx.beginPath(); ctx.moveTo(b.x + nx * tiembla, b.y + ny * tiembla); ctx.lineTo(ex - nx * tiembla, ey - ny * tiembla); ctx.stroke();
+    if (b.k > .6) { ctx.fillStyle = 'rgba(232,240,255,.8)'; for (let i = 1; i < 12; i++) { const q = i / 12 + (G.time * .05) % (1 / 12); ctx.fillRect(b.x + (ex - b.x) * q - 1, b.y + (ey - b.y) * q - 1, 2, 2); } }   // gotas de rocío
+  } else {
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(255,60,70,.45)'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.strokeStyle = '#fff4f0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke();
+  }
+  ctx.restore();
+}
 function drawFxPart(pt) {
   const el = pt.max - pt.life, pre = pt.pre || 0;
   const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
@@ -26,7 +42,7 @@ function drawFxPart(pt) {
 }
 // marcas que quedan en el suelo: se pintan antes que los personajes
 const HUEVO = new Set(['toxic', 'mini']);
-const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco']);
+const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco', 'r_impacto', 'r_anillo']);
 // colores de chispa que brillan (fuego, magia, rayos)
 const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
@@ -42,7 +58,8 @@ import { drawGuide } from './21b-guia.js';
 import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
-import { auraJefe, cuadroJefe, poseJefe } from './37b-poses-del-jefe.js';
+import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
+import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
 import { dareText } from './28-desafios-dentro-del-piso.js';
@@ -323,7 +340,7 @@ function drawBoss(e) {
     const P = poseJefe(e), anda = P.anda || e.st === 'charge';
     auraJefe(e.x + P.dx, e.y - lift - 10 + P.dy, e.r * 2.2 * P.auraR, P.aura, P.auraA);
     // cuadro: la pose dibujada de cada ataque; si no ataca, reposo / se desliza / herido (en fase 2, su versión furiosa)
-    const sk = cuadroJefe(e, BH.spr, { ...P, anda }, ph2) || BH.spr;
+    const hoja = hojaJefe(e), sk = cuadroJefe(e, hoja, { ...P, anda }, ph2, hojaJefe(e, e.phase - 1)) || hoja;
     const mira = e.st === 'embestida' ? Math.cos(e.ca) < 0 : G.player.x < e.x;   // al embestir mira hacia donde va
     drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { flip: mira, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && e.st !== 'enrage' && Math.floor(G.time * 12) % 2 === 0) });
     return;
@@ -781,7 +798,7 @@ function render0() {
   // charcos, fuego del suelo, avisos de área y marcas de los ataques (grietas, zarpazos, cráteres, ondas)
   for (const pt of G.parts) if (pt.fx && BAJO.has(pt.fx)) drawFxPart(pt);
   // suelo en llamas del Señor de las Brasas
-  drawPuddles(); drawBoulders();
+  drawPuddles(); drawBoulders(); drawZonasSuelo();
   for (const f of G.flames || []) {
     const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
     g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
@@ -899,6 +916,7 @@ function render0() {
     ctx.fillStyle = Math.floor(G.time * 14) % 2 ? '#ffd27a' : '#d4474b';
     ctx.fillText('!', e.x, y);
   }
+  drawZonasAire();   // v0.65: redes y sacos en vuelo, arañas colgando (16b-zonas-de-jefe.js)
   for (const m of G.markers) {
     // v0.65: los limos nacen de un huevo que late
     if (HUEVO.has(m.type)) { const q = 1 + .08 * Math.sin(G.time * 18); drawSpr('l_huevo~reposo~0', m.x, m.y - 6, (m.type === 'mini' ? 1.1 : 1.6) * Math.min(1, .5 + (.8 - m.t) * 2), { sx: q, sy: 2 - q }); continue; }
@@ -907,6 +925,7 @@ function render0() {
     ctx.beginPath(); ctx.arc(m.x, m.y, (big ? 40 : 14) * (.5 + k * .6), 0, TAU); ctx.stroke();
   }
   for (const b of G.beams) {
+    if (b.hilo) { drawHilo(b); continue; }
     const ex = b.x + Math.cos(b.a) * 900, ey = b.y + Math.sin(b.a) * 900;
     if (!b.on) { ctx.strokeStyle = 'rgba(255,60,40,.55)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke(); ctx.setLineDash([]); }
     else {

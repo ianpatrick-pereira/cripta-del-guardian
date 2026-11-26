@@ -55,7 +55,7 @@ function buildFloor0(n) {
   const s = layout.start;
   Object.assign(G, {
     floor: n, fi: (n - 1) % 8, cycle: Math.floor((n - 1) / 8) + 1, tiles, doorRoom, rooms: layout.list, startRoom: s, bossRoom: layout.boss,
-    enemies: [], proj: [], pickups: [], parts: [], texts: [], markers: [], props: [], timers: [], beams: [], bolts: [], hazards: [], tornados: [], allies: [], pbeams: [], cls: null, elFight: null, totems: 0,
+    enemies: [], proj: [], pickups: [], parts: [], texts: [], markers: [], props: [], timers: [], beams: [], bolts: [], hazards: [], zonas: [], tornados: [], allies: [], pbeams: [], cls: null, elFight: null, totems: 0,
     boss: null, cur: s, shake: 0, hitstop: 0, hurtFlash: 0, banner: null, waveDelay: 0, keyGiven: false, darkT: 0,
     cam: { x: s.cx, y: s.cy }, interact: null,
   });

@@ -102,6 +102,8 @@ export interface DefJefe {
     s?: number;
     /** true si camina por el suelo (no flota como el Guardián) */
     rastrero?: boolean;
+    /** true si tiene una hoja por fase: spr (fase 1), spr_f2 y spr_f3 */
+    fases?: boolean;
     /** ataques de cada fase (ids de src/js/01g-ataques-de-jefe/) */
     p1: string[]; p2: string[]; p3: string[];
   };

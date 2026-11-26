@@ -59,7 +59,7 @@ function poseJefe(e) {
       case 'espadas':  P.dy -= 26 * k; P.rot = -.1 * k; P.auraA = .45 * k; break;                                // sube a ordenar las espadas
       case 'puas':     P.dy -= 34 * k; P.sx = 1 - .1 * k; P.sy = 1 + .12 * k; break;                             // salta para caer con fuerza
       case 'invocar':  P.dy += 4 * k; P.sx = 1 + .06 * k; P.sy = 1 - .06 * k; tiembla(1.2 * k); P.auraA = .5 * k; P.auraR = 1.6; break;   // se encoge y llama a sus esbirros
-      case 'leap':     P.dy += 4 * k; P.sx = 1 + .1 * k; P.sy = 1 - .1 * k; tiembla(1.4 * k); P.aura = ROJO; P.auraA = .3 * k; break;   // la Reina se agazapa para saltar
+      case 'leap': case 'aplastar': P.dy += 4 * k; P.sx = 1 + .1 * k; P.sy = 1 - .1 * k; tiembla(1.4 * k); P.aura = ROJO; P.auraA = .3 * k; break;   // la Reina se agazapa para saltar
       default:         P.dy -= (ras ? 2 : 6) * k; tiembla(1 * k);
     }
     return P;
@@ -117,14 +117,22 @@ const ATQ = {   // [animación de la hoja de ataques, cuadro] (dos cuadros = alt
   almas: ['reposo', 0, 1], espadas: ['reposo', 2, 3], embestida: ['caminar', 0], salto: ['caminar', 2], golpe: ['caminar', 3],
   invocar: ['herido', 0, 1], furia: ['herido', 2, 3]
 };
-function cuadroJefe(e, spr, P, ph2) {
+// v0.65: hoja del jefe en una fase (los que tienen «fases» usan spr, spr_f2, spr_f3)
+function hojaJefe(e, fase = e.phase) {
+  const B = BOSSES[e.kind], k = B.fases && fase > 1 ? B.spr + '_f' + fase : B.spr;
+  return ANIM[k] ? k : B.spr;
+}
+function cuadroJefe(e, spr, P, ph2, antes = spr) {
   const t = e.t || G.time, u = G.time - (e.anT0 ?? G.time), A = ANIM[spr + '_atq'];
   // v0.65 jefes sin hoja de ataques pero con un 2.º cuadro de «herido» (la Reina): ese cuadro es alzarse furiosa,
   // al cambiar de fase y al preparar el salto; en el aire mueve las patas
   const H = ANIM[spr].herido;
   if (!A && H && H.cuadros.length > 1) {
-    if (e.st === 'enrage' || (e.st === 'prep' && e.next === 'leap')) return H.cuadros[1];
+    // cambio de fase: primero se transforma con los cuadros finales de la hoja de la fase anterior
+    if (e.st === 'enrage') return antes !== spr && ANIM[antes].muerte && u < 1.1 ? animKey(antes, 'muerte', u, true) : H.cuadros[1];
     if (e.air) return animKey(spr, 'caminar', G.time * 1.6);
+    // se alza para atacar: al preparar cualquier ataque y al lanzar (redes, sacos, hilos, veneno)
+    if (e.st === 'prep' || ((e.st === 'red' || e.st === 'crias') && e.timer < .45) || e.st === 'hilos' || (e.st === 'veneno' && e.timer < .8) || (e.st === 'web' && e.timer < .5)) return H.cuadros[1];
   }
   const atq = (n, rapido = 6) => {
     const [anim, a, b] = ATQ[n], c = A[anim].cuadros;
@@ -152,4 +160,4 @@ function auraJefe(x, y, r, col, a) {
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
 }
 
-export { auraJefe, cuadroJefe, poseJefe };
+export { auraJefe, cuadroJefe, hojaJefe, poseJefe };

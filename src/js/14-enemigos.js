@@ -93,7 +93,7 @@ function killEnemy(e, src) {
   const p = G.player;
   burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', e.isBoss ? 30 : 6, e.isBoss ? 320 : 170, e.isBoss ? 6 : 3.5, e.isBoss ? 1.1 : .4);
   // jefe con hoja HD: su armadura se agrieta y cae (la corona rueda en el último cuadro)
-  if (e.isBoss) { const BH = BOSSES[e.kind]; if (!BH.look && BH.spr && ANIM[BH.spr] && ANIM[BH.spr].muerte) G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 1.6, max: 1.6, spr: BH.spr, muerte: true, s: BH.s || 4, flip: G.player.x < e.x, color: '', size: 0 }); }
+  if (e.isBoss) { const BH = BOSSES[e.kind]; if (!BH.look && BH.spr && ANIM[BH.spr] && ANIM[BH.spr].muerte) G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 1.6, max: 1.6, spr: BH.fases && e.phase > 1 && ANIM[BH.spr + '_f' + e.phase] ? BH.spr + '_f' + e.phase : BH.spr, muerte: true, s: BH.s || 4, flip: G.player.x < e.x, color: '', size: 0 }); }
   // muerte con forma: el cuerpo se aplasta en blanco y se deshace en píxeles de su propio color
   if (!e.isBoss && e.spr && SPR_DEFS[e.spr]) {
     if (ANIM[e.spr] && ANIM[e.spr].muerte) G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 1.1, max: 1.1, spr: e.spr, muerte: true, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
