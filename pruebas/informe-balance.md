@@ -62,10 +62,10 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Dagas gemelas | rare | Asesino | 38.3 | 1.39 | 33.0 | 2/3 | 49 % |
 | Shurikens | rare | Asesino | 37.7 | 1.37 | 17.6 | 2/3 | 4 % |
 | Hoz arrojadiza | rare | Asesino | 37.5 | 1.36 | 28.3 | 3/3 | 28 % |
+| Espada corta | rare | Caballero | 37.3 | 1.36 | 35.2 | 3/3 | 99 % |
 | Espada de hierro | uncommon | Caballero | 35.7 | 1.30 | 32.7 | 3/3 | 89 % |
 | Martillo de guerra | rare | Caballero | 35.6 | 1.29 | 41.9 | 3/3 | 80 % |
 | Garras de sombra | rare | Asesino | 33.4 | 1.22 | 34.7 | 3/3 | 51 % |
-| Espada corta | rare | Caballero | 32.2 | 1.17 | 25.1 | 3/3 | 74 % |
 | Bumerán | common | Tirador | 31.0 | 1.13 | 32.0 | 3/3 | 88 % |
 | Arco de las Sombras | epic | Asesino | 30.7 | 1.12 | 7.4 | 0/3 | 5 % |
 | Katar | uncommon | Asesino | 30.6 | 1.12 | 23.9 | 2/3 | 35 % |
@@ -93,4 +93,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de marea | rare | Caballero | 19.1 | 0.69 | 12.2 | 2/3 | 18 % |
 | Arco triple | rare | Tirador | 18.9 | 0.69 | 12.7 | 1/3 | 4 % |
 
-_276 partidas en 291 s._
+_276 partidas en 289 s._
