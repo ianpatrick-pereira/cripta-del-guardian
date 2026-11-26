@@ -85,11 +85,12 @@ import { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles } from 
 import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco } from './37-armas-visual.js';
 // colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí).
 // El caballero (v0.62, dibujo de la IA) tiene 5 tonos de acero, de oscuro a claro: se tiñen con una escala hecha con los 2 colores.
-const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
+const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#242623', '#2f2f2b', '#393833', '#41413c', '#4b4b45', '#5b594a', '#686755'], rogue: ['#2b2636', '#3a3348'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
 // colores de detalle que cambia cada aspecto (penacho y hombreras, cinturón y botas, ojos y bufanda).
+// Arquera (v0.68): la armadura tiñe la capa (7 tonos) y el aspecto, el cuero.
 // Caballero: penacho y capa; el 3.º y 4.º (sus sombras) se oscurecen solos a partir de los 2 colores del aspecto.
-const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#6b4a2a', '#4a3a2a'], rogue: ['#ffd34a', '#b0303a'] };
+const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#633f35', '#774d3f', '#865d4a', '#956b53'], rogue: ['#ffd34a', '#b0303a'] };
 // mezcla dos colores #rrggbb (t = 0 da a, t = 1 da b)
 const mixHex = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
 // si el dibujo tiene más tonos que colores trae el aspecto o la armadura, se completan los que faltan

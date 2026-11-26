@@ -91,17 +91,8 @@
   "Cerbatana": "Blowgun",
 
   // src/js/01c-armas/boom.js
-  "Arco explosivo": "Explosive Bow",
 
   // src/js/01c-armas/boomer.js
-  "Bumerán": "Boomerang",
-  "va y vuelve; atrápalo para volver a lanzarlo": "goes out and comes back; catch it to throw it again",
-  "Vuelo": "Flight",
-  "+25 % de distancia y vuelve más rápido": "+25 % distance and returns faster",
-  "Bumerán ígneo": "Blazing boomerang",
-  "Bumerán de marea": "Tidal boomerang",
-  "Bumerán ciclón": "Cyclone boomerang",
-  "Bumerán de roca": "Rock boomerang",
 
   // src/js/01c-armas/claws.js
   "Garras de sombra": "Shadow Claws",
@@ -120,7 +111,6 @@
   // src/js/01c-armas/frost.js
 
   // src/js/01c-armas/frostbow.js
-  "Arco de escarcha": "Frost Bow",
 
   // src/js/01c-armas/gale.js
   "Bastón del vendaval": "Gale Staff",
@@ -150,7 +140,6 @@
   "Kunais": "Kunai",
 
   // src/js/01c-armas/long.js
-  "Arco largo": "Longbow",
 
   // src/js/01c-armas/musket.js
   "Mosquete": "Musket",
@@ -217,7 +206,6 @@
   "Bastón de marea": "Tide Staff",
 
   // src/js/01c-armas/triple.js
-  "Arco triple": "Triple Bow",
 
   // src/js/01c-armas/twin.js
   "Dagas gemelas": "Twin Daggers",
