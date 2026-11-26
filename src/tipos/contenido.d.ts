@@ -104,6 +104,8 @@ export interface DefJefe {
     rastrero?: boolean;
     /** true si tiene una hoja por fase: spr (fase 1), spr_f2 y spr_f3 */
     fases?: boolean;
+    /** ataques en los que usa su pose de ataque dibujada (2.º cuadro de «herido») al prepararlos; sin esto, en todos */
+    poseAtq?: string[];
     /** ataques de cada fase (ids de src/js/01g-ataques-de-jefe/) */
     p1: string[]; p2: string[]; p3: string[];
   };

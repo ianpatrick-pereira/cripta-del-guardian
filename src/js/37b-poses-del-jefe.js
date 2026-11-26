@@ -122,6 +122,8 @@ function hojaJefe(e, fase = e.phase) {
   const B = BOSSES[e.kind], k = B.fases && fase > 1 ? B.spr + '_f' + fase : B.spr;
   return ANIM[k] ? k : B.spr;
 }
+// el disparo va más o menos de lado (hacia ti, que es hacia donde mira el dibujo)
+const deLado = e => Math.abs(Math.cos(angTo(e, G.player))) > .75;
 function cuadroJefe(e, spr, P, ph2, antes = spr) {
   const t = e.t || G.time, u = G.time - (e.anT0 ?? G.time), A = ANIM[spr + '_atq'];
   // v0.65 jefes sin hoja de ataques pero con un 2.º cuadro de «herido» (la Reina): ese cuadro es alzarse furiosa,
@@ -131,8 +133,11 @@ function cuadroJefe(e, spr, P, ph2, antes = spr) {
     // cambio de fase: primero se transforma con los cuadros finales de la hoja de la fase anterior
     if (e.st === 'enrage') return antes !== spr && ANIM[antes].muerte && u < 1.1 ? animKey(antes, 'muerte', u, true) : H.cuadros[1];
     if (e.air) return animKey(spr, 'caminar', G.time * 1.6);
-    // se alza para atacar: al preparar cualquier ataque y al lanzar (redes, sacos, hilos, veneno)
-    if (e.st === 'prep' || ((e.st === 'red' || e.st === 'crias') && e.timer < .45) || e.st === 'hilos' || (e.st === 'veneno' && e.timer < .8) || (e.st === 'web' && e.timer < .5)) return H.cuadros[1];
+    // se alza para atacar: al preparar cualquier ataque y al lanzar (redes, sacos, hilos, veneno);
+    // el Devorador (poseAtq) solo abre el ojo al preparar y lanzar la Mirada Ardiente (si dispara de lado: el rayo
+    // de su pose apunta a un costado) y el Agujero Negro
+    const pa = BOSSES[e.kind].poseAtq;
+    if ((e.st === 'prep' && (!pa || pa.includes(e.next)) && (e.next !== 'mirada' || deLado(e))) || (e.st === 'mirada' && deLado(e)) || e.st === 'agujero' || ((e.st === 'red' || e.st === 'crias') && e.timer < .45) || e.st === 'hilos' || (e.st === 'veneno' && e.timer < .8) || (e.st === 'web' && e.timer < .5)) return H.cuadros[1];
   }
   const atq = (n, rapido = 6) => {
     const [anim, a, b] = ATQ[n], c = A[anim].cuadros;

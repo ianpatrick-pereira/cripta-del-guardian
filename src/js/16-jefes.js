@@ -56,10 +56,10 @@ function updateBoss(e, dt) {
       if (e.st_t <= 0) {
         // elige el ataque según dónde estás: de cerca, ataques de área; de lejos, embestidas y disparos
         const pool = ph3 ? B.p3 : ph2 ? B.p2 : B.p1;
-        const CLOSE = { burst: 1, gapring: 1, teleport: 1, rain: 1, spiral: 1 }, FAR = { charge: 1, aimed: 1, predict: 1, laser: 1, web: 1, leap: 1, red: 1, aplastar: 1 };
+        const CLOSE = { burst: 1, gapring: 1, teleport: 1, fauces: 1, rain: 1, spiral: 1 }, FAR = { charge: 1, aimed: 1, predict: 1, laser: 1, mirada: 1, web: 1, leap: 1, red: 1, aplastar: 1 };
         const fav = d < 140 ? CLOSE : d > 280 ? FAR : null, bag = [];
         for (const at of pool) {
-          if (at === e.last || ((at === 'summon' || at === 'crias') && G.enemies.length > 5)) continue;
+          if (at === e.last || ((at === 'summon' || at === 'crias' || at === 'vigias') && G.enemies.length > 5)) continue;
           bag.push(at); if (fav && fav[at]) bag.push(at, at);
         }
         const next = bag.length ? pick(bag) : pool[0];

@@ -32,6 +32,15 @@ function drawHilo(b) {
   }
   ctx.restore();
 }
+// v0.65: Mirada Ardiente del Devorador: el rayo es un trozo de la hoja d_rayo repetido a lo largo (cada trozo mide 96)
+function drawRayo(b) {
+  const L = 96, n = 10, c = Math.cos(b.a), s = Math.sin(b.a);
+  let key, o = { rot: b.a };
+  if (!b.on) { key = 'd_rayo~reposo~' + Math.min(3, Math.floor((b.k || 0) * 4)); o = { rot: b.a, alpha: .55 + .45 * Math.abs(Math.sin(G.time * 20)) }; }
+  else key = 'd_rayo~muerte~' + ((b.fin ?? 1) < .15 ? 2 : Math.floor(G.time * 12) % 2);
+  if (b.on) { o.luz = .35; luzSuelo(b.x + c * 200, b.y + s * 200, 220, '255,40,40', .18); }
+  for (let i = 0; i < n; i++) drawSpr(key, b.x + c * (L * i + L / 2 + 10), b.y + s * (L * i + L / 2 + 10), 6, o);
+}
 function drawFxPart(pt) {
   const el = pt.max - pt.life, pre = pt.pre || 0;
   const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
@@ -42,7 +51,7 @@ function drawFxPart(pt) {
 }
 // marcas que quedan en el suelo: se pintan antes que los personajes
 const HUEVO = new Set(['toxic', 'mini']);
-const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco', 'r_impacto', 'r_anillo']);
+const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco', 'r_impacto', 'r_anillo', 'd_ola', 'd_portal']);
 // colores de chispa que brillan (fuego, magia, rayos)
 const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
@@ -342,7 +351,7 @@ function drawBoss(e) {
     // cuadro: la pose dibujada de cada ataque; si no ataca, reposo / se desliza / herido (en fase 2, su versión furiosa)
     const hoja = hojaJefe(e), sk = cuadroJefe(e, hoja, { ...P, anda }, ph2, hojaJefe(e, e.phase - 1)) || hoja;
     const mira = e.st === 'embestida' ? Math.cos(e.ca) < 0 : G.player.x < e.x;   // al embestir mira hacia donde va
-    drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { flip: mira, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && e.st !== 'enrage' && Math.floor(G.time * 12) % 2 === 0) });
+    drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { alpha: e.fade ?? 1, flip: mira, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && e.st !== 'enrage' && Math.floor(G.time * 12) % 2 === 0) });
     return;
   }
   // se dibuja a media resolución y se escala para que se vea pixelado
@@ -905,7 +914,9 @@ function render0() {
       ctx.fillRect(e.x - 5, e.y - 5, 3, 3); ctx.fillRect(e.x + 2, e.y - 5, 3, 3);
     }
     const B = G.enemies.find(e => e.isBoss);
-    if (B) { ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(B.x, B.y, 6, 0, TAU); ctx.fill(); }
+    // v0.65: un jefe con hoja HD no lleva el punto rojo encima: brilla suave donde tiene el ojo (solo se nota en la oscuridad)
+    if (B && BOSSES[B.kind].spr && !BOSSES[B.kind].look) luzSuelo(B.x, B.y - 12, 26, '255,40,30', .35 + .1 * Math.sin(G.time * 4));
+    else if (B) { ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(B.x, B.y, 6, 0, TAU); ctx.fill(); }
   }
   for (const it of G.pickups) if (it.kind === 'portal' && Math.random() < .3) G.parts.push({ x: it.x + rand(-20, 20), y: it.y + rand(-28, 28), vx: 0, vy: -40, life: .6, max: .6, color: '#c77dff', size: 3 });
   // «!»: este enemigo está a punto de atacar
@@ -926,6 +937,7 @@ function render0() {
   }
   for (const b of G.beams) {
     if (b.hilo) { drawHilo(b); continue; }
+    if (b.rayo && ANIM.d_rayo) { drawRayo(b); continue; }
     const ex = b.x + Math.cos(b.a) * 900, ey = b.y + Math.sin(b.a) * 900;
     if (!b.on) { ctx.strokeStyle = 'rgba(255,60,40,.55)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke(); ctx.setLineDash([]); }
     else {

@@ -1,0 +1,30 @@
+// Ataque de El Devorador de Luz (v0.65): Mirada Ardiente.
+// Como el láser: avisa con una línea fina y dispara un rayo de sangre desde el ojo (1 en fase 1; 3 que giran en fase 2; 4 en fase 3).
+// El rayo se dibuja con la hoja d_rayo (38-armadura-visual.js, b.rayo).
+import { TAU } from '../01-utilidades.js';
+import { defBossMove } from '../01a-registro.js';
+import { noise, sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
+import { hurtPlayer } from '../13-armadura.js';
+import { quien } from '../14-enemigos.js';
+import { bossIdle } from '../16-jefes.js';
+import { shredShield } from '../23-elementos.js';
+defBossMove('mirada', {
+  hacer(e, dt, c) {
+    const { p, a, ph2, ph3 } = c;
+    e.timer += dt;
+    const n = ph3 ? 4 : ph2 ? 3 : 1, wind = .85, act = ph2 ? 1.2 : .6;
+    if (e.k === 0) {
+      if (e.timer < wind - .25) e.ca = a;
+      G.beams = []; for (let i = 0; i < n; i++) G.beams.push({ x: e.x, y: e.y, a: e.ca + i * TAU / n, on: false, rayo: true, k: e.timer / wind });
+      if (e.timer >= wind) { e.k = 1; e.timer = 0; sfx(90, act, 'sawtooth', .05, 60); noise(act, .05, 2000); }
+    } else {
+      for (const b of G.beams) { b.on = true; b.x = e.x; b.y = e.y; b.fin = act - e.timer; if (ph2) b.a += dt * .9; }
+      for (const b of G.beams) {
+        const dx = p.x - b.x, dy = p.y - b.y, along = dx * Math.cos(b.a) + dy * Math.sin(b.a), perp = Math.abs(-dx * Math.sin(b.a) + dy * Math.cos(b.a));
+        if (along > 0 && along < 900 && perp < 13) { shredShield(); hurtPlayer(1, quien(e)); }
+      }
+      if (e.timer > act) { G.beams = []; bossIdle(e); }
+    }
+  }
+});

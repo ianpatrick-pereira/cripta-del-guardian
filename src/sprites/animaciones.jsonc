@@ -229,5 +229,33 @@
   "x_hacha":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 12 } },
   "x_estela":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } },
   "x_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 3 } },
-  "x_circulo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } }
+  "x_circulo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } },
+  // El Devorador de Luz (v0.65, IA con fondo verde), jefe del piso 3. Una hoja por fase, como la Reina:
+  //   devourer     fase 1, el Ojo del Abismo
+  //   devourer_f2  fase 2, las Fauces
+  //   devourer_f3  fase 3, el Devorador Desatado (carne llena de ojos)
+  // fila 2: herido, pose de ataque (el ojo dispara) y 2 cuadros de transformación (en la fase 3, de muerte)
+  "devourer":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 8 },
+                   "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.6 } },
+  "devourer_f2": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 8 },
+                   "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.6 } },
+  "devourer_f3": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 5 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 10 },
+                   "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.5 } },
+  // Ataques del Devorador (16b-zonas-de-jefe.js y 38-armadura-visual.js):
+  //   d_rayo     Mirada Ardiente: trozo de rayo que se repite a lo largo; reposo = aviso, muerte = disparo (2), se adelgaza, humo
+  //   d_ojo      Eclipse: ojo rojo que flota en la oscuridad y parpadea
+  //   d_orbe     Eclipse: bola de sombra que disparan los ojos (va hacia la derecha)
+  //   d_ola      Eclipse: zarcillos de sombra que se extienden por el suelo al apagarse la luz
+  //   d_portal   Fauces del Vacío: reposo = el portal se abre; muerte = las fauces muerden (2) y el portal se cierra (2)
+  //   d_agujero  Agujero Negro: reposo = gira; muerte = se encoge, estalla y queda un anillo de humo
+  "d_rayo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 8 } },
+  "d_ojo":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 } },
+  "d_orbe":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 10 } },
+  "d_ola":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "d_portal":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 8 } },
+  "d_agujero": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 8 } },
+  // Ojo vigía (v0.65, IA): torreta del desafío y esbirro del Devorador. Fila 0: flota y parpadea;
+  // fila 1: carga el disparo («caminar», el ojo no camina), herido y 2 de muerte (revienta en sangre)
+  "eye": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 1 },
+           "herido": { "fila": 1, "desde": 1, "cuadros": 1 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 6 } }
 }
