@@ -1,6 +1,6 @@
 # Informe de balance
 
-Generado por `node pruebas/balance.js 2 --ci`.
+Generado por `node pruebas/balance.js 3 --ci`.
 
 El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): compara clases, pisos y armas entre sí, no mide la dificultad real.
 
@@ -8,46 +8,45 @@ El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): 
 
 **✓ Ningún límite roto** (41 armas comprobadas, 8 pisos y 3 clases comprobados)
 
-- ⚠ Piso 3: 3.3× más difícil que el piso 2 (aviso desde 1.8×)
-- ⚠ Piso 4: 1.9× más difícil que el piso 3 (aviso desde 1.8×)
+- ⚠ Piso 3: 3.6× más difícil que el piso 2 (aviso desde 1.8×)
 - ⚠ Piso 7: 2.2× más difícil que el piso 6 (aviso desde 1.8×)
-- ⚠ Asesino necesita 2.5× las vidas de Caballero (aviso desde 2×)
+- ⚠ Asesino necesita 2.6× las vidas de Caballero (aviso desde 2×)
 
 ## Dificultad por piso
 
-El bot es inmortal: cada celda dice cuántas barras de vida llenas habría necesitado para terminar el piso (media de 2 partidas). 1 = justo una vida entera. Una persona con mejoras, reliquias y pociones necesita menos; lo útil es ver dónde sube de golpe.
+El bot es inmortal: cada celda dice cuántas barras de vida llenas habría necesitado para terminar el piso (media de 3 partidas). 1 = justo una vida entera. Una persona con mejoras, reliquias y pociones necesita menos; lo útil es ver dónde sube de golpe.
 
 | Piso | Caballero | Tirador | Asesino | Salas | Subjefe | Jefe |
 |---|---|---|---|---|---|---|
-| 1 | 11.9 | 4.3 | 21.9 | 0.2 | 1.6 | 10.9 |
-| 2 | 9.5 | 10.0 | 20.8 | 0.9 | 3.2 | 9.4 |
-| 3 | 30.8 | 31.5 | 69.5 | 8.4 | 11.8 | 23.7 |
-| 4 | 58.0 | 69.2 | 119.9 | 20.2 | 18.9 | 43.3 |
-| 5 | 65.4 | 56.4 | 167.4 | 29.0 | 32.3 | 35.1 |
-| 6 | 29.6 | 42.8 | 65.8 | 11.2 | 12.2 | 22.6 |
-| 7 | 59.0 | 81.7 | 156.8 | 18.2 | 40.0 | 40.9 |
-| 8 | 47.8 | 100.4 | 170.1 | 10.7 | 49.5 | 46.0 |
+| 1 | 12.0 | 4.0 | 21.2 | 0.3 | 1.3 | 10.9 |
+| 2 | 8.7 | 10.0 | 21.0 | 0.9 | 2.7 | 9.6 |
+| 3 | 32.9 | 33.1 | 78.7 | 7.2 | 12.3 | 28.7 |
+| 4 | 51.9 | 65.7 | 116.6 | 16.9 | 20.5 | 40.7 |
+| 5 | 64.5 | 74.3 | 173.2 | 32.2 | 34.1 | 37.6 |
+| 6 | 28.7 | 37.1 | 65.9 | 10.6 | 11.6 | 21.8 |
+| 7 | 57.9 | 87.2 | 148.1 | 13.8 | 42.4 | 41.6 |
+| 8 | 52.9 | 88.4 | 191.9 | 13.6 | 47.3 | 50.2 |
 
 | Clase | Vidas por piso (media) | Minutos por piso | Salas que no pudo terminar |
 |---|---|---|---|
-| Caballero | 39.0 | 3.4 | 3 |
-| Tirador | 49.5 | 5.8 | 36 |
-| Asesino | 99.0 | 4.7 | 11 |
+| Caballero | 38.7 | 3.7 | 9 |
+| Tirador | 50.0 | 6.0 | 55 |
+| Asesino | 102.1 | 4.7 | 16 |
 
 ### Quién hace más daño
 
-- Fantasma: 8 % del daño recibido
-- El Señor del Osario: 7 % del daño recibido
+- Fantasma: 7 % del daño recibido
+- Embestidor: 7 % del daño recibido
+- Elena, Corazón de la Cripta: 7 % del daño recibido
+- El Obispo Hueco: 7 % del daño recibido
 - El Gemelo de Aldric: 7 % del daño recibido
-- Elena, Corazón de la Cripta: 6 % del daño recibido
-- El Obispo Hueco: 6 % del daño recibido
-- La Forjadora: 6 % del daño recibido
-- Escudero: 6 % del daño recibido
-- Embestidor: 6 % del daño recibido
+- La Forjadora: 7 % del daño recibido
+- El Señor del Osario: 6 % del daño recibido
 - Obispo de Ceniza: 6 % del daño recibido
+- Escudero: 5 % del daño recibido
 - Herrero Fundido: 5 % del daño recibido
 - La Raíz Madre: 5 % del daño recibido
-- El Devorador de Luz: 4 % del daño recibido
+- El Devorador de Luz: 5 % del daño recibido
 
 ## Armas a 3★ (piso 4)
 
@@ -97,4 +96,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de marea | rare | Caballero | 19.1 | 0.66 | 12.2 | 2/3 | 18 % |
 | Arco triple | rare | Tirador | 18.9 | 0.65 | 12.7 | 1/3 | 4 % |
 
-_294 partidas en 279 s._
+_318 partidas en 343 s._
