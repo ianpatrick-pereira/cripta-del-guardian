@@ -156,7 +156,15 @@ function enemyShoot(e, a, speed, r = 5, color = '#e86a8a', dmg = 1, kind = 'orb'
   dmg += extraDmg(e);   // los disparos también pegan más en los pisos hondos
   const pr = { x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
     r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) };
+  // v0.65: los limos del piso 2 escupen orbes ácidos dibujados (solo cambia el dibujo)
+  if (kind === 'orb' && ACIDO.has(e.spr)) { pr.anim = 'l_orbe'; pr.ss = r * .32; pr.rotOff = Math.PI / 4; }
   G.proj.push(pr); return pr;
+}
+const ACIDO = new Set(['toxic', 'matriarch']);
+// v0.65: salpicón de limo en el suelo al caer de un salto (y charco ácido si es grande)
+function salpicon(x, y, s, charco = false) {
+  G.parts.push({ x, y, vx: 0, vy: 0, life: .5, max: .5, fx: 'l_salpicon', s, color: '', size: 0 });
+  if (charco) G.parts.push({ x, y: y + 2, vx: 0, vy: 0, life: 2.4, max: 2.4, fx: 'l_charco', s: s * .8, color: '', size: 0 });
 }
 
 // ---- herramientas de IA ----
@@ -287,5 +295,4 @@ function updateEnemy(e, dt) {
   const f = Math.exp(-10 * dt); e.kx *= f; e.ky *= f;
 }
 
-export { blinkAway, chainHit, dropCoin, elemHit, enemyShoot, flankPoint, hazard, hurtEnemy, killEnemy,
-  leadAng, mkBoss, mkEnemy, quien, takeToken, telegraph, updateEnemy, updateFlames };
+export { blinkAway, chainHit, dropCoin, elemHit, enemyShoot, flankPoint, hazard, hurtEnemy, killEnemy, leadAng, mkBoss, mkEnemy, quien, salpicon, takeToken, telegraph, updateEnemy, updateFlames };

@@ -25,7 +25,8 @@ function drawFxPart(pt) {
   drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo, rot: pt.rot || 0 });
 }
 // marcas que quedan en el suelo: se pintan antes que los personajes
-const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice']);
+const HUEVO = new Set(['toxic', 'mini']);
+const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco']);
 // colores de chispa que brillan (fuego, magia, rayos)
 const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
@@ -899,6 +900,8 @@ function render0() {
     ctx.fillText('!', e.x, y);
   }
   for (const m of G.markers) {
+    // v0.65: los limos nacen de un huevo que late
+    if (HUEVO.has(m.type)) { const q = 1 + .08 * Math.sin(G.time * 18); drawSpr('l_huevo~reposo~0', m.x, m.y - 6, (m.type === 'mini' ? 1.1 : 1.6) * Math.min(1, .5 + (.8 - m.t) * 2), { sx: q, sy: 2 - q }); continue; }
     const k = 1 - m.t % .4 / .4, big = m.type === 'boss' || m.type === 'sub' || m.type === 'elem';
     ctx.strokeStyle = big ? 'rgba(199,125,255,.8)' : m.elite ? 'rgba(255,210,122,.9)' : 'rgba(212,71,75,.8)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(m.x, m.y, (big ? 40 : 14) * (.5 + k * .6), 0, TAU); ctx.stroke();

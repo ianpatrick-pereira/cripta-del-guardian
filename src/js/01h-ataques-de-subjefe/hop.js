@@ -6,7 +6,7 @@ import { noise, sfx } from '../05-audio.js';
 import { G } from '../07-estado.js';
 import { hitsWall, roomAt } from '../08-colisiones.js';
 import { burst, shake } from '../09-efectos.js';
-import { enemyShoot, hazard } from '../14-enemigos.js';
+import { enemyShoot, hazard, salpicon } from '../14-enemigos.js';
 import { subIdle } from '../15-subjefes.js';
 defSubMove('hop', {
   hacer(e, dt, c) {
@@ -20,6 +20,7 @@ defSubMove('hop', {
       e.air = false; e.lift = 0; e.x = e.tgt.x; e.y = e.tgt.y; shake(9); noise(.2, .08, 500);
       const n = ph2 ? 12 : 9, off = rand(0, TAU); for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, 150, 6, S.pc || '#9bff7a');
       burst(e.x, e.y, S.tint, 16, 200, 4);
+      if (e.spr === 'matriarch') salpicon(e.x, e.y + 14, e.s * 1.5, true);   // v0.65: la Matriarca cae salpicando y deja un charco
       if (--e.reps > 0) { e.k = 0; e.timer = 0; e.st = 'hop2'; e.st_t = .25; }
       else e.k = 2;
     }

@@ -130,7 +130,9 @@ function update(dt) {
       if (m.type === 'boss') { G.boss = mkBoss(FLOORS[G.fi].boss, m.x, m.y); G.enemies.push(G.boss); shake(10); burst(m.x, m.y, '#c77dff', 30, 260, 5); }
       else if (m.type === 'elem') { G.enemies.push(mkElem(m.el, m.x, m.y)); shake(10); burst(m.x, m.y, ELEMS[m.el].c, 30, 240, 5); }
       else if (m.type === 'sub') { const k = m.k || G.fi + 1; G.enemies.push(mkSub(k, m.x, m.y, m.ex)); shake(8); burst(m.x, m.y, SUBS[k].tint, 24, 220, 4); }
-      else { const ne = mkEnemy(m.type, m.x, m.y, m.depth, m.elite); if (m.el) { ne.el = m.el; ne.hp = ne.max = Math.round(ne.max * .85); } G.enemies.push(ne); burst(m.x, m.y, m.el ? ELEMS[m.el].c : '#d4474b', 6, 90); }
+      else {
+        if (m.type === 'toxic' || m.type === 'mini') G.parts.push({ x: m.x, y: m.y - 6, vx: 0, vy: 0, life: .45, max: .45, fx: 'l_huevo', s: m.type === 'mini' ? 1.1 : 1.6, color: '', size: 0 });   // v0.65: el huevo se rompe
+        const ne = mkEnemy(m.type, m.x, m.y, m.depth, m.elite); if (m.el) { ne.el = m.el; ne.hp = ne.max = Math.round(ne.max * .85); } G.enemies.push(ne); burst(m.x, m.y, m.el ? ELEMS[m.el].c : '#d4474b', 6, 90); }
     }
   }
 

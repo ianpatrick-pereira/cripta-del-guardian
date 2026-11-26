@@ -180,5 +180,14 @@
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 1 }
   },
   // Bola de telaraña que escupen (va hacia la derecha con los hilos detrás; el juego la gira hacia donde vuela).
-  "telarana": { "cuadro": [48, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } }
+  "telarana": { "cuadro": [48, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } },
+  // Ataques del limo y la Matriarca (v0.65, IA, fondo magenta)
+  // Orbe ácido: los hilos caen abajo a la izquierda, así que vuela hacia arriba a la derecha (el juego suma 45° al girarlo).
+  "l_orbe":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  // Salpicón al caer de un salto (se ve una vez, en el suelo).
+  "l_salpicon": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 9 } },
+  // Charco ácido que deja la Matriarca al caer.
+  "l_charco":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 } },
+  // Huevo de limo: aviso de que nace un limo (reposo) y el huevo roto (muerte).
+  "l_huevo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } }
 }
