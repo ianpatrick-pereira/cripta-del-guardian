@@ -8,9 +8,9 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD: su hoja y qué cuadro usan a 1★ (la de hierro y el martillo empiezan más arriba)
-const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0], spiked: ['escudo', 0] };
+const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0], spiked: ['escudo', 0], shortsword: ['corta', 0] };
 // por hoja: píxeles de la empuñadura bajo el centro del cuadro y tamaño en pantalla
-const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3] };
+const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3], corta: [22, 1.3] };
 /** true si el arma es un mazo HD (Garrote o Martillo de guerra) */
 const esMazo = w => !!w && ESPADA_HD[w.id]?.[0] === 'mazo' && !!ANIM.mazo;
 /** true si el arma es el escudo de púas HD */
@@ -33,7 +33,7 @@ function drawEspada(key, x, y, a, scale = 1) {
     drawSpr(key, x, y, 1.3 * scale, { sx: .65 + .35 * Math.abs(Math.sin(a)) });
     return;
   }
-  const [px, t] = AGARRE[key.startsWith('mazo') ? 'mazo' : key.startsWith('lanza') ? 'lanza' : 'espada'], s = t * scale, off = px * .25 * s;   // la empuñadura, px por debajo del centro
+  const [px, t] = AGARRE[key.startsWith('mazo') ? 'mazo' : key.startsWith('lanza') ? 'lanza' : key.startsWith('corta') ? 'corta' : 'espada'], s = t * scale, off = px * .25 * s;   // la empuñadura, px por debajo del centro
   drawSpr(key, x + Math.cos(a) * off, y + Math.sin(a) * off, s, { rot: a + Math.PI / 2 });
 }
 

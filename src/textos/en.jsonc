@@ -76,7 +76,6 @@
   "Se esfuma y reaparece a tu espalda.": "Vanishes and reappears behind you.",
 
   // src/js/01c-armas/abyss.js
-  "Hoja del Abismo": "Abyssal Blade",
 
   // src/js/01c-armas/beam.js
   "Rayo sostenido": "Sustained Ray",
@@ -117,10 +116,8 @@
   "Bastón de fuego": "Fire Staff",
 
   // src/js/01c-armas/flame.js
-  "Espada flamígera": "Flaming Sword",
 
   // src/js/01c-armas/frost.js
-  "Hoja de escarcha": "Frost Blade",
 
   // src/js/01c-armas/frostbow.js
   "Arco de escarcha": "Frost Bow",
@@ -129,7 +126,6 @@
   "Bastón del vendaval": "Gale Staff",
 
   // src/js/01c-armas/great.js
-  "Mandoble": "Greatsword",
 
   // src/js/01c-armas/grimoire.js
   "Grimorio de huesos": "Bone Grimoire",
@@ -173,6 +169,7 @@
   "Bastón de roca": "Rock Staff",
 
   // src/js/01c-armas/rusty.js
+  "Espada corta": "Short Sword",
   "Espada oxidada": "Rusty Sword",
 
   // src/js/01c-armas/scythe.js

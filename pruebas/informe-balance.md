@@ -38,6 +38,7 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 - Fantasma: 9 % del daño recibido
 - El Gemelo de Aldric: 7 % del daño recibido
 - Elena, Corazón de la Cripta: 7 % del daño recibido
+- El Señor del Osario: 7 % del daño recibido
 - La Forjadora: 6 % del daño recibido
 - Embestidor: 6 % del daño recibido
 - El Obispo Hueco: 6 % del daño recibido
@@ -46,7 +47,6 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 - Herrero Fundido: 5 % del daño recibido
 - La Raíz Madre: 5 % del daño recibido
 - El Devorador de Luz: 5 % del daño recibido
-- El Señor del Osario: 4 % del daño recibido
 
 ## Armas a 3★ (piso 4)
 
@@ -58,6 +58,7 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Látigo de cadenas | uncommon | Asesino | 42.9 | 1.52 | 35.0 | 3/3 | 82 % |
 | Guadaña sangrienta | epic | Asesino | 42.4 | 1.50 | 44.7 | 3/3 | 92 % |
 | Arco explosivo | epic | Tirador | 41.2 | 1.46 | 31.0 | 3/3 | 9 % |
+| Lanza de guardia | uncommon | Caballero | 39.5 | 1.40 | 39.6 | 3/3 | 100 % |
 | Hoja del Abismo | epic | Caballero | 39.2 | 1.39 | 30.5 | 3/3 | 21 % |
 | Mandoble | rare | Caballero | 39.0 | 1.38 | 48.6 | 3/3 | 92 % |
 | Espada flamígera | epic | Caballero | 38.9 | 1.38 | 30.6 | 3/3 | 38 % |
@@ -65,7 +66,6 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Shurikens | rare | Asesino | 37.7 | 1.34 | 17.6 | 2/3 | 4 % |
 | Hoz arrojadiza | rare | Asesino | 37.5 | 1.33 | 28.3 | 3/3 | 28 % |
 | Hoja de escarcha | rare | Caballero | 36.7 | 1.30 | 38.9 | 3/3 | 94 % |
-| Lanza de guardia | uncommon | Caballero | 35.8 | 1.27 | 24.3 | 2/3 | 59 % |
 | Espada de hierro | uncommon | Caballero | 35.7 | 1.26 | 32.7 | 3/3 | 89 % |
 | Martillo de guerra | rare | Caballero | 35.6 | 1.26 | 41.9 | 3/3 | 80 % |
 | Garras de sombra | rare | Asesino | 33.4 | 1.18 | 34.7 | 3/3 | 51 % |
@@ -96,4 +96,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de marea | rare | Caballero | 19.1 | 0.68 | 12.2 | 2/3 | 18 % |
 | Arco triple | rare | Tirador | 18.9 | 0.67 | 12.7 | 1/3 | 4 % |
 
-_294 partidas en 305 s._
+_294 partidas en 302 s._
