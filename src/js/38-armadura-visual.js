@@ -68,7 +68,7 @@ import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
 import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
-import { drawCorte, drawCorteGiro, drawEmbestida, drawEspada, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
+import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
@@ -275,10 +275,13 @@ function drawPlayer(p) {
   const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
   const bob = dead || ANIM[p.spr] ? 0 : Math.abs(Math.sin(p.walk)) * -2;   // con hoja, el rebote ya viene en los cuadros
   const w = p.slots[p.cur];
-  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && espadaKey(w) && espadaEnMano(p));   // la espada HD en la mano va siempre delante
+  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && !w.style && espadaKey(w) && espadaEnMano(p));   // la espada HD en la mano va siempre delante
   const drawW = () => {
     if (w.style === 'shield') {
       const push = p.swing ? Math.sin(Math.min(1, p.swing.t / p.swing.dur) * Math.PI) * 12 : 0, a = p.swing ? p.swing.a : p.aim;
+      if (p.swing && drawEmpujon(p, w, p.swing, Math.min(1, p.swing.t / p.swing.dur))) drawWeapon(w, p.x + Math.cos(a) * (9 + push), p.y + 2 + bob + Math.sin(a) * (7 + push), a);   // v0.67: escudo HD
+      else if (espadaKey(w)) drawWeapon(w, p.x + Math.cos(a) * 9, p.y + 2 + bob + Math.sin(a) * 7, a);
+      if (espadaKey(w)) return;
       if (p.swing) { ctx.strokeStyle = `rgba(216,208,184,${.5 * (1 - p.swing.t / p.swing.dur)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, p.swing.range * .9, a - .7, a + .7); ctx.stroke(); }
       drawWeapon(w, p.x + Math.cos(a) * (4 + push), p.y + 2 + bob + Math.sin(a) * (4 + push), a);
       return;
@@ -996,6 +999,7 @@ function render0() {
       const el = pr.src.el, c = ELEMS[el].c;
       G.parts.push({ x: pr.x, y: pr.y, vx: el === 'air' ? rand(-50, 50) : rand(-10, 10), vy: el === 'fire' ? rand(-60, -30) : rand(-10, 10), g: el === 'water' ? 400 : el === 'earth' ? 300 : 0, life: .35, max: .35, color: c, size: 2.5 });
     }
+    if (pr.kind === 'arrow' && drawPua(pr)) continue;   // v0.67: púas del escudo HD
     if (pr.kind === 'arrow') {
       const a = Math.atan2(pr.vy, pr.vx);
       // estela de la flecha

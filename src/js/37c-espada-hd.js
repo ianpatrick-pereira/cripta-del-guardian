@@ -8,11 +8,13 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD: su hoja y qué cuadro usan a 1★ (la de hierro y el martillo empiezan más arriba)
-const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0] };
+const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0], spiked: ['escudo', 0] };
 // por hoja: píxeles de la empuñadura bajo el centro del cuadro y tamaño en pantalla
-const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3] };
+const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3] };
 /** true si el arma es un mazo HD (Garrote o Martillo de guerra) */
 const esMazo = w => !!w && ESPADA_HD[w.id]?.[0] === 'mazo' && !!ANIM.mazo;
+/** true si el arma es el escudo de púas HD */
+const esEscudo = w => !!w && ESPADA_HD[w.id]?.[0] === 'escudo' && !!ANIM.escudo;
 /** true si el arma es la lanza HD */
 const esLanza = w => !!w && ESPADA_HD[w.id]?.[0] === 'lanza' && !!ANIM.lanza;
 const EL_I = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -26,6 +28,11 @@ function espadaKey(w) {
 }
 /** dibuja la espada con la empuñadura en (x, y) y la hoja hacia el ángulo a (el dibujo apunta hacia arriba) */
 function drawEspada(key, x, y, a, scale = 1) {
+  if (key.startsWith('escudo')) {
+    // el escudo se ve de frente; de lado se angosta un poco
+    drawSpr(key, x, y, 1.3 * scale, { sx: .65 + .35 * Math.abs(Math.sin(a)) });
+    return;
+  }
   const [px, t] = AGARRE[key.startsWith('mazo') ? 'mazo' : key.startsWith('lanza') ? 'lanza' : 'espada'], s = t * scale, off = px * .25 * s;   // la empuñadura, px por debajo del centro
   drawSpr(key, x + Math.cos(a) * off, y + Math.sin(a) * off, s, { rot: a + Math.PI / 2 });
 }
@@ -46,7 +53,7 @@ const MAZAZO = [['reposo', 0, MANO[0][0]], ['reposo', 1, MANO[0][1]], ['herido',
 /** cuadro del Caballero atacando y dónde tiene la mano, o null si no toca */
 function golpeCuadro(p) {
   const s = p.swing, w = p.slots[p.cur];
-  if (p.spr !== 'knight' || !ANIM.knight_atq || !espadaKey(w)) return null;
+  if (p.spr !== 'knight' || !ANIM.knight_atq || !espadaKey(w) || esEscudo(w)) return null;
   const lado0 = p.flip ? -1 : 1;
   if (esLanza(w) && p.lunge && p.dashT > 0) {
     // embestida: brazo estirado y la lanza hacia donde te lanzas
@@ -124,9 +131,29 @@ function drawCorteGiro(p, w, s, prog) {
 /** chispa (o golpe de su elemento) donde la espada pega */
 function impactoEspada(w, x, y, a) {
   if (!espadaKey(w)) return;
-  const mazo = esMazo(w) && ANIM.m_impacto, lanza = esLanza(w) && ANIM.l_impacto;
-  const fx = w.el && ANIM['c_' + w.el] ? 'c_' + w.el : mazo ? 'm_impacto' : lanza ? 'l_impacto' : 'c_impacto';
+  const mazo = esMazo(w) && ANIM.m_impacto, lanza = esLanza(w) && ANIM.l_impacto, esc = esEscudo(w) && ANIM.e_golpe;
+  const fx = w.el && ANIM['c_' + w.el] ? 'c_' + w.el : mazo ? 'm_impacto' : lanza ? 'l_impacto' : esc ? 'e_golpe' : 'c_impacto';
   G.parts.push({ x, y, vx: 0, vy: 0, life: mazo ? .3 : .2, max: mazo ? .3 : .2, fx, s: mazo && !w.el ? 1.2 : 1.6, rot: mazo ? 0 : a, color: '', size: 0 });
+}
+/** empujón del escudo (y la onda del golpe cargado, más grande) */
+function drawEmpujon(p, w, s, prog) {
+  if (!esEscudo(w)) return false;
+  const i = Math.min(3, Math.floor(prog * 4)), a = s.a, R = s.range, grande = R > 70;
+  const key = grande && ANIM.e_onda ? 'e_onda~reposo~' + i : 'e_empuje~reposo~' + i;
+  drawSpr(key, p.x + Math.cos(a) * R * (grande ? .4 : .55), p.y + Math.sin(a) * R * (grande ? .4 : .55), R / (grande ? 30 : 17), { rot: a, alpha: grande ? .85 : 1 });
+  return true;
+}
+/** destello del escudo al parar una bala */
+function bloqueoFx(p, pr) {
+  const w = p.slots[p.cur]; if (!esEscudo(w) || !ANIM.e_bloqueo) return;
+  const a = p.aim;
+  G.parts.push({ x: p.x + Math.cos(a) * 16, y: p.y + Math.sin(a) * 16, vx: 0, vy: 0, life: .3, max: .3, fx: 'e_bloqueo', s: 1.4, rot: a, color: '', size: 0 });
+}
+/** púa del escudo en vuelo; devuelve true si la dibujó */
+function drawPua(pr) {
+  if (!pr.src || !esEscudo(pr.src) || !ANIM.e_pua) return false;
+  drawSpr('e_pua~reposo~' + (Math.floor(G.time * 12) % 4), pr.x, pr.y, 1.2, { rot: Math.atan2(pr.vy, pr.vx) });
+  return true;
 }
 /** estela de la embestida cargada de la lanza (detrás del Caballero) */
 function drawEmbestida(p, w) {
@@ -142,4 +169,4 @@ function mazazoFx(p, w, R) {
     : { x, y: y + 4, vx: 0, vy: 0, life: .55, max: .55, fx: 'm_mazazo', s: R / 22, color: '', size: 0, pre: .08 });
 }
 
-export { drawCorte, drawCorteGiro, drawEmbestida, drawEspada, esLanza, esMazo, espadaEnMano, espadaKey, golpeCuadro, impactoEspada, mazazoFx };
+export { bloqueoFx, drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, esEscudo, esLanza, esMazo, espadaEnMano, espadaKey, golpeCuadro, impactoEspada, mazazoFx };

@@ -38,7 +38,6 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 - Fantasma: 9 % del daño recibido
 - El Gemelo de Aldric: 7 % del daño recibido
 - Elena, Corazón de la Cripta: 7 % del daño recibido
-- El Señor del Osario: 7 % del daño recibido
 - La Forjadora: 6 % del daño recibido
 - Embestidor: 6 % del daño recibido
 - El Obispo Hueco: 6 % del daño recibido
@@ -47,6 +46,7 @@ El bot es inmortal: cada celda dice cuántas barras de vida llenas habría neces
 - Herrero Fundido: 5 % del daño recibido
 - La Raíz Madre: 5 % del daño recibido
 - El Devorador de Luz: 5 % del daño recibido
+- El Señor del Osario: 4 % del daño recibido
 
 ## Armas a 3★ (piso 4)
 
@@ -65,9 +65,9 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Shurikens | rare | Asesino | 37.7 | 1.34 | 17.6 | 2/3 | 4 % |
 | Hoz arrojadiza | rare | Asesino | 37.5 | 1.33 | 28.3 | 3/3 | 28 % |
 | Hoja de escarcha | rare | Caballero | 36.7 | 1.30 | 38.9 | 3/3 | 94 % |
+| Lanza de guardia | uncommon | Caballero | 35.8 | 1.27 | 24.3 | 2/3 | 59 % |
 | Espada de hierro | uncommon | Caballero | 35.7 | 1.26 | 32.7 | 3/3 | 89 % |
 | Martillo de guerra | rare | Caballero | 35.6 | 1.26 | 41.9 | 3/3 | 80 % |
-| Lanza de guardia | uncommon | Caballero | 35.3 | 1.25 | 32.9 | 3/3 | 87 % |
 | Garras de sombra | rare | Asesino | 33.4 | 1.18 | 34.7 | 3/3 | 51 % |
 | Bumerán | common | Tirador | 31.0 | 1.10 | 32.0 | 3/3 | 88 % |
 | Arco de las Sombras | epic | Asesino | 30.7 | 1.09 | 7.4 | 0/3 | 5 % |
@@ -96,4 +96,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de marea | rare | Caballero | 19.1 | 0.68 | 12.2 | 2/3 | 18 % |
 | Arco triple | rare | Tirador | 18.9 | 0.67 | 12.7 | 1/3 | 4 % |
 
-_294 partidas en 298 s._
+_294 partidas en 305 s._

@@ -300,6 +300,17 @@
   "l_embestida": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "l_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "l_el":        { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Escudo de púas (v0.67, IA con fondo verde). Ver 37c-espada-hd.js.
+  //   escudo, escudo_el  el escudo de frente en sus 5 estrellas y con elemento
+  //   e_empuje, e_onda   empujón del ataque y onda del golpe cargado; e_bloqueo: destello al parar una bala (muerte)
+  //   e_golpe            impacto metálico (muerte); e_pua: púa en vuelo (4★ en adelante)
+  "escudo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "escudo_el": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "e_empuje":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "e_onda":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "e_bloqueo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 14 } },
+  "e_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "e_pua":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
   //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
   //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace

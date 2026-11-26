@@ -16,6 +16,7 @@ import { hurtEnemy } from './14-enemigos.js';
 import { ELEMS, elemBlast } from './23-elementos.js';
 import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
+import { bloqueoFx } from './37c-espada-hd.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
 // v0.58: el poder elemental depende solo del elemento, no del estilo del arma
@@ -94,6 +95,7 @@ function shieldBash(p, w, range, dmg) {
 function shieldBlock(p, pr) {
   const w = p.slots[p.cur];
   if (!w || w.style !== 'shield' || Math.abs(angDiff(p.aim, angTo(p, pr))) > 1 + .25 * espLv(w)) return false;
+  bloqueoFx(p, pr);   // v0.67: destello del escudo HD
   if (espLv(w) >= 3) reflect(pr, p.aim, w.dmg); else { pr.life = 0; burst(pr.x, pr.y, '#d8d0b8', 4, 90); sfx(1500, .04, 'square', .02); }
   p.en = Math.min(maxEnergy(p), p.en + 1);
   return true;

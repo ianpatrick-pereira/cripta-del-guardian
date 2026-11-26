@@ -206,10 +206,10 @@ function attack(p) {
       p.golpeN = golpe;
       // el mazo cambia la estocada por el mazazo: cae de arriba, pega más fuerte en un cono corto y frena un momento
       const mazo = esMazo(w);
-      // la lanza: estocada, barrido corto con el asta que empuja y doble estocada (dos pinchazos algo más débiles)
+      // la lanza: estocada, barrido corto con el asta que empuja y doble estocada (dos pinchazos)
       const lanza = esLanza(w);
       if (lanza && golpe === 1) { range *= .75; arc = 2; kb = 380; }
-      else if (lanza && golpe === 2) { range *= 1.1; arc = .5; dmg = Math.max(1, Math.round(dmg * .8)); p.cd *= 1.25; }
+      else if (lanza && golpe === 2) { range *= 1.1; arc = .5; p.cd *= 1.15; }
       else if (golpe === 2 && mazo) { range *= 1.1; arc = 1.4; dmg = Math.round(dmg * 1.5); kb = 440; p.cd *= 1.35; }
       else if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
       p.golpeT = p.cd + .4;
