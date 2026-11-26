@@ -121,6 +121,8 @@ export interface DefSubjefe {
     pc?: string;
     /** sprite de sus flechas (volley, retreat), p. ej. flecha_capitan */
     flecha?: string;
+    /** dibujos de sus ataques (src/sprites/): hacha = balas del abanico, estela = embestida, golpe = hachazo al suelo, circulo = invocación */
+    efectos?: { hacha?: string; estela?: string; golpe?: string; circulo?: string };
     /** ataques de cada fase (ids de src/js/01h-ataques-de-subjefe/) */
     p1: string[]; p2: string[];
   };

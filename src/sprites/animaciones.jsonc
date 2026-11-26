@@ -216,5 +216,18 @@
   // Efectos del Espectro: niebla al esfumarse y reaparecer, ojos que avisan antes de embestir y la estela con zarpazos.
   "w_humo":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
   "w_aviso":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 } },
-  "w_estela": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } }
+  "w_estela": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } },
+  // El Verdugo (subjefe del piso 3). Fila 2: herido, hacha en alto (antes del hachazo y de embestir) y 2 de muerte.
+  "executioner": {
+    "cuadro": [80, 80], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
+    "herido":  { "fila": 2, "cuadros": 2 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 2 }
+  },
+  // Ataques del Verdugo: hacha espectral que gira (abanico), estela de la embestida, hachazo al suelo y círculo de invocación.
+  "x_hacha":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 12 } },
+  "x_estela":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } },
+  "x_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 3 } },
+  "x_circulo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } }
 }
