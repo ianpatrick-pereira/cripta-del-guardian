@@ -10,7 +10,7 @@ import { G } from './07-estado.js';
 // armas con dibujo HD: su hoja y qué cuadro usan a 1★ (la de hierro y el martillo empiezan más arriba)
 const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0], spiked: ['escudo', 0], shortsword: ['corta', 0] };
 // por hoja: píxeles de la empuñadura bajo el centro del cuadro y tamaño en pantalla
-const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3], corta: [22, 1.3] };
+const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3], corta: [30, 1.4] };
 /** true si el arma es un mazo HD (Garrote o Martillo de guerra) */
 const esMazo = w => !!w && ESPADA_HD[w.id]?.[0] === 'mazo' && !!ANIM.mazo;
 /** true si el arma es el escudo de púas HD */

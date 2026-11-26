@@ -311,6 +311,9 @@
   "e_bloqueo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 14 } },
   "e_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "e_pua":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Espada corta (v0.67, IA): en sus 5 estrellas y con elemento. Usa el combo, los cortes y el giro de la espada (más chicos)
+  "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
   //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
   //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace

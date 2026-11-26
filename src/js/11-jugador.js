@@ -213,7 +213,7 @@ function attack(p) {
       else if (golpe === 2 && mazo) { range *= 1.1; arc = 1.4; dmg = Math.round(dmg * 1.5); kb = 440; p.cd *= 1.35; }
       else if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
       p.golpeT = p.cd + .4;
-      p.swing = { t: 0, dur: golpe === 2 && (mazo || lanza) ? .3 : .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+      p.swing = { t: 0, dur: golpe === 2 && (mazo || lanza) ? .3 : w.id === 'shortsword' ? .17 : .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
       if (lanza && golpe === 2) { const R = range, A = arc, D = dmg, K = kb; later(.15, () => { if (p.slots[p.cur] === w) meleeHit(p, w, R, A, D, K, false); }); }
       if (golpe === 2 && mazo) {
         mazazoFx(p, w, range); shake(5);
