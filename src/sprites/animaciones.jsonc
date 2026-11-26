@@ -339,6 +339,11 @@
   // b_flecha: flecha bomba (sola, con humo, cargada, chispa); b_explosion: destello, bola de fuego, se rompe, humo
   "b_flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "b_explosion": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 11 } },
+  // Honda (resortera en Y): de pie con la horquilla arriba; piedra = piedra, con estela, cargada, impacto / con elemento
+  "honda":     { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "honda_el":  { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "piedra":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "p_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
   "flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
   "f_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
