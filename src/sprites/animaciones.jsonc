@@ -203,5 +203,18 @@
   // Charco ácido que deja la Matriarca al caer.
   "l_charco":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 } },
   // Huevo de limo: aviso de que nace un limo (reposo) y el huevo roto (muerte).
-  "l_huevo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } }
+  "l_huevo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } },
+  // ── Piso 3: El Abismo (v0.65, IA, fondo verde) ──
+  // Espectro: fila 0 flota; fila 1 se desliza hacia ti (el último cuadro es la embestida); fila 2 herido + se deshace en niebla.
+  "wraith": {
+    "cuadro": [64, 64], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 5 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 4 }
+  },
+  // Efectos del Espectro: niebla al esfumarse y reaparecer, ojos que avisan antes de embestir y la estela con zarpazos.
+  "w_humo":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  "w_aviso":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 } },
+  "w_estela": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } }
 }

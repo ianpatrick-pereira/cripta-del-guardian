@@ -51,7 +51,7 @@ function bordeSuave(sp) {
   return (sp.sv = c);
 }
 // v0.64: luz de los efectos. Cada familia de efectos brilla con su color y alumbra el suelo que tiene debajo
-const FX_LUZ = { f_: ['255,120,40', .45, 1], g_: ['199,125,255', .3, .7], a_: ['120,200,255', .2, .45], v_: ['190,240,230', .3, .45], t_: ['255,170,90', 0, 0], l_: ['155,255,122', .15, .45], orbe: ['255,255,255', .25, .4] };
+const FX_LUZ = { f_: ['255,120,40', .45, 1], g_: ['199,125,255', .3, .7], a_: ['120,200,255', .2, .45], v_: ['190,240,230', .3, .45], t_: ['255,170,90', 0, 0], l_: ['155,255,122', .15, .45], w_: ['180,120,255', .25, .45], orbe: ['255,255,255', .25, .4] };
 function fxLuz(key) {
   for (const k in FX_LUZ) if (key && key.startsWith(k)) return FX_LUZ[k];
   return null;
