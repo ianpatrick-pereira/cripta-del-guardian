@@ -24,11 +24,13 @@ function drawEspada(key, x, y, a, scale = 1) {
 
 // dónde está el puño en cada cuadro de knight_atq (píxeles del cuadro de 64; el centro es 32, 32)
 const MANO = [
-  [[16, 12], [34, 33], [54, 30], [21, 41]],   // tajo: brazo atrás, al pecho, estirado, guardia
-  [[37, 32], [11, 30], [6, 29], [21, 48]],    // revés
-  [[16, 42], [36, 32], [57, 30], [20, 42]],   // estocada
-  [[53, 28], [44, 26], [6, 28], [44, 6]],     // giro: derecha, de frente, izquierda, de espaldas
+  [[18, 28], [28, 35], [39, 35], [19, 44]],   // tajo: puño arriba atrás, al pecho, cruzando, guardia
+  [[27, 36], [13, 36], [12, 35], [19, 44]],   // revés: del pecho hacia atrás
+  [[25, 43], [26, 40], [52, 34], [19, 44]],   // estocada: recoge, carga, estira
+  [[23, 34], [20, 34], [11, 32], [48, 31]],   // giro: derecha, de frente, izquierda, de espaldas
 ];
+// ángulo de la espada en cada cuadro del giro (mirando a la derecha): da la vuelta completa
+const GIRO_A = [0, Math.PI / 2, Math.PI, -Math.PI / 4];
 const FILA = ['reposo', 'caminar', 'herido', 'muerte'];
 /** cuadro del Caballero atacando y dónde tiene la mano, o null si no toca */
 function golpeCuadro(p) {
@@ -37,7 +39,8 @@ function golpeCuadro(p) {
   const prog = clamp(s.t / s.dur, 0, .999), fila = s.spin ? 3 : s.golpe || 0;
   const i = s.spin ? Math.floor(prog * 4) : prog < .2 ? 0 : prog < .55 ? 1 : prog < .85 ? 2 : 3;
   const [mx, my] = MANO[fila][i], lado = p.flip ? -1 : 1;
-  return { key: 'knight_atq~' + FILA[fila] + '~' + i, hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5 };
+  const ga = GIRO_A[i];
+  return { key: 'knight_atq~' + FILA[fila] + '~' + i, hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5, ang: lado > 0 ? ga : Math.PI - ga };
 }
 
 /** corte de un golpe del combo: media luna (tajo, revés) o estocada, de acero o de su elemento */

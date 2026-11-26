@@ -286,7 +286,7 @@ function drawPlayer(p) {
     if (w.type === 'melee' && p.swing && espadaKey(w)) {
       // v0.66: espada HD: corte dibujado y la espada en la mano del Caballero (o en el centro si es otra clase)
       const s = p.swing, prog = Math.min(1, s.t / s.dur), g = golpeCuadro(p), hx = g ? g.hx : p.x, hy = g ? g.hy : p.y + bob;
-      if (s.spin) { drawCorteGiro(p, w, s, prog); drawWeapon(w, hx, hy, g ? Math.atan2(hy - (p.y - 6), hx - p.x) : s.a + prog * TAU * 1.5); }
+      if (s.spin) { drawCorteGiro(p, w, s, prog); drawWeapon(w, hx, hy, g ? g.ang : s.a + prog * TAU * 1.5); }
       else { drawCorte(p, w, s, prog); drawWeapon(w, hx, hy, s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
     } else if (w.type === 'melee' && p.swing) {
       const s = p.swing, prog = s.t / s.dur;
