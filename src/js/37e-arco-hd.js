@@ -6,7 +6,7 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD de arco y qué cuadro usan a 1★
-const ARCO_HD = { short: ['arco', 0] };
+const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0] };
 const ARCO_EL = { fire: 0, water: 1, air: 2, earth: 3 };
 /** clave del dibujo HD del arco, o null si se dibuja por código */
 function arcoKey(w) {
