@@ -39,7 +39,7 @@ function newRun(charId) {
     dashT: 0, dashCd: 0, dvx: 0, dvy: 0, swing: null, walk: 0, mvx: 0, mvy: 1,
     relics: [], killCount: 0, abilCd: 0, elCd: 0, bulwarkT: 0, shadowT: 0, slow: 0, noEnT: 0, flip: false,
     cu: Object.fromEntries(Object.keys(UPG).filter(k => UPG[k].cls === charId).map(k => [k, SAVE.upg[k] || 0])),
-    talents: [], spec: '', subK: 0, preK: 0, parryT: 0, parryCd: 0, revenge: 0, focus: 0, combo: 0, comboT: 0, veilT: 0, rageT: 0, backN: 0, meleeKills: 0, atkN: 0, chgN: 0,
+    talents: [], spec: '', subK: 0, preK: 0, parryT: 0, parryCd: 0, revenge: 0, focus: 0, combo: 0, comboT: 0, golpeN: 0, golpeT: 0, veilT: 0, rageT: 0, backN: 0, meleeKills: 0, atkN: 0, chgN: 0,
   };
   G = {
     floor: 1, player: p, time: 0, kills: 0, coins: SAVE.upg.coin * 10, gems: 0, petKind: SAVE.pet, keys: 0, roomsCleared: 0, rerollF: 0, guia: null, circ: Math.min(SAVE.circSel || 0, SAVE.circ || 0),

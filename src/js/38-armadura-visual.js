@@ -68,6 +68,8 @@ import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
 import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
+import { drawCorte, drawCorteGiro, drawEspada, espadaKey, golpeCuadro } from './37c-espada-hd.js';
+import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
@@ -156,6 +158,8 @@ function drawAbilityFx(p) {
 }
 
 function drawWeapon(w, x, y, a, scale = 1) {
+  // v0.66: espadas con dibujo HD (37c-espada-hd.js): la estrella o el elemento ya vienen en el dibujo
+  const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
   ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(scale, scale);
   const c = w.tint || RARITY[w.rarity].c;
   const shape = w.shape || (w.type === 'bow' ? 'bow' : 'sword');
@@ -257,6 +261,7 @@ const CON_PIES = new Set(['captain', 'elem_earth']);
 const paso = (fase, anda) => anda ? { rot: Math.sin(fase) * .07, dy: -Math.abs(Math.sin(fase)) * 2.5 } : { rot: 0, dy: 0 };
 function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
+  const g = !G.over && golpeCuadro(p); if (g) return g.key;   // v0.66: atacando con la espada HD
   if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
   if (A.herido && p.sqT > -.08) return A.herido.cuadros[0];   // golpe recibido: ~0,26 s
   if (A.caminar && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40) {
@@ -278,7 +283,12 @@ function drawPlayer(p) {
       drawWeapon(w, p.x + Math.cos(a) * (4 + push), p.y + 2 + bob + Math.sin(a) * (4 + push), a);
       return;
     }
-    if (w.type === 'melee' && p.swing) {
+    if (w.type === 'melee' && p.swing && espadaKey(w)) {
+      // v0.66: espada HD: corte dibujado y la espada en la mano del Caballero (o en el centro si es otra clase)
+      const s = p.swing, prog = Math.min(1, s.t / s.dur), g = golpeCuadro(p), hx = g ? g.hx : p.x, hy = g ? g.hy : p.y + bob;
+      if (s.spin) { drawCorteGiro(p, w, s, prog); drawWeapon(w, hx, hy, g ? Math.atan2(hy - (p.y - 6), hx - p.x) : s.a + prog * TAU * 1.5); }
+      else { drawCorte(p, w, s, prog); drawWeapon(w, hx, hy, s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
+    } else if (w.type === 'melee' && p.swing) {
       const s = p.swing, prog = s.t / s.dur;
       if (s.spin) {
         const sc = w.el ? ELEMS[w.el].c : STAR_COL[(w.stars || 1) - 1];
@@ -302,6 +312,7 @@ function drawPlayer(p) {
   const sb = p.skin && SPR[fk + '_S' + p.skin] ? fk + '_S' + p.skin : fk;
   const spr0 = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
   const spr = p.dashT > 0 || ANIM[p.spr] ? spr0 : walkKey(spr0, walkFrame(p.walk, Math.hypot(G.pv.x, G.pv.y) > 40));
+  if (!dead) drawRocaHD(p);   // v0.66: Piel de roca, a los pies
   if (back && !dead) drawW();
   // se estira al esquivar y se aplasta al recibir daño
   let psx = 1, psy = 1;
@@ -313,6 +324,7 @@ function drawPlayer(p) {
   setWREACT(1);
   if (dead) return;
   drawAbilityFx(p);
+  drawVientoHD(p);   // v0.66: remolino de la Ráfaga
   if (p.rageT > 0) { ctx.strokeStyle = `rgba(212,71,75,${.45 + .3 * Math.sin(G.time * 16)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, TAU); ctx.stroke(); }
   if (p.charge > 0) {
     const k = Math.min(1, p.charge / .55);
@@ -991,6 +1003,7 @@ function render0() {
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(2, -3.5); ctx.lineTo(2, 3.5); ctx.fill();
       ctx.restore();
     } else if (pr.kind === 'wave') {
+      if (pr.fx === 'tsunami' && drawOlaHD(pr)) continue;   // v0.66: ola dibujada
       const a = Math.atan2(pr.vy, pr.vx);
       ctx.strokeStyle = `rgba(236,228,207,${clamp(pr.life * 2, 0, .9)})`; ctx.lineWidth = 4;
       ctx.beginPath(); ctx.arc(pr.x - Math.cos(a) * 8, pr.y - Math.sin(a) * 8, 14, a - 1.1, a + 1.1); ctx.stroke();

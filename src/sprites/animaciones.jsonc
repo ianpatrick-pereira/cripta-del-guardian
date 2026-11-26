@@ -257,5 +257,35 @@
   // Ojo vigía (v0.65, IA): torreta del desafío y esbirro del Devorador. Fila 0: flota y parpadea;
   // fila 1: carga el disparo («caminar», el ojo no camina), herido y 2 de muerte (revienta en sangre)
   "eye": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 1 },
-           "herido": { "fila": 1, "desde": 1, "cuadros": 1 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 6 } }
+           "herido": { "fila": 1, "desde": 1, "cuadros": 1 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 6 } },
+  // Espada del Caballero (v0.66, IA con fondo verde). Ver 37c-espada-hd.js.
+  //   knight_atq  el Caballero atacando con el puño vacío (la espada se dibuja aparte, en su mano). Los nombres de las
+  //               animaciones no se usan como tales: reposo = tajo, caminar = revés, herido = estocada, muerte = giro
+  //   espada      la espada en sus 5 estrellas (apunta hacia arriba; la empuñadura, abajo)
+  //   espada_el   la espada con elemento: fuego, agua, aire y tierra
+  //   c_tajo, c_reves, c_estocada  el corte de cada golpe del combo (4 cuadros: aparece, lleno, se adelgaza, chispas)
+  //   c_giro      el anillo del giro cargado (2); c_impacto: chispa al pegar (muerte = 2 cuadros)
+  //   c_fire, c_water, c_air, c_earth  cortes con elemento: media luna, estocada, anillo e impacto
+  "knight_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
+                  "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
+  "espada":     { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "espada_el":  { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_tajo":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_reves":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_estocada": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_giro":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 12 } },
+  "c_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 10 } },
+  "c_fire":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "c_water":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "c_air":      { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "c_earth":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
+  //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
+  //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace
+  //   h_aire    Ráfaga: reposo = remolino a tu alrededor; muerte = el viento estalla hacia fuera
+  //   h_tierra  Piel de roca: reposo = las rocas suben y forman el anillo; caminar = anillo (late); muerte = se desmorona
+  "h_fuego":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 }, "caminar": { "fila": 1, "cuadros": 2 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 6 } },
+  "h_agua":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 8 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 12 } },
+  "h_aire":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 9 } },
+  "h_tierra": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 8 }, "caminar": { "fila": 1, "cuadros": 2 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 5 } }
 }

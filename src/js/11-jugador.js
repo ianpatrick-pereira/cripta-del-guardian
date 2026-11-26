@@ -20,6 +20,7 @@ import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs,
 import { pact } from './27-pactos-de-piso.js';
 import { endGame } from './33-bucle.js';
 import { zoom } from './34-dibujo.js';
+import { espadaKey, impactoEspada } from './37c-espada-hd.js';
 // distancia (px) que recorre el personaje en un ciclo completo de pasos (las dos piernas): a velocidad 175, ~2 ciclos por segundo
 const ZANCADA = 85;
 
@@ -133,6 +134,7 @@ function updatePlayer(dt) {
   const attacking = touch.on ? touch.atk : mouse.down;
   if (attacking && p.cd <= 0 && !G.over && p.charge <= 0 && !(p.flame && p.flame.arma && p.flame.t > 0)) attack(p);   // con el lanzallamas de fuego, el arma solo echa fuego
   if (p.swing) { p.swing.t += dt; if (p.swing.t > p.swing.dur) p.swing = null; }
+  p.golpeT -= dt;   // ventana para seguir el combo de la espada (v0.66)
 
   p.abilCd -= dt; p.bulwarkT -= dt; p.shadowT -= dt;
   p.veilT -= dt; p.parryT -= dt; p.parryCd -= dt; p.rageT -= dt;
@@ -197,10 +199,18 @@ function attack(p) {
       dmg = Math.max(1, Math.floor(w.dmg / 2));
       if (p.noEnT <= 0) { addText(p.x, p.y - 26, tr('Agotado: daño a la mitad'), '#5aa4e8', 12); p.noEnT = 1.5; }
     } else p.en -= cost;
-    p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
+    let range = w.range, arc = w.arc, kb = w.shape === 'hammer' ? 380 : 260;
+    if (espadaKey(w)) {
+      // v0.66: la espada HD encadena 3 golpes si atacas seguido: tajo, revés y estocada (más alcance y daño, algo más lenta)
+      const golpe = p.golpeT > 0 ? ((p.golpeN || 0) + 1) % 3 : 0;
+      p.golpeN = golpe;
+      if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
+      p.golpeT = p.cd + .4;
+      p.swing = { t: 0, dur: .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+    } else p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
     // sonido por familia: los pesados retumban, los filos silban
-    if (w.shape === 'hammer') { sfx(110, .09, 'sawtooth', .03, -50); noise(.09, .05, 450); } else { sfx(190, .06, 'sawtooth', .018, -90); noise(.07, .035, 2600); }
-    meleeHit(p, w, w.range, w.arc, dmg, w.shape === 'hammer' ? 380 : 260, false);
+    if (w.shape === 'hammer') { sfx(110, .09, 'sawtooth', .03, -50); noise(.09, .05, 450); } else { sfx(p.swing.golpe === 2 ? 240 : 190, .06, 'sawtooth', .018, -90); noise(.07, .035, 2600); }
+    meleeHit(p, w, range, arc, dmg, kb, false);
     if (rc('onda')) {
       const a = p.aim;
       G.proj.push({ x: p.x + Math.cos(a) * 18, y: p.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, r: 10, dmg: Math.max(1, Math.round(dmg * .6)),
@@ -232,6 +242,7 @@ function meleeHit(p, w, range, arc, dmg, kb, full) {
     if (d > range + e.r) continue;
     if (!full && d > e.r + p.r + 4 && Math.abs(angDiff(p.aim, angTo(p, e))) > arc / 2) continue;
     hurtEnemy(e, dmg, angTo(p, e), kb, { src: w, melee: true, fx: w.fx });
+    impactoEspada(w, e.x, e.y - 6, angTo(p, e));   // v0.66: chispa de la espada HD
     p.en = Math.min(maxEnergy(p), p.en + 2);
   }
   for (const o of G.props) {

@@ -14,6 +14,7 @@ import { armorSh } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { drawShadow } from './36-mar-de-lava.js';
 import { fondoElem, frenteElem, poseElem } from './23c-movimiento-elemental.js';
+import { drawLanzallamasHD, rafagaHD } from './37d-poderes-hd.js';
 const ELEMS = {
   fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('5 s: tu arma lanza fuego sin parar hacia donde apuntas. Mucho daño y quema 3 s.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
@@ -85,7 +86,7 @@ function elemAbility(p) {
     }
     G.proj = G.proj.filter(pr => pr.owner === 'player' || dist(pr, p) > R * .7);   // también se lleva las balas cercanas
     for (let i = 0; i < 36; i++) { const an = i * TAU / 36, sp = rand(280, 420); G.parts.push({ x: p.x, y: p.y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp, life: .45, max: .45, color: 'rgba(200,240,224,.85)', size: 3 }); }
-    p.windT = 3;
+    p.windT = 3; rafagaHD(p.x, p.y, R);
     noise(.8, .06, 2500); sfx(500, .6, 'sine', .03, 400);
   } else {
     // piel de roca: 10 s de resistencia y más daño
@@ -131,6 +132,7 @@ function updateFlamer(dt) {
 }
 function drawFlamer() {
   const F = G.player && G.player.flame; if (!F) return;
+  if (drawLanzallamasHD()) return;   // v0.66: chorro dibujado (37d-poderes-hd.js)
   ctx.save(); ctx.globalCompositeOperation = 'lighter';
   for (const f of F.f) {
     const k = f.life / f.max, col = k > .7 ? '255,205,110' : k > .45 ? '255,170,60' : k > .2 ? '255,90,40' : '120,40,30';
