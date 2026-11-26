@@ -6,7 +6,7 @@ El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): 
 
 ## Límites (pruebas/balance-limites.jsonc)
 
-**✓ Ningún límite roto** (38 armas comprobadas, 8 pisos y 3 clases comprobados)
+**✓ Ningún límite roto** (33 armas comprobadas, 8 pisos y 3 clases comprobados)
 
 - ⚠ Piso 3: 3.4× más difícil que el piso 2 (aviso desde 1.8×)
 - ⚠ Piso 7: 2.2× más difícil que el piso 6 (aviso desde 1.8×)
@@ -57,7 +57,6 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Filo nocturno | epic | Asesino | 46.6 | 1.70 | 44.0 | 3/3 | 81 % |
 | Látigo de cadenas | uncommon | Asesino | 42.9 | 1.56 | 35.0 | 3/3 | 82 % |
 | Guadaña sangrienta | epic | Asesino | 42.4 | 1.54 | 44.7 | 3/3 | 92 % |
-| Arco explosivo | epic | Tirador | 41.2 | 1.50 | 31.0 | 3/3 | 9 % |
 | Lanza de guardia | uncommon | Caballero | 39.5 | 1.44 | 39.6 | 3/3 | 100 % |
 | Dagas gemelas | rare | Asesino | 38.3 | 1.39 | 33.0 | 2/3 | 49 % |
 | Shurikens | rare | Asesino | 37.7 | 1.37 | 17.6 | 2/3 | 4 % |
@@ -66,7 +65,6 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Espada de hierro | uncommon | Caballero | 35.7 | 1.30 | 32.7 | 3/3 | 89 % |
 | Martillo de guerra | rare | Caballero | 35.6 | 1.29 | 41.9 | 3/3 | 80 % |
 | Garras de sombra | rare | Asesino | 33.4 | 1.22 | 34.7 | 3/3 | 51 % |
-| Bumerán | common | Tirador | 31.0 | 1.13 | 32.0 | 3/3 | 88 % |
 | Arco de las Sombras | epic | Asesino | 30.7 | 1.12 | 7.4 | 0/3 | 5 % |
 | Katar | uncommon | Asesino | 30.6 | 1.12 | 23.9 | 2/3 | 35 % |
 | Espada oxidada | common | Caballero | 29.6 | 1.08 | 25.5 | 3/3 | 94 % |
@@ -76,12 +74,10 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Bastón de fuego | rare | Caballero | 27.1 | 0.99 | 34.4 | 2/3 | 25 % |
 | Escudo de púas | uncommon | Caballero | 27.0 | 0.98 | 26.5 | 3/3 | 95 % |
 | Garrote | common | Caballero | 26.2 | 0.95 | 36.2 | 3/3 | 92 % |
-| Arco largo | uncommon | Tirador | 26.2 | 0.95 | 17.2 | 3/3 | 16 % |
 | Kunais | common | Asesino | 25.4 | 0.92 | 15.9 | 3/3 | 21 % |
 | Daga veloz | uncommon | Asesino | 25.0 | 0.91 | 38.3 | 3/3 | 92 % |
 | Grimorio de huesos | epic | Caballero | 24.3 | 0.89 | 30.2 | 3/3 | 35 % |
 | Arco corto | common | Tirador | 24.1 | 0.88 | 14.0 | 2/3 | 37 % |
-| Arco de escarcha | rare | Tirador | 23.8 | 0.87 | 17.1 | 1/3 | 5 % |
 | Bastón de la ciénaga | uncommon | Asesino | 22.1 | 0.80 | 21.7 | 2/3 | 19 % |
 | Bastón del rayo | epic | Caballero | 21.7 | 0.79 | 10.2 | 1/3 | 13 % |
 | Ballesta pesada | rare | Tirador | 21.4 | 0.78 | 23.6 | 3/3 | 33 % |
@@ -91,6 +87,5 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Mosquete | rare | Tirador | 20.1 | 0.73 | 35.3 | 3/3 | 78 % |
 | Rayo sostenido | epic | Caballero | 19.3 | 0.70 | 10.4 | 0/3 | 2 % |
 | Bastón de marea | rare | Caballero | 19.1 | 0.69 | 12.2 | 2/3 | 18 % |
-| Arco triple | rare | Tirador | 18.9 | 0.69 | 12.7 | 1/3 | 4 % |
 
-_276 partidas en 289 s._
+_246 partidas en 316 s._
