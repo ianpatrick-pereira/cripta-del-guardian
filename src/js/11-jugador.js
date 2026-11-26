@@ -20,7 +20,7 @@ import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs,
 import { pact } from './27-pactos-de-piso.js';
 import { endGame } from './33-bucle.js';
 import { zoom } from './34-dibujo.js';
-import { espadaKey, impactoEspada } from './37c-espada-hd.js';
+import { esMazo, espadaKey, impactoEspada, mazazoFx } from './37c-espada-hd.js';
 // distancia (px) que recorre el personaje en un ciclo completo de pasos (las dos piernas): a velocidad 175, ~2 ciclos por segundo
 const ZANCADA = 85;
 
@@ -204,9 +204,16 @@ function attack(p) {
       // v0.66: la espada HD encadena 3 golpes si atacas seguido: tajo, revés y estocada (más alcance y daño, algo más lenta)
       const golpe = p.golpeT > 0 ? ((p.golpeN || 0) + 1) % 3 : 0;
       p.golpeN = golpe;
-      if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
+      // el mazo cambia la estocada por el mazazo: cae de arriba, pega más fuerte en un cono corto y frena un momento
+      const mazo = esMazo(w);
+      if (golpe === 2 && mazo) { range *= 1.1; arc = 1.4; dmg = Math.round(dmg * 1.5); kb = 440; p.cd *= 1.35; }
+      else if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
       p.golpeT = p.cd + .4;
-      p.swing = { t: 0, dur: .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+      p.swing = { t: 0, dur: golpe === 2 && mazo ? .3 : .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+      if (golpe === 2 && mazo) {
+        mazazoFx(p, w, range); shake(5);
+        for (const e of G.enemies) if (!e.isBoss && !e.dead && dist(p, e) < range + e.r && Math.abs(angDiff(p.aim, angTo(p, e))) <= arc / 2) e.slowT = Math.max(e.slowT || 0, .8);
+      }
     } else p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
     // sonido por familia: los pesados retumban, los filos silban
     if (w.shape === 'hammer') { sfx(110, .09, 'sawtooth', .03, -50); noise(.09, .05, 450); } else { sfx(p.swing.golpe === 2 ? 240 : 190, .06, 'sawtooth', .018, -90); noise(.07, .035, 2600); }
@@ -294,7 +301,7 @@ function chargedAttack(p) {
     case 'quake': {
       const R = w.range * (S >= 2 ? 2.5 : 2.1);
       const quake = (k) => {
-        p.swing = { t: 0, dur: .3, a: p.aim, arc: TAU, range: R, dir: 1, spin: true };
+        p.swing = { t: 0, dur: .3, a: p.aim, arc: TAU, range: R, dir: 1, spin: true, smash: true };
         meleeHit(p, w, R, TAU, dm(k), 520, true);
         for (const e of G.enemies) if (!e.isBoss && dist(e, p) < R + e.r) e.slowT = S >= 2 ? 2.2 : 1.5;
         breakCracks(p.x, p.y, R);

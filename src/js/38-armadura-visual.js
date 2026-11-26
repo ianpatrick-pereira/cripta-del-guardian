@@ -51,7 +51,7 @@ function drawFxPart(pt) {
 }
 // marcas que quedan en el suelo: se pintan antes que los personajes
 const HUEVO = new Set(['toxic', 'mini']);
-const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco', 'r_impacto', 'r_anillo', 'd_ola', 'd_portal']);
+const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco', 'r_impacto', 'r_anillo', 'd_ola', 'd_portal', 'm_mazazo']);
 // colores de chispa que brillan (fuego, magia, rayos)
 const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';

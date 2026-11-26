@@ -279,6 +279,16 @@
   "c_water":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
   "c_air":      { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
   "c_earth":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Mazo del Caballero (v0.67, IA con fondo verde): Garrote (empieza en el cuadro 0) y Martillo de guerra (en el 2). Ver 37c-espada-hd.js.
+  //   mazo, mazo_el  el mazo en sus 5 estrellas y con elemento (apunta hacia arriba; la empuñadura, abajo)
+  //   m_barrido      el barrido de polvo y piedras del 1.er y 2.º golpe; m_mazazo: el golpe en el suelo del 3.º (muerte)
+  //   m_terremoto    el anillo del terremoto cargado; m_impacto: el golpe sordo al pegar (muerte)
+  "mazo":        { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "mazo_el":     { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "m_barrido":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "m_mazazo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  "m_terremoto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "m_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 14 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
   //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
   //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace
