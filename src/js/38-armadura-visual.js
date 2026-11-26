@@ -68,7 +68,7 @@ import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
 import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
-import { drawCorte, drawCorteGiro, drawEspada, espadaKey, golpeCuadro } from './37c-espada-hd.js';
+import { drawCorte, drawCorteGiro, drawEspada, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
@@ -275,7 +275,7 @@ function drawPlayer(p) {
   const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
   const bob = dead || ANIM[p.spr] ? 0 : Math.abs(Math.sin(p.walk)) * -2;   // con hoja, el rebote ya viene en los cuadros
   const w = p.slots[p.cur];
-  const back = Math.sin(p.aim) < -.3;
+  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && espadaKey(w) && espadaEnMano(p));   // la espada HD en la mano va siempre delante
   const drawW = () => {
     if (w.style === 'shield') {
       const push = p.swing ? Math.sin(Math.min(1, p.swing.t / p.swing.dur) * Math.PI) * 12 : 0, a = p.swing ? p.swing.a : p.aim;
@@ -304,6 +304,8 @@ function drawPlayer(p) {
         swingTrail(p, w, s, prog);
         drawWeapon(w, p.x, p.y + bob, ang);
       }
+    } else if (w.type === 'melee' && espadaKey(w) && espadaEnMano(p)) {
+      const m = espadaEnMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
   };
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));

@@ -9310,6 +9310,12 @@ function golpeCuadro(p) {
   return { key: 'knight_atq~' + FILA[fila] + '~' + i, hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5, ang: lado > 0 ? ga : Math.PI - ga };
 }
 
+/** sin atacar: la espada en la mano que cuelga del Caballero, con la punta hacia delante y algo abajo */
+function espadaEnMano(p) {
+  if (p.spr !== 'knight' || !ANIM.knight) return null;
+  const lado = p.flip ? -1 : 1, a = .35 + Math.sin(p.walk || 0) * .06;
+  return { hx: p.x + lado * (20 - 32) * .5, hy: p.y - 2 + (46 - 32) * .5, ang: lado > 0 ? a : Math.PI - a };
+}
 /** corte de un golpe del combo: media luna (tajo, revés) o estocada, de acero o de su elemento */
 function drawCorte(p, w, s, prog) {
   const R = s.range, a = s.a, el = w.el && ANIM['c_' + w.el] ? w.el : null, i = Math.min(3, Math.floor(prog * 4));
@@ -9663,7 +9669,7 @@ function drawPlayer(p) {
   const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
   const bob = dead || ANIM[p.spr] ? 0 : Math.abs(Math.sin(p.walk)) * -2;   // con hoja, el rebote ya viene en los cuadros
   const w = p.slots[p.cur];
-  const back = Math.sin(p.aim) < -.3;
+  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && espadaKey(w) && espadaEnMano(p));   // la espada HD en la mano va siempre delante
   const drawW = () => {
     if (w.style === 'shield') {
       const push = p.swing ? Math.sin(Math.min(1, p.swing.t / p.swing.dur) * Math.PI) * 12 : 0, a = p.swing ? p.swing.a : p.aim;
@@ -9692,6 +9698,8 @@ function drawPlayer(p) {
         swingTrail(p, w, s, prog);
         drawWeapon(w, p.x, p.y + bob, ang);
       }
+    } else if (w.type === 'melee' && espadaKey(w) && espadaEnMano(p)) {
+      const m = espadaEnMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
   };
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));

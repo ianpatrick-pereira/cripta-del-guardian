@@ -43,6 +43,12 @@ function golpeCuadro(p) {
   return { key: 'knight_atq~' + FILA[fila] + '~' + i, hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5, ang: lado > 0 ? ga : Math.PI - ga };
 }
 
+/** sin atacar: la espada en la mano que cuelga del Caballero, con la punta hacia delante y algo abajo */
+function espadaEnMano(p) {
+  if (p.spr !== 'knight' || !ANIM.knight) return null;
+  const lado = p.flip ? -1 : 1, a = .35 + Math.sin(p.walk || 0) * .06;
+  return { hx: p.x + lado * (20 - 32) * .5, hy: p.y - 2 + (46 - 32) * .5, ang: lado > 0 ? a : Math.PI - a };
+}
 /** corte de un golpe del combo: media luna (tajo, revés) o estocada, de acero o de su elemento */
 function drawCorte(p, w, s, prog) {
   const R = s.range, a = s.a, el = w.el && ANIM['c_' + w.el] ? w.el : null, i = Math.min(3, Math.floor(prog * 4));
@@ -69,4 +75,4 @@ function impactoEspada(w, x, y, a) {
   G.parts.push({ x, y, vx: 0, vy: 0, life: .2, max: .2, fx, s: 1.6, rot: a, color: '', size: 0 });
 }
 
-export { drawCorte, drawCorteGiro, drawEspada, espadaKey, golpeCuadro, impactoEspada };
+export { drawCorte, drawCorteGiro, drawEspada, espadaEnMano, espadaKey, golpeCuadro, impactoEspada };
