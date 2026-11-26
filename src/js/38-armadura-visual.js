@@ -70,6 +70,7 @@ import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales
 import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
 import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
+import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
@@ -104,7 +105,9 @@ function fillCols(to, n, ramp) {
 // si la clase tiene hoja de animación, lo mismo para cada cuadro (knight~caminar~2_S…_A…)
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
-    const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros)];
+    // v0.68: la hoja de disparo de la Arquera usa los mismos colores que su dibujo, así que también se tiñe
+    const atq = ch === 'archer' && ANIM.archer_atq ? Object.values(ANIM.archer_atq).flatMap(a => a.cuadros) : [];
+    const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros), ...atq];
     for (const fk of cuadros) {
       const [mapName, pal] = SPR_DEFS[fk], rows = MAPS[mapName], h = rows.length, wd = rows[0].length, k = SPR[fk].k;
       const swap = (P, from, to, ramp) => { to = fillCols(to, from.length, ramp); for (const c in P) { const i = from.indexOf(P[c].toLowerCase()); if (i >= 0) P[c] = to[i]; } return P; };
@@ -161,6 +164,7 @@ function drawAbilityFx(p) {
 function drawWeapon(w, x, y, a, scale = 1) {
   // v0.66: espadas con dibujo HD (37c-espada-hd.js): la estrella o el elemento ya vienen en el dibujo
   const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
+  const ak = arcoKey(w); if (ak) { drawArco(ak, x, y, a, scale); return; }   // v0.68: arco HD
   ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(scale, scale);
   const c = w.tint || RARITY[w.rarity].c;
   const shape = w.shape || (w.type === 'bow' ? 'bow' : 'sword');
@@ -263,6 +267,7 @@ const paso = (fase, anda) => anda ? { rot: Math.sin(fase) * .07, dy: -Math.abs(M
 function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
   const g = !G.over && golpeCuadro(p); if (g) return g.key;   // v0.66: atacando con la espada HD
+  const t = !G.over && tiroCuadro(p); if (t) return t.key;    // v0.68: la Arquera disparando con el arco HD
   if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
   if (A.herido && p.sqT > -.08) return A.herido.cuadros[0];   // golpe recibido: ~0,26 s
   if (A.caminar && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40) {
@@ -276,7 +281,8 @@ function drawPlayer(p) {
   const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
   const bob = dead || ANIM[p.spr] ? 0 : Math.abs(Math.sin(p.walk)) * -2;   // con hoja, el rebote ya viene en los cuadros
   const w = p.slots[p.cur];
-  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && !w.style && espadaKey(w) && espadaEnMano(p));   // la espada HD en la mano va siempre delante
+  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && !w.style && espadaKey(w) && espadaEnMano(p))   // la espada HD en la mano va siempre delante
+    && !(arcoKey(w) && arcoEnMano(p) && !tiroCuadro(p));   // y el arco colgando de la mano, también
   const drawW = () => {
     if (w.style === 'shield') {
       const push = p.swing ? Math.sin(Math.min(1, p.swing.t / p.swing.dur) * Math.PI) * 12 : 0, a = p.swing ? p.swing.a : p.aim;
@@ -310,6 +316,9 @@ function drawPlayer(p) {
         swingTrail(p, w, s, prog);
         drawWeapon(w, p.x, p.y + bob, ang);
       }
+    } else if (arcoKey(w) && (tiroCuadro(p) || arcoEnMano(p))) {
+      const t = tiroCuadro(p), m = t || arcoEnMano(p);   // v0.68: el arco HD va en el puño de la Arquera
+      drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);
     } else if (w.type === 'melee' && espadaKey(w) && espadaEnMano(p)) {
       const m = espadaEnMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
@@ -1001,6 +1010,7 @@ function render0() {
       G.parts.push({ x: pr.x, y: pr.y, vx: el === 'air' ? rand(-50, 50) : rand(-10, 10), vy: el === 'fire' ? rand(-60, -30) : rand(-10, 10), g: el === 'water' ? 400 : el === 'earth' ? 300 : 0, life: .35, max: .35, color: c, size: 2.5 });
     }
     if (pr.kind === 'arrow' && drawPua(pr)) continue;   // v0.67: púas del escudo HD
+    if ((pr.kind === 'arrow' || pr.kind === 'power') && drawFlecha(pr)) continue;   // v0.68: flechas HD
     if (pr.kind === 'arrow') {
       const a = Math.atan2(pr.vy, pr.vx);
       // estela de la flecha

@@ -28,6 +28,7 @@ import { updateClass } from './26-clases.js';
 import { dailyScore } from './31-reto-diario.js';
 import { saveHistory } from './38b-historial.js';
 import { iconImg } from './31b-iconos.js';
+import { impactoFlecha } from './37e-arco-hd.js';
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -177,7 +178,7 @@ function update(dt) {
         continue;
       }
       if (pr.owner === 'player' && (pr.fx === 'explode' || pr.boom)) explode(ox, oy, pr.boom || 55, pr.dmg, true);
-      pr.life = 0; burst(pr.x, pr.y, pr.color, 3, 80, 2, .25); continue;
+      impactoFlecha(pr); pr.life = 0; burst(pr.x, pr.y, pr.color, 3, 80, 2, .25); continue;
     }
     for (const o of G.props) {
       if (o.dead || !o.solid || dist(pr, o) > o.r + pr.r) continue;
@@ -191,6 +192,7 @@ function update(dt) {
         if (e.dead || e.air || pr.hit.has(e) || dist(pr, e) > e.r + pr.r) continue;
         pr.hit.add(e);
         hurtEnemy(e, pr.dmg, Math.atan2(pr.vy, pr.vx), pr.kb || (pr.kind === 'power' ? 300 : 140), { src: pr.src, fx: pr.fx });
+        impactoFlecha(pr);   // v0.68: astillas de la flecha HD
         if (pr.fx === 'chain') chainHit(e, pr.dmg);
         if (pr.split) splitShot(pr);
         // la hoz se clava en el primer enemigo que toca y gira ahí y lo sigue mientras gira (antes pasaba de largo y giraba en el vacío)

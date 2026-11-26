@@ -326,6 +326,14 @@
   // Espada corta (v0.67, IA): en sus 5 estrellas y con elemento. Usa el combo, los cortes y el giro de la espada (más chicos)
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro
+  //   arco, arco_el  en sus 5 estrellas y con elemento (fuego, agua, aire, tierra)
+  //   flecha     reposo = flecha, con estela, cargada (dorada) e impacto; caminar = flecha de fuego, agua, aire y tierra
+  //   f_impacto  astillas y chispa al pegar
+  "arco":      { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "arco_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "f_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
   //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
   //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace

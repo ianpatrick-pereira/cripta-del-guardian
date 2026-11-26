@@ -234,6 +234,7 @@ function attack(p) {
     p.en -= cost;
     const n = w.shots + (w.type === 'bow' ? rc('carcaj') + (syn('lluvia') ? 1 : 0) + (tl('carcaj2') ? 1 : 0) : 0), spread = .17;
     for (let i = 0; i < n; i++) shootPlayer(p, w, p.aim + (i - (n - 1) / 2) * spread + rand(-.025, .025), w.dmg);
+    p.tiroAt = G.time;   // v0.68: la Arquera HD anima el disparo
     if (w.type === 'staff') { sfx(520, .09, 'sine', .03, 200); sfx(1040, .06, 'sine', .012, 300); }
     else if (w.type === 'bow') { sfx(330, .05, 'triangle', .03, -150); noise(.05, .025, 3200); }   // cuerda
     else sfx(700, .06, 'triangle', .03, -300);
