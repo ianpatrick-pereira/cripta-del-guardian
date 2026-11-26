@@ -289,6 +289,17 @@
   "m_mazazo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
   "m_terremoto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "m_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 14 } },
+  // Lanza de guardia (v0.67, IA con fondo verde). Ver 37c-espada-hd.js.
+  //   lanza, lanza_el  la lanza en sus 5 estrellas y con elemento (punta arriba)
+  //   l_estocada, l_barrido, l_embestida  estela de la estocada, barrido con el asta y estela de la embestida cargada
+  //   l_impacto        pinchazo al pegar (muerte); l_el: estocada con elemento (fuego, agua, aire, tierra)
+  "lanza":       { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "lanza_el":    { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_estocada":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_barrido":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_embestida": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "l_el":        { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
   //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
   //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace

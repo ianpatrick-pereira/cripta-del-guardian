@@ -68,7 +68,7 @@ import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
 import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
-import { drawCorte, drawCorteGiro, drawEspada, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
+import { drawCorte, drawCorteGiro, drawEmbestida, drawEspada, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
@@ -283,11 +283,13 @@ function drawPlayer(p) {
       drawWeapon(w, p.x + Math.cos(a) * (4 + push), p.y + 2 + bob + Math.sin(a) * (4 + push), a);
       return;
     }
+    const gl = w.type === 'melee' && !p.swing && p.lunge && espadaKey(w) && golpeCuadro(p);
+    if (gl) { drawEmbestida(p, w); drawWeapon(w, gl.hx, gl.hy, gl.ang); return; }   // v0.67: embestida de la lanza HD
     if (w.type === 'melee' && p.swing && espadaKey(w)) {
       // v0.66: espada HD: corte dibujado y la espada en la mano del Caballero (o en el centro si es otra clase)
       const s = p.swing, prog = Math.min(1, s.t / s.dur), g = golpeCuadro(p), hx = g ? g.hx : p.x, hy = g ? g.hy : p.y + bob;
       if (s.spin) { drawCorteGiro(p, w, s, prog); drawWeapon(w, hx, hy, g ? g.ang : s.a + prog * TAU * 1.5); }
-      else { drawCorte(p, w, s, prog); drawWeapon(w, hx, hy, s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
+      else { drawCorte(p, w, s, prog); drawWeapon(w, hx, hy, g && g.fija ? g.ang : s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
     } else if (w.type === 'melee' && p.swing) {
       const s = p.swing, prog = s.t / s.dur;
       if (s.spin) {

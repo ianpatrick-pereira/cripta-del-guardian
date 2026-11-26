@@ -20,7 +20,7 @@ import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs,
 import { pact } from './27-pactos-de-piso.js';
 import { endGame } from './33-bucle.js';
 import { zoom } from './34-dibujo.js';
-import { esMazo, espadaKey, impactoEspada, mazazoFx } from './37c-espada-hd.js';
+import { esLanza, esMazo, espadaKey, impactoEspada, mazazoFx } from './37c-espada-hd.js';
 // distancia (px) que recorre el personaje en un ciclo completo de pasos (las dos piernas): a velocidad 175, ~2 ciclos por segundo
 const ZANCADA = 85;
 
@@ -206,10 +206,15 @@ function attack(p) {
       p.golpeN = golpe;
       // el mazo cambia la estocada por el mazazo: cae de arriba, pega más fuerte en un cono corto y frena un momento
       const mazo = esMazo(w);
-      if (golpe === 2 && mazo) { range *= 1.1; arc = 1.4; dmg = Math.round(dmg * 1.5); kb = 440; p.cd *= 1.35; }
+      // la lanza: estocada, barrido corto con el asta que empuja y doble estocada (dos pinchazos algo más débiles)
+      const lanza = esLanza(w);
+      if (lanza && golpe === 1) { range *= .75; arc = 2; kb = 380; }
+      else if (lanza && golpe === 2) { range *= 1.1; arc = .5; dmg = Math.max(1, Math.round(dmg * .8)); p.cd *= 1.25; }
+      else if (golpe === 2 && mazo) { range *= 1.1; arc = 1.4; dmg = Math.round(dmg * 1.5); kb = 440; p.cd *= 1.35; }
       else if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
       p.golpeT = p.cd + .4;
-      p.swing = { t: 0, dur: golpe === 2 && mazo ? .3 : .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+      p.swing = { t: 0, dur: golpe === 2 && (mazo || lanza) ? .3 : .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+      if (lanza && golpe === 2) { const R = range, A = arc, D = dmg, K = kb; later(.15, () => { if (p.slots[p.cur] === w) meleeHit(p, w, R, A, D, K, false); }); }
       if (golpe === 2 && mazo) {
         mazazoFx(p, w, range); shake(5);
         for (const e of G.enemies) if (!e.isBoss && !e.dead && dist(p, e) < range + e.r && Math.abs(angDiff(p.aim, angTo(p, e))) <= arc / 2) e.slowT = Math.max(e.slowT || 0, .8);
