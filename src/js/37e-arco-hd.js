@@ -6,7 +6,7 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD de arco y qué cuadro usan a 1★
-const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0] };
+const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0], boom: ['boom', 0] };
 const ARCO_EL = { fire: 0, water: 1, air: 2, earth: 3 };
 /** clave del dibujo HD del arco, o null si se dibuja por código */
 function arcoKey(w) {
@@ -49,14 +49,23 @@ function arcoEnMano(p) {
 function drawFlecha(pr) {
   if (!ANIM.flecha || !pr.src || pr.src.shape !== 'bow') return false;
   const a = Math.atan2(pr.vy, pr.vx);
-  const key = pr.kind === 'power' ? 'flecha~reposo~2' : pr.src.el ? 'flecha~caminar~' + ARCO_EL[pr.src.el] : 'flecha~reposo~1';
+  const bomba = (pr.fx === 'explode' || pr.boom) && ANIM.b_flecha;   // Arco explosivo: flecha con bomba y mecha encendida
+  const key = bomba ? 'b_flecha~reposo~' + (pr.kind === 'power' ? 2 : Math.floor(G.time * 10) % 2)
+    : pr.kind === 'power' ? 'flecha~reposo~2' : pr.src.el ? 'flecha~caminar~' + ARCO_EL[pr.src.el] : 'flecha~reposo~1';
   drawSpr(key, pr.x - Math.cos(a) * 6, pr.y - Math.sin(a) * 6, pr.kind === 'power' ? 1.35 : 1.1, { rot: a });
   return true;
 }
+/** true si esta flecha revienta con la explosión dibujada (Arco explosivo y cualquier arco con bomba) */
+const bombaHD = pr => !!(pr.src && pr.src.shape === 'bow' && (pr.fx === 'explode' || pr.boom) && ANIM.b_explosion);
 /** astillas y chispa cuando una flecha de arco pega */
 function impactoFlecha(pr) {
   if (!ANIM.f_impacto || !pr.src || pr.src.shape !== 'bow') return;
+  if (bombaHD(pr)) {   // la bomba revienta: destello, bola de fuego y humo, del tamaño de la explosión
+    const R = pr.boom || 55;
+    G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .4, max: .4, fx: 'b_explosion', s: R / 9, rot: 0, color: '', size: 0 });
+    return;
+  }
   G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .16, max: .16, fx: 'f_impacto', s: pr.kind === 'power' ? 1.1 : .8, rot: Math.atan2(pr.vy, pr.vx), color: '', size: 0 });
 }
 
-export { arcoEnMano, arcoKey, drawArco, drawFlecha, impactoFlecha, tiroCuadro };
+export { arcoEnMano, bombaHD, arcoKey, drawArco, drawFlecha, impactoFlecha, tiroCuadro };

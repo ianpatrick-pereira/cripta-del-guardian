@@ -28,7 +28,7 @@ import { updateClass } from './26-clases.js';
 import { dailyScore } from './31-reto-diario.js';
 import { saveHistory } from './38b-historial.js';
 import { iconImg } from './31b-iconos.js';
-import { impactoFlecha } from './37e-arco-hd.js';
+import { bombaHD, impactoFlecha } from './37e-arco-hd.js';
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -177,7 +177,7 @@ function update(dt) {
         pr.x = ox; pr.y = oy; pr.hit = new Set();
         continue;
       }
-      if (pr.owner === 'player' && (pr.fx === 'explode' || pr.boom)) explode(ox, oy, pr.boom || 55, pr.dmg, true);
+      if (pr.owner === 'player' && (pr.fx === 'explode' || pr.boom)) explode(ox, oy, pr.boom || 55, pr.dmg, true, bombaHD(pr));
       impactoFlecha(pr); pr.life = 0; burst(pr.x, pr.y, pr.color, 3, 80, 2, .25); continue;
     }
     for (const o of G.props) {
@@ -197,7 +197,7 @@ function update(dt) {
         if (pr.split) splitShot(pr);
         // la hoz se clava en el primer enemigo que toca y gira ahí y lo sigue mientras gira (antes pasaba de largo y giraba en el vacío)
         if (pr.thrown === 'sickle' && pr.ph === 'out') { pr.ph = 'spin'; pr.vx = pr.vy = 0; pr.st = 0; pr.tick = .26; pr.stick = e; }
-        if (pr.fx === 'explode' || pr.boom) { explode(pr.x, pr.y, pr.boom || 55, pr.dmg, true); pr.life = 0; break; }
+        if (pr.fx === 'explode' || pr.boom) { explode(pr.x, pr.y, pr.boom || 55, pr.dmg, true, bombaHD(pr)); pr.life = 0; break; }
         if (pr.pierce-- <= 0) { pr.life = 0; break; }
       }
     } else if (!G.over && dist(pr, p) < p.r + pr.r - 2) {

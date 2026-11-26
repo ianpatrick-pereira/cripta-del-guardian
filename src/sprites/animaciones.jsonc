@@ -334,6 +334,11 @@
   "arco_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "triple":    { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },   // Arco triple: 5 estrellas
   "triple_el": { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },   // Arco triple con elemento
+  "boom":      { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },   // Arco explosivo: 5 estrellas
+  "boom_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },   // Arco explosivo con elemento
+  // b_flecha: flecha bomba (sola, con humo, cargada, chispa); b_explosion: destello, bola de fuego, se rompe, humo
+  "b_flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "b_explosion": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 11 } },
   "flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
   "f_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
