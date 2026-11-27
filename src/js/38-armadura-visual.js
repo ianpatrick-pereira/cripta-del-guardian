@@ -72,7 +72,7 @@ import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawP
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
 import { drawHoz, kusaCuadro, kusaKey, kusaMano } from './37f-kusarigama-hd.js';
-import { baculoKey, baculoMano, drawBaculo, drawBarreraHD } from './37g-baculo-hd.js';
+import { baculoKey, baculoMano, drawBaculo, drawBarreraHD, drawCorazonGris } from './37g-baculo-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
@@ -743,9 +743,10 @@ function drawHUD(w, h) {
     hudText(`${Math.floor(val)}/${max}`, 196, y + 6, 10, '#ece4cf', 'right');
   };
   // vida en corazones y escudo en placas: se cuentan de un vistazo (si no caben, vuelve a la barra)
-  const pips = (y, val, max, kind, label) => {
-    if (max > 12) { bar(y, val, max, kind === 'heart' ? '#d4474b' : '#8fb7d9', label, true); return; }
-    const step = Math.min(16, 148 / Math.max(1, max));
+  const pips = (y, val, max, kind, label, extra = 0) => {
+    if (max > 12) { bar(y, val, max, kind === 'heart' ? '#d4474b' : '#8fb7d9', label, true); if (extra) hudText('+' + extra, 196, y - 4, 9, '#cfcfd8', 'right'); return; }
+    const step = Math.min(16, 148 / Math.max(1, max + extra));
+    for (let j = 0; j < extra; j++) { const x = Math.round(52 + (max + j) * step); if (!drawCorazonGris(x, y)) drawHeart(x, y, '#8a8a98', '#d8d8e2'); }   // v0.70: corazones grises
     hudText(label, 18, y + 6, 10, '#9d95ab');
     for (let i = 0; i < max; i++) {
       const x = Math.round(52 + i * step), full = i < Math.floor(val);
@@ -753,7 +754,7 @@ function drawHUD(w, h) {
       else drawShieldPip(x, y, full ? '#8fb7d9' : '#2a2638', full ? '#d6ecff' : '#3a3448');
     }
   };
-  pips(18, p.hp, p.maxHp, 'heart', tr('VIDA'));
+  pips(18, p.hp, p.maxHp, 'heart', tr('VIDA'), p.grisN || 0);
   pips(34, p.sh, p.maxSh + rc('escudo') + armorSh(p), 'shield', tr('ESC.'));
   bar(50, p.en, maxEnergy(p), '#5aa4e8', tr('ENER.'), false);
   {

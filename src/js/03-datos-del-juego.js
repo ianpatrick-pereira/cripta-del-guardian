@@ -40,7 +40,7 @@ const CHG_LV = {
   // armas del Nigromante (v0.69)
   almas:    [tr('Tres almas'), tr('Coro de almas'), tr('Cinco almas'), tr('Almas errantes'), tr('Éxodo de almas')],
   escarcha: [tr('Escarcha'), tr('Gran escarcha'), tr('Tormenta de hielo'), tr('Ventisca'), tr('Invierno eterno')],
-  calavera: [tr('Gran calavera'), tr('Calavera feroz'), tr('Trío de calaveras'), tr('Calavera infernal'), tr('Coro de calaveras')],
+  grimorio: [tr('Cosecha de almas'), tr('Cosecha voraz'), tr('Cosecha profunda'), tr('Cosecha del abismo'), tr('Juicio de almas')],
   linterna: [tr('Linterna'), tr('Linterna duradera'), tr('Linterna eterna'), tr('Linterna sagrada'), tr('Faro de almas')],
   tomo:     [tr('Barrera'), tr('Barrera firme'), tr('Barrera duradera'), tr('Barrera triple'), tr('Santuario')],
 };
@@ -172,7 +172,7 @@ const CHARS = {
             mech: tr('Crítico: 35 % de golpes críticos. Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga una esquiva. Esquiva: 2 parpadeos seguidos que te vuelven invisible un instante.') },
   // v0.69: el Nigromante (dibujo provisional: el del Asesino hasta que llegue su hoja HD)
   necro:  { name: tr('Nigromante'), spr: 'necro',  hp: 5, sh: 3, speed: 185, en: 180, start: ['almas', 'linterna'], abil: tr('Nova de almas'), abilDesc: tr('Una explosión de almas a tu alrededor que daña, empuja y congela a los enemigos un momento.'), cd: 11, cost: 25,
-            role: tr('Hechizos a distancia y magia de soporte'), fam: tr('báculo, cetro, calavera, ojo, linterna y tomo'),
+            role: tr('Hechizos a distancia y magia de soporte'), fam: tr('báculo, cetro, grimorio, ojo, linterna y tomo'),
             mech: tr('Hechizo potenciado: cada 4 hechizos, el siguiente sale gratis, más grande, con +50 % de daño y atravesando 3 enemigos. Mucha energía y poca vida. Armas de soporte: la Linterna te cura y el Tomo te protege.') },
 };
 const UPG = {

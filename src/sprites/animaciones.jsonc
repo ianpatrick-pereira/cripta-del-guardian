@@ -391,14 +391,6 @@
   "es_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "es_anillo":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
   "es_hielo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 6 } },
-  // Calavera aullante del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie); calavera en llamas que vuela
-  // (mira a la derecha), explosión con huesos, fuego en el suelo y la calavera gigante del cargado
-  "calav":        { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
-  "calav_el":     { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
-  "ca_craneo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
-  "ca_explosion": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 12 } },
-  "ca_fuego":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 5 } },
-  "ca_gigante":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
   // Ojo del abismo del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie); tramo del rayo (cruza todo el
   // cuadro para repetirse), destello del ojo al salir, golpe donde pega y tramo del rayo gigante del cargado
   "ojo":         { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
@@ -423,6 +415,14 @@
   "to_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "to_barrera":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 } },
   "to_rompe":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  // Grimorio de almas del Nigromante (v0.70): 5 estrellas y 4 elementos (96x96, libro con boca que flota); alma
+  // arrancada (vuela a la derecha), alma guardada (gira a tu alrededor), remolino de la cosecha y corazón gris (HUD y al romperse)
+  "grimorio":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "grimorio_el": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gr_arranca":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  "gr_alma":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "gr_cosecha":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  "gr_corazon":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 3 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 6 } },
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro

@@ -17,7 +17,7 @@ import { ELEMS, elemBlast } from './23-elementos.js';
 import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
 import { bloqueoFx } from './37c-espada-hd.js';
-import { drawRayoHD } from './37g-baculo-hd.js';
+import { drawAlmasGuardadas, drawRayoHD } from './37g-baculo-hd.js';
 import { drawKusa, impactoKusa } from './37f-kusarigama-hd.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
@@ -154,7 +154,7 @@ function styleAttack(p, w, cost) {
   if (p.spr === 'necro') { p.castAt = G.time; p.castFila = HECHIZO_FILA[w.style] || 'reposo'; }   // v0.70: gesto del hechizo
 }
 // v0.70: fila de necro_atq que usa cada arma del Nigromante (reposo = una mano, caminar = dos manos, muerte = canalizar)
-const HECHIZO_FILA = { escarcha: 'caminar', tomo: 'caminar', ojo: 'muerte' };
+const HECHIZO_FILA = { escarcha: 'caminar', tomo: 'caminar', grimorio: 'caminar', ojo: 'muerte' };
 // ataque cargado de cada estilo; S = estrellas (la habilidad elemental usa la forma de 5★)
 function styleCharge(p, w, S, dm, col) {
   const a = p.aim;
@@ -203,6 +203,7 @@ function drawStyles() {
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(2, wd * .2); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ex, ey); ctx.stroke();
     ctx.globalAlpha = 1; if (Math.random() < .5) G.parts.push({ x: ex, y: ey, vx: rand(-80, 80), vy: rand(-80, 80), life: .25, max: .25, color: col, size: 3 });
   };
+  drawAlmasGuardadas(p);   // v0.70: almas del Grimorio
   if (p.beamVis) beam(p.beamVis.a, p.beamVis.len, p.beamVis.wd, w.gem || '#ff6ad8', .85);
   for (const B of G.pbeams || []) beam(B.a, B.cur || B.len, B.wd, B.col, Math.min(1, B.t * 3), B.w, true);
   if (p.whip && !drawKusa(p, w)) {   // v0.69: el kusarigama HD dibuja su cadena

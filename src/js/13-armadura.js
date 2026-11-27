@@ -1,6 +1,6 @@
 // ================= Armadura =================
 // una sola armadura por ahora: su protección sube con las estrellas; no se forja ni usa cristales
-import { barreraRota } from './37g-baculo-hd.js';
+import { barreraRota, corazonGrisRoto } from './37g-baculo-hd.js';
 import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, rand, randi } from './01-utilidades.js';
@@ -126,15 +126,20 @@ function gainRelic(id) {
   sfx(520, .15, 'triangle', .05, 300); later(.12, () => sfx(780, .2, 'triangle', .05, 300));
 }
 
-function hurtPlayer(d, por) {
+/** d = daño; por = quién golpea (historial); debil = cuánto menos pega quien golpea (enemigo sin alma, Grimorio) */
+function hurtPlayer(d, por, debil = G.actor && G.actor.almaT > 0 ? G.actor.almaK || 0 : 0) {
   const p = G.player;
   if (p.inv > 0 || G.over) return false;
   G.hitBy = por || tr('un golpe');
   if (p.char === 'knight' && p.parryT > 0 && p.parryCd <= 0) { parry(p); return false; }
   // v0.69: barrera del Tomo de protección: absorbe golpes mientras dura
   if (p.barreraN > 0 && p.bulwarkT > 0) { p.barreraN--; p.inv = .5; addText(p.x, p.y - 26, tr('¡Barrera!'), '#ffd27a', 12); sfx(900, .08, 'triangle', .04, -300); burst(p.x, p.y, '#ffd27a', 8, 120); if (!p.barreraN) { p.bulwarkT = Math.min(p.bulwarkT, .3); barreraRota(p); } return false; }
+  // v0.70: corazones grises (especial del Grimorio de almas): cada uno aguanta un golpe entero
+  if (p.grisN > 0) { p.grisN--; p.inv = .6; addText(p.x, p.y - 26, tr('Corazón gris'), '#cfcfd8', 12); sfx(500, .12, 'triangle', .04, -250); corazonGrisRoto(p); return false; }
   d += G.floor >= 11 ? 3 : G.floor >= 7 ? 2 : G.floor >= 3 ? 1 : 0;
   if (pact('fragile')) d += 1;
+  // v0.70: quien no tiene alma (Grimorio) pega menos; la parte suelta se redondea al azar
+  if (debil > 0) { d *= 1 - debil; d = Math.floor(d) + (Math.random() < d % 1 ? 1 : 0); if (d <= 0) { p.inv = .4; addText(p.x, p.y - 26, tr('Sin alma'), '#c9a8ff', 12); return false; } }
   if (p.armor) {
     const i = p.armor - 1;
     if (Math.random() < ARMOR.block[i]) { p.inv = .4; addText(p.x, p.y - 26, tr('¡Bloqueado!'), RARITY['s' + p.armor].c, 12); sfx(1100, .06, 'square', .03, -500); burst(p.x, p.y, '#d8d0b8', 6, 120); return false; }

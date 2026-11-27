@@ -38,7 +38,7 @@ export interface DatosArma {
   /** energía por ataque */
   en: number;
   /** ataque cargado y su coste de energía */
-  chg: 'almas' | 'bash' | 'blast' | 'boomer' | 'calavera' | 'escarcha' | 'lash' | 'legion' | 'linterna' | 'lunge' | 'nova' | 'power' | 'quake' | 'ray' | 'reap' | 'spin' | 'tomo' | 'volley';
+  chg: 'almas' | 'bash' | 'blast' | 'boomer' | 'escarcha' | 'grimorio' | 'lash' | 'legion' | 'linterna' | 'lunge' | 'nova' | 'power' | 'quake' | 'ray' | 'reap' | 'spin' | 'tomo' | 'volley';
   chgEn: number;
   /** cuerpo a cuerpo: alcance y ángulo del golpe */
   range?: number; arc?: number;
@@ -46,7 +46,7 @@ export interface DatosArma {
   speed?: number; pierce?: number; shots?: number;
   /** efecto al golpear */
   fx?: 'burn' | 'chain' | 'explode' | 'homing' | 'poison' | 'push' | 'slow' | 'stun';
-  style?: 'almas' | 'beam' | 'boomer' | 'calavera' | 'escarcha' | 'grimoire' | 'linterna' | 'musket' | 'ojo' | 'shield' | 'sickle' | 'tomo' | 'whip';
+  style?: 'almas' | 'beam' | 'boomer' | 'escarcha' | 'grimoire' | 'grimorio' | 'linterna' | 'musket' | 'ojo' | 'shield' | 'sickle' | 'tomo' | 'whip';
   /** color de la gema del dibujo y tinte */
   gem?: string; tint?: string;
   leech?: boolean; big?: boolean;

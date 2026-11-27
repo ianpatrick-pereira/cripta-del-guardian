@@ -143,8 +143,9 @@ function update(dt) {
   const p = G.player;
   for (const e of [...G.enemies]) {
     if (e.dead) continue;
+    if (e.almaT > 0) { e.almaT -= dt; if (Math.random() < dt * 6) G.parts.push({ x: e.x + rand(-6, 6), y: e.y - 10, vx: 0, vy: -30, life: .5, max: .5, color: '#c9a8ff', size: 2 }); }   // v0.70: sin alma (Grimorio)
     G.actor = e; updateEnemy(e, dt); G.actor = null;
-    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg, quien(e)) && e.elem) elemHit(e.elem, e); }
+    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg, quien(e), e.almaT > 0 ? e.almaK || 0 : 0) && e.elem) elemHit(e.elem, e); }
   }
   const es = G.enemies;
   for (let i = 0; i < es.length; i++) for (let j = i + 1; j < es.length; j++) {
@@ -206,7 +207,7 @@ function update(dt) {
     } else if (!G.over && dist(pr, p) < p.r + pr.r - 2) {
       if (p.blockT > 0 && shieldBlock(p, pr)) { /* bloqueada por el escudo */ }
       else if (p.bulwarkT > 0) reflect(pr, angTo(p, pr), 3);
-      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, tr('Atrapado'), '#e8e8d8', 12); } pr.life = 0; }
+      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por, pr.debil || 0) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, tr('Atrapado'), '#e8e8d8', 12); } pr.life = 0; }
     }
   }
   // los orbes de los enemigos estallan al chocar o apagarse (v0.64)
