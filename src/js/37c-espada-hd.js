@@ -8,15 +8,17 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD: su hoja y qué cuadro usan a 1★ (la de hierro y el martillo empiezan más arriba)
-const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0], spiked: ['escudo', 0], shortsword: ['corta', 0] };
+const ESPADA_HD = { rusty: ['espada', 0], iron: ['espada', 1], club: ['mazo', 0], hammer: ['mazo', 2], spear: ['lanza', 0], spiked: ['escudo', 0], shortsword: ['corta', 0], night: ['katana', 0] };
 // por hoja: píxeles de la empuñadura bajo el centro del cuadro y tamaño en pantalla
-const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3], corta: [30, 1.4] };
+const AGARRE = { espada: [28, 1.5], mazo: [26, 1.35], lanza: [22, 1.3], escudo: [0, 1.3], corta: [30, 1.4], katana: [40, .95] };
 /** true si el arma es un mazo HD (Garrote o Martillo de guerra) */
 const esMazo = w => !!w && ESPADA_HD[w.id]?.[0] === 'mazo' && !!ANIM.mazo;
 /** true si el arma es el escudo de púas HD */
 const esEscudo = w => !!w && ESPADA_HD[w.id]?.[0] === 'escudo' && !!ANIM.escudo;
 /** true si el arma es la lanza HD */
 const esLanza = w => !!w && ESPADA_HD[w.id]?.[0] === 'lanza' && !!ANIM.lanza;
+/** true si el arma es la katana HD del Asesino */
+const esKatana = w => !!w && ESPADA_HD[w.id]?.[0] === 'katana' && !!ANIM.katana;
 const EL_I = { fire: 0, water: 1, air: 2, earth: 3 };
 /** clave del dibujo HD de esta arma, o null si se dibuja por código */
 function espadaKey(w) {
@@ -33,7 +35,7 @@ function drawEspada(key, x, y, a, scale = 1) {
     drawSpr(key, x, y, 1.3 * scale, { sx: .65 + .35 * Math.abs(Math.sin(a)) });
     return;
   }
-  const [px, t] = AGARRE[key.startsWith('mazo') ? 'mazo' : key.startsWith('lanza') ? 'lanza' : key.startsWith('corta') ? 'corta' : 'espada'], s = t * scale, off = px * .25 * s;   // la empuñadura, px por debajo del centro
+  const [px, t] = AGARRE[key.startsWith('mazo') ? 'mazo' : key.startsWith('lanza') ? 'lanza' : key.startsWith('corta') ? 'corta' : key.startsWith('katana') ? 'katana' : 'espada'], s = t * scale, off = px * .25 * s;   // la empuñadura, px por debajo del centro
   drawSpr(key, x + Math.cos(a) * off, y + Math.sin(a) * off, s, { rot: a + Math.PI / 2 });
 }
 
@@ -50,9 +52,32 @@ const FILA = ['reposo', 'caminar', 'herido', 'muerte'];
 // mazazo (3.er golpe del mazo y terremoto cargado): brazo arriba, baja, golpe abajo, guardia (cuadros de knight_atq)
 /** @type {[string, number, number[]][]} */
 const MAZAZO = [['reposo', 0, MANO[0][0]], ['reposo', 1, MANO[0][1]], ['herido', 1, MANO[2][1]], ['reposo', 3, MANO[0][3]]];
-/** cuadro del Caballero atacando y dónde tiene la mano, o null si no toca */
+// v0.69: el Asesino con la katana (hoja rogue_atq). Puño en cada cuadro (píxeles del cuadro de 64):
+// reposo = estocadas, caminar = tajo amplio, muerte = embestida de sombra (la katana va por detrás)
+const MANO_R = {
+  reposo: [[44, 40], [53, 29], [51, 31], [44, 41]],
+  caminar: [[22, 23], [51, 28], [45, 41], [44, 41]],
+  muerte: [[22, 36], [22, 40], [22, 38], [44, 41]],
+};
+/** cuadro del Asesino atacando con la katana, o null */
+function golpeAsesino(p, w) {
+  if (!ANIM.rogue_atq || !esKatana(w)) return null;
+  const lado = p.flip ? -1 : 1, pos = (f, i) => { const [mx, my] = MANO_R[f][i]; return { key: 'rogue_atq~' + f + '~' + i, hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5 }; };
+  if (p.lunge && p.dashT > 0) {
+    // embestida: agachado y lanzado, la katana atrás, contraria a donde te lanzas
+    const k = 1 - p.dashT / (p.lunge.len || .24);
+    return { ...pos('muerte', k < .2 ? 0 : k < .8 ? 1 : 2), ang: Math.atan2(p.dvy, p.dvx) + Math.PI - lado * .35, fija: true };
+  }
+  const s = p.swing; if (!s) return null;
+  const prog = clamp(s.t / s.dur, 0, .999), i = prog < .2 ? 0 : prog < .55 ? 1 : prog < .85 ? 2 : 3;
+  if (s.golpe === 2) return { ...pos('reposo', i), ang: s.a, fija: true };   // estocada: la punta hacia donde apuntas
+  // tajo: del hombro hacia delante y abajo; revés: el mismo movimiento al revés
+  return pos('caminar', s.golpe === 1 ? [2, 1, 0, 3][i] : i);
+}
+/** cuadro del Caballero (o del Asesino) atacando y dónde tiene la mano, o null si no toca */
 function golpeCuadro(p) {
   const s = p.swing, w = p.slots[p.cur];
+  if (p.spr === 'rogue') return golpeAsesino(p, w);
   if (p.spr !== 'knight' || !ANIM.knight_atq || !espadaKey(w) || esEscudo(w)) return null;
   const lado0 = p.flip ? -1 : 1;
   if (esLanza(w) && p.lunge && p.dashT > 0) {
@@ -83,9 +108,10 @@ function golpeCuadro(p) {
 
 /** sin atacar: la espada en la mano que cuelga del Caballero, con la punta hacia delante y algo abajo */
 function espadaEnMano(p) {
-  if (p.spr !== 'knight' || !ANIM.knight) return null;
-  const lado = p.flip ? -1 : 1, a = .35 + Math.sin(p.walk || 0) * .06;
-  return { hx: p.x + lado * (20 - 32) * .5, hy: p.y - 2 + (46 - 32) * .5, ang: lado > 0 ? a : Math.PI - a };
+  const asesino = p.spr === 'rogue' && esKatana(p.slots[p.cur]) && !!ANIM.rogue;
+  if (!asesino && (p.spr !== 'knight' || !ANIM.knight)) return null;
+  const lado = p.flip ? -1 : 1, a = (asesino ? .55 : .35) + Math.sin(p.walk || 0) * .06, [mx, my] = asesino ? [44, 41] : [20, 46];
+  return { hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5, ang: lado > 0 ? a : Math.PI - a };
 }
 /** corte de un golpe del combo: media luna (tajo, revés) o estocada, de acero o de su elemento */
 function drawCorte(p, w, s, prog) {
@@ -101,6 +127,11 @@ function drawCorte(p, w, s, prog) {
     const pr = s.golpe === 2 ? (prog * 2) % 1 : prog, j = Math.min(3, Math.floor(pr * 4)), d = R * .55;
     const key = w.el && ANIM.l_el ? 'l_el~reposo~' + EL_I[w.el] : 'l_estocada~reposo~' + j;
     drawSpr(key, p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, R / 26, { rot: a, alpha: w.el ? 1 - pr * pr : 1 });
+    return;
+  }
+  if (esKatana(w) && !el && s.golpe !== 2 && ANIM.k_tajo) {
+    // katana: media luna roja (el revés, la suya propia)
+    drawSpr((s.golpe === 1 ? 'k_reves' : 'k_tajo') + '~reposo~' + i, p.x + Math.cos(a) * R * .4, p.y + Math.sin(a) * R * .4, R / 75 / .25, { rot: a });
     return;
   }
   if (esLanza(w) && !el) {
@@ -131,8 +162,8 @@ function drawCorteGiro(p, w, s, prog) {
 /** chispa (o golpe de su elemento) donde la espada pega */
 function impactoEspada(w, x, y, a) {
   if (!espadaKey(w)) return;
-  const mazo = esMazo(w) && ANIM.m_impacto, lanza = esLanza(w) && ANIM.l_impacto, esc = esEscudo(w) && ANIM.e_golpe;
-  const fx = w.el && ANIM['c_' + w.el] ? 'c_' + w.el : mazo ? 'm_impacto' : lanza ? 'l_impacto' : esc ? 'e_golpe' : 'c_impacto';
+  const mazo = esMazo(w) && ANIM.m_impacto, lanza = esLanza(w) && ANIM.l_impacto, esc = esEscudo(w) && ANIM.e_golpe, kat = esKatana(w) && ANIM.k_impacto;
+  const fx = w.el && ANIM['c_' + w.el] ? 'c_' + w.el : mazo ? 'm_impacto' : lanza ? 'l_impacto' : esc ? 'e_golpe' : kat ? 'k_impacto' : 'c_impacto';
   G.parts.push({ x, y, vx: 0, vy: 0, life: mazo ? .3 : .2, max: mazo ? .3 : .2, fx, s: mazo && !w.el ? 1.2 : 1.6, rot: mazo ? 0 : a, color: '', size: 0 });
 }
 /** empujón del escudo (y la onda del golpe cargado, más grande) */
@@ -157,9 +188,12 @@ function drawPua(pr) {
 }
 /** estela de la embestida cargada de la lanza (detrás del Caballero) */
 function drawEmbestida(p, w) {
-  if (!esLanza(w) || !p.lunge || !(p.dashT > 0) || !ANIM.l_embestida) return;
+  const kat = esKatana(w) && ANIM.k_embestida;
+  if (!(esLanza(w) || kat) || !p.lunge || !(p.dashT > 0) || !(kat || ANIM.l_embestida)) return;
   const a = Math.atan2(p.dvy, p.dvx), k = 1 - p.dashT / (p.lunge.len || .24), i = Math.min(3, Math.floor(k * 4));
-  drawSpr('l_embestida~reposo~' + i, p.x - Math.cos(a) * 14, p.y + 2 - Math.sin(a) * 14, 2.2, { rot: a, alpha: .9 });
+  // katana (v0.69): estela de humo negro y rojo detrás del Asesino
+  if (kat) drawSpr('k_embestida~reposo~' + i, p.x - Math.cos(a) * 18, p.y + 2 - Math.sin(a) * 18, 2.4, { rot: a, alpha: .9 });
+  else drawSpr('l_embestida~reposo~' + i, p.x - Math.cos(a) * 14, p.y + 2 - Math.sin(a) * 14, 2.2, { rot: a, alpha: .9 });
 }
 /** golpe del mazazo en el suelo, delante de ti, cuando el mazo cae */
 function mazazoFx(p, w, R) {
@@ -169,4 +203,4 @@ function mazazoFx(p, w, R) {
     : { x, y: y + 4, vx: 0, vy: 0, life: .55, max: .55, fx: 'm_mazazo', s: R / 22, color: '', size: 0, pre: .08 });
 }
 
-export { bloqueoFx, drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, esEscudo, esLanza, esMazo, espadaEnMano, espadaKey, golpeCuadro, impactoEspada, mazazoFx };
+export { bloqueoFx, drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, esEscudo, esKatana, esLanza, esMazo, espadaEnMano, espadaKey, golpeCuadro, impactoEspada, mazazoFx };

@@ -337,6 +337,13 @@
   "e_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "e_pua":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Espada corta (v0.67, IA): en sus 5 estrellas y con elemento. Usa el combo, los cortes y el giro de la espada (más chicos)
+  // Katana del Asesino (v0.69): 5 estrellas y 4 elementos (48x128, punta arriba); cortes rojos, estela de la embestida e impacto
+  "katana":      { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "katana_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_tajo":      { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_reves":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_embestida": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro

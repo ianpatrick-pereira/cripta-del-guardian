@@ -20,7 +20,7 @@ import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs,
 import { pact } from './27-pactos-de-piso.js';
 import { endGame } from './33-bucle.js';
 import { zoom } from './34-dibujo.js';
-import { esLanza, esMazo, espadaKey, impactoEspada, mazazoFx } from './37c-espada-hd.js';
+import { esKatana, esLanza, esMazo, espadaKey, impactoEspada, mazazoFx } from './37c-espada-hd.js';
 // distancia (px) que recorre el personaje en un ciclo completo de pasos (las dos piernas): a velocidad 175, ~2 ciclos por segundo
 const ZANCADA = 85;
 
@@ -96,7 +96,8 @@ function updatePlayer(dt) {
         else p.lunge = null;
       }
     }
-    G.parts.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .22, max: .22, color: 'rgba(227,162,74,.5)', size: 9 });
+    // la embestida de la katana HD ya deja su estela de humo (37c): sin cuadrados
+    if (!(p.lunge && esKatana(p.lunge.w))) G.parts.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .22, max: .22, color: 'rgba(227,162,74,.5)', size: 9 });
   } else if (p.slick > 0) {
     // charco del Elemental de agua: resbalas, cuesta frenar y girar
     const k = Math.min(1, dt * 1.6);
