@@ -9,7 +9,7 @@ import { G, rc } from './07-estado.js';
 import { moveEnt, roomAt, solidAt } from './08-colisiones.js';
 import { addText, breakCracks, burst, later, shake, showBanner } from './09-efectos.js';
 import { dmgMul } from './11-jugador.js';
-import { elAbName } from './12-armas-con-estilo-propio.js';
+import { STYLE, elAbName } from './12-armas-con-estilo-propio.js';
 import { armorSh } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { drawShadow } from './36-mar-de-lava.js';
@@ -54,6 +54,7 @@ function startElemFight(it) {
 function elemCost(w) { return 15 + 5 * w.elLv; }
 function elemAbility(p) {
   const w = p.slots[p.cur];
+  if (w && w.style && STYLE[w.style].teclaR && STYLE[w.style].teclaR(p, w)) return;   // v0.70: la R propia del arma (Grimorio)
   if (!w || !w.elOn) { addText(p.x, p.y - 26, tr('Esta arma no tiene poder elemental'), '#9d95ab', 11); return; }
   if (p.elCd > 0) return;
   const cost = elemCost(w);

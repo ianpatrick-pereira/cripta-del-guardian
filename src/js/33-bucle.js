@@ -196,6 +196,7 @@ function update(dt) {
         if (e.dead || e.air || pr.hit.has(e) || dist(pr, e) > e.r + pr.r) continue;
         pr.hit.add(e);
         hurtEnemy(e, pr.dmg, Math.atan2(pr.vy, pr.vx), pr.kb || (pr.kind === 'power' ? 300 : 140), { src: pr.src, fx: pr.fx });
+        if (pr.alPegar) pr.alPegar(e);   // v0.70: efecto propio al tocar (alma devoradora)
         impactoFlecha(pr);   // v0.68: astillas de la flecha HD
         if (pr.fx === 'chain') chainHit(e, pr.dmg, pr.src);
         if (pr.split) splitShot(pr);

@@ -154,7 +154,7 @@ function updatePlayer(dt) {
   setWantAbil(false);
   if (wantElem && !G.over) elemAbility(p);
   setWantElem(false);
-  if (touch.on) $('bEle').hidden = !(p.slots[p.cur] && p.slots[p.cur].elOn);
+  if (touch.on) $('bEle').hidden = !(p.slots[p.cur] && (p.slots[p.cur].elOn || (p.slots[p.cur].style === 'grimorio' && p.almasN > 0)));
 
   p.en = Math.min(maxEnergy(p), p.en + (3 + 3 * rc('bateria')) * dt);
   p.noEnT -= dt;

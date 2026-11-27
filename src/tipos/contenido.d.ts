@@ -68,6 +68,8 @@ export interface DefArma {
     ataque: (p: any, w: any, o: { a: number; dmg: number; cost?: number }) => void;
     cargado: (p: any, w: any, o: { a: number; S: number; dm: (k: number) => number; col: string }) => void;
     cobraAlLanzar?: boolean;
+    /** tecla R propia del arma; true si la usó (si no, hace el poder elemental) */
+    teclaR?: (p: any, w: any) => boolean;
   };
 }
 
