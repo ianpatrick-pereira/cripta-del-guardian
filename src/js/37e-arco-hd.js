@@ -107,7 +107,7 @@ function drawFlecha(pr) {
 const bombaHD = pr => !!(pr.src && (pr.src.shape === 'bow' || pr.src.shape === 'musket') && (pr.fx === 'explode' || pr.boom) && ANIM.b_explosion);
 /** astillas y chispa cuando una flecha de arco pega */
 function impactoFlecha(pr) {
-  if (impactoAlma(pr)) return;   // v0.70: alma del Báculo de almas
+  if (impactoAlma(pr)) return;   // v0.70: golpe de las armas HD del Nigromante
   if (pr.src && pr.src.shape === 'shuriken' && ANIM.shu_impacto) {
     G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .2, max: .2, fx: 'shu_impacto', s: .9, rot: 0, color: '', size: 0 });
     return;

@@ -1,13 +1,14 @@
-// v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha).
+// v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha, Calavera aullante).
 // - El arma es un dibujo aparte (hoja por estrellas y «_el» por elemento), de pie con la cabeza arriba.
 //   El Nigromante la lleva de pie a su lado (las manos quedan libres para los gestos de necro_atq); otra clase la apunta.
 // - Cada arma tiene sus efectos: lo que vuela, el golpe, el salto en cadena, el cargado y lo que queda en el suelo.
 import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
-/** @type {Record<string, {hoja: string, vuela: string, impacto: string, salto?: string, cargado: string, suelo?: string, ss: number}>} */
+/** @type {Record<string, {hoja: string, vuela: string, grande?: string, impacto: string, salto?: string, cargado?: string, suelo?: string, ss: number}>} */
 const BACULO_HD = {
   almas: { hoja: 'baculo', vuela: 'al_alma', impacto: 'al_impacto', salto: 'al_cadena', cargado: 'al_cargado', ss: .95 },
+  calavera: { hoja: 'calav', vuela: 'ca_craneo', grande: 'ca_gigante', impacto: 'ca_explosion', suelo: 'ca_fuego', ss: .8 },
   escarcha: { hoja: 'cetro', vuela: 'es_esquirla', impacto: 'es_impacto', cargado: 'es_anillo', suelo: 'es_hielo', ss: 1 },
 };
 const BAC_EL = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -34,14 +35,20 @@ function baculoMano(p) {
 const fxPart = (fx, x, y, s, rot, life) => G.parts.push({ x, y, vx: 0, vy: 0, life, max: life, fx, s, rot, color: '', size: 0 });
 /** opciones de lo que vuela (dibujo HD) para shootPlayer */
 function almaVuela(w, grande = false) {
-  const B = hd(w); return B && ANIM[B.vuela] ? { anim: B.vuela, ss: B.ss * (grande ? 1.3 : 1) } : {};
+  const B = hd(w); if (!B || !ANIM[B.vuela]) return {};
+  if (grande && B.grande && ANIM[B.grande]) return { anim: B.grande, ss: B.ss * 1.4 };
+  return { anim: B.vuela, ss: B.ss * (grande ? 1.3 : 1) };
 }
 /** al pegar: el golpe de esa arma */
 function impactoAlma(pr) {
   const B = hd(pr.src); if (!B || !ANIM[B.impacto]) return false;
-  fxPart(B.impacto, pr.x, pr.y, .9, Math.atan2(pr.vy, pr.vx), .25);
+  fxPart(B.impacto, pr.x, pr.y, pr.boom ? pr.boom / 30 : .9, Math.atan2(pr.vy, pr.vx), pr.boom ? .35 : .25);
+  // lo que explota y quema deja fuego en el suelo
+  if (pr.quema && B.suelo && ANIM[B.suelo]) for (let i = 0; i < 3; i++) { const a = i * 2.1 + pr.x, d = (pr.boom || 40) * .4; fxPart(B.suelo, pr.x + Math.cos(a) * d, pr.y + Math.sin(a) * d * .6 + 6, pr.boom ? pr.boom / 55 : .8, 0, .9); }
   return true;
 }
+/** la explosión ya tiene dibujo HD (sin el destello cuadrado de siempre) */
+const explosionHD = pr => { const B = hd(pr.src); return !!(B && ANIM[B.impacto]); };
 /** el alma salta de un enemigo a otro: rayo de almas estirado entre los dos */
 function saltoAlma(src, a, b) {
   const B = hd(src); if (!B || !B.salto || !ANIM[B.salto]) return false;
@@ -58,4 +65,4 @@ function sueloArma(w, e) {
   const B = hd(w); if (!B || !B.suelo || !ANIM[B.suelo]) return;
   fxPart(B.suelo, e.x, e.y - 4, 1.1, 0, .65);
 }
-export { almaVuela, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
+export { almaVuela, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
