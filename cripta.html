@@ -5052,7 +5052,8 @@ function mkEnemy(type, x, y, depth, elite) {
 }
 function mkBoss(kind, x, y) {
   // v0.56: los jefes tienen +30 % de vida además de ir en guardia (ver 16-jefes.js)
-  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * D().hp * (1 + .8 * (G.cycle - 1)));
+  // v0.69: el jefe no suma vida por tu fuerza: su guardia ya limita lo que quita cada golpe
+  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * (D().hpJefe || D().hp) * (1 + .8 * (G.cycle - 1)));
   return { type: 'boss', kind, isBoss: true, x, y, r: B.r, hp, max: hp, speed: 42, dmg: 2,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, invuln: false, spin: 0, fade: 1, air: false, poison: 0, pt: 0, wob: 0, timer: 0 };
 }
@@ -6749,25 +6750,56 @@ $('btnForgeClose').addEventListener('click', closeForge);
 
 
 // ================= Enemigos que se adaptan a tu arsenal =================
-// cuanto más fuerte tu mejor arma respecto a lo esperado en el piso, más duros los enemigos
+// cuanto más fuerte eres respecto a lo esperado en el piso, más aguantan y más pegan los enemigos (sin pasarse)
+
+
+
+
+
 
 
 
 
 // v0.55: se mide el daño de verdad de tu mejor arma (wPower) contra lo normal en ese piso.
-// Si llevas el doble de lo esperado, los enemigos tienen casi el doble de vida, pegan más y salen más.
+// v0.69: al entrar a cada sala se mide todo lo que te hace fuerte, no solo el arma:
+//   ataque  = mejor arma (estrellas, forja, elemento, afinidad) × piedra de afilar, subclase y pactos × críticos × flechas extra
+//   aguante = vida máxima + escudo (con la coraza) y la probabilidad de bloquear de la coraza
+// Los enemigos se adaptan SOLO para igualarte: tienen tanta más vida como más daño haces, y pegan algo más si aguantas más.
+// No salen más, ni más rápidos, ni más élites: no se vuelven más fuertes que tú.
 const EXPECT = [1.95, 2.6, 3.4, 4.0, 4.6, 5.2, 5.6, 6.0];
+/** extra de daño de reliquias, subclase y pactos (sin lo que dura unos segundos, como la piel de roca) */
+function bonusDmg(p) {
+  return (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1) * (p.spec ? 1 + .08 * (subLv(p) - 1) : 1);
+}
+/** cuánto suben el daño los críticos, contando ya los de base de tu clase */
+function bonusCrit(p) {
+  const base = p.char === 'rogue' ? .35 : .1;
+  const c = Math.min(1, (base + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1));
+  return (1 + c) / (1 + base);
+}
 function arsenalPower() {
+  const p = G.player;
   let best = 0;
-  for (const w of G.player.slots) if (w) best = Math.max(best, wPower(w));
-  return best;
+  for (const w of p.slots) {
+    if (!w) continue;
+    const extra = w.type === 'bow' ? rc('carcaj') + (syn('lluvia') ? 1 : 0) + (tl('carcaj2') ? 1 : 0) : 0;
+    best = Math.max(best, wPower(w) * (1 + extra / (w.shots || 1)));
+  }
+  return best * bonusDmg(p) * bonusCrit(p);
+}
+/** tu aguante (vida + escudo, y los golpes que bloquea la coraza) contra el de tu clase al empezar, que crece un poco por piso */
+function aguante() {
+  const p = G.player, ch = CHARS[p.char] || CHARS.knight, block = p.armor ? ARMOR.block[p.armor - 1] : 0;
+  const tuyo = (p.maxHp + p.maxSh + armorSh(p)) / (1 - block);
+  const normal = (ch.hp + (SAVE.upg.hp || 0) + ch.sh) * (1 + .08 * (G.floor - 1));
+  return Math.max(1, tuyo / normal);
 }
 function updateAdapt(announce) {
-  const exp = EXPECT[Math.min(EXPECT.length, G.floor) - 1], r = Math.max(1, arsenalPower() / exp), lvl = r - 1;
-  const old = G.threat || 0, b = circMod(DIFFS[G.diff] || DIFFS.normal), hpK = Math.pow(r, .9);
-  G.threat = hpK - 1;
-  G.dx = { ...b, hp: b.hp * hpK, rate: b.rate * Math.min(1.5, 1 + .12 * lvl), elite: b.elite + .06 * lvl, count: b.count + Math.floor(lvl * 2), dmgAdd: Math.floor(lvl),
-    lead: Math.min(1, b.lead + .1 * lvl), dodge: Math.min(.85, b.dodge + .08 * lvl), tokens: b.tokens + Math.floor(lvl * 1.5) };
+  const exp = EXPECT[Math.min(EXPECT.length, G.floor) - 1], r = Math.max(1, arsenalPower() / exp), def = aguante();
+  const old = G.threat || 0, b = circMod(DIFFS[G.diff] || DIFFS.normal);
+  G.threat = r - 1;
+  // golpes de 1 a 3: si aguantas el doble, pegan 1 o 2 más (como mucho 3)
+  G.dx = { ...b, hp: b.hp * r, hpJefe: b.hp, dmgAdd: Math.min(3, Math.round((def - 1) * 1.5)) };
   if (announce && G.threat > old + .1) addText(G.player.x, G.player.y - 40, tr('Los enemigos se adaptan a tu arsenal'), '#d4474b', 13);
 }
 
@@ -9651,6 +9683,27 @@ function drawAbilityFx(p) {
   } else if (p.ghosts && p.ghosts.length) p.ghosts.length = 0;
 }
 
+// v0.69: arma tirada en el suelo o en la tienda: todas del mismo tamaño a la vista, sin importar cómo se sostienen.
+// Se mide lo que ocupa el dibujo de verdad (sin el borde vacío del cuadro) y se escala para que lo más largo mida «largo».
+const CAJA = {};
+function cajaDibujo(key) {
+  if (CAJA[key]) return CAJA[key];
+  const sp = SPR[key]; if (!sp) return null;
+  const d = sp.n.getContext('2d').getImageData(0, 0, sp.wd, sp.ht).data;
+  let x0 = sp.wd, y0 = sp.ht, x1 = -1, y1 = -1;
+  for (let y = 0; y < sp.ht; y++) for (let x = 0; x < sp.wd; x++) if (d[(y * sp.wd + x) * 4 + 3] > 40) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 < 0) return null;
+  return (CAJA[key] = { cx: (x0 + x1 + 1) / 2 - sp.wd / 2, cy: (y0 + y1 + 1) / 2 - sp.ht / 2, w: x1 - x0 + 1, h: y1 - y0 + 1, k: sp.k });
+}
+/** dibuja el arma centrada en (x, y); las largas van inclinadas. largo: tamaño en el mundo de lo más largo del arma */
+function drawWeaponSuelo(w, x, y, largo = 30) {
+  const key = espadaKey(w) || arcoKey(w) || kusaKey(w), c = key && cajaDibujo(key);
+  if (!c) { drawWeapon(w, x - 10, y, -.6); return; }
+  const larga = Math.max(c.w, c.h) > 1.6 * Math.min(c.w, c.h);
+  const tam = larga ? largo : largo * .75, s = tam / (Math.max(c.w, c.h) * c.k), rot = larga ? (c.h > c.w ? .6 : -.6) : 0;
+  const ox = c.cx * c.k * s, oy = c.cy * c.k * s;
+  drawSpr(key, x - (ox * Math.cos(rot) - oy * Math.sin(rot)), y - (ox * Math.sin(rot) + oy * Math.cos(rot)), s, { rot });
+}
 function drawWeapon(w, x, y, a, scale = 1) {
   // v0.66: espadas con dibujo HD (37c-espada-hd.js): la estrella o el elemento ya vienen en el dibujo
   const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
@@ -9998,7 +10051,7 @@ function drawPickup(it) {
       const c = RARITY[it.weapon.rarity].c;
       const gr = ctx.createRadialGradient(it.x, it.y, 2, it.x, it.y, 26); gr.addColorStop(0, c + '66'); gr.addColorStop(1, c + '00');
       ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(it.x, it.y, 26, 0, TAU); ctx.fill();
-      drawWeapon(it.weapon, it.x - 10, it.y + b, -.6);
+      drawWeaponSuelo(it.weapon, it.x, it.y - 2 + b, 30);
       ctx.font = '600 10px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = c; ctx.fillText('★'.repeat(it.weapon.stars || 1), it.x, it.y + 20);
       break;
@@ -10021,7 +10074,7 @@ function drawPickup(it) {
         if (s.t === 'potion') drawSpr('potion', it.x, it.y - 8 + b, 2);
         if (s.t === 'key') drawKey(it.x, it.y - 8 + b);
         if (s.t === 'relic') drawRelicIcon(s.relic, it.x, it.y - 10 + b);
-        if (s.t === 'weapon') { drawWeapon(s.weapon, it.x - 10, it.y - 8 + b, -.6, .9); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
+        if (s.t === 'weapon') { drawWeaponSuelo(s.weapon, it.x, it.y - 6 + b, 28); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
         ctx.font = '600 11px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = G.coins >= s.price ? '#f0c040' : '#9d95ab'; ctx.fillText(s.price + tr(' mon.'), it.x, it.y + 30);
       }

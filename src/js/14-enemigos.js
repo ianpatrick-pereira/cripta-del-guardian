@@ -33,7 +33,8 @@ function mkEnemy(type, x, y, depth, elite) {
 }
 function mkBoss(kind, x, y) {
   // v0.56: los jefes tienen +30 % de vida además de ir en guardia (ver 16-jefes.js)
-  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * D().hp * (1 + .8 * (G.cycle - 1)));
+  // v0.69: el jefe no suma vida por tu fuerza: su guardia ya limita lo que quita cada golpe
+  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * (D().hpJefe || D().hp) * (1 + .8 * (G.cycle - 1)));
   return { type: 'boss', kind, isBoss: true, x, y, r: B.r, hp, max: hp, speed: 42, dmg: 2,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, invuln: false, spin: 0, fade: 1, air: false, poison: 0, pt: 0, wob: 0, timer: 0 };
 }

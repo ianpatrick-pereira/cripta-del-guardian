@@ -163,6 +163,27 @@ function drawAbilityFx(p) {
   } else if (p.ghosts && p.ghosts.length) p.ghosts.length = 0;
 }
 
+// v0.69: arma tirada en el suelo o en la tienda: todas del mismo tamaño a la vista, sin importar cómo se sostienen.
+// Se mide lo que ocupa el dibujo de verdad (sin el borde vacío del cuadro) y se escala para que lo más largo mida «largo».
+const CAJA = {};
+function cajaDibujo(key) {
+  if (CAJA[key]) return CAJA[key];
+  const sp = SPR[key]; if (!sp) return null;
+  const d = sp.n.getContext('2d').getImageData(0, 0, sp.wd, sp.ht).data;
+  let x0 = sp.wd, y0 = sp.ht, x1 = -1, y1 = -1;
+  for (let y = 0; y < sp.ht; y++) for (let x = 0; x < sp.wd; x++) if (d[(y * sp.wd + x) * 4 + 3] > 40) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 < 0) return null;
+  return (CAJA[key] = { cx: (x0 + x1 + 1) / 2 - sp.wd / 2, cy: (y0 + y1 + 1) / 2 - sp.ht / 2, w: x1 - x0 + 1, h: y1 - y0 + 1, k: sp.k });
+}
+/** dibuja el arma centrada en (x, y); las largas van inclinadas. largo: tamaño en el mundo de lo más largo del arma */
+function drawWeaponSuelo(w, x, y, largo = 30) {
+  const key = espadaKey(w) || arcoKey(w) || kusaKey(w), c = key && cajaDibujo(key);
+  if (!c) { drawWeapon(w, x - 10, y, -.6); return; }
+  const larga = Math.max(c.w, c.h) > 1.6 * Math.min(c.w, c.h);
+  const tam = larga ? largo : largo * .75, s = tam / (Math.max(c.w, c.h) * c.k), rot = larga ? (c.h > c.w ? .6 : -.6) : 0;
+  const ox = c.cx * c.k * s, oy = c.cy * c.k * s;
+  drawSpr(key, x - (ox * Math.cos(rot) - oy * Math.sin(rot)), y - (ox * Math.sin(rot) + oy * Math.cos(rot)), s, { rot });
+}
 function drawWeapon(w, x, y, a, scale = 1) {
   // v0.66: espadas con dibujo HD (37c-espada-hd.js): la estrella o el elemento ya vienen en el dibujo
   const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
@@ -510,7 +531,7 @@ function drawPickup(it) {
       const c = RARITY[it.weapon.rarity].c;
       const gr = ctx.createRadialGradient(it.x, it.y, 2, it.x, it.y, 26); gr.addColorStop(0, c + '66'); gr.addColorStop(1, c + '00');
       ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(it.x, it.y, 26, 0, TAU); ctx.fill();
-      drawWeapon(it.weapon, it.x - 10, it.y + b, -.6);
+      drawWeaponSuelo(it.weapon, it.x, it.y - 2 + b, 30);
       ctx.font = '600 10px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = c; ctx.fillText('★'.repeat(it.weapon.stars || 1), it.x, it.y + 20);
       break;
@@ -533,7 +554,7 @@ function drawPickup(it) {
         if (s.t === 'potion') drawSpr('potion', it.x, it.y - 8 + b, 2);
         if (s.t === 'key') drawKey(it.x, it.y - 8 + b);
         if (s.t === 'relic') drawRelicIcon(s.relic, it.x, it.y - 10 + b);
-        if (s.t === 'weapon') { drawWeapon(s.weapon, it.x - 10, it.y - 8 + b, -.6, .9); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
+        if (s.t === 'weapon') { drawWeaponSuelo(s.weapon, it.x, it.y - 6 + b, 28); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
         ctx.font = '600 11px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = G.coins >= s.price ? '#f0c040' : '#9d95ab'; ctx.fillText(s.price + tr(' mon.'), it.x, it.y + 30);
       }
