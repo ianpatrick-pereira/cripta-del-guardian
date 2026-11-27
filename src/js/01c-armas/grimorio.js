@@ -1,6 +1,6 @@
 // Grimorio de almas (Nigromante, v0.70; reemplaza a la Calavera aullante). Idea de Patrick:
 // - Ataque: le arranca el alma a los 2 enemigos más cercanos (sin proyectil): daño, −50 % de velocidad 2 s
-//   y −25 % de su daño 3 s. Cada alma arrancada se guarda (máximo 10) y gira a tu alrededor.
+//   y −25 % de su daño 3 s; además les rompe la armadura (reciben +20 % de daño y sus resistencias valen la mitad). Cada alma arrancada se guarda (máximo 10) y gira a tu alrededor.
 // - Cargado (especial): roba el alma a todos los enemigos de la sala y gasta las guardadas; cada alma guardada
 //   suma +20 % de daño, frena más y quita más daño a los enemigos (hasta −55 %). Te da 1 corazón gris cada 2 almas.
 // - R (idea de Patrick): suelta todas las almas guardadas en un alma gigante que avanza en línea recta y
@@ -16,12 +16,15 @@ import { espLv } from '../12-armas-con-estilo-propio.js';
 import { hurtEnemy } from '../14-enemigos.js';
 import { arrancaAlma, cosechaFx } from '../37g-baculo-hd.js';
 
-const ALMAS_MAX = 10, GRIS_MAX = 5;
+const ALMAS_MAX = 10, GRIS_MAX = 5, ARM_K = .2;
 /** deja al enemigo sin alma: más lento y pega menos durante un rato (a los jefes, la mitad del efecto) */
 function sinAlma(e, slowT, slowK, debT, debK) {
   const b = e.isBoss ? .5 : 1;
+  if (!(e.almaT > 0)) addText(e.x, e.y - e.r - 18, tr('Armadura rota'), '#c9a8ff', 10);
   e.slowT = Math.max(e.slowT || 0, slowT * b); e.slowK = Math.min(e.slowK || 1, 1 - (1 - slowK) * b);
-  e.almaK = Math.max(e.almaT > 0 ? e.almaK || 0 : 0, debK * b); e.almaT = Math.max(e.almaT || 0, debT);
+  e.almaK = Math.max(e.almaT > 0 ? e.almaK || 0 : 0, debK * b);
+  e.almaArm = Math.max(e.almaT > 0 ? e.almaArm || 0 : 0, ARM_K * b);   // armadura rota: +20 % de daño recibido y resistencias a la mitad
+  e.almaT = Math.max(e.almaT || 0, debT);
 }
 defWeapon('grimorio', {
   orden: 52,
@@ -29,7 +32,7 @@ defWeapon('grimorio', {
   familia: 'necro',
   potencia: .8,
   estilo: {
-    d: tr('arranca el alma a 2 enemigos: los frena y pegan un 25 % menos; guarda hasta 10 almas; R las lanza en un alma gigante'),
+    d: tr('arranca el alma a 2 enemigos: los frena, pegan un 25 % menos y pierden armadura; guarda hasta 10 almas; R las lanza en un alma gigante'),
     esp: { n: tr('Hambre de almas'), d: tr('+10 % de alcance por nivel') },
     el: { fire: tr('Grimorio de ceniza'), water: tr('Grimorio ahogado'), air: tr('Grimorio de los lamentos'), earth: tr('Grimorio de piedra') },
     ataque(p, w, { dmg, cost }) {

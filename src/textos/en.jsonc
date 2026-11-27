@@ -1329,7 +1329,7 @@
   "el pozo es más grande, atrae más fuerte y dura más.": "the well is bigger, pulls harder and lasts longer.",
   // v0.70: Grimorio de almas
   "Grimorio de almas": "Soul grimoire",
-  "arranca el alma a 2 enemigos: los frena y pegan un 25 % menos; guarda hasta 10 almas; R las lanza en un alma gigante": "rips the soul out of 2 enemies: they slow down and hit 25% softer; stores up to 10 souls; R hurls them as one giant soul",
+  "arranca el alma a 2 enemigos: los frena, pegan un 25 % menos y pierden armadura; guarda hasta 10 almas; R las lanza en un alma gigante": "rips the soul out of 2 enemies: they slow down, hit 25% softer and lose armor; stores up to 10 souls; R hurls them as one giant soul",
   "Alma devoradora ×{0}": "Devouring soul ×{0}",
   "Hambre de almas": "Soul hunger",
   "+10 % de alcance por nivel": "+10% range per level",
@@ -1338,6 +1338,7 @@
   "Grimorio de los lamentos": "Grimoire of wails",
   "Grimorio de piedra": "Stone grimoire",
   "Nadie cerca": "No one nearby",
+  "Armadura rota": "Armor broken",
   "+{0} corazón gris": "+{0} grey heart",
   "Cosecha voraz": "Ravenous harvest",
   "Cosecha profunda": "Deep harvest",
