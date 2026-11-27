@@ -975,6 +975,7 @@ function render0() {
     }
   }
   for (const pr of G.proj) {
+    if (pr.kind === 'ball' && pr.owner === 'player' && drawFlecha(pr)) continue;   // v0.68: bala del mosquete HD
     // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
     // v0.64: lo que vuela lleva sombra en el suelo y, si es de energía, alumbra lo que tiene debajo
     if (pr.anim || pr.spr) {

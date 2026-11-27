@@ -349,6 +349,13 @@
   "xbow_el":    { "cuadro": [96, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "virote":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
   "vi_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
+  // Mosquete: de lado apuntando a la derecha (a dos manos). mu_bala: bala, con estela, cargada, impacto / con elemento;
+  // mu_fogonazo: el disparo saliendo del cañón (destello, fuego, humo, se va)
+  "musket":      { "cuadro": [128, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "musket_el":   { "cuadro": [128, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "mu_bala":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "mu_fogonazo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  "mu_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
   "flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
   "f_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
   // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.

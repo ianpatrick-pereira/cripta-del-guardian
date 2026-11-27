@@ -6,11 +6,12 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD de arco y qué cuadro usan a 1★
-const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0], boom: ['boom', 0], sling: ['honda', 0], xbow: ['xbow', 0] };
+const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0], boom: ['boom', 0], sling: ['honda', 0], xbow: ['xbow', 0], musket: ['musket', 0] };
 // cómo se sostiene cada dibujo: giro extra (la honda está de pie y apunta hacia arriba), píxeles de la empuñadura
 // bajo el centro del cuadro, tamaño, y ángulo al llevarla colgando en reposo
 // pesada: se dispara a dos manos (fila «caminar» de archer_atq: apunta, dispara, retroceso, vuelve)
-const SOSTEN = { honda: { giro: Math.PI / 2, agarre: 44, s: .62, reposo: -1.0 }, xbow: { giro: 0, agarre: 6, s: .8, reposo: .35, pesada: true } };
+const SOSTEN = { honda: { giro: Math.PI / 2, agarre: 44, s: .62, reposo: -1.0 }, xbow: { giro: 0, agarre: 6, s: .8, reposo: .35, pesada: true },
+  musket: { giro: 0, agarre: 0, s: .75, reposo: .3, pesada: true } };
 const SOSTEN_ARCO = { giro: 0, agarre: 0, s: .85, reposo: .55, pesada: false };
 const sosten = key => SOSTEN[key.split('_')[0].split('~')[0]] || SOSTEN_ARCO;
 const ARCO_EL = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -58,12 +59,14 @@ function arcoEnMano(p) {
 /** dibuja una flecha de arco HD; false si esta flecha no tiene dibujo HD */
 // proyectiles propios de otras armas de la Arquera: hoja (fila 0: normal, con estela, cargado, impacto; fila 1: elementos),
 // hoja del impacto y tamaño normal / cargado
-const PROY = { sling: ['piedra', 'p_impacto', 1.25, 1.5], xbow: ['virote', 'vi_impacto', 1.15, 1.4] };
+const PROY = { sling: ['piedra', 'p_impacto', 1.25, 1.5], xbow: ['virote', 'vi_impacto', 1.15, 1.4], musket: ['mu_bala', 'mu_impacto', 1, 1.25] };
 function drawFlecha(pr) {
   const P = pr.src && PROY[pr.src.shape];
   if (P && ANIM[P[0]]) {   // piedra de la honda, virote de la ballesta
-    const a = Math.atan2(pr.vy, pr.vx), key = pr.kind === 'power' ? P[0] + '~reposo~2' : pr.src.el ? P[0] + '~caminar~' + ARCO_EL[pr.src.el] : P[0] + '~reposo~1';
-    drawSpr(key, pr.x - Math.cos(a) * 4, pr.y - Math.sin(a) * 4, pr.kind === 'power' ? P[3] : P[2], { rot: a });
+    // cargado: disparo potente, o la bala gruesa del mosquete; la bala crece con su tamaño
+    const a = Math.atan2(pr.vy, pr.vx), fuerte = pr.kind === 'power' || pr.r >= 7;
+    const key = fuerte ? P[0] + '~reposo~2' : pr.src.el ? P[0] + '~caminar~' + ARCO_EL[pr.src.el] : P[0] + '~reposo~1';
+    drawSpr(key, pr.x - Math.cos(a) * 4, pr.y - Math.sin(a) * 4, (fuerte ? P[3] : P[2]) * (pr.kind === 'ball' ? Math.max(1, pr.r / 7) : 1), { rot: a });
     return true;
   }
   if (!ANIM.flecha || !pr.src || pr.src.shape !== 'bow') return false;
@@ -75,7 +78,7 @@ function drawFlecha(pr) {
   return true;
 }
 /** true si esta flecha revienta con la explosión dibujada (Arco explosivo y cualquier arco con bomba) */
-const bombaHD = pr => !!(pr.src && pr.src.shape === 'bow' && (pr.fx === 'explode' || pr.boom) && ANIM.b_explosion);
+const bombaHD = pr => !!(pr.src && (pr.src.shape === 'bow' || pr.src.shape === 'musket') && (pr.fx === 'explode' || pr.boom) && ANIM.b_explosion);
 /** astillas y chispa cuando una flecha de arco pega */
 function impactoFlecha(pr) {
   const P = pr.src && PROY[pr.src.shape];
@@ -83,13 +86,22 @@ function impactoFlecha(pr) {
     G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .16, max: .16, fx: P[1], s: pr.kind === 'power' ? 1.1 : .8, rot: Math.atan2(pr.vy, pr.vx), color: '', size: 0 });
     return;
   }
-  if (!ANIM.f_impacto || !pr.src || pr.src.shape !== 'bow') return;
   if (bombaHD(pr)) {   // la bomba revienta: destello, bola de fuego y humo, del tamaño de la explosión
     const R = pr.boom || 55;
     G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .4, max: .4, fx: 'b_explosion', s: R / 9, rot: 0, color: '', size: 0 });
     return;
   }
+  if (!ANIM.f_impacto || !pr.src || pr.src.shape !== 'bow') return;
   G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .16, max: .16, fx: 'f_impacto', s: pr.kind === 'power' ? 1.1 : .8, rot: Math.atan2(pr.vy, pr.vx), color: '', size: 0 });
 }
 
-export { arcoEnMano, bombaHD, arcoKey, drawArco, drawFlecha, impactoFlecha, tiroCuadro };
+/** disparo del mosquete: la Arquera hace el retroceso y sale el fogonazo por la boca del cañón; true si hay fogonazo dibujado (el humo ya viene en él) */
+function fogonazo(p, w, a, grande = false) {
+  p.tiroAt = G.time;
+  if (!ANIM.mu_fogonazo || !arcoKey(w)) return false;
+  const d = grande ? 32 : 26;
+  G.parts.push({ x: p.x + Math.cos(a) * d, y: p.y - 2 + Math.sin(a) * d, vx: 0, vy: 0, life: .34, max: .34, fx: 'mu_fogonazo', s: grande ? 1.5 : 1.05, rot: a, color: '', size: 0 });
+  return true;
+}
+
+export { arcoEnMano, bombaHD, fogonazo, arcoKey, drawArco, drawFlecha, impactoFlecha, tiroCuadro };
