@@ -10,6 +10,7 @@ import { solidAt } from './08-colisiones.js';
 import { addText, burst, explode, later, shake, showBanner } from './09-efectos.js';
 import { maxEnergy, nearestEnemy, reflect } from './11-jugador.js';
 import { hurtEnemy } from './14-enemigos.js';
+import { summonBones } from './12-armas-con-estilo-propio.js';
 import { pact } from './27-pactos-de-piso.js';
 import { dareCount, dareFail } from './28-desafios-dentro-del-piso.js';
 import { openChoice } from './32-eleccion-de-reliquia.js';
@@ -45,6 +46,15 @@ const TALENTS = {
   humo:      { cls: 'rogue',  n: tr('Bomba de humo'),     c: '#8a84a0', d: tr('Al matar, el humo ralentiza a los enemigos cercanos.') },
   punales:   { cls: 'rogue',  n: tr('Puñales'),           c: '#d8e0ff', d: tr('Al esquivar lanzas 6 puñales a tu alrededor.') },
   acecho:    { cls: 'rogue',  n: tr('Acecho'),            c: '#ffd27a', d: tr('El primer golpe a un enemigo intacto hace ×2,5.') },
+  // Nigromante (v0.69)
+  cosecha:   { cls: 'necro',  n: tr('Cosecha de almas'),  c: '#9be0a0', d: tr('Cada 10 bajas recuperas 1 de vida.') },
+  eco:       { cls: 'necro',  n: tr('Eco arcano'),        c: '#b98cff', d: tr('El hechizo potenciado sale un hechizo antes.') },
+  gelido:    { cls: 'necro',  n: tr('Toque gélido'),      c: '#9bd8ff', d: tr('Tus hechizos ralentizan a los enemigos.') },
+  huesos:    { cls: 'necro',  n: tr('Coraza de huesos'),  c: '#d8d0b8', d: tr('+1 de escudo máximo.') },
+  vacio:     { cls: 'necro',  n: tr('Hechizo del vacío'), c: '#a050ff', d: tr('El hechizo potenciado explota al impactar.') },
+  umbral:    { cls: 'necro',  n: tr('Umbral de la muerte'), c: '#d4474b', d: tr('+30 % de daño mientras tengas 2 de vida o menos.') },
+  nova2:     { cls: 'necro',  n: tr('Nova helada'),       c: '#9bd8ff', d: tr('La Nova de almas congela el doble de tiempo.') },
+  sifon:     { cls: 'necro',  n: tr('Sifón'),             c: '#5aa4e8', d: tr('Cada golpe de hechizo te devuelve 1 de energía.') },
 };
 // subclases: se eligen al entrar a la cripta y suben de nivel (Nv1 a Nv5) con cada enemigo que matas
 const SPECS = {
@@ -75,6 +85,15 @@ const SPECS = {
   ghost:     { cls: 'rogue',  n: tr('Espectro'),      c: '#8a84a0', d: tr('Invisibilidad.'), abil: tr('Sombra'), cd: 12,
                abilDesc: tr('Invisible, más rápido y todo golpe es crítico.'),
                grow: tr('el parpadeo te oculta más tiempo; golpear invisible hace más daño por nivel; la Sombra dura más.') },
+  liche:     { cls: 'necro',  n: tr('Liche'),         c: '#d8d0b8', d: tr('Invocación.'), abil: tr('Ejército de huesos'), cd: 16,
+               abilDesc: tr('Invoca esqueletos que pelean a tu lado unos segundos.'),
+               grow: tr('un esqueleto más por nivel y pegan más fuerte.') },
+  segador:   { cls: 'necro',  n: tr('Segador de almas'), c: '#9be0a0', d: tr('Drenar vida.'), abil: tr('Cosecha'), cd: 12,
+               abilDesc: tr('Daña a todos los enemigos cercanos y te cura 1 por cada 3 que alcanza.'),
+               grow: tr('la Cosecha llega más lejos y pega más; cura hasta 2 (hasta 3 desde Nv3).') },
+  brujo:     { cls: 'necro',  n: tr('Brujo del vacío'), c: '#a050ff', d: tr('Control.'), abil: tr('Pozo del vacío'), cd: 13,
+               abilDesc: tr('Abre un pozo que atrae y daña a los enemigos unos segundos.'),
+               grow: tr('el pozo es más grande, atrae más fuerte y dura más.') },
 };
 const SUB_UNLOCK = 30;            // bajas para poder elegir subclase
 const SUB_T = [15, 40, 80, 140];   // bajas para Nv2, Nv3, Nv4 y Nv5
@@ -95,7 +114,7 @@ function gainTalent(id) {
   if (!T || p.talents.includes(id)) return;
   p.talents.push(id);
   if (id === 'vigor') { p.maxHp += 2; p.hp = Math.min(p.maxHp, p.hp + 2); }
-  if (id === 'muro') { p.maxSh++; p.sh++; }
+  if (id === 'muro' || id === 'huesos') { p.maxSh++; p.sh++; }
   showBanner(T.n, T.c, tr('Talento'));
   burst(p.x, p.y, T.c, 20, 180);
   sfx(440, .15, 'triangle', .05, 300); later(.12, () => sfx(660, .2, 'triangle', .05, 300));
@@ -179,6 +198,20 @@ function specAbility(p) {
     sfx(160, .5, 'sine', .05, -60); noise(.4, .04, 600);
   } else if (sp === 'ghost') {
     p.shadowT = 2 + .5 * L; sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5);
+  } else if (sp === 'liche') {
+    for (let i = 0; i < 1 + L; i++) summonBones(p, w, i === 0 && L >= 4, Math.max(2, Math.round(base * (1 + .2 * L))));
+    burst(p.x, p.y, '#d8d0b8', 20, 150); sfx(150, .5, 'triangle', .05, -60);
+  } else if (sp === 'segador') {
+    const R = 130 + 15 * L; let n = 0;
+    for (const e of G.enemies) if (!e.dead && !e.air && dist(e, p) < R + e.r) { hurtEnemy(e, Math.round(base * (2 + .4 * L)), angTo(p, e), 200, { cls: true, explosion: true }); n++; burst(e.x, e.y, '#9be0a0', 5, 90); }
+    const cura = Math.min(L >= 3 ? 3 : 2, Math.floor(n / 3));
+    if (cura && p.hp < p.maxHp) { p.hp = Math.min(p.maxHp, p.hp + cura); addText(p.x, p.y - 30, tr`+${cura} vida`, '#9be0a0', 13); }
+    C.fx.push({ ring: true, x: p.x, y: p.y, r: R, t: .45, max: .45, c: '#9be0a0' });
+    shake(6); sfx(220, .5, 'sine', .06, -100);
+  } else if (sp === 'brujo') {
+    const t = nearestEnemy(p, 320), x = t ? t.x : p.x + Math.cos(p.aim) * 160, y = t ? t.y : p.y + Math.sin(p.aim) * 160;
+    (C.pozos || (C.pozos = [])).push({ x, y, r: 90 + 10 * L, t: 3 + .5 * L, max: 3 + .5 * L, tick: 0, fuerza: 500 + 60 * L, dmg: Math.max(1, Math.round(base * (.5 + .08 * L))) });
+    sfx(90, .6, 'sine', .06, -40); noise(.5, .04, 300);
   }
 }
 // cada baja hace crecer la subclase
@@ -255,6 +288,8 @@ function classHurt(p) {
   } else if (p.char === 'archer') p.focus = tl('frio') ? p.focus / 2 : 0;
   else if (p.char === 'rogue') p.combo = 0;
 }
+// cada cuántos hechizos sale el hechizo potenciado del Nigromante (4; 3 con Eco arcano o el Cráneo del liche; 2 con los dos)
+const cadaHechizos = p => Math.max(2, 4 - (tl('eco') ? 1 : 0) - (rc('craneo') ? 1 : 0));
 // cuánto suma cada golpe seguido del Asesino (+5 %, +2 % por Brazalete del duelista)
 const comboStep = p => .05 + .02 * rc('brazalete');
 // bonos de clase sobre cada golpe del jugador
@@ -269,6 +304,11 @@ function classHit(e, dmg, ang, o) {
   if (subIs('sniper') && !o.melee && dist(p, e) > 200) k *= 1 + .06 * SL;
   if (subIs('ghost') && (p.veilT > 0 || p.shadowT > 0)) k *= 1.3 + .1 * SL;
   if (subIs('poisoner')) { e.poison = 3; e.pdmg = Math.max(e.pdmg || 1, Math.round(bestDmg(p) * (.15 + .05 * SL))); }
+  if (p.char === 'necro' && o.src && o.src.type === 'staff') {
+    if (tl('gelido') && !e.isBoss) e.slowT = Math.max(e.slowT || 0, .8);
+    if (tl('umbral') && p.hp <= 2) k *= 1.3;
+    if (tl('sifon') && (p.sifonT || 0) < G.time) { p.sifonT = G.time + .15; p.en = Math.min(maxEnergy(p), p.en + 1); }
+  }
   if (p.char === 'archer' && tl('cazador') && !o.melee && dist(p, e) > 200) k *= 1.3;
   if (p.char === 'archer' && rc('mira') && !o.melee && dist(p, e) > 200) k *= 1 + .25 * rc('mira');
   const bw = o.src && o.src.back ? o.src.back : 0, fc = e.type === 'warden' ? e.face : e.face2;
@@ -298,12 +338,17 @@ function classKill(e, src) {
     if (tl('humo')) { burst(e.x, e.y, '#6b6480', 14, 120, 6, .8); for (const o of G.enemies) if (!o.dead && o !== e && dist(o, e) < 90) o.slowT = Math.max(o.slowT || 0, 1.5); }
   }
   if (p.char === 'knight' && tl('sed') && src && src.type === 'melee' && ++p.meleeKills % 12 === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, tr('+1 vida'), '#b0303a'); }
+  // Nigromante (v0.69): la Linterna de almas y el Cirio negro devuelven energía; la Cosecha de almas cura
+  if (src && src.id === 'linterna') { p.en = Math.min(maxEnergy(p), p.en + 6); G.parts.push({ x: e.x, y: e.y, vx: (p.x - e.x) * 2, vy: (p.y - e.y) * 2, life: .5, max: .5, color: '#9be0a0', size: 4 }); }
+  if (rc('cirio')) p.en = Math.min(maxEnergy(p), p.en + 2 * rc('cirio'));
+  if (p.char === 'necro' && tl('cosecha') && (p.almaN = (p.almaN || 0) + 1) % 10 === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, tr('+1 vida'), '#9be0a0'); }
 }
 // recurso de clase que se muestra bajo la habilidad
 function classRes(p) {
   if (p.char === 'knight') return p.revenge ? { t: tr('Represalia lista'), c: '#d4474b' } : p.parryCd > 0 ? { t: tr`Desvío ${Math.ceil(p.parryCd)} s`, c: '#6b6480' } : { t: tr('Desvío listo'), c: '#ffd27a' };
   if (p.char === 'archer') return { k: p.focus / 100, c: p.focus >= 100 ? '#ffd27a' : '#c9a46a' };
   if (p.char === 'rogue' && p.combo) return { t: tr`Combo +${Math.round(p.combo * comboStep(p) * 100)} %`, c: '#bb7cf0' };
+  if (p.char === 'necro') { const n = cadaHechizos(p), k = ((p.hechN || 0) % n) / (n - 1); return { k: Math.min(1, k), c: k >= 1 ? '#b98cff' : '#6b5a8a' }; }
   return null;
 }
 
@@ -328,6 +373,24 @@ function updateClass(dt) {
     for (const e of G.enemies) if (!e.dead && !e.air && dist(e, K) < K.r + e.r) { e.poison = Math.max(e.poison || 0, 2); e.slowT = Math.max(e.slowT || 0, .6); hurtEnemy(e, K.dmg, angTo(K, e), 0, { explosion: true }); }
   }
   C.clouds = C.clouds.filter(K => K.t > 0);
+  // Nigromante (v0.69): linterna que cura y pozo del vacío que atrae
+  for (const L of C.linternas || []) {
+    L.t -= dt; L.tick -= dt;
+    if (L.tick <= 0) { L.tick = 3; if (dist(pl, L) < L.R && pl.hp < pl.maxHp && !G.over) { pl.hp = Math.min(pl.maxHp, pl.hp + L.cura); addText(pl.x, pl.y - 26, '+' + L.cura, '#9be0a0', 13); burst(pl.x, pl.y, '#9be0a0', 10, 100); sfx(880, .15, 'sine', .04, 300); } }
+    if (Math.random() < dt * 8) G.parts.push({ x: L.x + rand(-8, 8), y: L.y - 6, vx: rand(-10, 10), vy: -40, life: .8, max: .8, color: '#9be0a0', size: 3 });
+  }
+  if (C.linternas) C.linternas = C.linternas.filter(L => L.t > 0);
+  for (const V of C.pozos || []) {
+    V.t -= dt; V.tick -= dt;
+    for (const e of G.enemies) {
+      if (e.dead || e.air || e.isBoss || dist(e, V) > V.r + e.r) continue;
+      const a = angTo(e, V), f = (e.isSub ? .3 : 1) * V.fuerza * dt;
+      e.kx = (e.kx || 0) + Math.cos(a) * f; e.ky = (e.ky || 0) + Math.sin(a) * f;
+    }
+    if (V.tick <= 0) { V.tick = .4; for (const e of G.enemies) if (!e.dead && !e.air && dist(e, V) < V.r + e.r) hurtEnemy(e, V.dmg, angTo(V, e), 0, { explosion: true }); }
+    if (Math.random() < dt * 30) { const a = rand(0, TAU), d = V.r * rand(.4, 1); G.parts.push({ x: V.x + Math.cos(a) * d, y: V.y + Math.sin(a) * d, vx: -Math.cos(a) * d * 2, vy: -Math.sin(a) * d * 2, life: .45, max: .45, color: '#a050ff', size: 3 }); }
+  }
+  if (C.pozos) C.pozos = C.pozos.filter(V => V.t > 0);
   for (const F of C.fx) F.t -= dt;
   C.fx = C.fx.filter(F => F.t > 0);
 }
@@ -336,6 +399,19 @@ function drawClass() {
   for (const K of C.clouds) {
     ctx.fillStyle = `rgba(110,170,60,${.22 * Math.min(1, K.t)})`; ctx.beginPath(); ctx.arc(K.x, K.y, K.r, 0, TAU); ctx.fill();
     ctx.strokeStyle = `rgba(155,224,90,${.4 * Math.min(1, K.t)})`; ctx.lineWidth = 2; ctx.stroke();
+  }
+  for (const V of C.pozos || []) {
+    const al = Math.min(1, V.t, (V.max - V.t) * 4);
+    ctx.fillStyle = `rgba(40,10,70,${.45 * al})`; ctx.beginPath(); ctx.arc(V.x, V.y, V.r, 0, TAU); ctx.fill();
+    ctx.strokeStyle = `rgba(160,80,255,${.6 * al})`; ctx.lineWidth = 3;
+    for (let i = 0; i < 3; i++) { const a0 = G.time * 4 + i * TAU / 3; ctx.beginPath(); ctx.arc(V.x, V.y, V.r * (.35 + .2 * i), a0, a0 + 2.2); ctx.stroke(); }
+  }
+  for (const L of C.linternas || []) {
+    const al = Math.min(1, L.t);
+    ctx.fillStyle = `rgba(155,224,160,${.1 * al})`; ctx.beginPath(); ctx.arc(L.x, L.y, L.R, 0, TAU); ctx.fill();
+    ctx.strokeStyle = `rgba(155,224,160,${.35 * al})`; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#2a2433'; ctx.fillRect(L.x - 5, L.y - 14, 10, 14); ctx.fillStyle = `rgba(190,255,190,${(.7 + .3 * Math.sin(G.time * 9)) * al})`; ctx.fillRect(L.x - 3, L.y - 12, 6, 9);
+    ctx.fillStyle = '#2a2433'; ctx.fillRect(L.x - 6, L.y - 16, 12, 3); ctx.fillRect(L.x - 1, L.y - 20, 2, 4);
   }
   for (const T of C.traps) {
     const on = T.arm <= 0;
@@ -355,6 +431,6 @@ function drawClass() {
   }
 }
 
-export { SPECS, SUB_T, SUB_UNLOCK, TALENTS, bestDmg, classDash, classHit, classHurt, classKill, classRes,
+export { SPECS, SUB_T, SUB_UNLOCK, TALENTS, bestDmg, cadaHechizos, classDash, classHit, classHurt, classKill, classRes,
   drawClass, focusShot, gainTalent, offerSpec, offerTalent, parry, setSpec, shieldCharge, specAbility, subIs,
   subLv, tl, updateClass };

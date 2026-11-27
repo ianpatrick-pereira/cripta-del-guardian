@@ -72,6 +72,7 @@ import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawP
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
 import { drawHoz, kusaCuadro, kusaKey, kusaMano } from './37f-kusarigama-hd.js';
+import { baculoKey, baculoMano, drawBaculo } from './37g-baculo-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
@@ -87,13 +88,14 @@ import { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles } from 
 import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco } from './37-armas-visual.js';
 // colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí).
 // El caballero (v0.62, dibujo de la IA) tiene 5 tonos de acero, de oscuro a claro: se tiñen con una escala hecha con los 2 colores.
-const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#242623', '#2f2f2b', '#393833', '#41413c', '#4b4b45', '#5b594a', '#686755'], rogue: ['#1c161f', '#221b25', '#27202b', '#2c2431', '#312936', '#372d3b', '#3c3242', '#433950'] };
+const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#242623', '#2f2f2b', '#393833', '#41413c', '#4b4b45', '#5b594a', '#686755'], rogue: ['#1c161f', '#221b25', '#27202b', '#2c2431', '#312936', '#372d3b', '#3c3242', '#433950'], necro: ['#301a2a', '#391e2f', '#432236', '#4b263b', '#532940', '#5f2d45', '#69314b'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
 // colores de detalle que cambia cada aspecto (penacho y hombreras, cinturón y botas, ojos y bufanda).
 // Arquera (v0.68): la armadura tiñe la capa (7 tonos) y el aspecto, el cuero.
 // Asesino (v0.69): la armadura tiñe el traje (8 tonos, las sombras más negras no) y el aspecto, la cinta roja (4 tonos).
 // Caballero: penacho y capa; el 3.º y 4.º (sus sombras) se oscurecen solos a partir de los 2 colores del aspecto.
-const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#633f35', '#774d3f', '#865d4a', '#956b53'], rogue: ['#b01e29', '#6d1020', '#8c1824', '#3c0e16'] };
+const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#633f35', '#774d3f', '#865d4a', '#956b53'], rogue: ['#b01e29', '#6d1020', '#8c1824', '#3c0e16'], necro: ['#2e094a', '#560d86', '#811ab9', '#af32df'] };
+// Nigromante (v0.70): la armadura tiñe la túnica (7 tonos) y el aspecto, el brillo de los ojos (4 tonos).
 // mezcla dos colores #rrggbb (t = 0 da a, t = 1 da b)
 const mixHex = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
 // si el dibujo tiene más tonos que colores trae el aspecto o la armadura, se completan los que faltan
@@ -108,7 +110,7 @@ function fillCols(to, n, ramp) {
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
     // v0.68: las hojas de ataque de la Arquera y del Asesino usan los mismos colores que su dibujo, así que también se tiñe
-    const atq = ANIM[ch + '_atq'] && ch !== 'knight' ? Object.values(ANIM[ch + '_atq']).flatMap(a => a.cuadros) : [];
+    const atq = ['_atq', '_nova'].flatMap(suf => ANIM[ch + suf] && ch !== 'knight' ? Object.values(ANIM[ch + suf]).flatMap(a => a.cuadros) : []);
     const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros), ...atq];
     for (const fk of cuadros) {
       const [mapName, pal] = SPR_DEFS[fk], rows = MAPS[mapName], h = rows.length, wd = rows[0].length, k = SPR[fk].k;
@@ -177,7 +179,7 @@ function cajaDibujo(key) {
 }
 /** dibuja el arma centrada en (x, y); las largas van inclinadas. largo: tamaño en el mundo de lo más largo del arma */
 function drawWeaponSuelo(w, x, y, largo = 30) {
-  const key = espadaKey(w) || arcoKey(w) || kusaKey(w), c = key && cajaDibujo(key);
+  const key = espadaKey(w) || arcoKey(w) || kusaKey(w) || baculoKey(w), c = key && cajaDibujo(key);
   if (!c) { drawWeapon(w, x - 10, y, -.6); return; }
   const larga = Math.max(c.w, c.h) > 1.6 * Math.min(c.w, c.h);
   const tam = larga ? largo : largo * .75, s = tam / (Math.max(c.w, c.h) * c.k), rot = larga ? (c.h > c.w ? .6 : -.6) : 0;
@@ -189,6 +191,7 @@ function drawWeapon(w, x, y, a, scale = 1) {
   const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
   const ak = arcoKey(w); if (ak) { drawArco(ak, x, y, a, scale); return; }   // v0.68: arco HD
   const kk = kusaKey(w); if (kk) { drawHoz(kk, x, y, .6 * scale, a); return; }   // v0.69: hoz del kusarigama HD
+  const bk = baculoKey(w); if (bk) { drawBaculo(bk, x, y, a, scale); return; }   // v0.70: báculo HD del Nigromante
   ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(scale, scale);
   const c = w.tint || RARITY[w.rarity].c;
   const shape = w.shape || (w.type === 'bow' ? 'bow' : 'sword');
@@ -293,12 +296,26 @@ function playerFrame(p) {
   const g = !G.over && golpeCuadro(p); if (g) return g.key;   // v0.66: atacando con la espada HD
   const t = !G.over && tiroCuadro(p); if (t) return t.key;    // v0.68: la Arquera disparando con el arco HD
   const kc = !G.over && kusaCuadro(p); if (kc) return kc.key;  // v0.69: el Asesino lanzando el kusarigama
+  const hc = !G.over && hechizoCuadro(p); if (hc) return hc;    // v0.70: el Nigromante lanzando hechizos
   if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
   if (A.herido && p.sqT > -.08) return A.herido.cuadros[0];   // golpe recibido: ~0,26 s
   if (A.caminar && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40) {
     const c = A.caminar.cuadros; return c[Math.floor(p.walk / TAU * c.length) % c.length];   // 1 vuelta de p.walk = 1 paso de cada pierna
   }
   return animKey(p.spr, 'reposo', G.time);
+}
+// v0.70: hechizos del Nigromante. Cada arma usa una fila de necro_atq (el rayo del Ojo canaliza mientras dispara,
+// el cargado invoca) y la Nova alza los brazos (necro_nova). p.castAt / p.castFila los pone el ataque (11-jugador.js)
+const HECHIZO = .32;
+function hechizoCuadro(p) {
+  if (p.spr !== 'necro' || !ANIM.necro_atq) return null;
+  const e = G.time - (p.novaAt ?? -9);
+  if (e >= 0 && e < .45) return 'necro_nova~reposo~' + (e < .12 ? 0 : 1);
+  if (p.charge > 0) return 'necro_atq~herido~0';                       // concentrando el cargado
+  const t = G.time - (p.castAt ?? -9), fila = p.castFila || 'reposo';
+  if (fila === 'muerte') return t >= 0 && t < .25 ? 'necro_atq~muerte~' + (1 + Math.floor(G.time * 8) % 3) : null;   // canalizando el rayo
+  if (t < 0 || t > HECHIZO) return null;
+  return 'necro_atq~' + fila + '~' + (t < .07 ? 1 : t < .22 ? 2 : 3);   // prepara, lanza (se sostiene), vuelve
 }
 function drawPlayer(p) {
   const dead = G.over && !G.won;
@@ -344,6 +361,8 @@ function drawPlayer(p) {
     } else if (kusaKey(w) && (p.whip || kusaMano(p))) {
       // v0.69: kusarigama HD: atacando, la cadena ya lleva la hoz (12-armas-con-estilo-propio); si no, la hoz de pie en la mano
       const m = !p.whip && kusaMano(p); if (m) drawHoz(kusaKey(w), m.hx, m.hy, .75, null, m.flip);
+    } else if (baculoKey(w) && baculoMano(p)) {
+      const m = baculoMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.70: el báculo HD de pie junto al Nigromante
     } else if (arcoKey(w) && (tiroCuadro(p) || arcoEnMano(p))) {
       const t = tiroCuadro(p), m = t || arcoEnMano(p);   // v0.68: el arco HD va en el puño de la Arquera
       if (!(t && t.oculta)) drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);   // v0.69: la estrella ya lanzada no está en la mano

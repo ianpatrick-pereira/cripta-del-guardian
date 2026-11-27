@@ -36,24 +36,26 @@ const ICONO = {
   // reliquias
   corazon: 'corazon', escudo: 'escudo', botas: 'bota', rebote: 'flecha', onda: 'espada', veneno: 'gota', ojo: 'ojo', vampiro: 'gota',
   carcaj: 'flecha', piedra: 'espada', reloj: 'reloj', iman: 'iman', bateria: 'rayo', espinas: 'espinas', trebol: 'trebol', polvora: 'bomba',
+  craneo: 'calavera', filacteria: 'rayo', cirio: 'llama',
   estandarte: 'bandera', guantelete: 'puno', broquel: 'escudo', pluma: 'pluma', mira: 'mira', punta: 'flecha', capa: 'capa', punal: 'espada', brazalete: 'llama',
   // talentos
   vigor: 'corazon', muro: 'escudo', furia: 'llama', egida: 'escudo', contra: 'espada', puas: 'espinas', embestida: 'escudo', aguante: 'escudo', sed: 'corazon',
   ojo2: 'ojo', rafaga: 'rayo', perfora: 'flecha', cazador: 'ojo', hielo: 'copo', rebote2: 'flecha', carcaj2: 'flecha', voltereta: 'flecha', frio: 'copo',
+  cosecha: 'corazon', eco: 'rayo', gelido: 'copo', huesos: 'escudo', vacio: 'bomba', umbral: 'calavera', nova2: 'copo', sifon: 'rayo',
   verdugo: 'calavera', toxina: 'gota', frenesi: 'llama', sombra: 'humo', sangre: 'corazon', filo: 'espada', humo: 'humo', punales: 'espada', acecho: 'ojo',
   // mejoras del altar (upg:), habilidades de clase (abil:), subclases (spec:) y compañeros (pet:) (v0.61)
   'upg:hp': 'corazon', 'upg:coin': 'moneda', 'upg:en': 'rayo', 'upg:k_parry': 'escudo', 'upg:k_bash': 'puno',
-  'upg:a_focus': 'ojo', 'upg:a_gold': 'flecha', 'upg:r_back': 'espada', 'upg:r_veil': 'humo',
-  'abil:knight': 'escudo', 'abil:archer': 'flecha', 'abil:rogue': 'capa',
+  'upg:a_focus': 'ojo', 'upg:a_gold': 'flecha', 'upg:r_back': 'espada', 'upg:r_veil': 'humo', 'upg:n_alma': 'calavera', 'upg:n_nova': 'copo',
+  'abil:knight': 'escudo', 'abil:archer': 'flecha', 'abil:rogue': 'capa', 'abil:necro': 'calavera',
   'spec:paladin': 'cruz', 'spec:berserker': 'llama', 'spec:guardian': 'escudo', 'spec:sniper': 'mira', 'spec:trapper': 'trampa',
-  'spec:ranger': 'flecha', 'spec:shade': 'bota', 'spec:poisoner': 'gota', 'spec:ghost': 'capa',
+  'spec:ranger': 'flecha', 'spec:shade': 'bota', 'spec:poisoner': 'gota', 'spec:ghost': 'capa', 'spec:liche': 'calavera', 'spec:segador': 'gota', 'spec:brujo': 'ojo',
   'pet:owl': 'buho', 'pet:wolf': 'lobo', 'pet:fairy': 'estrella',
   // pactos
   volatile: 'bomba', glass: 'escudo', fragile: 'corazon', frenzy: 'bota', dark: 'ojo', blood: 'gota', fasting: 'calavera', none: 'estrella',
 };
 const cache = {}, canv = {};
 // color propio de cada clase (iconos de habilidades y mejoras de clase)
-const CLS_COLOR = { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff' };
+const CLS_COLOR = { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff', necro: '#9be0a0' };
 // el icono de una mejora como lienzo (para dibujarlo dentro del juego)
 function iconCanvas(id, color) {
   const key = id + color;

@@ -150,11 +150,15 @@ function styleAttack(p, w, cost) {
     dmg = Math.max(1, Math.floor(dmg / 2));
   } else if (!STYLE[w.style].cobraAlLanzar) p.en -= cost;
   STYLE[w.style].ataque(p, w, { a, dmg, cost });
+  if (p.spr === 'necro') { p.castAt = G.time; p.castFila = HECHIZO_FILA[w.style] || 'reposo'; }   // v0.70: gesto del hechizo
 }
+// v0.70: fila de necro_atq que usa cada arma del Nigromante (reposo = una mano, caminar = dos manos, muerte = canalizar)
+const HECHIZO_FILA = { escarcha: 'caminar', tomo: 'caminar', ojo: 'muerte' };
 // ataque cargado de cada estilo; S = estrellas (la habilidad elemental usa la forma de 5★)
 function styleCharge(p, w, S, dm, col) {
   const a = p.aim;
   STYLE[w.style].cargado(p, w, { a, S, dm, col });
+  if (p.spr === 'necro') { p.castAt = G.time; p.castFila = 'herido'; }   // v0.70: alza las manos al invocar
 }
 // estallido de elemento en cada golpe mientras dura el poder elemental del arma
 function elemProc(el, e, w) {

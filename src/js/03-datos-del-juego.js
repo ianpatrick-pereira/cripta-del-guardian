@@ -37,6 +37,12 @@ const CHG_LV = {
   reap:   [tr('Hoz gigante'), tr('Doble hoz'), tr('Remolino de hoces'), tr('Hoces errantes'), tr('Cosecha')],
   legion: [tr('Legión'), tr('Legión mayor'), tr('Caballero óseo'), tr('Ejército'), tr('Rey de huesos')],
   ray:    [tr('Rayo concentrado'), tr('Rayo doble'), tr('Prisma'), tr('Rayo giratorio'), tr('Aniquilación')],
+  // armas del Nigromante (v0.69)
+  almas:    [tr('Tres almas'), tr('Coro de almas'), tr('Cinco almas'), tr('Almas errantes'), tr('Éxodo de almas')],
+  escarcha: [tr('Escarcha'), tr('Gran escarcha'), tr('Tormenta de hielo'), tr('Ventisca'), tr('Invierno eterno')],
+  calavera: [tr('Gran calavera'), tr('Calavera feroz'), tr('Trío de calaveras'), tr('Calavera infernal'), tr('Coro de calaveras')],
+  linterna: [tr('Linterna'), tr('Linterna duradera'), tr('Linterna eterna'), tr('Linterna sagrada'), tr('Faro de almas')],
+  tomo:     [tr('Barrera'), tr('Barrera firme'), tr('Barrera duradera'), tr('Barrera triple'), tr('Santuario')],
 };
 const chgName = w => CHG_LV[w.chg][(w.stars || 1) - 1];
 const FX_NAME = { stun: tr('aturde'), push: tr('empuja lejos'), slow: tr('ralentiza'), burn: tr('quema'), poison: tr('envenena'), explode: tr('explota'), chain: tr('rayo en cadena'), homing: tr('teledirigido') };
@@ -55,7 +61,7 @@ for (const id in WEAPON_DEFS) if (WEAPON_DEFS[id].potencia) PW[id] = WEAPON_DEFS
 const baseDmg = b => REF_DPS[b.type] * b.cd / (b.shots || 1) * (PW[b.id] || 1);
 // cada clase domina una familia de armas: +30 % con las suyas, −30 % con las de otra clase; los bastones son neutrales
 let CUR_CHAR = 'knight';
-const FAMILY = { knight: [], archer: [], rogue: [] };
+const FAMILY = { knight: [], archer: [], rogue: [], necro: [] };
 for (const id of weaponList()) if (WEAPON_DEFS[id].familia) FAMILY[WEAPON_DEFS[id].familia].push(id);
 function affinity(id, ch = CUR_CHAR) {
   if (FAMILY[ch] && FAMILY[ch].includes(id)) return 1;
@@ -147,6 +153,9 @@ const RELICS = {
   capa:       { n: tr('Capa de sombras'),         d: tr('Sombra dura 1 s más.'), c: '#6b6480', cls: ['rogue'] },
   punal:      { n: tr('Puñal ritual'),            d: tr('Los golpes por la espalda hacen +50 % de daño.'), c: '#bb7cf0', cls: ['rogue'] },
   brazalete:  { n: tr('Brazalete del duelista'),  d: tr('El combo suma +2 % más por golpe y dura un 50 % más.'), c: '#e05ab0', cls: ['rogue'] },
+  craneo:     { n: tr('Cráneo del liche'),        d: tr('El hechizo potenciado sale un hechizo antes.'), c: '#b98cff', u: 1, cls: ['necro'] },
+  filacteria: { n: tr('Filacteria'),              d: tr('La Nova de almas recarga un 30 % más rápido.'), c: '#9be0a0', u: 1, cls: ['necro'] },
+  cirio:      { n: tr('Cirio negro'),             d: tr('Cada enemigo que matas te devuelve 2 de energía.'), c: '#ffd27a', cls: ['necro'] },
 };
 // ¿puede salirle esta reliquia a esta clase? (las de clase solo a la suya)
 const relicFor = (id, ch) => !RELICS[id].cls || RELICS[id].cls.includes(ch);
@@ -161,6 +170,10 @@ const CHARS = {
   rogue:  { name: tr('Asesino'),   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['night', 'shuriken'], abil: tr('Sombra'), abilDesc: tr('5 s invisible: ningún enemigo te ve, ni los jefes. Más rápido y todo golpe es crítico.'), cd: 12, cost: 20,
             role: tr('Entra, golpea por la espalda y sal'), fam: tr('katana, estrellas ninja, kusarigama y guadaña'),
             mech: tr('Crítico: 35 % de golpes críticos. Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga una esquiva. Esquiva: 2 parpadeos seguidos que te vuelven invisible un instante.') },
+  // v0.69: el Nigromante (dibujo provisional: el del Asesino hasta que llegue su hoja HD)
+  necro:  { name: tr('Nigromante'), spr: 'necro',  hp: 5, sh: 3, speed: 185, en: 180, start: ['almas', 'linterna'], abil: tr('Nova de almas'), abilDesc: tr('Una explosión de almas a tu alrededor que daña, empuja y congela a los enemigos un momento.'), cd: 11, cost: 25,
+            role: tr('Hechizos a distancia y magia de soporte'), fam: tr('báculo, cetro, calavera, ojo, linterna y tomo'),
+            mech: tr('Hechizo potenciado: cada 4 hechizos, el siguiente sale gratis, más grande, con +50 % de daño y atravesando 3 enemigos. Mucha energía y poca vida. Armas de soporte: la Linterna te cura y el Tomo te protege.') },
 };
 const UPG = {
   hp:   { name: tr('Vitalidad'),      desc: tr('+1 de vida máxima por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
@@ -173,6 +186,8 @@ const UPG = {
   a_gold:  { cls: 'archer', name: tr('Flecha dorada'),   desc: tr('El disparo concentrado hace +0,4× de daño por nivel (×3 → ×5)'), max: 5, cost: [2, 3, 4, 5, 6] },
   r_back:  { cls: 'rogue',  name: tr('Instinto letal'),  desc: tr('+20 % de daño por la espalda por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
   r_veil:  { cls: 'rogue',  name: tr('Pasos ligeros'),   desc: tr('+0,1 s de invisibilidad al esquivar y +3 % de velocidad por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  n_alma:  { cls: 'necro',  name: tr('Almas hambrientas'), desc: tr('El hechizo potenciado hace +15 % de daño por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
+  n_nova:  { cls: 'necro',  name: tr('Nova profunda'),   desc: tr('La Nova de almas llega 15 px más lejos y congela 0,2 s más por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
 };
 // nivel de una mejora de clase comprada para esta partida
 const cu = id => (G && G.player && G.player.cu && G.player.cu[id]) || 0;

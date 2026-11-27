@@ -4,6 +4,7 @@
 // - Las flechas de los arcos se dibujan con la hoja «flecha» (con estela, cargada o con elemento) y pegan con «f_impacto».
 import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
+import { impactoAlma } from './37g-baculo-hd.js';
 
 // armas con dibujo HD de arco y qué cuadro usan a 1★
 const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0], boom: ['boom', 0], sling: ['honda', 0], xbow: ['xbow', 0], musket: ['musket', 0], shuriken: ['shuriken', 0] };
@@ -106,6 +107,7 @@ function drawFlecha(pr) {
 const bombaHD = pr => !!(pr.src && (pr.src.shape === 'bow' || pr.src.shape === 'musket') && (pr.fx === 'explode' || pr.boom) && ANIM.b_explosion);
 /** astillas y chispa cuando una flecha de arco pega */
 function impactoFlecha(pr) {
+  if (impactoAlma(pr)) return;   // v0.70: alma del Báculo de almas
   if (pr.src && pr.src.shape === 'shuriken' && ANIM.shu_impacto) {
     G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .2, max: .2, fx: 'shu_impacto', s: .9, rot: 0, color: '', size: 0 });
     return;

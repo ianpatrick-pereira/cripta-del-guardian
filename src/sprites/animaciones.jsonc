@@ -35,6 +35,15 @@
     "herido":  { "fila": 2, "cuadros": 1 },
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
   },
+  // Nigromante (v0.70, IA con fondo verde, mismo tamaño que el Caballero). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
+  "necro": {
+    "cuadro": [64, 64],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
+    "caminar": { "fila": 1, "cuadros": 8 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
   // Esqueleto (v0.64, IA con fondo magenta): arquero del piso 1, Capitán Hueso, esqueletos invocados.
   // Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte (se deshace en huesos).
   "skel": {
@@ -291,6 +300,11 @@
   // caminar = tajo amplio, herido = lanzar, muerte = embestida de sombra (agacharse, lanzarse, caer, levantarse)
   "rogue_atq":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
                   "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
+  // Hechizos del Nigromante (v0.70, manos vacías; el báculo va aparte). reposo = hechizo rápido con una mano,
+  // caminar = a dos manos, herido = alzar / invocar (cargado), muerte = canalizar (rayo). necro_nova: las 2 poses de la Nova
+  "necro_atq":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
+                  "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
+  "necro_nova": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2 } },
   "knight_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
                   "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
   "espada":     { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
@@ -361,6 +375,22 @@
   "gu_giro":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "gu_drena":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
   "gu_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  // Báculo de almas del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie, cabeza arriba); alma que vuela
+  // (mira a la derecha), salto en cadena (de izquierda a derecha), impacto y estallido de 5 almas del cargado
+  "baculo":     { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "baculo_el":  { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "al_alma":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "al_cadena":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "al_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "al_cargado": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  // Cetro de escarcha del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie); esquirla que vuela (mira a la
+  // derecha), esquirla que se rompe, anillo de hielo del cargado y cristales que brotan del suelo bajo los congelados
+  "cetro":       { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "cetro_el":    { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "es_esquirla": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "es_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "es_anillo":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "es_hielo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 6 } },
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro

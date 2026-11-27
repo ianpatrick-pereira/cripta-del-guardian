@@ -21,6 +21,7 @@ import { pact } from './27-pactos-de-piso.js';
 import { cheatDefeated } from './30-sala-de-apuestas.js';
 import { elemHitFx } from './37-armas-visual.js';
 import { drenaFx } from './37c-espada-hd.js';
+import { saltoAlma } from './37g-baculo-hd.js';
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   // v0.55: cada piso más hondo aguanta bastante más (vida +70 % por piso) y desde el piso 5 pega 1 más
@@ -131,11 +132,11 @@ function killEnemy(e, src) {
     if (Math.random() < BL.llave) G.pickups.push({ kind: 'key', x: e.x + 12, y: e.y });
   }
 }
-function chainHit(from, dmg) {
+function chainHit(from, dmg, src = null) {
   const targets = G.enemies.filter(e => e !== from && !e.dead && !e.air && dist(e, from) < 150).sort((a, b) => dist(a, from) - dist(b, from)).slice(0, 2);
   let prev = from;
   for (const t of targets) {
-    G.bolts.push({ x1: prev.x, y1: prev.y, x2: t.x, y2: t.y, life: .18 });
+    if (!saltoAlma(src, prev, t)) G.bolts.push({ x1: prev.x, y1: prev.y, x2: t.x, y2: t.y, life: .18 });   // v0.70: salto del alma HD
     hurtEnemy(t, Math.max(1, Math.round(dmg * .6)), angTo(prev, t), 80, syn('toxica') ? { fx: 'poison' } : {});
     prev = t;
   }

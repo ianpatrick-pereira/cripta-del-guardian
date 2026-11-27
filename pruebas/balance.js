@@ -18,7 +18,7 @@ const { preparar, BOT, SAVE_BASE } = require('./probar.js');
 const JUEGO = 'file://' + path.join(__dirname, '..', 'cripta.html');
 const SALIDA = path.join(__dirname, 'informe-balance.md');
 const args = process.argv.slice(2), N = +args.find(a => /^\d+$/.test(a)) || 6, solo = args.find(a => /^[a-z]+$/.test(a)), CI = args.includes('--ci');
-const CLASES = ['knight', 'archer', 'rogue'], NOMBRE = { knight: 'Caballero', archer: 'Tirador', rogue: 'Asesino' };
+const CLASES = ['knight', 'archer', 'rogue', 'necro'], NOMBRE = { knight: 'Caballero', archer: 'Tirador', rogue: 'Asesino', necro: 'Nigromante' };
 
 const jugarPiso = ([ch, piso]) => {
   // el bot es inmortal: se mide cuánta vida le habría hecho falta (no si gana), que depende menos de lo bien que juega
@@ -137,7 +137,7 @@ const probarArma = ([id, ch, blanco]) => {
     const porPiso = [1, 2, 3, 4, 5, 6, 7, 8].map(piso => CLASES.reduce((a, ch) => a + vidas(C.filter(t => t.piso === piso && t.ch === ch)), 0) / CLASES.length);
     for (let i = 1; i < 8; i++) { const k = porPiso[i] / Math.max(.1, porPiso[i - 1]), txt = `Piso ${i + 1}: ${k.toFixed(1)}× más difícil que el piso ${i}`;
       if (k > L.pisos.saltoFallo) fallos.push(`${txt} (límite ${L.pisos.saltoFallo}×)`); else if (k > L.pisos.saltoAviso) avisos.push(`${txt} (aviso desde ${L.pisos.saltoAviso}×)`); }
-    const cl = CLASES.map(ch => ({ ch, v: vidas(C.filter(t => t.ch === ch)) })).sort((a, b) => a.v - b.v), k = cl[2].v / Math.max(.1, cl[0].v);
+    const cl = CLASES.map(ch => ({ ch, v: vidas(C.filter(t => t.ch === ch)) })).sort((a, b) => a.v - b.v), k = cl[cl.length - 1].v / Math.max(.1, cl[0].v);
     const txt = `${NOMBRE[cl[2].ch]} necesita ${k.toFixed(1)}× las vidas de ${NOMBRE[cl[0].ch]}`;
     if (k > L.clases.diferenciaFallo) fallos.push(`${txt} (límite ${L.clases.diferenciaFallo}×)`); else if (k > L.clases.diferenciaAviso) avisos.push(`${txt} (aviso desde ${L.clases.diferenciaAviso}×)`);
     ok.push('8 pisos y 3 clases comprobados');

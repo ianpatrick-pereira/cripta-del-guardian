@@ -15,7 +15,7 @@ import { armorSh, interact } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { syn } from './18-sinergias.js';
 import { elemAbility } from './23-elementos.js';
-import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs, subLv,
+import { SPECS, bestDmg, cadaHechizos, classDash, focusShot, shieldCharge, specAbility, subIs, subLv,
   tl } from './26-clases.js';
 import { pact } from './27-pactos-de-piso.js';
 import { endGame } from './33-bucle.js';
@@ -178,7 +178,7 @@ function updatePlayer(dt) {
 
 function useAbility(p) {
   const ch = CHARS[p.char];
-  (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .7, r: 40, c: { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff' }[p.char] || '#ffd27a' });
+  (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .7, r: 40, c: { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff', necro: '#9be0a0' }[p.char] || '#ffd27a' });
   if (p.spec) { p.abilCd = SPECS[p.spec].cd; specAbility(p); return; }
   p.abilCd = ch.cd;
   if (p.char === 'knight') { const t = 2.5 + rc('estandarte'); p.bulwarkT = t; p.inv = Math.max(p.inv, t); sfx(300, .4, 'triangle', .06, 300); burst(p.x, p.y, '#e3a24a', 18, 160); }
@@ -190,7 +190,21 @@ function useAbility(p) {
       }
       sfx(700, .08, 'triangle', .04, -300);
     });
-  } else { p.shadowT = 5 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }   // v0.69: 5 s (antes 3)
+  } else if (p.char === 'necro') { novaAlmas(p); if (rc('filacteria')) p.abilCd *= .7; }
+  else { p.shadowT = 5 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }   // v0.69: 5 s (antes 3)
+}
+// v0.69: Nova de almas del Nigromante: daña, empuja y congela a todo lo cercano
+function novaAlmas(p) {
+  const R = 120 + 15 * cu('n_nova'), t = (1.2 + .2 * cu('n_nova')) * (tl('nova2') ? 2 : 1), dmg = Math.max(3, Math.round(bestDmg(p) * 2));
+  for (const e of G.enemies) {
+    if (e.dead || e.air || dist(e, p) > R + e.r) continue;
+    hurtEnemy(e, dmg, angTo(p, e), 420, { cls: true, explosion: true });
+    e.slowT = Math.max(e.slowT || 0, e.isBoss ? t / 3 : t); e.slowK = e.isBoss ? .5 : .05;
+  }
+  for (let i = 0; i < 24; i++) { const a = i * TAU / 24; G.parts.push({ x: p.x, y: p.y, vx: Math.cos(a) * R * 2.4, vy: Math.sin(a) * R * 2.4, life: .4, max: .4, color: i % 2 ? '#9be0a0' : '#d8f0ff', size: 4 }); }
+  (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .5, r: R, c: '#9be0a0' });
+  p.novaAt = G.time;   // v0.70: alza los brazos (necro_nova)
+  shake(7); sfx(180, .5, 'sine', .06, -80); noise(.3, .04, 900);
 }
 
 function attack(p) {
@@ -199,7 +213,19 @@ function attack(p) {
   p.cd = w.cd * (p.rageT > 0 ? .7 : 1) * (subIs('ranger') && w.type !== 'melee' ? 1 - .04 * subLv(p) : 1);
   if (p.char === 'knight' && w.type === 'melee') p.parryT = tl('egida') ? .3 : .2;
   if (p.char === 'archer' && w.type !== 'melee') focusShot(p, w);
-  if (w.style) { styleAttack(p, w, cost); return; }
+  if (w.style) {
+    // v0.69: Nigromante: cada 4 hechizos el siguiente sale gratis, más grande, con +50 % de daño y atravesando 3 enemigos
+    const pot = p.char === 'necro' && w.type === 'staff' && (p.hechN = (p.hechN || 0) + 1) % cadaHechizos(p) === 0;
+    const n0 = G.proj.length, en0 = p.en;
+    styleAttack(p, w, cost);
+    if (pot) {
+      p.en = Math.max(p.en, en0);
+      const k = 1.5 * (1 + .15 * cu('n_alma'));
+      for (const pr of G.proj.slice(n0)) if (pr.owner === 'player') { pr.dmg = Math.round(pr.dmg * k); pr.r *= 1.6; pr.pierce = (pr.pierce || 0) + 3; pr.color = '#e0c8ff'; if (tl('vacio')) pr.boom = 60; }
+      burst(p.x + Math.cos(p.aim) * 14, p.y + Math.sin(p.aim) * 14, '#e0c8ff', 10, 140); sfx(980, .12, 'triangle', .04, -300);
+    }
+    return;
+  }
   if (w.type === 'melee') {
     let dmg = w.dmg;
     if (p.en < cost) {

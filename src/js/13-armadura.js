@@ -130,6 +130,8 @@ function hurtPlayer(d, por) {
   if (p.inv > 0 || G.over) return false;
   G.hitBy = por || tr('un golpe');
   if (p.char === 'knight' && p.parryT > 0 && p.parryCd <= 0) { parry(p); return false; }
+  // v0.69: barrera del Tomo de protección: absorbe golpes mientras dura
+  if (p.barreraN > 0 && p.bulwarkT > 0) { p.barreraN--; p.inv = .5; addText(p.x, p.y - 26, tr('¡Barrera!'), '#ffd27a', 12); sfx(900, .08, 'triangle', .04, -300); burst(p.x, p.y, '#ffd27a', 8, 120); if (!p.barreraN) p.bulwarkT = Math.min(p.bulwarkT, .3); return false; }
   d += G.floor >= 11 ? 3 : G.floor >= 7 ? 2 : G.floor >= 3 ? 1 : 0;
   if (pact('fragile')) d += 1;
   if (p.armor) {
