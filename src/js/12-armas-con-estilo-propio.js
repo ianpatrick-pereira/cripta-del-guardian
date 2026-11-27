@@ -17,6 +17,7 @@ import { ELEMS, elemBlast } from './23-elementos.js';
 import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
 import { bloqueoFx } from './37c-espada-hd.js';
+import { drawKusa, impactoKusa } from './37f-kusarigama-hd.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
 // v0.58: el poder elemental depende solo del elemento, no del estilo del arma
@@ -67,6 +68,7 @@ function whipLash(p, w, a, range, dmg, pull) {
     const dx = e.x - p.x, dy = e.y - p.y, along = dx * ca + dy * sa, perp = Math.abs(-dx * sa + dy * ca);
     if (along < -e.r || along > range + e.r || perp > 14 + e.r) continue;
     hurtEnemy(e, dmg, a, 120, { src: w, melee: true, fx: w.fx });
+    impactoKusa(w, e.x, e.y - 6);   // v0.69: kusarigama HD
     if (pull && !e.isBoss && !e.isSub && !e.elite && e.r <= 16) { e.kx -= ca * 460; e.ky -= sa * 460; }
     p.en = Math.min(maxEnergy(p), p.en + 1);
   }
@@ -197,7 +199,7 @@ function drawStyles() {
   };
   if (p.beamVis) beam(p.beamVis.a, p.beamVis.len, p.beamVis.wd, w.gem || '#ff6ad8', .85);
   for (const B of G.pbeams || []) beam(B.a, B.cur || B.len, B.wd, B.col, Math.min(1, B.t * 3));
-  if (p.whip) {
+  if (p.whip && !drawKusa(p, w)) {   // v0.69: el kusarigama HD dibuja su cadena
     const W = p.whip, k = W.t / W.dur;
     ctx.strokeStyle = `rgba(200,196,210,${1 - k})`; ctx.lineWidth = 3;
     if (W.circle) { ctx.beginPath(); ctx.arc(p.x, p.y, W.range * (.5 + .5 * k), 0, TAU); ctx.stroke(); }

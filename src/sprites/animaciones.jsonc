@@ -348,6 +348,11 @@
   "shuriken":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "shuriken_el": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "shu_impacto": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 18 } },
+  // Kusarigama del Asesino (v0.69): hoz 5 estrellas y 4 elementos (64x64, de pie), tramo de cadena e impacto
+  "kusa":        { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "kusa_el":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "ku_cadena":   { "cuadro": [32, 16], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 } },
+  "ku_impacto":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro

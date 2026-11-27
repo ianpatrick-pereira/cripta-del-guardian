@@ -71,6 +71,7 @@ import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.j
 import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
+import { drawHoz, kusaCuadro, kusaKey, kusaMano } from './37f-kusarigama-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
@@ -166,6 +167,7 @@ function drawWeapon(w, x, y, a, scale = 1) {
   // v0.66: espadas con dibujo HD (37c-espada-hd.js): la estrella o el elemento ya vienen en el dibujo
   const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
   const ak = arcoKey(w); if (ak) { drawArco(ak, x, y, a, scale); return; }   // v0.68: arco HD
+  const kk = kusaKey(w); if (kk) { drawHoz(kk, x, y, .6 * scale, a); return; }   // v0.69: hoz del kusarigama HD
   ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(scale, scale);
   const c = w.tint || RARITY[w.rarity].c;
   const shape = w.shape || (w.type === 'bow' ? 'bow' : 'sword');
@@ -269,6 +271,7 @@ function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
   const g = !G.over && golpeCuadro(p); if (g) return g.key;   // v0.66: atacando con la espada HD
   const t = !G.over && tiroCuadro(p); if (t) return t.key;    // v0.68: la Arquera disparando con el arco HD
+  const kc = !G.over && kusaCuadro(p); if (kc) return kc.key;  // v0.69: el Asesino lanzando el kusarigama
   if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
   if (A.herido && p.sqT > -.08) return A.herido.cuadros[0];   // golpe recibido: ~0,26 s
   if (A.caminar && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40) {
@@ -317,6 +320,9 @@ function drawPlayer(p) {
         swingTrail(p, w, s, prog);
         drawWeapon(w, p.x, p.y + bob, ang);
       }
+    } else if (kusaKey(w) && (p.whip || kusaMano(p))) {
+      // v0.69: kusarigama HD: atacando, la cadena ya lleva la hoz (12-armas-con-estilo-propio); si no, la hoz de pie en la mano
+      const m = !p.whip && kusaMano(p); if (m) drawHoz(kusaKey(w), m.hx, m.hy, .75, null, m.flip);
     } else if (arcoKey(w) && (tiroCuadro(p) || arcoEnMano(p))) {
       const t = tiroCuadro(p), m = t || arcoEnMano(p);   // v0.68: el arco HD va en el puño de la Arquera
       if (!(t && t.oculta)) drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);   // v0.69: la estrella ya lanzada no está en la mano
