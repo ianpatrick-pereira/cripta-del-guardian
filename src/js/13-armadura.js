@@ -1,5 +1,6 @@
 // ================= Armadura =================
 // una sola armadura por ahora: su protección sube con las estrellas; no se forja ni usa cristales
+import { barreraRota } from './37g-baculo-hd.js';
 import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, rand, randi } from './01-utilidades.js';
@@ -131,7 +132,7 @@ function hurtPlayer(d, por) {
   G.hitBy = por || tr('un golpe');
   if (p.char === 'knight' && p.parryT > 0 && p.parryCd <= 0) { parry(p); return false; }
   // v0.69: barrera del Tomo de protección: absorbe golpes mientras dura
-  if (p.barreraN > 0 && p.bulwarkT > 0) { p.barreraN--; p.inv = .5; addText(p.x, p.y - 26, tr('¡Barrera!'), '#ffd27a', 12); sfx(900, .08, 'triangle', .04, -300); burst(p.x, p.y, '#ffd27a', 8, 120); if (!p.barreraN) p.bulwarkT = Math.min(p.bulwarkT, .3); return false; }
+  if (p.barreraN > 0 && p.bulwarkT > 0) { p.barreraN--; p.inv = .5; addText(p.x, p.y - 26, tr('¡Barrera!'), '#ffd27a', 12); sfx(900, .08, 'triangle', .04, -300); burst(p.x, p.y, '#ffd27a', 8, 120); if (!p.barreraN) { p.bulwarkT = Math.min(p.bulwarkT, .3); barreraRota(p); } return false; }
   d += G.floor >= 11 ? 3 : G.floor >= 7 ? 2 : G.floor >= 3 ? 1 : 0;
   if (pact('fragile')) d += 1;
   if (p.armor) {

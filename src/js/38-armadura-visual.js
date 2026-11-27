@@ -72,7 +72,7 @@ import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawP
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
 import { drawHoz, kusaCuadro, kusaKey, kusaMano } from './37f-kusarigama-hd.js';
-import { baculoKey, baculoMano, drawBaculo } from './37g-baculo-hd.js';
+import { baculoKey, baculoMano, drawBaculo, drawBarreraHD } from './37g-baculo-hd.js';
 import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
@@ -145,7 +145,7 @@ function armorAura(p) {
 // habilidades: Baluarte (cúpula dorada hexagonal) y Sombra (humo y ecos)
 function drawAbilityFx(p) {
   const t = G.time;
-  if (p.bulwarkT > 0) {
+  if (p.bulwarkT > 0 && !drawBarreraHD(p, Math.min(1, p.bulwarkT / .3))) {   // v0.70: la barrera del Tomo tiene dibujo HD
     const k = Math.min(1, p.bulwarkT / .3), R = 26;
     ctx.save(); ctx.translate(p.x, p.y);
     ctx.fillStyle = `rgba(255,200,90,${.12 * k})`; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fill();

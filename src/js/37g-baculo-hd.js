@@ -1,5 +1,6 @@
 // v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha, Calavera aullante,
 // Linterna de almas,
+// Tomo de protección: un libro que flota a su lado, no se gira; su barrera es una burbuja dorada,
 // Ojo del abismo: su rayo se arma con tramos repetidos del dibujo, así se ve nítido a cualquier largo).
 // - El arma es un dibujo aparte (hoja por estrellas y «_el» por elemento), de pie con la cabeza arriba.
 //   El Nigromante la lleva de pie a su lado (las manos quedan libres para los gestos de necro_atq); otra clase la apunta.
@@ -7,12 +8,13 @@
 import { ANIM, animKey, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
-/** @type {Record<string, {hoja: string, vuela: string, grande?: string, impacto: string, salto?: string, cargado?: string, suelo?: string, ss: number}>} */
+/** @type {Record<string, {hoja: string, libro?: boolean, vuela: string, grande?: string, impacto: string, salto?: string, cargado?: string, suelo?: string, ss: number}>} */
 const BACULO_HD = {
   almas: { hoja: 'baculo', vuela: 'al_alma', impacto: 'al_impacto', salto: 'al_cadena', cargado: 'al_cargado', ss: .95 },
   calavera: { hoja: 'calav', vuela: 'ca_craneo', grande: 'ca_gigante', impacto: 'ca_explosion', suelo: 'ca_fuego', ss: .8 },
   ojo: { hoja: 'ojo', vuela: 'oj_rayo', grande: 'oj_gigante', impacto: 'oj_impacto', cargado: 'oj_inicio', ss: 1 },
   linterna: { hoja: 'lint', vuela: 'li_alma', impacto: 'li_impacto', cargado: 'li_pulso', suelo: 'li_farol', ss: .8 },
+  tomo: { hoja: 'tomo', libro: true, vuela: 'to_runa', impacto: 'to_impacto', cargado: 'to_rompe', ss: .7 },
   escarcha: { hoja: 'cetro', vuela: 'es_esquirla', impacto: 'es_impacto', cargado: 'es_anillo', suelo: 'es_hielo', ss: 1 },
 };
 const BAC_EL = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -27,6 +29,7 @@ function baculoKey(w) {
 }
 /** dibuja el arma con la mano en (x, y) y la cabeza hacia a (a = -π/2: de pie) */
 function drawBaculo(key, x, y, a, scale = 1) {
+  if (key.startsWith('tomo')) { drawSpr(key, x, y + Math.sin(G.time * 3) * 1.5, .75 * scale); return; }   // el libro flota derecho
   const s = BAC_ESCALA * scale, off = BAC_AGARRE * .25 * s;
   drawSpr(key, x + Math.cos(a) * off, y + Math.sin(a) * off, s, { rot: a + Math.PI / 2 });
 }
@@ -34,6 +37,7 @@ function drawBaculo(key, x, y, a, scale = 1) {
 function baculoMano(p) {
   if (p.spr !== 'necro') return null;
   const lado = Math.cos(p.aim) >= 0 ? 1 : -1, t = G.time - (p.castAt ?? -9), gesto = t >= 0 && t < .3 ? Math.sin(t / .3 * Math.PI) : 0;
+  if (hd(p.slots[p.cur])?.libro) return { hx: p.x + lado * (13 + 3 * gesto), hy: p.y - 4 - 3 * gesto, ang: 0 };   // el tomo, junto a su hombro
   return { hx: p.x + lado * 8, hy: p.y + 4, ang: -Math.PI / 2 + lado * (.12 + .35 * gesto) };
 }
 const fxPart = (fx, x, y, s, rot, life) => G.parts.push({ x, y, vx: 0, vy: 0, life, max: life, fx, s, rot, color: '', size: 0 });
@@ -91,4 +95,14 @@ function pulsoLinterna(L) {
   fxPart(B.cargado, L.x, L.y, L.R / 26, 0, .5);
   return true;
 }
-export { almaVuela, drawLinternaHD, pulsoLinterna, drawRayoHD, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
+/** burbuja dorada de la barrera del Tomo (mientras le queden golpes que aguantar); false si no hay dibujo */
+function drawBarreraHD(p, al) {
+  if (!(p.barreraN > 0) || !ANIM.to_barrera) return false;
+  drawSpr(animKey('to_barrera', 'reposo', G.time), p.x, p.y - 2, 2.9, { alpha: al * .9 });
+  return true;
+}
+/** la barrera se rompe al aguantar el último golpe */
+function barreraRota(p) {
+  if (ANIM.to_rompe) fxPart('to_rompe', p.x, p.y - 2, 2.9, 0, .4);
+}
+export { almaVuela, barreraRota, drawBarreraHD, drawLinternaHD, pulsoLinterna, drawRayoHD, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
