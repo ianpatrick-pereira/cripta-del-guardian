@@ -42,7 +42,10 @@ function nearestInteract(p) {
   return best;
 }
 const dmgMul = () => (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1) * (G.player && G.player.earthT > 0 ? 1 + (G.player.earthK || .35) : 1) * (G.player && G.player.spec ? 1 + .08 * (subLv(G.player) - 1) : 1);
-const critChance = () => G.player.shadowT > 0 ? 1 : (.1 + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1);
+/** segundos que tarda en recargarse una esquiva */
+const dashEspera = p => .85 * (rc('reloj') ? .6 : 1) * (1 - (p.slots[p.cur].dodge || 0)) * (subIs('shade') ? 1 - .06 * subLv(p) : 1);
+// v0.69: el Asesino tiene 35 % de crítico (los demás, 10 %)
+const critChance = () => G.player.shadowT > 0 ? 1 : ((G.player.char === 'rogue' ? .35 : .1) + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1);
 const maxEnergy = p => p.maxEn + 40 * rc('bateria');
 
 function updatePlayer(dt) {
@@ -68,11 +71,14 @@ function updatePlayer(dt) {
   }
   p.flip = Math.cos(p.aim) < 0;
 
-  p.dashCd -= dt;
-  if (wantDash && p.dashCd <= 0 && p.dashT <= 0) {
+  // v0.69: esquivas guardadas (el Asesino tiene 2 seguidas); el tiempo de espera recarga una cada vez.
+  // Poner p.dashCd = 0 (el Asesino al matar) recarga una enseguida.
+  const cargas = p.char === 'rogue' ? 2 : 1;
+  if (p.dashQ < cargas) { p.dashCd -= dt; if (p.dashCd <= 0) { p.dashQ++; if (p.dashQ < cargas) p.dashCd = dashEspera(p); } }
+  if (wantDash && p.dashQ > 0 && p.dashT <= 0) {
     const a = ml > .1 ? Math.atan2(my, mx) : p.aim;
     const roll = p.char === 'archer', blink = p.char === 'rogue';
-    p.dvx = Math.cos(a); p.dvy = Math.sin(a); p.dashT = roll ? .26 : blink ? .1 : .17; p.dashCd = .85 * (rc('reloj') ? .6 : 1) * (1 - (p.slots[p.cur].dodge || 0)) * (subIs('shade') ? 1 - .06 * subLv(p) : 1); p.inv = Math.max(p.inv, roll ? .32 : .22);
+    p.dvx = Math.cos(a); p.dvy = Math.sin(a); p.dashT = roll ? .26 : blink ? .1 : .17; if (p.dashCd <= 0) p.dashCd = dashEspera(p); p.dashQ--; p.inv = Math.max(p.inv, roll ? .32 : .22);
     p.dashHit = new Set(); p.blink = blink;
     sfx(blink ? 520 : 220, .12, blink ? 'sine' : 'sawtooth', .03, blink ? -300 : 300);
     classDash(p);
@@ -184,7 +190,7 @@ function useAbility(p) {
       }
       sfx(700, .08, 'triangle', .04, -300);
     });
-  } else { p.shadowT = 3 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }
+  } else { p.shadowT = 5 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }   // v0.69: 5 s (antes 3)
 }
 
 function attack(p) {

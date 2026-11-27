@@ -49,11 +49,12 @@ function updateBoss(e, dt) {
     case 'idle': {
       // se mueve a su distancia preferida y te rodea en vez de caminar en línea recta
       if (!e.dir || Math.random() < dt * .3) e.dir = Math.random() < .5 ? 1 : -1;
-      const want = B.want || 190;
+      // v0.69: con el jugador en Sombra (o velo) no lo ve: da vueltas sin acercarse y no empieza ataques
+      const ciego = p.shadowT > 0 || p.veilT > 0, want = ciego ? d + 60 : B.want || 190;
       const mv = d < want - 40 ? a + Math.PI * .75 * e.dir : d < want + 60 ? a + Math.PI / 2 * e.dir : a;
       moveEnt(e, Math.cos(mv) * e.speed * dt, Math.sin(mv) * e.speed * dt);
       const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
-      if (e.st_t <= 0) {
+      if (e.st_t <= 0 && !ciego) {
         // elige el ataque según dónde estás: de cerca, ataques de área; de lejos, embestidas y disparos
         const pool = ph3 ? B.p3 : ph2 ? B.p2 : B.p1;
         const CLOSE = { burst: 1, gapring: 1, teleport: 1, fauces: 1, rain: 1, spiral: 1 }, FAR = { charge: 1, aimed: 1, predict: 1, laser: 1, mirada: 1, web: 1, leap: 1, red: 1, aplastar: 1 };

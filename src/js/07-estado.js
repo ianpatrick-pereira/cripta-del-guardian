@@ -36,7 +36,7 @@ function newRun(charId) {
     hp: ch.hp + SAVE.upg.hp, maxHp: ch.hp + SAVE.upg.hp, sh: ch.sh, maxSh: ch.sh, shT: 0, shAcc: 0,
     en: ch.en + SAVE.upg.en * 15, maxEn: ch.en + SAVE.upg.en * 15,
     inv: 0, slots: startKit(ch).map(starterW), cur: 0, cd: 0, aim: 0, charge: 0,
-    dashT: 0, dashCd: 0, dvx: 0, dvy: 0, swing: null, walk: 0, mvx: 0, mvy: 1,
+    dashT: 0, dashCd: 0, dashQ: charId === 'rogue' ? 2 : 1, dvx: 0, dvy: 0, swing: null, walk: 0, mvx: 0, mvy: 1,
     relics: [], killCount: 0, abilCd: 0, elCd: 0, bulwarkT: 0, shadowT: 0, slow: 0, noEnT: 0, flip: false,
     cu: Object.fromEntries(Object.keys(UPG).filter(k => UPG[k].cls === charId).map(k => [k, SAVE.upg[k] || 0])),
     talents: [], spec: '', subK: 0, preK: 0, parryT: 0, parryCd: 0, revenge: 0, focus: 0, combo: 0, comboT: 0, golpeN: 0, golpeT: 0, veilT: 0, rageT: 0, backN: 0, meleeKills: 0, atkN: 0, chgN: 0,

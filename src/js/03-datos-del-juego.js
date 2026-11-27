@@ -156,9 +156,9 @@ const CHARS = {
   archer: { name: tr('Tirador'),   spr: 'archer', hp: 6, sh: 3, speed: 190, en: 140, start: ['short', 'sling'], abil: tr('Lluvia de flechas'), abilDesc: tr('3 oleadas de flechas en todas direcciones.'), cd: 10, cost: 10,
             role: tr('Mantén la distancia y apunta'), fam: tr('arcos, honda, ballesta y mosquete'),
             mech: tr('Concentración: cada disparo la carga; llena, lanzas una flecha dorada ×3 que lo atraviesa todo. Recibir daño la vacía. Esquiva: voltereta larga.') },
-  rogue:  { name: tr('Asesino'),   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['night', 'shuriken'], abil: tr('Sombra'), abilDesc: tr('3 s invisible, más rápido y todo golpe es crítico.'), cd: 12, cost: 20,
+  rogue:  { name: tr('Asesino'),   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['night', 'shuriken'], abil: tr('Sombra'), abilDesc: tr('5 s invisible: ningún enemigo te ve, ni los jefes. Más rápido y todo golpe es crítico.'), cd: 12, cost: 20,
             role: tr('Entra, golpea por la espalda y sal'), fam: tr('katana, estrellas ninja, kusarigama y guadaña'),
-            mech: tr('Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga la esquiva. Esquiva: parpadeo que te vuelve invisible un instante.') },
+            mech: tr('Crítico: 35 % de golpes críticos. Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga una esquiva. Esquiva: 2 parpadeos seguidos que te vuelven invisible un instante.') },
 };
 const UPG = {
   hp:   { name: tr('Vitalidad'),      desc: tr('+1 de vida máxima por nivel'), max: 5, cost: [2, 3, 4, 5, 6] },
