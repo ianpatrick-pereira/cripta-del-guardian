@@ -93,7 +93,9 @@ function rollStars(src) {
   return 1;
 }
 function rollWeapon(src = 'chest') {
-  const pool = src === 'gold' ? WEAPONS.filter(w => w.rarity !== 'common') : WEAPONS;
+  // v0.69: la mitad de las veces el arma es de tu clase; el cofre dorado ya no quita las comunes (da más estrellas)
+  const mias = WEAPONS.filter(w => FAMILY[CUR_CHAR]?.includes(w.id));
+  const pool = mias.length && Math.random() < DATOS.botin.armaDeTuClase ? mias : WEAPONS;
   let roll = Math.random() * pool.reduce((a, w) => a + RWEIGHT[w.rarity], 0), t = pool[0];
   for (const w of pool) { roll -= RWEIGHT[w.rarity]; if (roll <= 0) { t = w; break; } }
   return mkW(t.id, rollStars(src));
