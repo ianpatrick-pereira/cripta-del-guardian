@@ -106,8 +106,8 @@ function fillCols(to, n, ramp) {
 // si la clase tiene hoja de animación, lo mismo para cada cuadro (knight~caminar~2_S…_A…)
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
-    // v0.68: la hoja de disparo de la Arquera usa los mismos colores que su dibujo, así que también se tiñe
-    const atq = ch === 'archer' && ANIM.archer_atq ? Object.values(ANIM.archer_atq).flatMap(a => a.cuadros) : [];
+    // v0.68: las hojas de ataque de la Arquera y del Asesino usan los mismos colores que su dibujo, así que también se tiñe
+    const atq = ANIM[ch + '_atq'] && ch !== 'knight' ? Object.values(ANIM[ch + '_atq']).flatMap(a => a.cuadros) : [];
     const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros), ...atq];
     for (const fk of cuadros) {
       const [mapName, pal] = SPR_DEFS[fk], rows = MAPS[mapName], h = rows.length, wd = rows[0].length, k = SPR[fk].k;

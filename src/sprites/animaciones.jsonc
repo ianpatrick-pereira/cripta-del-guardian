@@ -287,6 +287,10 @@
   // Disparo de la Arquera (v0.68, IA con fondo verde; el arma se dibuja aparte, en su mano). reposo = arco
   // (apunta, tensa, suelta, vuelve), caminar = arma pesada a dos manos (apunta, dispara, retroceso, vuelve)
   "archer_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  // Ataques del Asesino (v0.69, IA con fondo verde; manos vacías, el arma va aparte). reposo = estocadas rápidas,
+  // caminar = tajo amplio, herido = lanzar, muerte = embestida de sombra (agacharse, lanzarse, caer, levantarse)
+  "rogue_atq":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
+                  "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
   "knight_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
                   "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
   "espada":     { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
