@@ -6,12 +6,13 @@ import { ANIM, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 // armas con dibujo HD de arco y qué cuadro usan a 1★
-const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0], boom: ['boom', 0], sling: ['honda', 0], xbow: ['xbow', 0], musket: ['musket', 0] };
+const ARCO_HD = { short: ['arco', 0], triple: ['triple', 0], boom: ['boom', 0], sling: ['honda', 0], xbow: ['xbow', 0], musket: ['musket', 0], shuriken: ['shuriken', 0] };
 // cómo se sostiene cada dibujo: giro extra (la honda está de pie y apunta hacia arriba), píxeles de la empuñadura
 // bajo el centro del cuadro, tamaño, y ángulo al llevarla colgando en reposo
 // pesada: se dispara a dos manos (fila «caminar» de archer_atq: apunta, dispara, retroceso, vuelve)
 const SOSTEN = { honda: { giro: Math.PI / 2, agarre: 44, s: .62, reposo: -1.0 }, xbow: { giro: 0, agarre: 6, s: .8, reposo: .35, pesada: true },
-  musket: { giro: 0, agarre: 0, s: .75, reposo: .3, pesada: true } };
+  musket: { giro: 0, agarre: 0, s: .75, reposo: .3, pesada: true },
+  shuriken: { giro: 0, agarre: 0, s: .4, reposo: 0, lanzar: true } };   // v0.69: Estrellas ninja del Asesino
 const SOSTEN_ARCO = { giro: 0, agarre: 0, s: .85, reposo: .55, pesada: false };
 const sosten = key => SOSTEN[key.split('_')[0].split('~')[0]] || SOSTEN_ARCO;
 const ARCO_EL = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -32,8 +33,22 @@ function drawArco(key, x, y, a, scale = 1) {
 const PUNO = [[49, 30], [49, 29], [50, 30], [44, 42]];
 const PUNO_PESADA = [[45, 28], [51, 30], [50, 29], [44, 42]];   // fila 1 (arma pesada, puño delantero)
 const TIRO = .3;   // segundos que dura la animación de un disparo
+// v0.69: el Asesino lanzando (fila «herido» de rogue_atq: atrás, lanza, suelta, vuelve); puño en cada cuadro
+const PUNO_LANZAR = [[20, 25], [55, 27], [55, 27], [44, 41]];
+/** cuadro del Asesino lanzando estrellas; la estrella se ve en la mano solo antes de soltarla */
+function lanzaCuadro(p, k) {
+  if (!ANIM.rogue_atq || !sosten(k).lanzar) return null;
+  const e = G.time - (p.tiroAt ?? -9), lado = Math.cos(p.aim) >= 0 ? 1 : -1;
+  let f;
+  if (p.charge > 0) f = 0;
+  else if (e < 0 || e > TIRO) return null;
+  else f = e < .05 ? 1 : e < .15 ? 2 : e < .22 ? 0 : 3;
+  const [mx, my] = PUNO_LANZAR[f];
+  return { key: 'rogue_atq~herido~' + f, hx: p.x + lado * (mx - 32) * .5, hy: p.y - 2 + (my - 32) * .5, ang: G.time * 6, f, oculta: f === 1 || f === 2 };
+}
 /** cuadro de la Arquera disparando (o tensando la carga) y dónde va el arco; null si no está disparando */
 function tiroCuadro(p) {
+  if (p.spr === 'rogue') { const k = arcoKey(p.slots[p.cur]); return k ? lanzaCuadro(p, k) : null; }
   if (p.spr !== 'archer' || !ANIM.archer_atq) return null;
   const w = p.slots[p.cur], k = arcoKey(w); if (!k) return null;
   const pesada = sosten(k).pesada, fila = pesada ? 'caminar' : 'reposo';
@@ -52,6 +67,11 @@ function tiroCuadro(p) {
 }
 /** el arco en la mano de la Arquera cuando no dispara (colgando, un poco inclinado) */
 function arcoEnMano(p) {
+  if (p.spr === 'rogue' && ANIM.rogue && sosten(arcoKey(p.slots[p.cur]) || '').lanzar) {
+    // la estrella ninja en el puño del Asesino, quieta
+    const lado = p.flip ? -1 : 1;
+    return { hx: p.x + lado * 6, hy: p.y + 2.5, ang: 0, s: 1 };
+  }
   if (p.spr !== 'archer' || !ANIM.archer) return null;
   const lado = p.flip ? -1 : 1, k = arcoKey(p.slots[p.cur]), r = k ? sosten(k).reposo : .55;
   return { hx: p.x + lado * 7.5, hy: p.y + 3.5, ang: lado > 0 ? r : Math.PI - r, s: .8 };
@@ -61,6 +81,11 @@ function arcoEnMano(p) {
 // hoja del impacto y tamaño normal / cargado
 const PROY = { sling: ['piedra', 'p_impacto', 1.25, 1.5], xbow: ['virote', 'vi_impacto', 1.15, 1.4], musket: ['mu_bala', 'mu_impacto', 1, 1.25] };
 function drawFlecha(pr) {
+  if (pr.src && pr.src.shape === 'shuriken' && ANIM.shuriken) {
+    // estrella ninja: la misma del arma (con sus estrellas o su elemento), girando rápido
+    drawSpr(arcoKey(pr.src) || 'shuriken~reposo~0', pr.x, pr.y, pr.kind === 'power' ? .7 : .55, { rot: G.time * 22 + pr.x * .01 });
+    return true;
+  }
   const P = pr.src && PROY[pr.src.shape];
   if (P && ANIM[P[0]]) {   // piedra de la honda, virote de la ballesta
     // cargado: disparo potente, o la bala gruesa del mosquete; la bala crece con su tamaño
@@ -81,6 +106,10 @@ function drawFlecha(pr) {
 const bombaHD = pr => !!(pr.src && (pr.src.shape === 'bow' || pr.src.shape === 'musket') && (pr.fx === 'explode' || pr.boom) && ANIM.b_explosion);
 /** astillas y chispa cuando una flecha de arco pega */
 function impactoFlecha(pr) {
+  if (pr.src && pr.src.shape === 'shuriken' && ANIM.shu_impacto) {
+    G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .2, max: .2, fx: 'shu_impacto', s: .9, rot: 0, color: '', size: 0 });
+    return;
+  }
   const P = pr.src && PROY[pr.src.shape];
   if (P && ANIM[P[1]]) {   // polvo de la piedra, astillas del virote
     G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .16, max: .16, fx: P[1], s: pr.kind === 'power' ? 1.1 : .8, rot: Math.atan2(pr.vy, pr.vx), color: '', size: 0 });

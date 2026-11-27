@@ -319,7 +319,7 @@ function drawPlayer(p) {
       }
     } else if (arcoKey(w) && (tiroCuadro(p) || arcoEnMano(p))) {
       const t = tiroCuadro(p), m = t || arcoEnMano(p);   // v0.68: el arco HD va en el puño de la Arquera
-      drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);
+      if (!(t && t.oculta)) drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);   // v0.69: la estrella ya lanzada no está en la mano
     } else if (w.type === 'melee' && espadaKey(w) && espadaEnMano(p)) {
       const m = espadaEnMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
