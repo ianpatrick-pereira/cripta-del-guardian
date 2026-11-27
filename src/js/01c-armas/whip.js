@@ -1,4 +1,4 @@
-// Látigo de cadenas
+// Kusarigama (hoz con cadena)
 import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defWeapon } from '../01a-registro.js';
@@ -7,13 +7,13 @@ import { later } from '../09-efectos.js';
 import { espLv, whipCircle, whipLash } from '../12-armas-con-estilo-propio.js';
 defWeapon('whip', {
   orden: 36,
-  datos: { name: tr('Látigo de cadenas'), type: 'melee', style: 'whip', shape: 'whip', rarity: 'uncommon', dmg: 4, cd: .5, range: 130, arc: .4, en: 1, chg: 'lash', chgEn: 12 },
+  datos: { name: tr('Kusarigama'), type: 'melee', style: 'whip', shape: 'whip', rarity: 'uncommon', dmg: 4, cd: .5, range: 130, arc: .4, en: 1, chg: 'lash', chgEn: 12 },
   familia: 'rogue',
   potencia: .9,
   estilo: {
-    d: tr('golpe largo en línea; atrae a enemigos pequeños'),
-    esp: { n: tr('Cadena larga'), d: tr('+20 % de alcance del látigo') },
-    el: { fire: tr('Látigo de brasas'), water: tr('Látigo de corriente'), air: tr('Látigo de tormenta'), earth: tr('Cadena sísmica') },
+    d: tr('lanzas la hoz con su cadena en línea; atrae a enemigos pequeños'),
+    esp: { n: tr('Cadena larga'), d: tr('+20 % de alcance de la cadena') },
+    el: { fire: tr('Kusarigama de brasas'), water: tr('Kusarigama de corriente'), air: tr('Kusarigama de tormenta'), earth: tr('Cadena sísmica') },
     // ataque normal
     ataque(p, w, { a, dmg }) {
       whipLash(p, w, a, w.range * (1 + .2 * espLv(w)), dmg, true);

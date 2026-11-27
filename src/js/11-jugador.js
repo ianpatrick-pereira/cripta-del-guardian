@@ -188,7 +188,7 @@ function useAbility(p) {
 
 function attack(p) {
   p.atkN = (p.atkN || 0) + 1;   // la guía del primer piso cuenta los ataques
-  const w = p.slots[p.cur], cost = w.type === 'staff' && syn('arcano') ? Math.ceil((w.en || 0) / 2) : (w.en || 0);
+  const w = p.slots[p.cur], cost = w.en || 0;
   p.cd = w.cd * (p.rageT > 0 ? .7 : 1) * (subIs('ranger') && w.type !== 'melee' ? 1 - .04 * subLv(p) : 1);
   if (p.char === 'knight' && w.type === 'melee') p.parryT = tl('egida') ? .3 : .2;
   if (p.char === 'archer' && w.type !== 'melee') focusShot(p, w);

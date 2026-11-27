@@ -154,10 +154,10 @@ const CHARS = {
             role: tr('Aguanta y castiga de cerca'), fam: tr('espadas, mazas, lanzas y escudo'),
             mech: tr('Desvío: si te golpean justo después de atacar, anulas el golpe y contraatacas. Represalia: tras recibir daño, tu siguiente golpe hace +50 %. Esquiva: carga con escudo que daña y empuja.') },
   archer: { name: tr('Tirador'),   spr: 'archer', hp: 6, sh: 3, speed: 190, en: 140, start: ['short', 'sling'], abil: tr('Lluvia de flechas'), abilDesc: tr('3 oleadas de flechas en todas direcciones.'), cd: 10, cost: 10,
-            role: tr('Mantén la distancia y apunta'), fam: tr('arcos, honda, ballesta, mosquete y bumerán'),
+            role: tr('Mantén la distancia y apunta'), fam: tr('arcos, honda, ballesta y mosquete'),
             mech: tr('Concentración: cada disparo la carga; llena, lanzas una flecha dorada ×3 que lo atraviesa todo. Recibir daño la vacía. Esquiva: voltereta larga.') },
-  rogue:  { name: tr('Asesino'),   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['dagger', 'wand'], abil: tr('Sombra'), abilDesc: tr('3 s invisible, más rápido y todo golpe es crítico.'), cd: 12, cost: 20,
-            role: tr('Entra, golpea por la espalda y sal'), fam: tr('dagas, katar, garras, kunais, shurikens, cerbatana, látigo, guadaña, hoz, arco sombrío y bastón de veneno'),
+  rogue:  { name: tr('Asesino'),   spr: 'rogue',  hp: 5, sh: 4, speed: 205, en: 100, start: ['night', 'shuriken'], abil: tr('Sombra'), abilDesc: tr('3 s invisible, más rápido y todo golpe es crítico.'), cd: 12, cost: 20,
+            role: tr('Entra, golpea por la espalda y sal'), fam: tr('katana, estrellas ninja, kusarigama y guadaña'),
             mech: tr('Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga la esquiva. Esquiva: parpadeo que te vuelve invisible un instante.') },
 };
 const UPG = {
