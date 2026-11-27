@@ -17,6 +17,7 @@ import { ELEMS, elemBlast } from './23-elementos.js';
 import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
 import { bloqueoFx } from './37c-espada-hd.js';
+import { drawRayoHD } from './37g-baculo-hd.js';
 import { drawKusa, impactoKusa } from './37f-kusarigama-hd.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
@@ -194,7 +195,8 @@ function drawStyles() {
     drawShadow(A.x, A.y + 4, A.r);
     drawSpr(A.merc ? 'knight' : 'skel', A.x, A.y - (A.rise || 0) * 20, A.merc ? 2 : A.big ? 3 : 2, { flip: A.flip, alpha: Math.min(1, A.t * 2) * .9 });
   }
-  const beam = (a, len, wd, col, al) => {
+  const beam = (a, len, wd, col, al, ww = w, big = false) => {
+    if (drawRayoHD(p, ww, a, len, wd, al, big)) return;   // v0.70: rayo HD del Ojo del abismo
     const ex = p.x + Math.cos(a) * len, ey = p.y + Math.sin(a) * len;
     ctx.globalAlpha = al * .35; ctx.strokeStyle = col; ctx.lineWidth = wd * 1.8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ex, ey); ctx.stroke();
     ctx.globalAlpha = al; ctx.lineWidth = wd * .6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ex, ey); ctx.stroke();
@@ -202,7 +204,7 @@ function drawStyles() {
     ctx.globalAlpha = 1; if (Math.random() < .5) G.parts.push({ x: ex, y: ey, vx: rand(-80, 80), vy: rand(-80, 80), life: .25, max: .25, color: col, size: 3 });
   };
   if (p.beamVis) beam(p.beamVis.a, p.beamVis.len, p.beamVis.wd, w.gem || '#ff6ad8', .85);
-  for (const B of G.pbeams || []) beam(B.a, B.cur || B.len, B.wd, B.col, Math.min(1, B.t * 3));
+  for (const B of G.pbeams || []) beam(B.a, B.cur || B.len, B.wd, B.col, Math.min(1, B.t * 3), B.w, true);
   if (p.whip && !drawKusa(p, w)) {   // v0.69: el kusarigama HD dibuja su cadena
     const W = p.whip, k = W.t / W.dur;
     ctx.strokeStyle = `rgba(200,196,210,${1 - k})`; ctx.lineWidth = 3;

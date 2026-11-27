@@ -1,4 +1,5 @@
-// v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha, Calavera aullante).
+// v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha, Calavera aullante,
+// Ojo del abismo: su rayo se arma con tramos repetidos del dibujo, así se ve nítido a cualquier largo).
 // - El arma es un dibujo aparte (hoja por estrellas y «_el» por elemento), de pie con la cabeza arriba.
 //   El Nigromante la lleva de pie a su lado (las manos quedan libres para los gestos de necro_atq); otra clase la apunta.
 // - Cada arma tiene sus efectos: lo que vuela, el golpe, el salto en cadena, el cargado y lo que queda en el suelo.
@@ -9,6 +10,7 @@ import { G } from './07-estado.js';
 const BACULO_HD = {
   almas: { hoja: 'baculo', vuela: 'al_alma', impacto: 'al_impacto', salto: 'al_cadena', cargado: 'al_cargado', ss: .95 },
   calavera: { hoja: 'calav', vuela: 'ca_craneo', grande: 'ca_gigante', impacto: 'ca_explosion', suelo: 'ca_fuego', ss: .8 },
+  ojo: { hoja: 'ojo', vuela: 'oj_rayo', grande: 'oj_gigante', impacto: 'oj_impacto', cargado: 'oj_inicio', ss: 1 },
   escarcha: { hoja: 'cetro', vuela: 'es_esquirla', impacto: 'es_impacto', cargado: 'es_anillo', suelo: 'es_hielo', ss: 1 },
 };
 const BAC_EL = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -65,4 +67,14 @@ function sueloArma(w, e) {
   const B = hd(w); if (!B || !B.suelo || !ANIM[B.suelo]) return;
   fxPart(B.suelo, e.x, e.y - 4, 1.1, 0, .65);
 }
-export { almaVuela, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
+/** rayo HD (Ojo del abismo) desde p hacia a; gigante = el del cargado. false si el arma no tiene dibujo */
+function drawRayoHD(p, w, a, len, wd, al, gigante = false) {
+  const B = hd(w); if (!B || !ANIM[B.vuela] || len < 4) return false;
+  const key = gigante && B.grande && ANIM[B.grande] ? B.grande : B.vuela, f = Math.floor(G.time * 12) % 4;
+  const s = gigante ? wd / 10 : wd / 3.5, T = 24 * s, n = Math.max(1, Math.round(len / T)), sx = len / (n * T), c = Math.cos(a), si = Math.sin(a);
+  for (let i = 0; i < n; i++) drawSpr(key + '~reposo~' + ((f + i) % 4), p.x + c * T * sx * (i + .5), p.y + si * T * sx * (i + .5), s, { rot: a, alpha: al, sx });
+  drawSpr(B.cargado + '~reposo~' + f, p.x + c * 6, p.y + si * 6, gigante ? 1.3 : .8, { rot: a, alpha: al });          // el ojo que se abre al salir
+  drawSpr(B.impacto + '~reposo~' + f, p.x + c * len, p.y + si * len, gigante ? 1.4 : .9, { rot: a, alpha: al });      // donde pega
+  return true;
+}
+export { almaVuela, drawRayoHD, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
