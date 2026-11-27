@@ -353,6 +353,14 @@
   "kusa_el":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   "ku_cadena":   { "cuadro": [32, 16], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 } },
   "ku_impacto":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  // Guadaña del Asesino (v0.69): 5 estrellas y 4 elementos (64x128, hoja arriba a la derecha); media luna, anillo del giro,
+  // gotas del robo de vida (van de izquierda a derecha en arco) e impacto, todo en rojo sangre
+  "guad":      { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "guad_el":   { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gu_tajo":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gu_giro":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gu_drena":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "gu_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro

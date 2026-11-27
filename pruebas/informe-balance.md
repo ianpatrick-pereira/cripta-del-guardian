@@ -57,7 +57,7 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 |---|---|---|---|---|---|---|---|
 | Kusarigama | uncommon | Asesino | 48.7 | 1.44 | 54.1 | 3/3 | 95 % |
 | Katana | common | Asesino | 43.4 | 1.28 | 49.2 | 3/3 | 53 % |
-| Guadaña | epic | Asesino | 40.2 | 1.19 | 40.3 | 3/3 | 75 % |
+| Guadaña | epic | Asesino | 40.2 | 1.19 | 37.5 | 2/3 | 51 % |
 | Arco explosivo | epic | Tirador | 39.1 | 1.15 | 39.3 | 3/3 | 42 % |
 | Lanza de guardia | uncommon | Caballero | 37.5 | 1.11 | 39.3 | 3/3 | 91 % |
 | Estrellas ninja | rare | Asesino | 37.4 | 1.11 | 22.4 | 1/3 | 15 % |
@@ -73,4 +73,4 @@ Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos
 | Mosquete | rare | Tirador | 26.8 | 0.79 | 43.0 | 3/3 | 68 % |
 | Arco corto | common | Tirador | 25.8 | 0.76 | 15.1 | 3/3 | 49 % |
 
-_150 partidas en 424 s._
+_150 partidas en 426 s._

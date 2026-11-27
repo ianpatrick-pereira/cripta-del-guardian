@@ -20,6 +20,7 @@ import { bestDmg, classHit, classKill, tl } from './26-clases.js';
 import { pact } from './27-pactos-de-piso.js';
 import { cheatDefeated } from './30-sala-de-apuestas.js';
 import { elemHitFx } from './37-armas-visual.js';
+import { drenaFx } from './37c-espada-hd.js';
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   // v0.55: cada piso más hondo aguanta bastante más (vida +70 % por piso) y desde el piso 5 pega 1 más
@@ -109,7 +110,7 @@ function killEnemy(e, src) {
     if (syn('infierno') && e.burn > 0) later(.05, () => explode(e.x, e.y, 64, 4 + G.floor, true));
   }
   classKill(e, src);
-  if (src && src.leech && Math.random() < (syn('sangre') ? .6 : .3) && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); }
+  if (src && src.leech && Math.random() < (syn('sangre') ? .6 : .3) && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); drenaFx(src, e, p); }
   if (rc('vampiro')) { p.killCount++; if (p.killCount % (syn('sangre') ? 8 : 12) === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, tr('+1 vida'), '#b0303a'); } }
   if (e.isBoss) { bossDefeated(e); return; }
   if (e.mirror) mirrorDefeated(e);

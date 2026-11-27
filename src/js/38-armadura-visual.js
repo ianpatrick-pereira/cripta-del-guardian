@@ -68,7 +68,7 @@ import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
 import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
-import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, espadaEnMano, espadaKey, golpeCuadro } from './37c-espada-hd.js';
+import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, espadaEnMano, espadaKey, golpeCuadro, guadEspejo } from './37c-espada-hd.js';
 import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
 import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
 import { drawHoz, kusaCuadro, kusaKey, kusaMano } from './37f-kusarigama-hd.js';
@@ -302,8 +302,8 @@ function drawPlayer(p) {
     if (w.type === 'melee' && p.swing && espadaKey(w)) {
       // v0.66: espada HD: corte dibujado y la espada en la mano del Caballero (o en el centro si es otra clase)
       const s = p.swing, prog = Math.min(1, s.t / s.dur), g = golpeCuadro(p), hx = g ? g.hx : p.x, hy = g ? g.hy : p.y + bob;
-      if (s.spin) { drawCorteGiro(p, w, s, prog); drawWeapon(w, hx, hy, g ? g.ang : s.a + prog * TAU * 1.5); }
-      else { drawCorte(p, w, s, prog); drawWeapon(w, hx, hy, g && g.fija ? g.ang : s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
+      if (s.spin) { drawCorteGiro(p, w, s, prog); guadEspejo(g && g.espejo); drawWeapon(w, hx, hy, g ? g.ang : s.a + prog * TAU * 1.5); }
+      else { drawCorte(p, w, s, prog); guadEspejo(g ? g.espejo : s.dir < 0); drawWeapon(w, hx, hy, g && g.fija ? g.ang : s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
     } else if (w.type === 'melee' && p.swing) {
       const s = p.swing, prog = s.t / s.dur;
       if (s.spin) {
@@ -327,7 +327,7 @@ function drawPlayer(p) {
       const t = tiroCuadro(p), m = t || arcoEnMano(p);   // v0.68: el arco HD va en el puño de la Arquera
       if (!(t && t.oculta)) drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);   // v0.69: la estrella ya lanzada no está en la mano
     } else if (w.type === 'melee' && espadaKey(w) && espadaEnMano(p)) {
-      const m = espadaEnMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
+      const m = espadaEnMano(p); guadEspejo(m.espejo); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
   };
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
