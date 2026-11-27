@@ -407,6 +407,14 @@
   "oj_inicio":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
   "oj_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 } },
   "oj_gigante":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  // Linterna de almas del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie, farol colgando a la derecha);
+  // alma que vuela (mira a la derecha), golpe, la linterna en el suelo (parpadea) y el pulso de curación
+  "lint":        { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "lint_el":     { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "li_alma":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "li_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "li_farol":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "li_pulso":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
   "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
   "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
   // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro

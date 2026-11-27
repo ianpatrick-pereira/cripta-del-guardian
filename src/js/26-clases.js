@@ -1,4 +1,5 @@
 // ================= Clases: mecánicas, talentos y especialización =================
+import { drawLinternaHD, pulsoLinterna } from './37g-baculo-hd.js';
 import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, rand } from './01-utilidades.js';
@@ -376,7 +377,7 @@ function updateClass(dt) {
   // Nigromante (v0.69): linterna que cura y pozo del vacío que atrae
   for (const L of C.linternas || []) {
     L.t -= dt; L.tick -= dt;
-    if (L.tick <= 0) { L.tick = 3; if (dist(pl, L) < L.R && pl.hp < pl.maxHp && !G.over) { pl.hp = Math.min(pl.maxHp, pl.hp + L.cura); addText(pl.x, pl.y - 26, '+' + L.cura, '#9be0a0', 13); burst(pl.x, pl.y, '#9be0a0', 10, 100); sfx(880, .15, 'sine', .04, 300); } }
+    if (L.tick <= 0) { L.tick = 3; pulsoLinterna(L); if (dist(pl, L) < L.R && pl.hp < pl.maxHp && !G.over) { pl.hp = Math.min(pl.maxHp, pl.hp + L.cura); addText(pl.x, pl.y - 26, '+' + L.cura, '#9be0a0', 13); burst(pl.x, pl.y, '#9be0a0', 10, 100); sfx(880, .15, 'sine', .04, 300); } }
     if (Math.random() < dt * 8) G.parts.push({ x: L.x + rand(-8, 8), y: L.y - 6, vx: rand(-10, 10), vy: -40, life: .8, max: .8, color: '#9be0a0', size: 3 });
   }
   if (C.linternas) C.linternas = C.linternas.filter(L => L.t > 0);
@@ -410,6 +411,7 @@ function drawClass() {
     const al = Math.min(1, L.t);
     ctx.fillStyle = `rgba(155,224,160,${.1 * al})`; ctx.beginPath(); ctx.arc(L.x, L.y, L.R, 0, TAU); ctx.fill();
     ctx.strokeStyle = `rgba(155,224,160,${.35 * al})`; ctx.lineWidth = 2; ctx.stroke();
+    if (drawLinternaHD(L, al)) continue;   // v0.70: linterna HD
     ctx.fillStyle = '#2a2433'; ctx.fillRect(L.x - 5, L.y - 14, 10, 14); ctx.fillStyle = `rgba(190,255,190,${(.7 + .3 * Math.sin(G.time * 9)) * al})`; ctx.fillRect(L.x - 3, L.y - 12, 6, 9);
     ctx.fillStyle = '#2a2433'; ctx.fillRect(L.x - 6, L.y - 16, 12, 3); ctx.fillRect(L.x - 1, L.y - 20, 2, 4);
   }

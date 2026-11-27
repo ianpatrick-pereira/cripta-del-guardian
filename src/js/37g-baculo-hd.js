@@ -1,9 +1,10 @@
 // v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha, Calavera aullante,
+// Linterna de almas,
 // Ojo del abismo: su rayo se arma con tramos repetidos del dibujo, así se ve nítido a cualquier largo).
 // - El arma es un dibujo aparte (hoja por estrellas y «_el» por elemento), de pie con la cabeza arriba.
 //   El Nigromante la lleva de pie a su lado (las manos quedan libres para los gestos de necro_atq); otra clase la apunta.
 // - Cada arma tiene sus efectos: lo que vuela, el golpe, el salto en cadena, el cargado y lo que queda en el suelo.
-import { ANIM, drawSpr } from './02-pixel-art.js';
+import { ANIM, animKey, drawSpr } from './02-pixel-art.js';
 import { G } from './07-estado.js';
 
 /** @type {Record<string, {hoja: string, vuela: string, grande?: string, impacto: string, salto?: string, cargado?: string, suelo?: string, ss: number}>} */
@@ -11,6 +12,7 @@ const BACULO_HD = {
   almas: { hoja: 'baculo', vuela: 'al_alma', impacto: 'al_impacto', salto: 'al_cadena', cargado: 'al_cargado', ss: .95 },
   calavera: { hoja: 'calav', vuela: 'ca_craneo', grande: 'ca_gigante', impacto: 'ca_explosion', suelo: 'ca_fuego', ss: .8 },
   ojo: { hoja: 'ojo', vuela: 'oj_rayo', grande: 'oj_gigante', impacto: 'oj_impacto', cargado: 'oj_inicio', ss: 1 },
+  linterna: { hoja: 'lint', vuela: 'li_alma', impacto: 'li_impacto', cargado: 'li_pulso', suelo: 'li_farol', ss: .8 },
   escarcha: { hoja: 'cetro', vuela: 'es_esquirla', impacto: 'es_impacto', cargado: 'es_anillo', suelo: 'es_hielo', ss: 1 },
 };
 const BAC_EL = { fire: 0, water: 1, air: 2, earth: 3 };
@@ -77,4 +79,16 @@ function drawRayoHD(p, w, a, len, wd, al, gigante = false) {
   drawSpr(B.impacto + '~reposo~' + f, p.x + c * len, p.y + si * len, gigante ? 1.4 : .9, { rot: a, alpha: al });      // donde pega
   return true;
 }
-export { almaVuela, drawRayoHD, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
+/** la linterna que deja el cargado de la Linterna de almas, en el suelo (false si no hay dibujo HD) */
+function drawLinternaHD(L, al) {
+  const B = BACULO_HD.linterna; if (!ANIM[B.suelo]) return false;
+  drawSpr(animKey(B.suelo, 'reposo', G.time + L.x * .01), L.x, L.y - 12, 1.5, { alpha: al, luz: .3 });
+  return true;
+}
+/** pulso de curación de la linterna (cada vez que cura) */
+function pulsoLinterna(L) {
+  const B = BACULO_HD.linterna; if (!ANIM[B.cargado]) return false;
+  fxPart(B.cargado, L.x, L.y, L.R / 26, 0, .5);
+  return true;
+}
+export { almaVuela, drawLinternaHD, pulsoLinterna, drawRayoHD, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };
