@@ -1,6 +1,7 @@
 // Grimorio de almas (Nigromante, v0.70; reemplaza a la Calavera aullante). Idea de Patrick:
 // - Ataque: le arranca el alma a los 2 enemigos más cercanos (sin proyectil): daño, −50 % de velocidad 2 s
-//   y −25 % de su daño 3 s; además les rompe la armadura (reciben +20 % de daño y sus resistencias valen la mitad). Cada alma arrancada se guarda (máximo 10) y gira a tu alrededor.
+//   y −25 % de su daño 3 s; además le quita un 0,5 % de armadura (recibe un 0,5 % más de daño, se acumula; el especial
+//   quita un 1 %; igual con cualquier estrella; hasta −30 %; a los jefes, la mitad). Cada alma arrancada se guarda (máximo 10) y gira a tu alrededor.
 // - Cargado (especial): roba el alma a todos los enemigos de la sala y gasta las guardadas; cada alma guardada
 //   suma +20 % de daño, frena más y quita más daño a los enemigos (hasta −55 %). Te da 1 corazón gris cada 2 almas.
 // - R (idea de Patrick): suelta todas las almas guardadas en un alma gigante que avanza en línea recta y
@@ -16,14 +17,13 @@ import { espLv } from '../12-armas-con-estilo-propio.js';
 import { hurtEnemy } from '../14-enemigos.js';
 import { arrancaAlma, cosechaFx } from '../37g-baculo-hd.js';
 
-const ALMAS_MAX = 10, GRIS_MAX = 5, ARM_K = .2;
+const ALMAS_MAX = 10, GRIS_MAX = 5, ARM_BASICO = .005, ARM_ESPECIAL = .01, ARM_MAX = .3;
 /** deja al enemigo sin alma: más lento y pega menos durante un rato (a los jefes, la mitad del efecto) */
-function sinAlma(e, slowT, slowK, debT, debK) {
+function sinAlma(e, slowT, slowK, debT, debK, arm = ARM_BASICO) {
   const b = e.isBoss ? .5 : 1;
-  if (!(e.almaT > 0)) addText(e.x, e.y - e.r - 18, tr('Armadura rota'), '#c9a8ff', 10);
   e.slowT = Math.max(e.slowT || 0, slowT * b); e.slowK = Math.min(e.slowK || 1, 1 - (1 - slowK) * b);
   e.almaK = Math.max(e.almaT > 0 ? e.almaK || 0 : 0, debK * b);
-  e.almaArm = Math.max(e.almaT > 0 ? e.almaArm || 0 : 0, ARM_K * b);   // armadura rota: +20 % de daño recibido y resistencias a la mitad
+  e.almaArm = Math.min(ARM_MAX, (e.almaArm || 0) + arm * b);   // armadura rota: se acumula y dura hasta que muere
   e.almaT = Math.max(e.almaT || 0, debT);
 }
 defWeapon('grimorio', {
@@ -67,7 +67,7 @@ defWeapon('grimorio', {
       const obj = G.enemies.filter(e => !e.dead && !e.air);
       for (const e of obj) {
         hurtEnemy(e, dm(1.5 * (1 + .2 * n)), angTo(p, e), 120, { src: w, explosion: true });
-        sinAlma(e, 2 + .3 * n, Math.max(.1, .5 - .04 * n), 3 + .3 * n, Math.min(.55, .25 + .03 * n));
+        sinAlma(e, 2 + .3 * n, Math.max(.1, .5 - .04 * n), 3 + .3 * n, Math.min(.55, .25 + .03 * n), ARM_ESPECIAL);
       }
       for (const e of obj.slice(0, 12)) arrancaAlma(p, e);
       const g = Math.min(GRIS_MAX - (p.grisN || 0), Math.floor(n / 2));

@@ -53,11 +53,10 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
     if (e.shield <= 0) { burst(e.x, e.y, '#9bd8ff', 10, 140); addText(e.x, e.y - e.r - 10, tr('Escudo roto'), '#9bd8ff', 11); }
     if (dmg <= 0) { e.flash = .06; addText(e.x + rand(-6, 6), e.y - e.r - 4, ab, '#9bd8ff', 12); return; }
   }
-  // v0.70: sin alma (Grimorio) = armadura rota: sus resistencias valen la mitad y recibe más daño
-  const sinArm = e.almaT > 0 ? e.almaArm || 0 : 0;
-  if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * (sinArm ? .85 : .7)));
-  if (e.resist) dmg = Math.max(1, Math.round(dmg * (sinArm ? (1 + e.resist) / 2 : e.resist)));
-  if (sinArm) dmg = Math.round(dmg * (1 + sinArm));
+  if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * .7));
+  if (e.resist) dmg = Math.max(1, Math.round(dmg * e.resist));
+  // v0.70: armadura que le quitó el Grimorio (se acumula): recibe más daño (redondeo al azar para que cuente aunque sea poco)
+  if (e.almaArm) { const v = dmg * (1 + e.almaArm); dmg = Math.floor(v) + (Math.random() < v % 1 ? 1 : 0); }
   if (e.isBoss) {
     const raw = dmg;
     dmg = Math.max(1, Math.min(bossCap(e), Math.round(dmg * bossExposeK(e))));
