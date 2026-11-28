@@ -7,6 +7,9 @@ import { G } from '../07-estado.js';
 import { later } from '../09-efectos.js';
 import { blinkAway, enemyShoot, flankPoint, hazard, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 import { drawWeapon } from '../38-armadura-visual.js';
+import { drawSpr } from '../02-pixel-art.js';
+// las flechas del esqueleto se ven como flechas de hueso (antes eran bolitas color crema)
+const flecha = pr => { pr.spr = 'flecha_hueso'; pr.ss = 1.6; };
 defEnemy('archer', {
   orden: 5,
   stats: { hp: 6, r: 12, speed: 85, dmg: 1, spr: 'skel', s: 2 },
@@ -36,10 +39,10 @@ defEnemy('archer', {
         e.aiming = false;
         const A = e.aimA;
         if (!mage) {
-          if (e.pat % 3 === 0) { const n = e.elite ? 5 : 3; for (let i = 0; i < n; i++) enemyShoot(e, A + (i - (n - 1) / 2) * .22, 240, 5, '#f0e6c8'); }
+          if (e.pat % 3 === 0) { const n = e.elite ? 5 : 3; for (let i = 0; i < n; i++) flecha(enemyShoot(e, A + (i - (n - 1) / 2) * .22, 240, 5, '#f0e6c8')); }
           else {
-            enemyShoot(e, A, 260, 5, '#f0e6c8');
-            if (e.elite) for (let k = 1; k <= 2; k++) later(k * .13, () => { if (!e.dead) enemyShoot(e, leadAng(e, 260), 260, 5, '#f0e6c8'); });
+            flecha(enemyShoot(e, A, 260, 5, '#f0e6c8'));
+            if (e.elite) for (let k = 1; k <= 2; k++) later(k * .13, () => { if (!e.dead) flecha(enemyShoot(e, leadAng(e, 260), 260, 5, '#f0e6c8')); });
           }
           sfx(500, .05, 'triangle', .02, -200);
           e.shootT = rand(1.5, 2.2);
@@ -61,7 +64,9 @@ defEnemy('archer', {
     }
   },
   encima(e, la, white) {
-      drawWeapon({ type: 'bow', rarity: 'common', id: 'short' }, e.x, e.y, la, .8);
+      // v0.64: el esqueleto arquero lleva su arco de hueso (src/sprites/arco_hueso.png); el mago, el arco de siempre
+      if (e.type === 'archer') drawSpr('arco_hueso', e.x + Math.cos(la) * 10, e.y + 2 + Math.sin(la) * 10, 1.9, { rot: la, white });
+      else drawWeapon({ type: 'bow', rarity: 'common', id: 'short' }, e.x, e.y, la, .8);
       if (e.aiming) { const aa = e.aimA ?? la; ctx.strokeStyle = 'rgba(255,90,90,.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]); ctx.beginPath(); ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + Math.cos(aa) * 230, e.y + Math.sin(aa) * 230); ctx.stroke(); ctx.setLineDash([]); }
   }
 });

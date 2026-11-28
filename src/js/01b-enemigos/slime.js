@@ -3,7 +3,7 @@ import { TAU, angTo, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
 import { burst } from '../09-efectos.js';
-import { enemyShoot, flankPoint, leadAng, takeToken, telegraph } from '../14-enemigos.js';
+import { enemyShoot, flankPoint, leadAng, salpicon, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('slime', {
   orden: 1,
   stats: { hp: 5, r: 13, speed: 75, dmg: 1, spr: 'slime', s: 2 },
@@ -24,6 +24,7 @@ defEnemy('slime', {
       if (e.st_t <= 0) {
         if (e.type === 'toxic' || e.elite) { const n = e.elite ? 8 : 5, off = rand(0, TAU); for (let i = 0; i < n; i++) enemyShoot(e, off + i * TAU / n, 130, 5, '#9bff7a'); }
         burst(e.x, e.y, e.type === 'slime' ? '#6ad06a' : '#9be05a', 6, 90);
+        if (e.spr === 'toxic') salpicon(e.x, e.y + 8, e.s * 1.1);   // v0.65: cae salpicando
         done(.45, rand(1.5, 2.3));
       }
     }

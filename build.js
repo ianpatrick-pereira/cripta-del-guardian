@@ -214,9 +214,16 @@ function sprites() {
       continue;
     }
     const donde = `src/sprites/animaciones.jsonc ("${clave}")`;
+    // dibujo suelto con más detalle (v0.64: arcos y flechas de enemigos): solo { "detalle": n }, sin cuadros
+    if (!A.cuadro && Object.keys(A).every(k => k === 'detalle')) {
+      if (![1, 2, 3, 4].includes(A.detalle)) throw new Error(`${donde}: "detalle" tiene que ser 1, 2, 3 o 4`);
+      if (ancho > 96 || alto > 96) throw new Error(`${nombre}: mide ${ancho}×${alto}; el máximo es 96×96`);
+      out[clave] = [...aLetras(nombre, ancho, rgba, 0, 0, ancho, alto), { detalle: A.detalle }];
+      continue;
+    }
     const [cw, ch] = A.cuadro || [], det = A.detalle || 1;
     if (!(cw > 0 && ch > 0)) throw new Error(`${donde}: falta "cuadro": [ancho, alto] de cada cuadro`);
-    if (cw > 64 || ch > 64) throw new Error(`${donde}: cada cuadro puede medir como mucho 64×64 (es ${cw}×${ch})`);
+    if (cw > 128 || ch > 128) throw new Error(`${donde}: cada cuadro puede medir como mucho 128×128 (es ${cw}×${ch})`);
     if (ancho % cw || alto % ch) throw new Error(`${nombre}: mide ${ancho}×${alto}, que no se divide en cuadros de ${cw}×${ch}`);
     if (![1, 2, 3, 4].includes(det)) throw new Error(`${donde}: "detalle" tiene que ser 1, 2, 3 o 4`);
     if (!A.reposo) throw new Error(`${donde}: falta la animación "reposo" (su primer cuadro es el dibujo de los menús)`);
@@ -305,6 +312,18 @@ function modulos() {
     }
     for (const v of ms.variables) if (v.defs.some(d => d.type === 'ImportBinding')) for (const r of v.references) if (r.isWrite())
       fallos.push(`${m.nombre}:${r.identifier.loc.start.line}: no se puede cambiar «${v.name}» desde otro archivo (un import es de solo lectura); usa la función set${v.name[0].toUpperCase() + v.name.slice(1)}() que exporta su archivo`);
+  }
+  // todos los módulos se unen en una sola función: dos archivos no pueden declarar el mismo nombre arriba del todo
+  // (si pasa, el navegador no carga el juego: «Identifier ... has already been declared»)
+  const dueño = new Map();
+  for (const m of info.values()) {
+    const sm = escope.analyze(m.ast, { ecmaVersion: 2022, sourceType: 'module' }), ms = sm.scopes.find(s => s.type === 'module');
+    for (const v of ms.variables) {
+      if (v.defs.some(d => d.type === 'ImportBinding')) continue;
+      const linea = v.defs[0].name.loc.start.line;
+      if (dueño.has(v.name)) fallos.push(`${m.nombre}:${linea}: «${v.name}» ya está declarado en ${dueño.get(v.name)}; ponle otro nombre (los módulos se unen en un solo archivo)`);
+      else dueño.set(v.name, `${m.nombre}:${linea}`);
+    }
   }
   revisarContenido(info, fallos);
   if (fallos.length) throw new Error('Módulos con errores:\n  ' + fallos.join('\n  '));

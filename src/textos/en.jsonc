@@ -76,70 +76,35 @@
   "Se esfuma y reaparece a tu espalda.": "Vanishes and reappears behind you.",
 
   // src/js/01c-armas/abyss.js
-  "Hoja del Abismo": "Abyssal Blade",
 
   // src/js/01c-armas/beam.js
-  "Rayo sostenido": "Sustained Ray",
-  "haz continuo que gasta energía mientras lo mantienes": "continuous beam that drains energy while you hold it",
-  "Lente": "Lens",
-  "+15 % de alcance y un haz más ancho": "+15 % range and a wider beam",
-  "Rayo solar": "Solar ray",
-  "Rayo abisal": "Abyssal ray",
-  "Rayo de tormenta": "Storm ray",
-  "Rayo telúrico": "Telluric ray",
 
   // src/js/01c-armas/blowgun.js
-  "Cerbatana": "Blowgun",
 
   // src/js/01c-armas/boom.js
-  "Arco explosivo": "Explosive Bow",
 
   // src/js/01c-armas/boomer.js
-  "Bumerán": "Boomerang",
-  "va y vuelve; atrápalo para volver a lanzarlo": "goes out and comes back; catch it to throw it again",
-  "Vuelo": "Flight",
-  "+25 % de distancia y vuelve más rápido": "+25 % distance and returns faster",
-  "Bumerán ígneo": "Blazing boomerang",
-  "Bumerán de marea": "Tidal boomerang",
-  "Bumerán ciclón": "Cyclone boomerang",
-  "Bumerán de roca": "Rock boomerang",
 
   // src/js/01c-armas/claws.js
-  "Garras de sombra": "Shadow Claws",
 
   // src/js/01c-armas/club.js
   "Garrote": "Club",
 
   // src/js/01c-armas/dagger.js
-  "Daga veloz": "Swift Dagger",
 
   // src/js/01c-armas/fire.js
-  "Bastón de fuego": "Fire Staff",
 
   // src/js/01c-armas/flame.js
-  "Espada flamígera": "Flaming Sword",
 
   // src/js/01c-armas/frost.js
-  "Hoja de escarcha": "Frost Blade",
 
   // src/js/01c-armas/frostbow.js
-  "Arco de escarcha": "Frost Bow",
 
   // src/js/01c-armas/gale.js
-  "Bastón del vendaval": "Gale Staff",
 
   // src/js/01c-armas/great.js
-  "Mandoble": "Greatsword",
 
   // src/js/01c-armas/grimoire.js
-  "Grimorio de huesos": "Bone Grimoire",
-  "invoca esqueletos aliados por unos segundos": "summons allied skeletons for a few seconds",
-  "Osario": "Ossuary",
-  "los esqueletos duran 2 s más y pegan un 15 % más": "skeletons last 2 s longer and hit 15 % harder",
-  "Legión ardiente": "Burning legion",
-  "Legión ahogada": "Drowned legion",
-  "Legión espectral": "Spectral legion",
-  "Legión de piedra": "Stone legion",
 
   // src/js/01c-armas/hammer.js
   "Martillo de guerra": "War Hammer",
@@ -148,13 +113,10 @@
   "Espada de hierro": "Iron Sword",
 
   // src/js/01c-armas/katar.js
-  "Katar": "Katar",
 
   // src/js/01c-armas/kunai.js
-  "Kunais": "Kunai",
 
   // src/js/01c-armas/long.js
-  "Arco largo": "Longbow",
 
   // src/js/01c-armas/musket.js
   "Mosquete": "Musket",
@@ -167,35 +129,25 @@
   "Bala de granito": "Granite shot",
 
   // src/js/01c-armas/night.js
-  "Filo nocturno": "Nightedge",
 
   // src/js/01c-armas/rock.js
-  "Bastón de roca": "Rock Staff",
 
   // src/js/01c-armas/rusty.js
+  "Arco explosivo": "Explosive Bow",
+  "Arco triple": "Triple Bow",
+  "Espada corta": "Short Sword",
   "Espada oxidada": "Rusty Sword",
 
   // src/js/01c-armas/scythe.js
-  "Guadaña sangrienta": "Bloody Scythe",
 
   // src/js/01c-armas/shadow.js
-  "Arco de las Sombras": "Bow of Shadows",
 
   // src/js/01c-armas/short.js
   "Arco corto": "Shortbow",
 
   // src/js/01c-armas/shuriken.js
-  "Shurikens": "Shuriken",
 
   // src/js/01c-armas/sickle.js
-  "Hoz arrojadiza": "Throwing Sickle",
-  "la lanzas, se clava girando en el primer enemigo y vuelve": "throw it, it digs into the first enemy spinning and comes back",
-  "Filo giratorio": "Spinning edge",
-  "+0,4 s girando en el sitio": "+0.4 s spinning in place",
-  "Hoz flamígera": "Flaming sickle",
-  "Hoz de espuma": "Foam sickle",
-  "Hoz del vendaval": "Gale sickle",
-  "Hoz de obsidiana": "Obsidian sickle",
 
   // src/js/01c-armas/sling.js
   "Honda": "Sling",
@@ -214,34 +166,21 @@
   "Muralla de piedra": "Stone wall",
 
   // src/js/01c-armas/storm.js
-  "Bastón del rayo": "Lightning Staff",
 
   // src/js/01c-armas/tide.js
-  "Bastón de marea": "Tide Staff",
 
   // src/js/01c-armas/triple.js
-  "Arco triple": "Triple Bow",
 
   // src/js/01c-armas/twin.js
-  "Dagas gemelas": "Twin Daggers",
 
   // src/js/01c-armas/venom.js
-  "Bastón de la ciénaga": "Swamp Staff",
 
   // src/js/01c-armas/void.js
-  "Orbe del vacío": "Void Orb",
 
   // src/js/01c-armas/wand.js
-  "Varita de aprendiz": "Apprentice Wand",
 
   // src/js/01c-armas/whip.js
-  "Látigo de cadenas": "Chain Whip",
-  "golpe largo en línea; atrae a enemigos pequeños": "long strike in a line; pulls small enemies in",
   "Cadena larga": "Long chain",
-  "+20 % de alcance del látigo": "+20 % whip reach",
-  "Látigo de brasas": "Ember whip",
-  "Látigo de corriente": "Current whip",
-  "Látigo de tormenta": "Storm whip",
   "Cadena sísmica": "Seismic chain",
 
   // src/js/01c-armas/xbow.js
@@ -480,14 +419,12 @@
   "Lluvia de flechas": "Rain of arrows",
   "3 oleadas de flechas en todas direcciones.": "3 waves of arrows in every direction.",
   "Mantén la distancia y apunta": "Keep your distance and aim",
-  "arcos, honda, ballesta, mosquete y bumerán": "bows, sling, crossbow, musket and boomerang",
   "Concentración: cada disparo la carga; llena, lanzas una flecha dorada ×3 que lo atraviesa todo. Recibir daño la vacía. Esquiva: voltereta larga.": "Focus: each shot charges it; when full, you fire a golden ×3 arrow that pierces everything. Taking damage empties it. Dodge: long roll.",
   "Asesino": "Assassin",
   "Sombra": "Shadow",
-  "3 s invisible, más rápido y todo golpe es crítico.": "3 s invisible, faster, and every hit is critical.",
+  "5 s invisible: ningún enemigo te ve, ni los jefes. Más rápido y todo golpe es crítico.": "5 s invisible: no enemy can see you, not even bosses. Faster, and every hit is critical.",
   "Entra, golpea por la espalda y sal": "Get in, strike from behind and get out",
-  "dagas, katar, garras, kunais, shurikens, cerbatana, látigo, guadaña, hoz, arco sombrío y bastón de veneno": "daggers, katar, claws, kunai, shuriken, blowgun, whip, scythe, sickle, shadow bow and venom staff",
-  "Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga la esquiva. Esquiva: parpadeo que te vuelve invisible un instante.": "From behind: ×2 against anyone not facing you. Combo: each consecutive hit adds +5 % (up to +50 %). Kills recharge your dodge. Dodge: a blink that makes you invisible for an instant.",
+  "Crítico: 35 % de golpes críticos. Por la espalda: ×2 a quien no te mira. Combo: cada golpe seguido suma +5 % (hasta +50 %). Matar recarga una esquiva. Esquiva: 2 parpadeos seguidos que te vuelven invisible un instante.": "Critical: 35 % of hits are critical. From behind: ×2 against anyone not facing you. Combo: each consecutive hit adds +5 % (up to +50 %). Kills recharge one dodge. Dodge: 2 blinks in a row that make you invisible for an instant.",
   "Vitalidad": "Vitality",
   "+1 de vida máxima por nivel": "+1 max health per level",
   "Bolsa heredada": "Inherited purse",
@@ -606,13 +543,10 @@
 
   // src/js/18-sinergias.js
   "Infierno": "Inferno",
-  "Arma de fuego + Pólvora negra": "Fire weapon + Black powder",
   "Los enemigos en llamas explotan al morir.": "Burning enemies explode when they die.",
   "Tormenta tóxica": "Toxic storm",
-  "Bastón del rayo + veneno (arma o reliquia)": "Lightning staff + poison (weapon or relic)",
   "Los rayos en cadena envenenan.": "Chain lightning poisons.",
   "Escarcha quebradiza": "Brittle frost",
-  "Arma de hielo + Ojo del cazador o Piedra de afilar": "Ice weapon + Hunter's eye or Whetstone",
   "Los enemigos ralentizados reciben +50 % de daño.": "Slowed enemies take +50 % damage.",
   "Sangre y acero": "Blood and steel",
   "Arma que roba vida + Sangre de vampiro": "Life-steal weapon + Vampire blood",
@@ -622,9 +556,6 @@
   "Filo del viento": "Wind edge",
   "Onda cortante + Botas de viento": "Cutting wave + Wind boots",
   "Las ondas de espada son enormes y lo atraviesan todo.": "Sword waves are huge and pierce everything.",
-  "Mente arcana": "Arcane mind",
-  "Un bastón + Batería arcana": "A staff + Arcane battery",
-  "Los bastones cuestan la mitad de energía.": "Staves cost half the energy.",
   "Fortaleza erizo": "Hedgehog fortress",
   "Coraza de espinas + Escudo rúnico": "Thorn mail + Runic shield",
   "El doble de espinas y más dañinas.": "Twice the thorns, and they hurt more.",
@@ -1272,5 +1203,147 @@
   "<span class=\"tag\">★ De tu clase</span>": "<span class=\"tag\">★ Your class</span>",
 
   // v0.61 iconos
-  "<h3>{0}</h3>\n      <p class=\"irow\">{1}<span><b class=\"abil\">F · {2}:</b> {3}</span></p>\n      <p>{4}</p>\n      <p class=\"meta\">Empieza con {5}. Armas afines (+30 %): {6}. Las de otra clase −30 %; bastones neutrales.</p>\n      <p class=\"meta\" style=\"margin-top:10px\"><b>Subclases</b> · se elige una tras {7} bajas y luego crece con cada enemigo que matas</p>": "<h3>{0}</h3>\n      <p class=\"irow\">{1}<span><b class=\"abil\">F · {2}:</b> {3}</span></p>\n      <p>{4}</p>\n      <p class=\"meta\">Starts with {5}. Affine weapons (+30 %): {6}. Other classes' weapons −30 %; staves are neutral.</p>\n      <p class=\"meta\" style=\"margin-top:10px\"><b>Subclasses</b> · pick one after {7} kills; it then grows with every enemy you kill</p>"
+  "<h3>{0}</h3>\n      <p class=\"irow\">{1}<span><b class=\"abil\">F · {2}:</b> {3}</span></p>\n      <p>{4}</p>\n      <p class=\"meta\">Empieza con {5}. Armas afines (+30 %): {6}. Las de otra clase −30 %.</p>\n      <p class=\"meta\" style=\"margin-top:10px\"><b>Subclases</b> · se elige una tras {7} bajas y luego crece con cada enemigo que matas</p>": "<h3>{0}</h3>\n      <p class=\"irow\">{1}<span><b class=\"abil\">F · {2}:</b> {3}</span></p>\n      <p>{4}</p>\n      <p class=\"meta\">Starts with {5}. Affine weapons (+30 %): {6}. Other classes' weapons −30 %.</p>\n      <p class=\"meta\" style=\"margin-top:10px\"><b>Subclasses</b> · pick one after {7} kills; it then grows with every enemy you kill</p>",
+  // v0.69: armas del Asesino (Katana, Estrellas ninja, Kusarigama, Guadaña)
+  "Katana": "Katana",
+  "Guadaña": "Scythe",
+  "Estrellas ninja": "Ninja Stars",
+  "Kusarigama": "Kusarigama",
+  "lanzas la hoz con su cadena en línea; atrae a enemigos pequeños": "throws the sickle on its chain in a line; pulls small enemies",
+  "+20 % de alcance de la cadena": "+20% chain reach",
+  "Kusarigama de brasas": "Ember Kusarigama",
+  "Kusarigama de corriente": "Current Kusarigama",
+  "Kusarigama de tormenta": "Storm Kusarigama",
+  // v0.69: sin bastones (sinergias por elemento) y textos de clase
+  "arcos, honda, ballesta y mosquete": "bows, sling, crossbow and musket",
+  "katana, estrellas ninja, kusarigama y guadaña": "katana, ninja stars, kusarigama and scythe",
+  "Arma con elemento fuego + Pólvora negra": "Fire-element weapon + Black powder",
+  "Arma con rayo en cadena + veneno (reliquia)": "Chain-lightning weapon + poison (relic)",
+  "Arma con elemento agua + Ojo del cazador o Piedra de afilar": "Water-element weapon + Hunter's eye or Whetstone",
+  // Nigromante (v0.69)
+  "Báculo de almas": "Soul staff",
+  "el alma salta a 2 enemigos cercanos": "the soul jumps to 2 nearby enemies",
+  "Almas inquietas": "Restless souls",
+  "+10 % de daño del alma por nivel": "+10 % soul damage per level",
+  "Báculo de almas ardientes": "Staff of burning souls",
+  "Báculo de almas ahogadas": "Staff of drowned souls",
+  "Báculo de almas errantes": "Staff of wandering souls",
+  "Báculo de almas pétreas": "Staff of stone souls",
+  "Cetro de escarcha": "Frost scepter",
+  "abanico de esquirlas de hielo de corto alcance que frenan": "short-range fan of ice shards that slow",
+  "Hielo eterno": "Everlasting ice",
+  "las esquirlas llegan un 15 % más lejos por nivel": "shards reach 15 % farther per level",
+  "Cetro de vapor": "Steam scepter",
+  "Cetro glacial": "Glacial scepter",
+  "Cetro de ventisca": "Blizzard scepter",
+  "Cetro de permafrost": "Permafrost scepter",
+  "Linterna de almas": "Soul lantern",
+  "soporte: cada enemigo que mata te devuelve 6 de energía": "support: every enemy it kills gives you 6 energy",
+  "Mecha larga": "Long wick",
+  "la linterna dura 2 s más por nivel": "the lantern lasts 2 s longer per level",
+  "Linterna de brasas": "Ember lantern",
+  "Linterna de niebla": "Fog lantern",
+  "Linterna de fuegos fatuos": "Will-o'-wisp lantern",
+  "Linterna de ámbar": "Amber lantern",
+  "Linterna lista en {0} s": "Lantern ready in {0} s",
+  "Ojo del abismo": "Eye of the abyss",
+  "rayo continuo que gasta energía; pega hasta el doble si lo mantienes 2 s": "continuous beam that drains energy; up to double damage if held for 2 s",
+  "Mirada fija": "Fixed stare",
+  "+15 % de alcance y un rayo más ancho": "+15 % range and a wider beam",
+  "Ojo del sol negro": "Eye of the black sun",
+  "Ojo abisal": "Abyssal eye",
+  "Ojo de la tormenta": "Eye of the storm",
+  "Ojo de obsidiana": "Obsidian eye",
+  "Tomo de protección": "Tome of protection",
+  "soporte: ráfaga corta de chispas; el cargado te protege": "support: short burst of sparks; the charged attack protects you",
+  "Sello": "Seal",
+  "la barrera dura 1 s más por nivel": "the barrier lasts 1 s longer per level",
+  "Tomo de llamas": "Tome of flames",
+  "Tomo de las mareas": "Tome of tides",
+  "Tomo de los vientos": "Tome of winds",
+  "Tomo de piedra": "Tome of stone",
+  "Barrera lista en {0} s": "Barrier ready in {0} s",
+  "Barrera": "Barrier",
+  "Tres almas": "Three souls",
+  "Coro de almas": "Choir of souls",
+  "Cinco almas": "Five souls",
+  "Almas errantes": "Wandering souls",
+  "Éxodo de almas": "Exodus of souls",
+  "Escarcha": "Frost",
+  "Gran escarcha": "Great frost",
+  "Tormenta de hielo": "Ice storm",
+  "Ventisca": "Blizzard",
+  "Invierno eterno": "Eternal winter",
+  "Linterna": "Lantern",
+  "Linterna duradera": "Lasting lantern",
+  "Linterna eterna": "Eternal lantern",
+  "Linterna sagrada": "Sacred lantern",
+  "Faro de almas": "Soul beacon",
+  "Barrera firme": "Firm barrier",
+  "Barrera duradera": "Lasting barrier",
+  "Barrera triple": "Triple barrier",
+  "Santuario": "Sanctuary",
+  "Cráneo del liche": "Lich skull",
+  "El hechizo potenciado sale un hechizo antes.": "The empowered spell comes one spell sooner.",
+  "Filacteria": "Phylactery",
+  "La Nova de almas recarga un 30 % más rápido.": "Soul nova recharges 30 % faster.",
+  "Cirio negro": "Black candle",
+  "Cada enemigo que matas te devuelve 2 de energía.": "Every enemy you kill gives you 2 energy.",
+  "Nigromante": "Necromancer",
+  "Nova de almas": "Soul nova",
+  "Una explosión de almas a tu alrededor que daña, empuja y congela a los enemigos un momento.": "A burst of souls around you that damages, pushes back and briefly freezes enemies.",
+  "Hechizos a distancia y magia de soporte": "Ranged spells and support magic",
+  "Hechizo potenciado: cada 4 hechizos, el siguiente sale gratis, más grande, con +50 % de daño y atravesando 3 enemigos. Mucha energía y poca vida. Armas de soporte: la Linterna te cura y el Tomo te protege.": "Empowered spell: every 4 spells, the next one is free, bigger, deals +50 % damage and pierces 3 enemies. Lots of energy, little health. Support weapons: the Lantern heals you and the Tome protects you.",
+  "Almas hambrientas": "Hungry souls",
+  "El hechizo potenciado hace +15 % de daño por nivel": "The empowered spell deals +15 % damage per level",
+  "Nova profunda": "Deep nova",
+  "La Nova de almas llega 15 px más lejos y congela 0,2 s más por nivel": "Soul nova reaches 15 px farther and freezes 0.2 s longer per level",
+  "¡Barrera!": "Barrier!",
+  "Cosecha de almas": "Soul harvest",
+  "Cada 10 bajas recuperas 1 de vida.": "Every 10 kills you recover 1 health.",
+  "Eco arcano": "Arcane echo",
+  "Toque gélido": "Icy touch",
+  "Tus hechizos ralentizan a los enemigos.": "Your spells slow enemies.",
+  "Coraza de huesos": "Bone armor",
+  "Hechizo del vacío": "Void spell",
+  "El hechizo potenciado explota al impactar.": "The empowered spell explodes on impact.",
+  "Umbral de la muerte": "Death's threshold",
+  "+30 % de daño mientras tengas 2 de vida o menos.": "+30 % damage while you have 2 health or less.",
+  "Nova helada": "Frozen nova",
+  "La Nova de almas congela el doble de tiempo.": "Soul nova freezes twice as long.",
+  "Sifón": "Siphon",
+  "Cada golpe de hechizo te devuelve 1 de energía.": "Every spell hit gives you 1 energy.",
+  "Liche": "Lich",
+  "Invocación.": "Summoning.",
+  "Ejército de huesos": "Bone army",
+  "Invoca esqueletos que pelean a tu lado unos segundos.": "Summons skeletons that fight beside you for a few seconds.",
+  "un esqueleto más por nivel y pegan más fuerte.": "one more skeleton per level and they hit harder.",
+  "Segador de almas": "Soul reaper",
+  "Drenar vida.": "Life drain.",
+  "Daña a todos los enemigos cercanos y te cura 1 por cada 3 que alcanza.": "Damages all nearby enemies and heals you 1 for every 3 it hits.",
+  "la Cosecha llega más lejos y pega más; cura hasta 2 (hasta 3 desde Nv3).": "Harvest reaches farther and hits harder; heals up to 2 (up to 3 from Lv3).",
+  "Brujo del vacío": "Void warlock",
+  "Control.": "Control.",
+  "Pozo del vacío": "Void well",
+  "Abre un pozo que atrae y daña a los enemigos unos segundos.": "Opens a well that pulls in and damages enemies for a few seconds.",
+  "el pozo es más grande, atrae más fuerte y dura más.": "the well is bigger, pulls harder and lasts longer.",
+  // v0.70: Grimorio de almas
+  "Grimorio de almas": "Soul grimoire",
+  "arranca el alma a 2 enemigos: los frena, pegan un 25 % menos y pierden armadura; guarda hasta 10 almas; R las lanza en un alma gigante": "rips the soul out of 2 enemies: they slow down, hit 25% softer and lose armor; stores up to 10 souls; R hurls them as one giant soul",
+  "Alma devoradora ×{0}": "Devouring soul ×{0}",
+  "Hambre de almas": "Soul hunger",
+  "+10 % de alcance por nivel": "+10% range per level",
+  "Grimorio de ceniza": "Ash grimoire",
+  "Grimorio ahogado": "Drowned grimoire",
+  "Grimorio de los lamentos": "Grimoire of wails",
+  "Grimorio de piedra": "Stone grimoire",
+  "Nadie cerca": "No one nearby",
+  "+{0} corazón gris": "+{0} grey heart",
+  "Cosecha voraz": "Ravenous harvest",
+  "Cosecha profunda": "Deep harvest",
+  "Cosecha del abismo": "Abyssal harvest",
+  "Juicio de almas": "Judgement of souls",
+  "báculo, cetro, grimorio, ojo, linterna y tomo": "staff, scepter, grimoire, eye, lantern and tome",
+  "Corazón gris": "Grey heart",
+  "Sin alma": "Soulless"
 }

@@ -316,10 +316,17 @@
       ],
       "additionalProperties": false,
       "description": "al vencer a un subjefe"
+    },
+    "armaDeTuClase": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "probabilidad de que el arma sorteada sea de tu clase"
     }
   },
   "required": [
     "rarezaArmas",
+    "armaDeTuClase",
     "estrellas",
     "enemigo",
     "elite",

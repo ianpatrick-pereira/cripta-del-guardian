@@ -4,10 +4,12 @@ import { TAU } from '../01-utilidades.js';
 import { defBoss } from '../01a-registro.js';
 defBoss('guardian', {
   orden: 1,
-  datos: { name: tr('El Guardián de la Cripta'), hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,
-           p1: ['burst', 'aimed', 'charge'], p2: ['burst', 'spiral', 'charge', 'predict', 'summon', 'gapring'], p3: ['charge', 'gapring', 'rain', 'spiral', 'predict'] },
+  datos: { name: tr('El Guardián de la Cripta'), spr: 'guardian', s: 4.5, hp: 420, r: 30, minion: 'bat', col: '#ff6a8a', want: 120,
+           p1: ['almas', 'embestida', 'espadas'], p2: ['almas', 'embestida', 'espadas', 'puas'], p3: ['almas', 'embestida', 'espadas', 'puas', 'invocar'] },
+  // v0.64: 5 ataques propios con efectos HD (src/js/01g-ataques-de-jefe/almas, embestida, espadas, puas, invocar)
   logro: 'boss1',
-  // su dibujo (a media resolución; los jefes con look: 'guardian' lo reutilizan con otro color)
+  // desde v0.64 se pinta con su hoja HD (src/sprites/guardian.png); este dibujo por código queda para
+  // los jefes con look: 'guardian' y para el retrato. Su dibujo (a media resolución; los jefes con look: 'guardian' lo reutilizan con otro color)
   aspecto(g, e, fill, ph2) {
     g.fillStyle = ph2 ? 'rgba(212,71,75,.35)' : 'rgba(199,125,255,.25)'; g.beginPath(); g.arc(0, 0, 50, 0, TAU); g.fill();
     g.fillStyle = fill('#5b3f7a'); g.beginPath(); g.arc(0, 0, 30, 0, TAU); g.fill();

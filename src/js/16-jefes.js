@@ -11,6 +11,7 @@ import { addText, burst, damageProp, later, shake, showBanner } from './09-efect
 import { dropArmor } from './13-armadura.js';
 import { dropCoin, enemyShoot } from './14-enemigos.js';
 import { enemyPace } from './15-subjefes.js';
+import { updateZonas } from './16b-zonas-de-jefe.js';
 import { ach } from './21-logros-y-bestiario.js';
 import { openChoice } from './32-eleccion-de-reliquia.js';
 // v0.56: los jefes van en guardia (reciben el 30 % del daño y cada golpe se queda en un tope) salvo justo
@@ -29,10 +30,11 @@ function updateBoss(e, dt) {
   const p = G.player, a = angTo(e, p), B = BOSSES[e.kind];
   e.st_t -= dt; e.spin += dt; e.exposeT = (e.exposeT || 0) - dt;
   e.tele = (e.tele || 0) - dt;
+  if (G.zonas && G.zonas.length) updateZonas(dt);   // redes, sacos y charcos de la Reina (16b-zonas-de-jefe.js)
   if ((e.phase === 1 && e.hp <= e.max * .5) || (e.phase === 2 && e.hp <= e.max * .25)) {
     e.phase++; e.st = 'enrage'; e.st_t = 1.5; e.invuln = true;
     const heal = Math.round(e.max * (e.phase === 2 ? .15 : .12)); e.hp = Math.min(e.max, e.hp + heal); addText(e.x, e.y - 70, tr`+${heal} vida`, '#6cc46a', 16); e.speed = e.phase === 3 ? 82 : 62; e.air = false; e.fade = 1; e.reps = 0;
-    G.proj = G.proj.filter(pr => pr.owner === 'player'); G.beams = []; G.hazards = [];
+    G.proj = G.proj.filter(pr => pr.owner === 'player'); G.beams = []; G.hazards = []; G.zonas = [];
     showBanner(e.phase === 3 ? tr('¡Fase 3! Furia') : tr('¡Fase 2!'), '#d4474b', e.phase === 2 ? tr('Algunos de sus ataques rompen tu escudo') : B.name);
     shake(14); sfx(60, .8, 'sawtooth', .06, 40);
     return;
@@ -47,17 +49,18 @@ function updateBoss(e, dt) {
     case 'idle': {
       // se mueve a su distancia preferida y te rodea en vez de caminar en línea recta
       if (!e.dir || Math.random() < dt * .3) e.dir = Math.random() < .5 ? 1 : -1;
-      const want = B.want || 190;
+      // v0.69: con el jugador en Sombra (o velo) no lo ve: da vueltas sin acercarse y no empieza ataques
+      const ciego = p.shadowT > 0 || p.veilT > 0, want = ciego ? d + 60 : B.want || 190;
       const mv = d < want - 40 ? a + Math.PI * .75 * e.dir : d < want + 60 ? a + Math.PI / 2 * e.dir : a;
       moveEnt(e, Math.cos(mv) * e.speed * dt, Math.sin(mv) * e.speed * dt);
       const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
-      if (e.st_t <= 0) {
+      if (e.st_t <= 0 && !ciego) {
         // elige el ataque según dónde estás: de cerca, ataques de área; de lejos, embestidas y disparos
         const pool = ph3 ? B.p3 : ph2 ? B.p2 : B.p1;
-        const CLOSE = { burst: 1, gapring: 1, teleport: 1, rain: 1, spiral: 1 }, FAR = { charge: 1, aimed: 1, predict: 1, laser: 1, web: 1, leap: 1 };
+        const CLOSE = { burst: 1, gapring: 1, teleport: 1, fauces: 1, rain: 1, spiral: 1 }, FAR = { charge: 1, aimed: 1, predict: 1, laser: 1, mirada: 1, web: 1, leap: 1, red: 1, aplastar: 1 };
         const fav = d < 140 ? CLOSE : d > 280 ? FAR : null, bag = [];
         for (const at of pool) {
-          if (at === e.last || (at === 'summon' && G.enemies.length > 5)) continue;
+          if (at === e.last || ((at === 'summon' || at === 'crias' || at === 'vigias') && G.enemies.length > 5)) continue;
           bag.push(at); if (fav && fav[at]) bag.push(at, at);
         }
         const next = bag.length ? pick(bag) : pool[0];
@@ -76,7 +79,7 @@ function updateBoss(e, dt) {
   }
 }
 function bossDefeated(e) {
-  G.boss = null; G.beams = []; G.darkT = 0; G.hazards = [];
+  G.boss = null; G.beams = []; G.darkT = 0; G.hazards = []; G.zonas = [];
   for (let i = 0; i < BOTIN.jefe.monedas; i++) dropCoin(e.x, e.y);
   if (Math.random() < BOTIN.jefe.armadura) dropArmor(e.x + 40, e.y + 30, 'chest');
   for (let i = 0; i < Math.ceil((4 + G.floor) / 2); i++) G.pickups.push({ kind: 'gem', x: e.x, y: e.y, vx: rand(-120, 120), vy: rand(-120, 120) });

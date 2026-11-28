@@ -68,7 +68,7 @@ function renderMenu() {
     $('charDetail').innerHTML = tr`<h3>${esc(c.name)}</h3>
       <p class="irow">${iconImg('abil:' + selChar, CLS_COLOR[selChar])}<span><b class="abil">F · ${esc(c.abil)}:</b> ${esc(c.abilDesc)}</span></p>
       <p>${esc(c.mech)}</p>
-      <p class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}. Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %; bastones neutrales.</p>
+      <p class="meta">Empieza con ${c.start.map(s => W(s).name).join(tr(' y '))}. Armas afines (+30 %): ${esc(c.fam)}. Las de otra clase −30 %.</p>
       <p class="meta" style="margin-top:10px"><b>Subclases</b> · se elige una tras ${SUB_UNLOCK} bajas y luego crece con cada enemigo que matas</p>` +
       `<div class="specs">${Object.entries(SPECS).filter(([, S]) => S.cls === selChar).map(([k, S]) => `<div class="irow">${iconImg('spec:' + k, S.c)}<span><b style="color:${S.c}">${esc(S.n)}</b> · ${esc(S.d)}<br><span class="meta">F · ${esc(S.abil)}</span></span></div>`).join('')}</div>`;
     // aspectos: se compran una vez con gemas y se eligen aquí (solo cambian colores)

@@ -1,12 +1,13 @@
 import { tr } from '../00b-textos.js';
 import { ctx } from '../00-inicio.js';
+import { ANIM } from '../02-pixel-art.js';
 import { TAU, rand } from '../01-utilidades.js';
 import { defEnemy } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
 import { enemyShoot, leadAng, takeToken, telegraph } from '../14-enemigos.js';
 defEnemy('eye', {
   orden: 10,
-  stats: { hp: 12, r: 13, speed: 0, dmg: 1, spr: 'eye', s: 2.2 },
+  stats: { hp: 12, r: 13, speed: 0, dmg: 1, spr: 'eye', s: 2.4 },
   bestiario: { n: tr('Ojo vigía'), d: tr('Inmóvil. Anillos, ráfagas y espirales.') },
   // no retrocede al recibir golpes
   sinEmpuje: true,
@@ -27,5 +28,10 @@ defEnemy('eye', {
       if (e.timer > 1.3) { e.st = 'walk'; e.tok = false; e.shootT = rand(1.8, 2.5); }
     }
   },
-  encima(e, la, white) { ctx.fillStyle = e.aiming ? '#ffffff' : '#000'; ctx.fillRect(e.x + Math.cos(la) * 5 - 2, e.y + Math.sin(la) * 5 - 4, 4, 8); }
+  // v0.65 hoja HD: flota y, al apuntar, el ojo se pone rojo (el cuadro de «caminar», ver animaciones.jsonc)
+  forma(e, f) { if (ANIM.eye) f.oy = Math.sin(e.t * 2.5 + (e.wob || 0)) * 3 - 6; },
+  cuadro(e) { return ANIM.eye && e.aiming ? ANIM.eye.caminar.cuadros[0] : null; },
+  // la pupila que te sigue (solo el dibujo viejo: la hoja HD ya trae su ojo)
+  encima(e, la, white) { if (ANIM.eye) return;
+    ctx.fillStyle = e.aiming ? '#ffffff' : '#000'; ctx.fillRect(e.x + Math.cos(la) * 5 - 2, e.y + Math.sin(la) * 5 - 4, 4, 8); }
 });

@@ -3,12 +3,14 @@ import { tr } from '../00b-textos.js';
 import { TAU, angTo } from '../01-utilidades.js';
 import { defBoss } from '../01a-registro.js';
 import { G } from '../07-estado.js';
+// v0.65: sus 5 ataques propios (01g-ataques-de-jefe/): mirada (Mirada Ardiente), eclipse, fauces (Fauces del Vacío),
+// vigias (Ojos Vigías) y agujero (Agujero Negro, fase 3); en cada fase cambia de dibujo (devourer, devourer_f2, devourer_f3)
 defBoss('devourer', {
   orden: 3,
-  datos: { name: tr('El Devorador de Luz'), hp: 1050, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,
-           p1: ['laser', 'teleport', 'aimed', 'summon'], p2: ['laser', 'dark', 'spiral', 'teleport', 'burst', 'summon', 'gapring'], p3: ['laser', 'dark', 'rain', 'teleport', 'gapring', 'predict'] },
+  datos: { name: tr('El Devorador de Luz'), spr: 'devourer', s: 4.4, fases: true, poseAtq: ['mirada', 'agujero'], hp: 1050, r: 32, minion: 'wraith', col: '#ff5a3a', want: 190,
+           p1: ['mirada', 'fauces', 'aimed', 'vigias'], p2: ['mirada', 'eclipse', 'spiral', 'fauces', 'burst', 'vigias', 'gapring'], p3: ['mirada', 'eclipse', 'agujero', 'fauces', 'gapring', 'predict'] },
   logro: 'boss3',
-  // su dibujo (a media resolución; los jefes con look: 'devourer' lo reutilizan con otro color)
+  // v0.65 el Devorador usa su hoja HD (spr 'devourer'); este dibujo por código queda para los jefes con look: 'devourer' (con otro color)
   aspecto(g, e, fill, ph2) {
     g.globalAlpha = e.fade;
     g.fillStyle = ph2 ? 'rgba(255,60,40,.3)' : 'rgba(120,20,30,.35)'; g.beginPath(); g.arc(0, 0, 54, 0, TAU); g.fill();

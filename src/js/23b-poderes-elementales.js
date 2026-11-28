@@ -6,6 +6,7 @@
 //   aire   → más rápido, flechas de viento, empuja, atrae y suelta una ráfaga
 // Aquí viven las cosas que dejan en el mundo: charcos, pedruscos y columnas.
 import { ctx } from './00-inicio.js';
+import { ANIM, animKey, drawSpr, luzSuelo } from './02-pixel-art.js';
 import { TAU, TILE, angTo, dist, rand } from './01-utilidades.js';
 import { noise, sfx } from './05-audio.js';
 import { G } from './07-estado.js';
@@ -53,6 +54,7 @@ function updateElemPowers(dt) {
         if (!G.over && dist(b, p) < 80 + p.r * .4 && hurtPlayer(b.dmg + 1, b.src.name)) elemHit('earth', b);
         for (let i = 0; i < 8; i++) enemyShoot({ x: b.x, y: b.y, r: 6 }, i * TAU / 8 + rand(-.1, .1), 170, 5, '#c09060');
         burst(b.x, b.y, '#8a6a48', 22, 220, 5, .5); shake(9); noise(.3, .08, 300);
+        G.parts.push({ x: b.x, y: b.y - 8, vx: 0, vy: 0, life: .5, max: .5, fx: 't_roca', s: 3.4, color: '', size: 0 });   // la lápida se hace pedazos
         continue;
       }
       b.x = nx; b.y = ny;
@@ -62,7 +64,7 @@ function updateElemPowers(dt) {
   }
   for (const o of G.props) if (o.kind === 'roca' && !o.dead) {
     o.rise = Math.min(1, (o.rise || 0) + dt * 5); o.temp -= dt;
-    if (o.temp <= 0 || !fight) { o.dead = true; burst(o.x, o.y, '#8a6a48', 8, 120, 4, .4); }
+    if (o.temp <= 0 || !fight) { o.dead = true; burst(o.x, o.y, '#8a6a48', 8, 120, 4, .4); G.parts.push({ x: o.x, y: o.y - 18, vx: 0, vy: 0, life: .5, max: .5, fx: 't_pilar', s: 3.4, color: '', size: 0 }); }
   }
   p.slick = (p.slick || 0) - dt;
 }
@@ -70,6 +72,15 @@ function drawPuddles() {
   if (!G.puddles) return;
   for (const c of G.puddles) {
     const k = Math.min(1, c.t / .8, (c.max - c.t) / .3);
+    // v0.64: charco maldito con manos (hoja a_charco): se extiende, se agita y al final se seca
+    if (ANIM.a_charco) {
+      // se extiende desde el centro, ondula y al secarse se encoge; borde suave para fundirse con el suelo
+      const age = c.max - c.t, key = age < .35 ? 'a_charco~reposo~0' : c.t < .8 ? 'a_charco~muerte~0' : animKey('a_charco', 'caminar', age + c.wob);
+      const sale = 1 - Math.pow(1 - Math.min(1, age / .4), 3), seca = c.t < .8 ? .85 + .15 * c.t / .8 : 1, o = Math.sin(G.time * 2.2 + c.wob) * .035;
+      luzSuelo(c.x, c.y, c.r * 1.1, '90,170,230', .12 * k);
+      drawSpr(key, c.x, c.y, c.r * .135 * (.35 + .65 * sale) * seca, { alpha: .85 * Math.max(.25, k), suave: true, sx: 1 + o, sy: 1 - o });
+      continue;
+    }
     ctx.globalAlpha = .55 * k; ctx.fillStyle = '#2a6f9a';
     ctx.beginPath(); ctx.ellipse(c.x, c.y, c.r, c.r * .62, 0, 0, TAU); ctx.fill();
     ctx.globalAlpha = .5 * k; ctx.strokeStyle = '#9be0ff'; ctx.lineWidth = 2;
@@ -82,6 +93,8 @@ function drawBoulders() {
   if (!G.boulders) return;
   for (const b of G.boulders) {
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(b.x, b.y + b.r * .8, b.r, b.r * .4, 0, 0, TAU); ctx.fill();
+    // v0.64: lápida redonda con calavera que rueda (cuadros de giro según lo recorrido)
+    if (ANIM.t_roca) { drawSpr('t_roca~reposo~' + (Math.floor(b.d / 22) % 3), b.x, b.y - 4, 2.7, { flip: Math.cos(b.a) < 0 }); continue; }
     ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.spin);
     ctx.fillStyle = '#7a6046'; ctx.fillRect(-b.r, -b.r * .8, b.r * 2, b.r * 1.6); ctx.fillRect(-b.r * .8, -b.r, b.r * 1.6, b.r * 2);
     ctx.fillStyle = '#9a7a58'; ctx.fillRect(-b.r * .6, -b.r * .7, b.r * .7, b.r * .5);
@@ -92,6 +105,13 @@ function drawBoulders() {
 // columna: se dibuja desde drawProp
 function drawPillar(o) {
   const h = 34 * (o.rise || 0), w = o.flash > 0;
+  // v0.64: columna de tumba con calaveras y runas (hoja t_pilar): grieta, sube, columna entera
+  if (ANIM.t_pilar) {
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(o.x, o.y + 6, 17, 7, 0, 0, TAU); ctx.fill();
+    const r = o.rise || 0, key = r < .45 ? 't_pilar~reposo~0' : r < 1 ? 't_pilar~caminar~0' : 't_pilar~caminar~1';
+    drawSpr(key, o.x, o.y - 22, 3.4, { white: w, alpha: o.temp < 1.5 && Math.floor(G.time * 10) % 2 ? .7 : 1 });
+    return;
+  }
   ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(o.x, o.y + 6, 17, 7, 0, 0, TAU); ctx.fill();
   ctx.fillStyle = w ? '#fff' : '#6a5440'; ctx.fillRect(o.x - 14, o.y + 6 - h, 28, h);
   ctx.fillStyle = w ? '#fff' : '#9a7a58'; ctx.fillRect(o.x - 16, o.y + 2 - h, 32, 8);

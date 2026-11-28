@@ -237,6 +237,8 @@ export interface Botin {
     /** monedas */
     monedas: number;
   };
+  /** probabilidad de que el arma sorteada sea de tu clase */
+  armaDeTuClase: number;
 }
 
 /** Los dos finales */

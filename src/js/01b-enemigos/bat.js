@@ -25,5 +25,6 @@ defEnemy('bat', {
       if (e.st_t <= 0) { e.dir = -e.dir; done(0, rand(1.3, 2.1)); }
     }
   },
-  forma(e, f) { f.sy = .7 + .3 * Math.abs(Math.sin(e.t * 22)); f.oy = -6; }
+  // v0.64: el aleteo lo hacen los cuadros de bat.png (hoja HD); solo vuela un poco más alto que su sombra
+  forma(e, f) { f.oy = -6; }
 });

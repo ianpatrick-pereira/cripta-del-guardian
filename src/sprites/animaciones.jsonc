@@ -1,10 +1,11 @@
 // Hojas de animación: un PNG con varios cuadros del mismo tamaño puestos en filas.
 // El build corta la hoja en cuadros; el juego elige el cuadro según lo que hace el personaje.
-//   cuadro:  ancho y alto de cada cuadro, en píxeles (máximo 64×64)
+//   cuadro:  ancho y alto de cada cuadro, en píxeles (máximo 96×96)
 //   detalle: píxeles del dibujo por cada píxel normal del juego. Con 2 el dibujo tiene el doble de píxeles
 //            y se pinta a la mitad: ocupa lo mismo que antes, pero se ve más fino.
 //   reposo, caminar, herido, muerte: en qué fila están (la primera es la 0), desde qué columna («desde»,
 //            0 si no se pone), cuántos cuadros y a cuántos cuadros por segundo (fps).
+//   cuadro puede medir hasta 96×96 (para que quepan los cuadros de muerte, que van tendidos).
 //            «caminar» va al ritmo de los pasos (fps no se usa). «muerte» se reproduce una vez y se queda quieta.
 {
   // Caballero dibujado por IA (v0.62; v0.63 a resolución completa: 64×64 y detalle 4). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
@@ -12,8 +13,457 @@
     "cuadro": [64, 64],
     "detalle": 4,
     "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
-    "caminar": { "fila": 1, "cuadros": 4 },
+    "caminar": { "fila": 1, "cuadros": 8 },
     "herido":  { "fila": 2, "cuadros": 1 },
     "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
-  }
+  },
+  // Arquera (v0.68, IA con fondo verde, mismo tamaño que el Caballero). Fila 0: reposo; fila 1: caminar; fila 2: herida + 3 de muerte.
+  "archer": {
+    "cuadro": [64, 64],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
+    "caminar": { "fila": 1, "cuadros": 8 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
+  // Asesino (v0.69, IA con fondo verde, mismo tamaño que el Caballero). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
+  "rogue": {
+    "cuadro": [64, 64],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
+    "caminar": { "fila": 1, "cuadros": 8 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
+  // Nigromante (v0.70, IA con fondo verde, mismo tamaño que el Caballero). Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte.
+  "necro": {
+    "cuadro": [64, 64],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
+    "caminar": { "fila": 1, "cuadros": 8 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
+  // Esqueleto (v0.64, IA con fondo magenta): arquero del piso 1, Capitán Hueso, esqueletos invocados.
+  // Fila 0: reposo; fila 1: caminar; fila 2: herido + 3 de muerte (se deshace en huesos).
+  "skel": {
+    "cuadro": [76, 66],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 8 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 5 }
+  },
+  // Murciélago (v0.64): fila 0 aletea en el sitio; fila 1 vuela hacia delante; fila 2 herido + cae al suelo.
+  "bat": {
+    "cuadro": [68, 48],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 10 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 12 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 6 }
+  },
+  // Capitán Hueso (v0.64), subjefe del piso 1: el juego lo agranda (s 3.4) y le dibuja el arco largo.
+  "captain": {
+    "cuadro": [80, 68],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 4 }
+  },
+  // El Guardián de la Cripta (v0.64, rediseño IA): fantasma acorazado con cola de fuego morado. Fila 0 reposo, 1 se desliza, 2 herido + muerte.
+  "guardian": {
+    "cuadro": [80, 80],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 2, "fps": 3 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.5 }
+  },
+  // Fase 2 del Guardián (ojos rojos): reposo con los brazos abajo y su cuadro de herido.
+  "guardian_furia": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 }, "herido": { "fila": 0, "desde": 2, "cuadros": 1 } },
+  // Ataques del Guardián (v0.64, IA). Se usan cuadro a cuadro desde 37b-poses-del-jefe.js:
+  //   reposo  = almas 0, almas 1, espadas 0, espadas 1
+  //   caminar = embestida (prepara), embestida (se lanza), salto, golpe al suelo
+  //   herido  = invocar 0, invocar 1, furia 0, furia 1
+  "guardian_atq": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 }, "herido": { "fila": 2, "cuadros": 4 } },
+  // Marcas del Guardián en el suelo: onda del golpe, estela de la embestida (zarpazos en diagonal) y cráter de cada espada.
+  "g_onda":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 5 } },
+  "g_estela": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 2.5 } },
+  "g_crater": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 3 } },
+  // Armas y ataques de enemigos del piso 1 (v0.64). Los dibujos sueltos solo llevan "detalle".
+  // Arcos: verticales, apuntan a la derecha (el juego los gira hacia donde apunta el enemigo).
+  "arco_hueso":     { "detalle": 4 },
+  "arco_capitan":   { "detalle": 4 },
+  // Flechas: dibujadas en diagonal (punta arriba a la derecha); el juego suma 45° al girarlas.
+  "flecha_hueso":   { "detalle": 4 },
+  "flecha_capitan": { "detalle": 4 },
+  // Orbe de energía en blanco y gris: el juego lo tiñe del color de cada ataque. reposo = late; muerte = estalla.
+  "orbe": {
+    "cuadro": [62, 62],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 8 },
+    "muerte":  { "fila": 1, "cuadros": 4, "fps": 14 }
+  },
+  // Efectos de los 5 ataques del Guardián (v0.64). "reposo" = aviso o vuelo; "muerte" = el golpe (se ve una vez).
+  "g_alma":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } },
+  "g_impacto": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 11 } },
+  "g_puas":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 4 } },
+  "g_espada":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 7 } },
+  "g_runas":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 6 } },
+  // Elementales (v0.64). Señor de las Brasas: fila 2 = destello blanco (no se usa: el juego hace su propio destello), herido, muerte.
+  "elem_fire": {
+    "cuadro": [96, 96],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 6 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 2, "desde": 1, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 2 }
+  },
+  // Poderes del Señor de las Brasas (v0.64)
+  "f_bola":    { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } },
+  "f_aliento": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 10 } },
+  "f_meteoro": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 3 } },
+  "f_linea":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 6 } },
+  // Elementales de agua, aire y tierra (v0.64): hojas en una sola fila de 12 cuadros (el 9.º es un destello que no se usa)
+  "elem_water": {
+    "cuadro": [80, 80],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 5 },
+    "caminar": { "fila": 0, "desde": 4, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 0, "desde": 9, "cuadros": 1 },
+    "muerte":  { "fila": 0, "desde": 10, "cuadros": 2, "fps": 2 }
+  },
+  "elem_air": {
+    "cuadro": [80, 80],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 7 },
+    "caminar": { "fila": 0, "desde": 4, "cuadros": 4, "fps": 9 },
+    "herido":  { "fila": 0, "desde": 9, "cuadros": 1 },
+    "muerte":  { "fila": 0, "desde": 10, "cuadros": 2, "fps": 2 }
+  },
+  "elem_earth": {
+    "cuadro": [80, 80],
+    "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 3 },
+    "caminar": { "fila": 0, "desde": 4, "cuadros": 4, "fps": 5 },
+    "herido":  { "fila": 0, "desde": 9, "cuadros": 1 },
+    "muerte":  { "fila": 0, "desde": 10, "cuadros": 2, "fps": 2 }
+  },
+  // Poderes del Leviatán
+  "a_ola":    { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 6 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "a_bola":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } },
+  "a_charco": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "caminar": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Poderes del Djinn
+  "v_cuchilla": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 10 } },
+  "v_rafaga":   { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 8 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "v_vortice":  { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 4 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Golpe del Gólem (v0.64, IA): cerca, puñetazo hacia ti; lejos, golpe al suelo que abre una grieta con picos.
+  // Cuadros: 0 se prepara, 1 golpea, 2 impacto, 3 se recupera (los pies en el mismo sitio que su cuerpo de 80x80).
+  "golem_puno":  { "cuadro": [112, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "golem_suelo": { "cuadro": [112, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Efectos del golpe: impacto del puño, picos de piedra que brotan y grieta que avanza (horizontal, se gira hacia ti).
+  "t_golpe":  { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 7 } },
+  "t_picos":  { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 3, "fps": 5 } },
+  "t_grieta": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 4 }, "caminar": { "fila": 0, "desde": 2, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Poderes del Gólem
+  "t_roca":     { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 6 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "t_esquirla": { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3, "fps": 12 } },
+  "t_pilar":    { "cuadro": [80, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "caminar": { "fila": 0, "desde": 1, "cuadros": 2, "fps": 4 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } }
+  ,
+  // ── Piso 2: Catacumbas Pútridas (v0.65, IA) ──
+  // Limo tóxico (y los limitos, más chicos). Fila 0 reposo; fila 1 el salto (se aplasta, se estira, en el aire, cae): el juego elige
+  // el cuadro según el ritmo de sus saltitos; fila 2 herido + 3 de muerte (revienta y queda un charco con la calavera).
+  "toxic": {
+    "cuadro": [64, 64], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 5 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 5 }
+  },
+  // Matriarca del Limo (subjefe). Igual que el limo: fila 1 = el salto pesado, cuadro a cuadro según el ataque.
+  "matriarch": {
+    "cuadro": [80, 80], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 5 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 3 }
+  },
+  // La Reina Tejedora (jefe, v0.65): una hoja por fase. Fila 2: herida, pose de ataque y 2 cuadros finales
+  // (fases 1 y 2: se transforma en la siguiente, durante el «¡Fase N!»; fase 3: muere).
+  //   queen     fase 1, la Reina Tejedora
+  //   queen_f2  fase 2, Madre de la Plaga (abdomen reventado, crías y veneno)
+  //   queen_f3  fase 3, la Reina Descarnada (esqueleto con fuego rojo)
+  "queen":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 9 },
+                "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.6 } },
+  "queen_f2": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 9 },
+                "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.6 } },
+  "queen_f3": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 12 },
+                "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.5 } },
+  // Ataques de la Reina (v0.65, IA). Se dibujan cuadro a cuadro desde 16b-zonas-de-la-reina.js:
+  //   r_red     Red de la Tejedora: reposo = bola que vuela y se abre; caminar = red en el suelo (normal, con veneno); muerte = se rompe
+  //   r_saco    Saco de Crías: reposo = vuela, cae, late, se agrieta; muerte = revienta, salen crías, vacío, se deshace
+  //   r_gota    Lluvia de Veneno: reposo = araña colgando; caminar = gota que cae; muerte = salpica, charco, charco, se seca
+  "r_red":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 2 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2 } },
+  "r_saco": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "muerte": { "fila": 1, "cuadros": 4 } },
+  "r_gota": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 5 }, "caminar": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 8 }, "muerte": { "fila": 1, "cuadros": 4 } },
+  //   r_impacto Salto Aplastante: el suelo se raja como telaraña (se ve una vez)
+  //   r_anillo  y luego las grietas brillan de veneno (reposo) y estalla el anillo (muerte)
+  "r_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 9 } },
+  "r_anillo":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 4 } },
+  // Araña (crías de la Reina y arañas del piso 2).
+  "spider": {
+    "cuadro": [64, 64], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 8 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 16 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 1 }
+  },
+  // Bola de telaraña que escupen (va hacia la derecha con los hilos detrás; el juego la gira hacia donde vuela).
+  "telarana": { "cuadro": [48, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 8 } },
+  // Ataques del limo y la Matriarca (v0.65, IA, fondo magenta)
+  // Orbe ácido: los hilos caen abajo a la izquierda, así que vuela hacia arriba a la derecha (el juego suma 45° al girarlo).
+  "l_orbe":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  // Salpicón al caer de un salto (se ve una vez, en el suelo).
+  "l_salpicon": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 9 } },
+  // Charco ácido que deja la Matriarca al caer.
+  "l_charco":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 } },
+  // Huevo de limo: aviso de que nace un limo (reposo) y el huevo roto (muerte).
+  "l_huevo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } },
+  // ── Piso 3: El Abismo (v0.65, IA, fondo verde) ──
+  // Espectro: fila 0 flota; fila 1 se desliza hacia ti (el último cuadro es la embestida); fila 2 herido + se deshace en niebla.
+  "wraith": {
+    "cuadro": [64, 64], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 5 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 7 },
+    "herido":  { "fila": 2, "cuadros": 1 },
+    "muerte":  { "fila": 2, "desde": 1, "cuadros": 3, "fps": 4 }
+  },
+  // Efectos del Espectro: niebla al esfumarse y reaparecer, ojos que avisan antes de embestir y la estela con zarpazos.
+  "w_humo":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  "w_aviso":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 6 } },
+  "w_estela": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } },
+  // El Verdugo (subjefe del piso 3). Fila 2: herido, hacha en alto (antes del hachazo y de embestir) y 2 de muerte.
+  "executioner": {
+    "cuadro": [80, 80], "detalle": 4,
+    "reposo":  { "fila": 0, "cuadros": 4, "fps": 4 },
+    "caminar": { "fila": 1, "cuadros": 4, "fps": 6 },
+    "herido":  { "fila": 2, "cuadros": 2 },
+    "muerte":  { "fila": 2, "desde": 2, "cuadros": 2, "fps": 2 }
+  },
+  // Ataques del Verdugo: hacha espectral que gira (abanico), estela de la embestida, hachazo al suelo y círculo de invocación.
+  "x_hacha":   { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 12 } },
+  "x_estela":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 6 } },
+  "x_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 3 } },
+  "x_circulo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "desde": 1, "cuadros": 1 } },
+  // El Devorador de Luz (v0.65, IA con fondo verde), jefe del piso 3. Una hoja por fase, como la Reina:
+  //   devourer     fase 1, el Ojo del Abismo
+  //   devourer_f2  fase 2, las Fauces
+  //   devourer_f3  fase 3, el Devorador Desatado (carne llena de ojos)
+  // fila 2: herido, pose de ataque (el ojo dispara) y 2 cuadros de transformación (en la fase 3, de muerte)
+  "devourer":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 8 },
+                   "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.6 } },
+  "devourer_f2": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 8 },
+                   "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.6 } },
+  "devourer_f3": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 5 }, "caminar": { "fila": 1, "cuadros": 4, "fps": 10 },
+                   "herido": { "fila": 2, "cuadros": 2 }, "muerte": { "fila": 2, "desde": 2, "cuadros": 2, "fps": 1.5 } },
+  // Ataques del Devorador (16b-zonas-de-jefe.js y 38-armadura-visual.js):
+  //   d_rayo     Mirada Ardiente: trozo de rayo que se repite a lo largo; reposo = aviso, muerte = disparo (2), se adelgaza, humo
+  //   d_ojo      Eclipse: ojo rojo que flota en la oscuridad y parpadea
+  //   d_orbe     Eclipse: bola de sombra que disparan los ojos (va hacia la derecha)
+  //   d_ola      Eclipse: zarcillos de sombra que se extienden por el suelo al apagarse la luz
+  //   d_portal   Fauces del Vacío: reposo = el portal se abre; muerte = las fauces muerden (2) y el portal se cierra (2)
+  //   d_agujero  Agujero Negro: reposo = gira; muerte = se encoge, estalla y queda un anillo de humo
+  "d_rayo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 8 } },
+  "d_ojo":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 3 } },
+  "d_orbe":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 10 } },
+  "d_ola":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "d_portal":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 8 } },
+  "d_agujero": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 8 } },
+  // Ojo vigía (v0.65, IA): torreta del desafío y esbirro del Devorador. Fila 0: flota y parpadea;
+  // fila 1: carga el disparo («caminar», el ojo no camina), herido y 2 de muerte (revienta en sangre)
+  "eye": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 4 }, "caminar": { "fila": 1, "cuadros": 1 },
+           "herido": { "fila": 1, "desde": 1, "cuadros": 1 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 6 } },
+  // Espada del Caballero (v0.66, IA con fondo verde). Ver 37c-espada-hd.js.
+  //   knight_atq  el Caballero atacando con el puño vacío (la espada se dibuja aparte, en su mano). Los nombres de las
+  //               animaciones no se usan como tales: reposo = tajo, caminar = revés, herido = estocada, muerte = giro
+  //   espada      la espada en sus 5 estrellas (apunta hacia arriba; la empuñadura, abajo)
+  //   espada_el   la espada con elemento: fuego, agua, aire y tierra
+  //   c_tajo, c_reves, c_estocada  el corte de cada golpe del combo (4 cuadros: aparece, lleno, se adelgaza, chispas)
+  //   c_giro      el anillo del giro cargado (2); c_impacto: chispa al pegar (muerte = 2 cuadros)
+  //   c_fire, c_water, c_air, c_earth  cortes con elemento: media luna, estocada, anillo e impacto
+  // Disparo de la Arquera (v0.68, IA con fondo verde; el arma se dibuja aparte, en su mano). reposo = arco
+  // (apunta, tensa, suelta, vuelve), caminar = arma pesada a dos manos (apunta, dispara, retroceso, vuelve)
+  "archer_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  // Ataques del Asesino (v0.69, IA con fondo verde; manos vacías, el arma va aparte). reposo = estocadas rápidas,
+  // caminar = tajo amplio, herido = lanzar, muerte = embestida de sombra (agacharse, lanzarse, caer, levantarse)
+  "rogue_atq":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
+                  "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
+  // Hechizos del Nigromante (v0.70, manos vacías; el báculo va aparte). reposo = hechizo rápido con una mano,
+  // caminar = a dos manos, herido = alzar / invocar (cargado), muerte = canalizar (rayo). necro_nova: las 2 poses de la Nova
+  "necro_atq":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
+                  "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
+  "necro_nova": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2 } },
+  "knight_atq": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 },
+                  "herido": { "fila": 2, "cuadros": 4 }, "muerte": { "fila": 3, "cuadros": 4 } },
+  "espada":     { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "espada_el":  { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_tajo":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_reves":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_estocada": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "c_giro":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 2, "fps": 12 } },
+  "c_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 2, "fps": 10 } },
+  "c_fire":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "c_water":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "c_air":      { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  "c_earth":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 3 }, "muerte": { "fila": 0, "desde": 3, "cuadros": 1 } },
+  // Mazo del Caballero (v0.67, IA con fondo verde): Garrote (empieza en el cuadro 0) y Martillo de guerra (en el 2). Ver 37c-espada-hd.js.
+  //   mazo, mazo_el  el mazo en sus 5 estrellas y con elemento (apunta hacia arriba; la empuñadura, abajo)
+  //   m_barrido      el barrido de polvo y piedras del 1.er y 2.º golpe; m_mazazo: el golpe en el suelo del 3.º (muerte)
+  //   m_terremoto    el anillo del terremoto cargado; m_impacto: el golpe sordo al pegar (muerte)
+  "mazo":        { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "mazo_el":     { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "m_barrido":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "m_mazazo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  "m_terremoto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "m_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 14 } },
+  // Lanza de guardia (v0.67, IA con fondo verde). Ver 37c-espada-hd.js.
+  //   lanza, lanza_el  la lanza en sus 5 estrellas y con elemento (punta arriba)
+  //   l_estocada, l_barrido, l_embestida  estela de la estocada, barrido con el asta y estela de la embestida cargada
+  //   l_impacto        pinchazo al pegar (muerte); l_el: estocada con elemento (fuego, agua, aire, tierra)
+  "lanza":       { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "lanza_el":    { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_estocada":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_barrido":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_embestida": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "l_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "l_el":        { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Escudo de púas (v0.67, IA con fondo verde). Ver 37c-espada-hd.js.
+  //   escudo, escudo_el  el escudo de frente en sus 5 estrellas y con elemento
+  //   e_empuje, e_onda   empujón del ataque y onda del golpe cargado; e_bloqueo: destello al parar una bala (muerte)
+  //   e_golpe            impacto metálico (muerte); e_pua: púa en vuelo (4★ en adelante)
+  "escudo":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "escudo_el": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "e_empuje":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "e_onda":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "e_bloqueo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 14 } },
+  "e_golpe":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "e_pua":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Espada corta (v0.67, IA): en sus 5 estrellas y con elemento. Usa el combo, los cortes y el giro de la espada (más chicos)
+  // Katana del Asesino (v0.69): 5 estrellas y 4 elementos (48x128, punta arriba); cortes rojos, estela de la embestida e impacto
+  "katana":      { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "katana_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_tajo":      { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_reves":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_embestida": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "k_impacto":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  // Estrellas ninja del Asesino (v0.69): 5 estrellas y 4 elementos (64x64, de frente; en vuelo giran) e impacto
+  "shuriken":    { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "shuriken_el": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "shu_impacto": { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 18 } },
+  // Kusarigama del Asesino (v0.69): hoz 5 estrellas y 4 elementos (64x64, de pie), tramo de cadena e impacto
+  "kusa":        { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "kusa_el":     { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "ku_cadena":   { "cuadro": [32, 16], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 } },
+  "ku_impacto":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  // Guadaña del Asesino (v0.69): 5 estrellas y 4 elementos (64x128, hoja arriba a la derecha); media luna, anillo del giro,
+  // gotas del robo de vida (van de izquierda a derecha en arco) e impacto, todo en rojo sangre
+  "guad":      { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "guad_el":   { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gu_tajo":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gu_giro":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gu_drena":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "gu_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  // Báculo de almas del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie, cabeza arriba); alma que vuela
+  // (mira a la derecha), salto en cadena (de izquierda a derecha), impacto y estallido de 5 almas del cargado
+  "baculo":     { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "baculo_el":  { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "al_alma":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "al_cadena":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "al_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "al_cargado": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  // Cetro de escarcha del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie); esquirla que vuela (mira a la
+  // derecha), esquirla que se rompe, anillo de hielo del cargado y cristales que brotan del suelo bajo los congelados
+  "cetro":       { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "cetro_el":    { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "es_esquirla": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "es_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "es_anillo":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "es_hielo":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  // Ojo del abismo del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie); tramo del rayo (cruza todo el
+  // cuadro para repetirse), destello del ojo al salir, golpe donde pega y tramo del rayo gigante del cargado
+  "ojo":         { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "ojo_el":      { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "oj_rayo":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  "oj_inicio":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "oj_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  "oj_gigante":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  // Linterna de almas del Nigromante (v0.70): 5 estrellas y 4 elementos (64x128, de pie, farol colgando a la derecha);
+  // alma que vuela (mira a la derecha), golpe, la linterna en el suelo (parpadea) y el pulso de curación
+  "lint":        { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "lint_el":     { "cuadro": [64, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "li_alma":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "li_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "li_farol":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "li_pulso":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  // Tomo de protección del Nigromante (v0.70): 5 estrellas y 4 elementos (96x96, libro abierto que flota); runa que
+  // vuela (mira a la derecha), golpe, burbuja de la barrera (gira) y barrera que se rompe
+  "tomo":        { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "tomo_el":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "to_runa":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  "to_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 16 } },
+  "to_barrera":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "to_rompe":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 10 } },
+  // Grimorio de almas del Nigromante (v0.70): 5 estrellas y 4 elementos (96x96, libro con boca que flota); alma
+  // arrancada (vuela a la derecha), alma guardada (gira a tu alrededor), remolino de la cosecha y corazón gris (HUD y al romperse)
+  "grimorio":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "grimorio_el": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "gr_arranca":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  "gr_alma":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 6 } },
+  "gr_cosecha":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 8 } },
+  "gr_corazon":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 3 }, "muerte": { "fila": 0, "desde": 2, "cuadros": 2, "fps": 6 } },
+  "corta":    { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "corta_el": { "cuadro": [48, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  // Arco corto de la Arquera (v0.68, IA). Ver 37e-arco-hd.js. El arco está de pie: cuerda a la izquierda, empuñadura en el centro
+  //   arco, arco_el  en sus 5 estrellas y con elemento (fuego, agua, aire, tierra)
+  //   flecha     reposo = flecha, con estela, cargada (dorada) e impacto; caminar = flecha de fuego, agua, aire y tierra
+  //   f_impacto  astillas y chispa al pegar
+  "arco":      { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "arco_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "triple":    { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },   // Arco triple: 5 estrellas
+  "triple_el": { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },   // Arco triple con elemento
+  "boom":      { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },   // Arco explosivo: 5 estrellas
+  "boom_el":   { "cuadro": [48, 128], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },   // Arco explosivo con elemento
+  // b_flecha: flecha bomba (sola, con humo, cargada, chispa); b_explosion: destello, bola de fuego, se rompe, humo
+  "b_flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "b_explosion": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 11 } },
+  // Honda (resortera en Y): de pie con la horquilla arriba; piedra = piedra, con estela, cargada, impacto / con elemento
+  "honda":     { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "honda_el":  { "cuadro": [64, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "piedra":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "p_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
+  // Ballesta pesada: de lado apuntando a la derecha (a dos manos); virote = virote, con estela, cargado, impacto / con elemento
+  "xbow":       { "cuadro": [96, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "xbow_el":    { "cuadro": [96, 80], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "virote":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "vi_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
+  // Mosquete: de lado apuntando a la derecha (a dos manos). mu_bala: bala, con estela, cargada, impacto / con elemento;
+  // mu_fogonazo: el disparo saliendo del cañón (destello, fuego, humo, se va)
+  "musket":      { "cuadro": [128, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 5 } },
+  "musket_el":   { "cuadro": [128, 48], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 } },
+  "mu_bala":     { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "mu_fogonazo": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 4, "fps": 12 } },
+  "mu_impacto":  { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
+  "flecha":    { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4 }, "caminar": { "fila": 1, "cuadros": 4 } },
+  "f_impacto": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 1 }, "muerte": { "fila": 0, "cuadros": 1 } },
+  // Poderes elementales del arma, tecla R (v0.66, IA). Ver 37d-poderes-hd.js. Sirven para cualquier arma con elemento.
+  //   h_fuego   Lanzallamas: reposo = trozo del chorro (se repite a lo largo), caminar = llamarada en la punta, muerte = suelo ardiendo
+  //   h_agua    Tsunami: reposo = la ola avanza; muerte = rompe y se deshace
+  //   h_aire    Ráfaga: reposo = remolino a tu alrededor; muerte = el viento estalla hacia fuera
+  //   h_tierra  Piel de roca: reposo = las rocas suben y forman el anillo; caminar = anillo (late); muerte = se desmorona
+  "h_fuego":  { "cuadro": [64, 64], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 }, "caminar": { "fila": 1, "cuadros": 2 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 6 } },
+  "h_agua":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 8 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 12 } },
+  "h_aire":   { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 12 }, "muerte": { "fila": 1, "cuadros": 4, "fps": 9 } },
+  "h_tierra": { "cuadro": [96, 96], "detalle": 4, "reposo": { "fila": 0, "cuadros": 4, "fps": 8 }, "caminar": { "fila": 1, "cuadros": 2 }, "muerte": { "fila": 1, "desde": 2, "cuadros": 2, "fps": 5 } }
 }

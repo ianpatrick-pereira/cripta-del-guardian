@@ -18,9 +18,10 @@ function shake(v) { G.shake = Math.max(G.shake, v * SAVE.opt.shake); }
 function showBanner(txt, color = '#ece4cf', sub = '') { G.banner = { txt, sub, color, t: 1.8, max: 1.8 }; }
 function later(t, fn) { G.timers.push({ t, fn }); }
 
-function explode(x, y, R, dmg, fromPlayer) {
-  burst(x, y, '#ffb36a', 26, 260, 5, .55); burst(x, y, '#4a4658', 14, 160, 6, .8);
-  G.parts.push({ x, y, vx: 0, vy: 0, life: .18, max: .18, color: 'rgba(255,220,150,.6)', size: R * 1.6 });
+function explode(x, y, R, dmg, fromPlayer, dibujada = false) {
+  // dibujada: la explosión ya tiene su dibujo HD (flecha del Arco explosivo), así que no lleva el destello cuadrado ni tantas chispas
+  burst(x, y, '#ffb36a', dibujada ? 10 : 26, 260, 5, .55); burst(x, y, '#4a4658', dibujada ? 4 : 14, 160, 6, .8);
+  if (!dibujada) G.parts.push({ x, y, vx: 0, vy: 0, life: .18, max: .18, color: 'rgba(255,220,150,.6)', size: R * 1.6 });
   shake(11); noise(.45, .12, 700); sfx(70, .35, 'sawtooth', .05, -30);
   for (const e of G.enemies) if (!e.dead && dist(e, { x, y }) < R + e.r) hurtEnemy(e, dmg, angTo({ x, y }, e), 320, { explosion: true });
   const p = G.player;

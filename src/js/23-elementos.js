@@ -2,16 +2,19 @@
 import { tr } from './00b-textos.js';
 import { ctx } from './00-inicio.js';
 import { TAU, TILE, angTo, clamp, dist, pick, rand } from './01-utilidades.js';
+import { ANIM, animKey, drawSpr, luzSuelo, mobKey } from './02-pixel-art.js';
 import { D } from './03-datos-del-juego.js';
 import { noise, sfx } from './05-audio.js';
 import { G, rc } from './07-estado.js';
 import { moveEnt, roomAt, solidAt } from './08-colisiones.js';
 import { addText, breakCracks, burst, later, shake, showBanner } from './09-efectos.js';
 import { dmgMul } from './11-jugador.js';
-import { elAbName } from './12-armas-con-estilo-propio.js';
+import { STYLE, elAbName } from './12-armas-con-estilo-propio.js';
 import { armorSh } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { drawShadow } from './36-mar-de-lava.js';
+import { fondoElem, frenteElem, poseElem } from './23c-movimiento-elemental.js';
+import { drawLanzallamasHD, rafagaHD } from './37d-poderes-hd.js';
 const ELEMS = {
   fire:  { n: tr('Fuego'),  c: '#ff6a3a', ab: tr('Lanzallamas'), abd: tr('5 s: tu arma lanza fuego sin parar hacia donde apuntas. Mucho daño y quema 3 s.'),
            hitd: tr('te quema y deja el suelo ardiendo'),
@@ -24,14 +27,17 @@ const ELEMS = {
            boss: { name: tr('Djinn del Vendaval'), r: 22, hp: 270, speed: 155, want: 190, p1: ['flechas', 'gust', 'atraer'], p2: ['flechas', 'gust', 'atraer', 'rafaga', 'charge3'] } },
   earth: { n: tr('Tierra'), c: '#c09060', ab: tr('Piel de roca'),   abd: tr('10 s: recibes la mitad de daño y tu arma pega +35 %.'),
            hitd: tr('golpea +1 y resiste el daño'),
-           boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'slam'], p2: ['pedrusco', 'gravilla', 'muralla', 'slam', 'pedrusco'] } },
+           boss: { name: tr('Gólem de Roca'), r: 30, hp: 540, speed: 48, want: 110, p1: ['pedrusco', 'gravilla', 'muralla', 'golpe'], p2: ['pedrusco', 'golpe', 'gravilla', 'muralla', 'golpe'] } },
 };
 const EL_ORDER = ['fire', 'water', 'air', 'earth'];
+// v0.64: los elementales con hoja HD (src/sprites/elem_<elemento>.png) se dibujan con ella, a esta escala
+const ELEM_S = { fire: 5.2, water: 5, air: 4.8, earth: 5.4 };
+const elemSpr = el => ANIM['elem_' + el] ? 'elem_' + el : null;
 function mkElem(el, x, y) {
   const E = ELEMS[el], B = E.boss;
   const S = { ...B, sk: 'el_' + el, tint: E.c, pc: E.c, el };
   const lv = G.floor, hp = Math.round(B.hp * D().hp * (1 + .65 * (lv - 1)));
-  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: 'brute', s: 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), fd: el === 'earth' ? 1 : 0, tint: E.c,
+  return { type: 'sub', isSub: true, elem: el, def: S, sk: S.sk, name: tr`${B.name} · Nv${lv}`, spr: elemSpr(el) || 'brute', s: elemSpr(el) ? ELEM_S[el] : 3, r: B.r, x, y, hp, max: hp, speed: B.speed * (1 + .06 * (lv - 1)), dmg: (lv >= 4 ? 2 : 1) + (el === 'earth' ? 1 : 0), fd: el === 'earth' ? 1 : 0, tint: E.c,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, timer: 0, poison: 0, pt: 0, wob: 0, alpha: 1, air: false, lift: 0 };
 }
 function totemElement() { return pick(EL_ORDER); }
@@ -48,6 +54,7 @@ function startElemFight(it) {
 function elemCost(w) { return 15 + 5 * w.elLv; }
 function elemAbility(p) {
   const w = p.slots[p.cur];
+  if (w && w.style && STYLE[w.style].teclaR && STYLE[w.style].teclaR(p, w)) return;   // v0.70: la R propia del arma (Grimorio)
   if (!w || !w.elOn) { addText(p.x, p.y - 26, tr('Esta arma no tiene poder elemental'), '#9d95ab', 11); return; }
   if (p.elCd > 0) return;
   const cost = elemCost(w);
@@ -80,7 +87,7 @@ function elemAbility(p) {
     }
     G.proj = G.proj.filter(pr => pr.owner === 'player' || dist(pr, p) > R * .7);   // también se lleva las balas cercanas
     for (let i = 0; i < 36; i++) { const an = i * TAU / 36, sp = rand(280, 420); G.parts.push({ x: p.x, y: p.y, vx: Math.cos(an) * sp, vy: Math.sin(an) * sp, life: .45, max: .45, color: 'rgba(200,240,224,.85)', size: 3 }); }
-    p.windT = 3;
+    p.windT = 3; rafagaHD(p.x, p.y, R);
     noise(.8, .06, 2500); sfx(500, .6, 'sine', .03, 400);
   } else {
     // piel de roca: 10 s de resistencia y más daño
@@ -126,6 +133,7 @@ function updateFlamer(dt) {
 }
 function drawFlamer() {
   const F = G.player && G.player.flame; if (!F) return;
+  if (drawLanzallamasHD()) return;   // v0.66: chorro dibujado (37d-poderes-hd.js)
   ctx.save(); ctx.globalCompositeOperation = 'lighter';
   for (const f of F.f) {
     const k = f.life / f.max, col = k > .7 ? '255,205,110' : k > .45 ? '255,170,60' : k > .2 ? '255,90,40' : '120,40,30';
@@ -158,6 +166,41 @@ function shredShield() {
 }
 function drawElemental(e) {
   const c = e.tint, t = e.t, lift = e.lift || 0, y = e.y - lift, white = e.flash > 0;
+  const hoja = elemSpr(e.elem);
+  if (hoja) {
+    // v0.64: cada Elemental se mueve según su forma (23c-movimiento-elemental.js)
+    const P = poseElem(e);
+    drawShadow(e.x, e.y, e.elem === 'air' ? e.r * (.75 + .08 * Math.sin(t * 2.2)) : e.r);   // el Djinn flota: sombra más chica que respira
+    fondoElem(e, y, P);
+    // vórtice de almas bajo el Djinn mientras te atrae (pegado al suelo: borde suave y se abre girando)
+    if (e.elem === 'air' && e.st === 'atraer' && e.timer > .3 && e.timer < 1.7 && ANIM.v_vortice) {
+      const k = Math.min(1, (e.timer - .3) / .3, (1.7 - e.timer) / .25);
+      drawSpr(animKey('v_vortice', 'reposo', e.timer), e.x, e.y + 4, 6 * (.4 + .6 * k), { alpha: .75 * k, rot: -G.time * 3, suave: true, luz: .25 });
+    }
+    const golpe = e.elem === 'earth' && e.st === 'golpe' && e.modo && ANIM.golem_puno;
+    if (golpe) {
+      // golpe del Gólem: cuadros propios (112×96), con los pies en el mismo sitio que su cuerpo
+      const ks = e.s * .25, dir = Math.cos(e.ca) < 0 ? -1 : 1, tt = e.timer;
+      const i = e.modo === 'puno' ? (tt < .45 ? 0 : tt < .62 ? 1 : tt < .82 ? 2 : 3) : (tt < .45 ? 0 : tt < .55 ? 1 : tt < (e.t0 || 9) + .45 ? 2 : 3);
+      drawSpr(`golem_${e.modo}~reposo~${i}`, e.x + P.dx + 15 * ks * dir, y - 14 - 8 * ks + P.dy, e.s, { flip: dir < 0, white, rot: P.rot * .3 });
+    } else drawSpr(mobKey(hoja, t, P.anda, e.hitT > -.06) || hoja, e.x + P.dx, y - 14 + P.dy, e.s, { flip: G.player.x < e.x, white, rot: P.rot, sx: P.sx, sy: P.sy, luz: P.brillo });
+    frenteElem(e, y, P);
+    // aliento infernal del lanzallamas: llamas con calaveras que se agrandan a lo largo del chorro y alumbran el suelo
+    if (e.st === 'lanzallamas' && e.timer > .55 && e.timer < 2.4 && ANIM.f_aliento) {
+      const k = Math.min(1, (e.timer - .55) / .2, (2.4 - e.timer) / .2);
+      for (let i = 0; i < 4; i++) {
+        const d = (e.r + 18 + i * 46) * (.5 + .5 * k), x = e.x + Math.cos(e.ca) * d, yy = y - 6 + Math.sin(e.ca) * d;
+        luzSuelo(x, yy + 16, 30 + i * 12, '255,110,40', .3 * k);
+        drawSpr(animKey('f_aliento', 'reposo', G.time + i * .13), x, yy, (1.7 + i * .45) * (.6 + .4 * k), { rot: e.ca - .45, alpha: (i === 3 ? .75 : .95) * k, luz: .4 });
+      }
+    }
+    // ráfaga del Djinn: muro de viento maldito delante de él
+    if (e.elem === 'air' && e.st === 'gust' && e.timer > .5 && e.timer < 2.1 && ANIM.v_rafaga) {
+      const A = angTo(e, G.player), k = Math.min(1, (e.timer - .5) / .2, (2.1 - e.timer) / .25);
+      drawSpr(animKey('v_rafaga', 'reposo', e.timer), e.x + Math.cos(A) * 60, y + Math.sin(A) * 60, 3.6 * (.6 + .4 * k), { rot: A, alpha: .85 * k, luz: .3 });
+    }
+    return;
+  }
   drawShadow(e.x, e.y, e.r);
   const g = ctx.createRadialGradient(e.x, y, 2, e.x, y, e.r + 22); g.addColorStop(0, c + 'aa'); g.addColorStop(1, c + '00');
   ctx.fillStyle = g; ctx.beginPath(); ctx.arc(e.x, y, e.r + 22, 0, TAU); ctx.fill();

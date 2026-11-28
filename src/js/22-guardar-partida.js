@@ -1,6 +1,6 @@
 // ================= Guardar partida =================
 // se guarda al empezar cada piso; al continuar, se reanuda al inicio de ese piso
-import { applyW, mkW } from './03-datos-del-juego.js';
+import { WEAPONS, applyW, mkW } from './03-datos-del-juego.js';
 import { selChar, setSelChar } from './04-guardado.js';
 import { G, newRun } from './07-estado.js';
 import { subLv, tl } from './26-clases.js';
@@ -16,7 +16,10 @@ function resumeRun(s) {
   Object.assign(G, { diff: s.diff, circ: s.circ || 0, coins: s.coins, keys: s.keys, gems: s.gems, kills: s.kills, time: s.time, wonOnce: s.wonOnce });
   const p = G.player;
   Object.assign(p, { hp: s.hp, maxHp: s.maxHp, en: s.en, maxEn: s.maxEn, relics: s.relics.slice(), cur: s.cur });
-  p.slots = s.slots.map(o => { const w = mkW(o.id, o.stars); w.up = { ...o.up }; w.el = o.el || null; w.elC = o.elC || 0; w.elLv = o.elLv || 0; w.starter = !!o.starter; return applyW(w); });
+  // v0.69: las armas que ya no existen (se quitaron del juego) se saltan; si no queda ninguna, se queda el equipo inicial
+  const vale = s.slots.filter(o => WEAPONS.some(w => w.id === o.id));
+  if (vale.length) p.slots = vale.map(o => { const w = mkW(o.id, o.stars); w.up = { ...o.up }; w.el = o.el || null; w.elC = o.elC || 0; w.elLv = o.elLv || 0; w.starter = !!o.starter; return applyW(w); });
+  p.cur = Math.min(p.cur, p.slots.length - 1);
   G.crystals = { fire: 0, water: 0, air: 0, earth: 0, ...(s.crystals || {}) };
   p.armor = s.armor || 0;
   p.talents = (s.talents || []).slice(); p.spec = s.spec || ''; G.daily = s.daily || ''; p.subK = s.subK || 0; p.preK = s.preK || 0; p.cu = { ...(s.cu || {}) };

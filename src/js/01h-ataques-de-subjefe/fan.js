@@ -9,7 +9,7 @@ defSubMove('fan', {
     e.timer += dt;
     if (e.timer < .5) { e.ca = a; return; }
     const T = e.timer - .5, dur = 1.3;
-    while (e.k * .07 < T && T < dur) { const ang = e.ca - .9 + 1.8 * (e.k * .07 / dur); enemyShoot(e, ang, 230, 5, S.tint); e.k++; if (e.k % 3 === 0) sfx(420, .03, 'square', .015); }
+    while (e.k * .07 < T && T < dur) { const ang = e.ca - .9 + 1.8 * (e.k * .07 / dur); const pr = enemyShoot(e, ang, 230, 5, S.tint); if (S.efectos && S.efectos.hacha) { pr.anim = S.efectos.hacha; pr.ss = 1.8; } e.k++; if (e.k % 3 === 0) sfx(420, .03, 'square', .015); }
     if (T > dur + .3) subIdle(e);
   }
 });

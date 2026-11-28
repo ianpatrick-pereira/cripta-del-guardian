@@ -13,7 +13,7 @@ defSubMove('charcos', {
       e.k = 1; e.spots = [];
       const n = ph2 ? 5 : 4, off = rand(0, TAU);
       for (let i = 0; i < n; i++) { const a = off + i * TAU / n, d = i === 0 ? 0 : rand(60, 110); e.spots.push({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }); }
-      for (const s of e.spots) hazard(s.x, s.y, 46, .8, 1, S.tint, { owner: e });
+      for (const s of e.spots) hazard(s.x, s.y, 46, .8, 1, S.tint, { owner: e, fx: 'a_charco', s: 5.6 });   // v0.64: el charco maldito se extiende antes de estallar
     }
     if (e.k === 1 && e.timer > .8) { e.k = 2; for (const s of e.spots) addPuddle(s.x, s.y, 50, 7); noise(.4, .06, 700); }
     if (e.timer > 1.2) subIdle(e);

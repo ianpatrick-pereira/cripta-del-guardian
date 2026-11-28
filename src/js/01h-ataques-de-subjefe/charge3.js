@@ -3,6 +3,7 @@ import { ctx } from '../00-inicio.js';
 import { rand } from '../01-utilidades.js';
 import { defSubMove } from '../01a-registro.js';
 import { sfx } from '../05-audio.js';
+import { G } from '../07-estado.js';
 import { moveEnt, pushOutProps } from '../08-colisiones.js';
 import { burst, damageProp, shake } from '../09-efectos.js';
 import { enemyShoot, leadAng } from '../14-enemigos.js';
@@ -21,6 +22,8 @@ defSubMove('charge3', {
     } else {
       e.charging = true;
       const hit = moveEnt(e, Math.cos(e.ca) * 560 * dt, Math.sin(e.ca) * 560 * dt);
+      // v0.65: estela de polvo y sangre detrás (solo dibujo)
+      const S = e.def; if (S.efectos && S.efectos.estela && (e.estelaT = (e.estelaT || 0) - dt) <= 0) { e.estelaT = .05; G.parts.push({ x: e.x, y: e.y + 4, vx: 0, vy: 0, life: .4, max: .4, fx: S.efectos.estela, s: 3, rot: e.ca, color: '', size: 0 }); }
       const o = pushOutProps(e); if (o && o.kind !== 'merchant') damageProp(o, 99);
       if (ph2 && Math.random() < dt * 14) enemyShoot(e, e.ca + Math.PI + rand(-.8, .8), 60, 6, '#ff6a3a');
       if (hit || e.timer > .6) {

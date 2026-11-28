@@ -22,7 +22,7 @@ const preparar = ({ seed, save }) => {
   localStorage.clear();
   if (save) localStorage.setItem('cripta-guardian-v1', JSON.stringify(save));
 };
-const SAVE_BASE = { gems: 50, chars: { knight: true, archer: true, rogue: true } };
+const SAVE_BASE = { gems: 50, chars: { knight: true, archer: true, rogue: true, necro: true } };
 
 // ---------- funciones que corren dentro de la página ----------
 // el bot: persigue al enemigo más cercano, mantiene distancia si dispara, carga, esquiva y usa habilidades
@@ -63,7 +63,7 @@ const BOT = `window.__bot = (frames, godmode) => {
 window.__simR = (n, o = {}) => { const T = window.__cripta; T.bot(o); for (let i = 0; i < n; i++) { if (T.resolve()) T.bot(o); T.sim(1); } };`;
 
 // ---------- escenarios ----------
-const CLASES = ['knight', 'archer', 'rogue'], NOMBRE = { knight: 'Caballero', archer: 'Tirador', rogue: 'Asesino' };
+const CLASES = ['knight', 'archer', 'rogue', 'necro'], NOMBRE = { knight: 'Caballero', archer: 'Tirador', rogue: 'Asesino', necro: 'Nigromante' };
 const escenarios = [];
 // 1) cada clase en cada piso: despeja las salas de combate, la del subjefe y la del jefe
 const casoClase = (ch, piso) => ({ grupo: 'clases', id: `${NOMBRE[ch]} · piso ${piso}`, seed: piso * 31 + ch.length, run: async pg => pg.evaluate(([ch, piso]) => {
@@ -121,11 +121,15 @@ escenarios.push({ grupo: 'armas', id: 'las armas a 1★, 3★ y 5★', seed: 777
     if (G.kills === k0 && vida1 >= vida0) fallos.push(`${id} ${st}★: el ataque normal no hizo daño`);
     while (T.resolve());   // cierra elecciones pendientes (subclase, talentos...)
     G.enemies.length = 0; G.proj.length = 0; p.en = 999; p.x = cx; p.y = cy; p.aim = 0;
+    p.linternaCd = p.tomoCd = 0; p.bulwarkT = 0; if (G.cls) G.cls.linternas = [];   // sin la espera entre linternas y barreras
     ['eye', 'eye'].forEach((t, i) => T.spawn(t, p.x + 60, p.y - 20 + i * 40));   // los ojos no se mueven: blanco fijo
     const vida2 = G.enemies.reduce((a, e) => a + e.hp, 0), k2 = G.kills;
     window.__simR(70, { chg: true }); window.__simR(90); T.render();   // ataque cargado
     const vida3 = G.enemies.reduce((a, e) => a + (e.dead ? 0 : Math.max(0, e.hp)), 0);
-    if (G.kills === k2 && vida3 >= vida2) fallos.push(`${id} ${st}★: el ataque cargado no hizo daño (enemigos ${G.enemies.length}, vida ${vida2}→${vida3}, energía ${Math.round(p.en)}, elección ${!!G.choice}, fin ${!!G.over})`);
+    // armas de apoyo del Nigromante: el cargado no daña, deja una linterna que cura o una barrera
+    const apoyo = id === 'linterna' ? !!(G.cls && G.cls.linternas && G.cls.linternas.length) : id === 'tomo' ? p.bulwarkT > 0 && p.barreraN > 0 : null;
+    if (apoyo === false) fallos.push(`${id} ${st}★: el ataque cargado de apoyo no hizo nada`);
+    if (apoyo === null && G.kills === k2 && vida3 >= vida2) fallos.push(`${id} ${st}★: el ataque cargado no hizo daño (enemigos ${G.enemies.length}, vida ${vida2}→${vida3}, energía ${Math.round(p.en)}, elección ${!!G.choice}, fin ${!!G.over})`);
     if (!Number.isFinite(p.x)) fallos.push(`${id} ${st}★: posición NaN`);
     huella.push(id + st + ':' + (G.kills - k0) + ':' + Math.round(vida1) + ':' + Math.round(vida3));
   }

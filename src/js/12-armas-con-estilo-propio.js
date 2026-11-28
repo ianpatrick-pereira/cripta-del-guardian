@@ -16,6 +16,9 @@ import { hurtEnemy } from './14-enemigos.js';
 import { ELEMS, elemBlast } from './23-elementos.js';
 import { drawClass } from './26-clases.js';
 import { drawShadow } from './36-mar-de-lava.js';
+import { bloqueoFx } from './37c-espada-hd.js';
+import { drawAlmasGuardadas, drawRayoHD } from './37g-baculo-hd.js';
+import { drawKusa, impactoKusa } from './37f-kusarigama-hd.js';
 const STYLE = {};
 for (const id of weaponList()) { const d = WEAPON_DEFS[id]; if (d.estilo) STYLE[d.datos.style] = d.estilo; }
 // v0.58: el poder elemental depende solo del elemento, no del estilo del arma
@@ -66,6 +69,7 @@ function whipLash(p, w, a, range, dmg, pull) {
     const dx = e.x - p.x, dy = e.y - p.y, along = dx * ca + dy * sa, perp = Math.abs(-dx * sa + dy * ca);
     if (along < -e.r || along > range + e.r || perp > 14 + e.r) continue;
     hurtEnemy(e, dmg, a, 120, { src: w, melee: true, fx: w.fx });
+    impactoKusa(w, e.x, e.y - 6);   // v0.69: kusarigama HD
     if (pull && !e.isBoss && !e.isSub && !e.elite && e.r <= 16) { e.kx -= ca * 460; e.ky -= sa * 460; }
     p.en = Math.min(maxEnergy(p), p.en + 1);
   }
@@ -94,6 +98,7 @@ function shieldBash(p, w, range, dmg) {
 function shieldBlock(p, pr) {
   const w = p.slots[p.cur];
   if (!w || w.style !== 'shield' || Math.abs(angDiff(p.aim, angTo(p, pr))) > 1 + .25 * espLv(w)) return false;
+  bloqueoFx(p, pr);   // v0.67: destello del escudo HD
   if (espLv(w) >= 3) reflect(pr, p.aim, w.dmg); else { pr.life = 0; burst(pr.x, pr.y, '#d8d0b8', 4, 90); sfx(1500, .04, 'square', .02); }
   p.en = Math.min(maxEnergy(p), p.en + 1);
   return true;
@@ -146,11 +151,15 @@ function styleAttack(p, w, cost) {
     dmg = Math.max(1, Math.floor(dmg / 2));
   } else if (!STYLE[w.style].cobraAlLanzar) p.en -= cost;
   STYLE[w.style].ataque(p, w, { a, dmg, cost });
+  if (p.spr === 'necro') { p.castAt = G.time; p.castFila = HECHIZO_FILA[w.style] || 'reposo'; }   // v0.70: gesto del hechizo
 }
+// v0.70: fila de necro_atq que usa cada arma del Nigromante (reposo = una mano, caminar = dos manos, muerte = canalizar)
+const HECHIZO_FILA = { escarcha: 'caminar', tomo: 'caminar', grimorio: 'caminar', ojo: 'muerte' };
 // ataque cargado de cada estilo; S = estrellas (la habilidad elemental usa la forma de 5★)
 function styleCharge(p, w, S, dm, col) {
   const a = p.aim;
   STYLE[w.style].cargado(p, w, { a, S, dm, col });
+  if (p.spr === 'necro') { p.castAt = G.time; p.castFila = 'herido'; }   // v0.70: alza las manos al invocar
 }
 // estallido de elemento en cada golpe mientras dura el poder elemental del arma
 function elemProc(el, e, w) {
@@ -186,16 +195,18 @@ function drawStyles() {
     drawShadow(A.x, A.y + 4, A.r);
     drawSpr(A.merc ? 'knight' : 'skel', A.x, A.y - (A.rise || 0) * 20, A.merc ? 2 : A.big ? 3 : 2, { flip: A.flip, alpha: Math.min(1, A.t * 2) * .9 });
   }
-  const beam = (a, len, wd, col, al) => {
+  const beam = (a, len, wd, col, al, ww = w, big = false) => {
+    if (drawRayoHD(p, ww, a, len, wd, al, big)) return;   // v0.70: rayo HD del Ojo del abismo
     const ex = p.x + Math.cos(a) * len, ey = p.y + Math.sin(a) * len;
     ctx.globalAlpha = al * .35; ctx.strokeStyle = col; ctx.lineWidth = wd * 1.8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ex, ey); ctx.stroke();
     ctx.globalAlpha = al; ctx.lineWidth = wd * .6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ex, ey); ctx.stroke();
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(2, wd * .2); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(ex, ey); ctx.stroke();
     ctx.globalAlpha = 1; if (Math.random() < .5) G.parts.push({ x: ex, y: ey, vx: rand(-80, 80), vy: rand(-80, 80), life: .25, max: .25, color: col, size: 3 });
   };
+  drawAlmasGuardadas(p);   // v0.70: almas del Grimorio
   if (p.beamVis) beam(p.beamVis.a, p.beamVis.len, p.beamVis.wd, w.gem || '#ff6ad8', .85);
-  for (const B of G.pbeams || []) beam(B.a, B.cur || B.len, B.wd, B.col, Math.min(1, B.t * 3));
-  if (p.whip) {
+  for (const B of G.pbeams || []) beam(B.a, B.cur || B.len, B.wd, B.col, Math.min(1, B.t * 3), B.w, true);
+  if (p.whip && !drawKusa(p, w)) {   // v0.69: el kusarigama HD dibuja su cadena
     const W = p.whip, k = W.t / W.dur;
     ctx.strokeStyle = `rgba(200,196,210,${1 - k})`; ctx.lineWidth = 3;
     if (W.circle) { ctx.beginPath(); ctx.arc(p.x, p.y, W.range * (.5 + .5 * k), 0, TAU); ctx.stroke(); }

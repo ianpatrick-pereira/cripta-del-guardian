@@ -28,6 +28,10 @@ import { updateClass } from './26-clases.js';
 import { dailyScore } from './31-reto-diario.js';
 import { saveHistory } from './38b-historial.js';
 import { iconImg } from './31b-iconos.js';
+import { bombaHD, impactoFlecha } from './37e-arco-hd.js';
+import { explosionHD } from './37g-baculo-hd.js';
+// v0.69: la Calavera aullante del Nigromante deja ardiendo a todos los que alcanza su explosión
+function quemaZona(x, y, R) { for (const e of G.enemies) if (!e.dead && Math.hypot(e.x - x, e.y - y) < R + e.r) e.burn = 3; }
 function endGame(won) {
   if (G.over) return;
   G.over = true; G.won = won; G.endT = won ? 2.6 : 1.4;
@@ -110,7 +114,8 @@ function update(dt) {
       h.gone = true;
       const pl = G.player;
       if (!G.over && dist(h, pl) < h.r + pl.r * .4) { if (h.shred) shredShield(); if (hurtPlayer(h.dmg, h.por) && h.el) elemHit(h.el, h); }
-      burst(h.x, h.y, h.color, 12, 190, 4, .4); shake(4); noise(.12, .05, 700);
+      if (!h.sinChispas) { burst(h.x, h.y, h.color, 12, 190, 4, .4); shake(4); noise(.12, .05, 700); }
+      if (h.fx || h.fxFin) G.parts.push({ x: h.x, y: h.y - (h.fxFin ? h.fyFin || 0 : h.fy || 0), vx: 0, vy: 0, life: h.fxT || .5, max: h.fxT || .5, fx: h.fxFin || h.fx, s: h.sFin || h.s || 3, rot: h.rotFin || 0, color: '', size: 0 });   // fxFin: lo que aparece al estallar (si no, el mismo dibujo del aviso)
       if (h.el === 'fire') { if (!G.flames) G.flames = []; G.flames.push({ x: h.x, y: h.y, r: h.r * .9, t: 3.2, fight: true }); }
       const prevSrc = G.elSrc; G.elSrc = h.src || null;
       if (h.ring) for (let i = 0; i < h.ring; i++) enemyShoot({ x: h.x, y: h.y, r: 10 }, i * TAU / h.ring, 150, 6, h.color);
@@ -129,15 +134,18 @@ function update(dt) {
       if (m.type === 'boss') { G.boss = mkBoss(FLOORS[G.fi].boss, m.x, m.y); G.enemies.push(G.boss); shake(10); burst(m.x, m.y, '#c77dff', 30, 260, 5); }
       else if (m.type === 'elem') { G.enemies.push(mkElem(m.el, m.x, m.y)); shake(10); burst(m.x, m.y, ELEMS[m.el].c, 30, 240, 5); }
       else if (m.type === 'sub') { const k = m.k || G.fi + 1; G.enemies.push(mkSub(k, m.x, m.y, m.ex)); shake(8); burst(m.x, m.y, SUBS[k].tint, 24, 220, 4); }
-      else { const ne = mkEnemy(m.type, m.x, m.y, m.depth, m.elite); if (m.el) { ne.el = m.el; ne.hp = ne.max = Math.round(ne.max * .85); } G.enemies.push(ne); burst(m.x, m.y, m.el ? ELEMS[m.el].c : '#d4474b', 6, 90); }
+      else {
+        if (m.type === 'toxic' || m.type === 'mini') G.parts.push({ x: m.x, y: m.y - 6, vx: 0, vy: 0, life: .45, max: .45, fx: 'l_huevo', s: m.type === 'mini' ? 1.1 : 1.6, color: '', size: 0 });   // v0.65: el huevo se rompe
+        const ne = mkEnemy(m.type, m.x, m.y, m.depth, m.elite); if (m.el) { ne.el = m.el; ne.hp = ne.max = Math.round(ne.max * .85); } G.enemies.push(ne); burst(m.x, m.y, m.el ? ELEMS[m.el].c : '#d4474b', 6, 90); }
     }
   }
 
   const p = G.player;
   for (const e of [...G.enemies]) {
     if (e.dead) continue;
+    if (e.almaT > 0) { e.almaT -= dt; if (Math.random() < dt * 6) G.parts.push({ x: e.x + rand(-6, 6), y: e.y - 10, vx: 0, vy: -30, life: .5, max: .5, color: '#c9a8ff', size: 2 }); }   // v0.70: sin alma (Grimorio)
     G.actor = e; updateEnemy(e, dt); G.actor = null;
-    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg, quien(e)) && e.elem) elemHit(e.elem, e); }
+    if (!G.over && !e.dead && !e.air && dist(e, p) < e.r + p.r - 2) { if (e.isBoss && e.st === 'charge') shredShield(); if (hurtPlayer(e.dmg, quien(e), e.almaT > 0 ? e.almaK || 0 : 0) && e.elem) elemHit(e.elem, e); }
   }
   const es = G.enemies;
   for (let i = 0; i < es.length; i++) for (let j = i + 1; j < es.length; j++) {
@@ -173,8 +181,8 @@ function update(dt) {
         pr.x = ox; pr.y = oy; pr.hit = new Set();
         continue;
       }
-      if (pr.owner === 'player' && (pr.fx === 'explode' || pr.boom)) explode(ox, oy, pr.boom || 55, pr.dmg, true);
-      pr.life = 0; burst(pr.x, pr.y, pr.color, 3, 80, 2, .25); continue;
+      if (pr.owner === 'player' && (pr.fx === 'explode' || pr.boom)) { explode(ox, oy, pr.boom || 55, pr.dmg, true, bombaHD(pr) || explosionHD(pr)); if (pr.quema) quemaZona(ox, oy, pr.boom); }
+      impactoFlecha(pr); pr.life = 0; burst(pr.x, pr.y, pr.color, 3, 80, 2, .25); continue;
     }
     for (const o of G.props) {
       if (o.dead || !o.solid || dist(pr, o) > o.r + pr.r) continue;
@@ -188,19 +196,24 @@ function update(dt) {
         if (e.dead || e.air || pr.hit.has(e) || dist(pr, e) > e.r + pr.r) continue;
         pr.hit.add(e);
         hurtEnemy(e, pr.dmg, Math.atan2(pr.vy, pr.vx), pr.kb || (pr.kind === 'power' ? 300 : 140), { src: pr.src, fx: pr.fx });
-        if (pr.fx === 'chain') chainHit(e, pr.dmg);
+        if (pr.alPegar) pr.alPegar(e);   // v0.70: efecto propio al tocar (alma devoradora)
+        impactoFlecha(pr);   // v0.68: astillas de la flecha HD
+        if (pr.fx === 'chain') chainHit(e, pr.dmg, pr.src);
         if (pr.split) splitShot(pr);
         // la hoz se clava en el primer enemigo que toca y gira ahí y lo sigue mientras gira (antes pasaba de largo y giraba en el vacío)
         if (pr.thrown === 'sickle' && pr.ph === 'out') { pr.ph = 'spin'; pr.vx = pr.vy = 0; pr.st = 0; pr.tick = .26; pr.stick = e; }
-        if (pr.fx === 'explode' || pr.boom) { explode(pr.x, pr.y, pr.boom || 55, pr.dmg, true); pr.life = 0; break; }
+        if (pr.fx === 'explode' || pr.boom) { explode(pr.x, pr.y, pr.boom || 55, pr.dmg, true, bombaHD(pr) || explosionHD(pr)); if (pr.quema) quemaZona(pr.x, pr.y, pr.boom); pr.life = 0; break; }
         if (pr.pierce-- <= 0) { pr.life = 0; break; }
       }
     } else if (!G.over && dist(pr, p) < p.r + pr.r - 2) {
       if (p.blockT > 0 && shieldBlock(p, pr)) { /* bloqueada por el escudo */ }
       else if (p.bulwarkT > 0) reflect(pr, angTo(p, pr), 3);
-      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, tr('Atrapado'), '#e8e8d8', 12); } pr.life = 0; }
+      else if (p.inv <= 0) { if (pr.shred) shredShield(); if (hurtPlayer(pr.dmg, pr.por, pr.debil || 0) && pr.el) elemHit(pr.el, { x: pr.x - pr.vx, y: pr.y - pr.vy }); if (pr.slowFx) { p.slow = 2; addText(p.x, p.y - 26, tr('Atrapado'), '#e8e8d8', 12); } pr.life = 0; }
     }
   }
+  // los orbes de los enemigos estallan al chocar o apagarse (v0.64)
+  for (const pr of G.proj) if (pr.life <= 0 && pr.owner === 'enemy' && pr.kind === 'orb' && !pr.spr && G.parts.length < 400)
+    G.parts.push({ x: pr.x, y: pr.y, vx: 0, vy: 0, life: .29, max: .29, spr: 'orbe', muerte: true, s: pr.r * .32, tint: pr.color, flip: false, color: '', size: 0 });
   G.proj = G.proj.filter(pr => pr.life > 0);
   G.enemies = G.enemies.filter(e => !e.dead);
   for (const b of G.bolts) b.life -= dt;

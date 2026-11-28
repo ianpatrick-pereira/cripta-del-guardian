@@ -15,11 +15,15 @@ import { armorSh, interact } from './13-armadura.js';
 import { hurtEnemy } from './14-enemigos.js';
 import { syn } from './18-sinergias.js';
 import { elemAbility } from './23-elementos.js';
-import { SPECS, bestDmg, classDash, focusShot, shieldCharge, specAbility, subIs, subLv,
+import { SPECS, bestDmg, cadaHechizos, classDash, focusShot, shieldCharge, specAbility, subIs, subLv,
   tl } from './26-clases.js';
 import { pact } from './27-pactos-de-piso.js';
 import { endGame } from './33-bucle.js';
 import { zoom } from './34-dibujo.js';
+import { esKatana, esLanza, esMazo, espadaKey, impactoEspada, mazazoFx } from './37c-espada-hd.js';
+// distancia (px) que recorre el personaje en un ciclo completo de pasos (las dos piernas): a velocidad 175, ~2 ciclos por segundo
+const ZANCADA = 85;
+
 function nearestEnemy(p, maxD) {
   let best = null, bd = maxD;
   for (const e of G.enemies) { if (e.air) continue; const d = dist(p, e); if (d < bd) { bd = d; best = e; } }
@@ -38,7 +42,10 @@ function nearestInteract(p) {
   return best;
 }
 const dmgMul = () => (1 + .2 * rc('piedra')) * (pact('fragile') ? 1.4 : 1) * (G.player && G.player.earthT > 0 ? 1 + (G.player.earthK || .35) : 1) * (G.player && G.player.spec ? 1 + .08 * (subLv(G.player) - 1) : 1);
-const critChance = () => G.player.shadowT > 0 ? 1 : (.1 + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1);
+/** segundos que tarda en recargarse una esquiva */
+const dashEspera = p => .85 * (rc('reloj') ? .6 : 1) * (1 - (p.slots[p.cur].dodge || 0)) * (subIs('shade') ? 1 - .06 * subLv(p) : 1);
+// v0.69: el Asesino tiene 35 % de crítico (los demás, 10 %)
+const critChance = () => G.player.shadowT > 0 ? 1 : ((G.player.char === 'rogue' ? .35 : .1) + .15 * rc('ojo') + (tl('ojo2') ? .15 : 0)) * (pact('glass') ? 2 : 1);
 const maxEnergy = p => p.maxEn + 40 * rc('bateria');
 
 function updatePlayer(dt) {
@@ -64,11 +71,14 @@ function updatePlayer(dt) {
   }
   p.flip = Math.cos(p.aim) < 0;
 
-  p.dashCd -= dt;
-  if (wantDash && p.dashCd <= 0 && p.dashT <= 0) {
+  // v0.69: esquivas guardadas (el Asesino tiene 2 seguidas); el tiempo de espera recarga una cada vez.
+  // Poner p.dashCd = 0 (el Asesino al matar) recarga una enseguida.
+  const cargas = p.char === 'rogue' ? 2 : 1;
+  if (p.dashQ < cargas) { p.dashCd -= dt; if (p.dashCd <= 0) { p.dashQ++; if (p.dashQ < cargas) p.dashCd = dashEspera(p); } }
+  if (wantDash && p.dashQ > 0 && p.dashT <= 0) {
     const a = ml > .1 ? Math.atan2(my, mx) : p.aim;
     const roll = p.char === 'archer', blink = p.char === 'rogue';
-    p.dvx = Math.cos(a); p.dvy = Math.sin(a); p.dashT = roll ? .26 : blink ? .1 : .17; p.dashCd = .85 * (rc('reloj') ? .6 : 1) * (1 - (p.slots[p.cur].dodge || 0)) * (subIs('shade') ? 1 - .06 * subLv(p) : 1); p.inv = Math.max(p.inv, roll ? .32 : .22);
+    p.dvx = Math.cos(a); p.dvy = Math.sin(a); p.dashT = roll ? .26 : blink ? .1 : .17; if (p.dashCd <= 0) p.dashCd = dashEspera(p); p.dashQ--; p.inv = Math.max(p.inv, roll ? .32 : .22);
     p.dashHit = new Set(); p.blink = blink;
     sfx(blink ? 520 : 220, .12, blink ? 'sine' : 'sawtooth', .03, blink ? -300 : 300);
     classDash(p);
@@ -92,7 +102,8 @@ function updatePlayer(dt) {
         else p.lunge = null;
       }
     }
-    G.parts.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .22, max: .22, color: 'rgba(227,162,74,.5)', size: 9 });
+    // la embestida de la katana HD ya deja su estela de humo (37c): sin cuadrados
+    if (!(p.lunge && esKatana(p.lunge.w))) G.parts.push({ x: p.x, y: p.y, vx: 0, vy: 0, life: .22, max: .22, color: 'rgba(227,162,74,.5)', size: 9 });
   } else if (p.slick > 0) {
     // charco del Elemental de agua: resbalas, cuesta frenar y girar
     const k = Math.min(1, dt * 1.6);
@@ -101,7 +112,10 @@ function updatePlayer(dt) {
   } else { p.svx = mx * ch.speed * speedMul; p.svy = my * ch.speed * speedMul; moveEnt(p, p.svx * dt, p.svy * dt); }
   if (p.kbx || p.kby) { moveEnt(p, p.kbx * dt, p.kby * dt); const f = Math.exp(-7 * dt); p.kbx *= f; p.kby *= f; if (Math.abs(p.kbx) + Math.abs(p.kby) < 10) p.kbx = p.kby = 0; }
   pushOutProps(p);
-  p.walk += ml * dt * 10;
+  // v0.64: los pasos siguen a la distancia que de verdad recorre (más rápido = pasos más seguidos; contra una pared, quieto)
+  const anduvo = Math.min(12, Math.hypot(p.x - (p.lx ?? p.x), p.y - (p.ly ?? p.y)));
+  p.lx = p.x; p.ly = p.y;
+  p.walk += p.dashT > 0 ? 0 : anduvo / ZANCADA * TAU;
   p.slow -= dt;
   if (p.burnT > 0) {
     p.burnT -= dt; p.burnTick -= dt;
@@ -127,6 +141,7 @@ function updatePlayer(dt) {
   const attacking = touch.on ? touch.atk : mouse.down;
   if (attacking && p.cd <= 0 && !G.over && p.charge <= 0 && !(p.flame && p.flame.arma && p.flame.t > 0)) attack(p);   // con el lanzallamas de fuego, el arma solo echa fuego
   if (p.swing) { p.swing.t += dt; if (p.swing.t > p.swing.dur) p.swing = null; }
+  p.golpeT -= dt;   // ventana para seguir el combo de la espada (v0.66)
 
   p.abilCd -= dt; p.bulwarkT -= dt; p.shadowT -= dt;
   p.veilT -= dt; p.parryT -= dt; p.parryCd -= dt; p.rageT -= dt;
@@ -139,7 +154,7 @@ function updatePlayer(dt) {
   setWantAbil(false);
   if (wantElem && !G.over) elemAbility(p);
   setWantElem(false);
-  if (touch.on) $('bEle').hidden = !(p.slots[p.cur] && p.slots[p.cur].elOn);
+  if (touch.on) $('bEle').hidden = !(p.slots[p.cur] && (p.slots[p.cur].elOn || (p.slots[p.cur].style === 'grimorio' && p.almasN > 0)));
 
   p.en = Math.min(maxEnergy(p), p.en + (3 + 3 * rc('bateria')) * dt);
   p.noEnT -= dt;
@@ -163,7 +178,7 @@ function updatePlayer(dt) {
 
 function useAbility(p) {
   const ch = CHARS[p.char];
-  (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .7, r: 40, c: { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff' }[p.char] || '#ffd27a' });
+  (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .7, r: 40, c: { knight: '#ffd27a', archer: '#9be07a', rogue: '#b98cff', necro: '#9be0a0' }[p.char] || '#ffd27a' });
   if (p.spec) { p.abilCd = SPECS[p.spec].cd; specAbility(p); return; }
   p.abilCd = ch.cd;
   if (p.char === 'knight') { const t = 2.5 + rc('estandarte'); p.bulwarkT = t; p.inv = Math.max(p.inv, t); sfx(300, .4, 'triangle', .06, 300); burst(p.x, p.y, '#e3a24a', 18, 160); }
@@ -175,26 +190,72 @@ function useAbility(p) {
       }
       sfx(700, .08, 'triangle', .04, -300);
     });
-  } else { p.shadowT = 3 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }
+  } else if (p.char === 'necro') { novaAlmas(p); if (rc('filacteria')) p.abilCd *= .7; }
+  else { p.shadowT = 5 + rc('capa'); sfx(200, .5, 'sine', .05, -120); burst(p.x, p.y, '#3a3348', 20, 140, 5); }   // v0.69: 5 s (antes 3)
+}
+// v0.69: Nova de almas del Nigromante: daña, empuja y congela a todo lo cercano
+function novaAlmas(p) {
+  const R = 120 + 15 * cu('n_nova'), t = (1.2 + .2 * cu('n_nova')) * (tl('nova2') ? 2 : 1), dmg = Math.max(3, Math.round(bestDmg(p) * 2));
+  for (const e of G.enemies) {
+    if (e.dead || e.air || dist(e, p) > R + e.r) continue;
+    hurtEnemy(e, dmg, angTo(p, e), 420, { cls: true, explosion: true });
+    e.slowT = Math.max(e.slowT || 0, e.isBoss ? t / 3 : t); e.slowK = e.isBoss ? .5 : .05;
+  }
+  for (let i = 0; i < 24; i++) { const a = i * TAU / 24; G.parts.push({ x: p.x, y: p.y, vx: Math.cos(a) * R * 2.4, vy: Math.sin(a) * R * 2.4, life: .4, max: .4, color: i % 2 ? '#9be0a0' : '#d8f0ff', size: 4 }); }
+  (G.vfx || (G.vfx = [])).push({ k: 'glyph', x: p.x, y: p.y + 6, t: 0, max: .5, r: R, c: '#9be0a0' });
+  p.novaAt = G.time;   // v0.70: alza los brazos (necro_nova)
+  shake(7); sfx(180, .5, 'sine', .06, -80); noise(.3, .04, 900);
 }
 
 function attack(p) {
   p.atkN = (p.atkN || 0) + 1;   // la guía del primer piso cuenta los ataques
-  const w = p.slots[p.cur], cost = w.type === 'staff' && syn('arcano') ? Math.ceil((w.en || 0) / 2) : (w.en || 0);
+  const w = p.slots[p.cur], cost = w.en || 0;
   p.cd = w.cd * (p.rageT > 0 ? .7 : 1) * (subIs('ranger') && w.type !== 'melee' ? 1 - .04 * subLv(p) : 1);
   if (p.char === 'knight' && w.type === 'melee') p.parryT = tl('egida') ? .3 : .2;
   if (p.char === 'archer' && w.type !== 'melee') focusShot(p, w);
-  if (w.style) { styleAttack(p, w, cost); return; }
+  if (w.style) {
+    // v0.69: Nigromante: cada 4 hechizos el siguiente sale gratis, más grande, con +50 % de daño y atravesando 3 enemigos
+    const pot = p.char === 'necro' && w.type === 'staff' && (p.hechN = (p.hechN || 0) + 1) % cadaHechizos(p) === 0;
+    const n0 = G.proj.length, en0 = p.en;
+    styleAttack(p, w, cost);
+    if (pot) {
+      p.en = Math.max(p.en, en0);
+      const k = 1.5 * (1 + .15 * cu('n_alma'));
+      for (const pr of G.proj.slice(n0)) if (pr.owner === 'player') { pr.dmg = Math.round(pr.dmg * k); pr.r *= 1.6; pr.pierce = (pr.pierce || 0) + 3; pr.color = '#e0c8ff'; if (tl('vacio')) pr.boom = 60; }
+      burst(p.x + Math.cos(p.aim) * 14, p.y + Math.sin(p.aim) * 14, '#e0c8ff', 10, 140); sfx(980, .12, 'triangle', .04, -300);
+    }
+    return;
+  }
   if (w.type === 'melee') {
     let dmg = w.dmg;
     if (p.en < cost) {
       dmg = Math.max(1, Math.floor(w.dmg / 2));
       if (p.noEnT <= 0) { addText(p.x, p.y - 26, tr('Agotado: daño a la mitad'), '#5aa4e8', 12); p.noEnT = 1.5; }
     } else p.en -= cost;
-    p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
+    let range = w.range, arc = w.arc, kb = w.shape === 'hammer' ? 380 : 260;
+    if (espadaKey(w)) {
+      // v0.66: la espada HD encadena 3 golpes si atacas seguido: tajo, revés y estocada (más alcance y daño, algo más lenta)
+      const golpe = p.golpeT > 0 ? ((p.golpeN || 0) + 1) % 3 : 0;
+      p.golpeN = golpe;
+      // el mazo cambia la estocada por el mazazo: cae de arriba, pega más fuerte en un cono corto y frena un momento
+      const mazo = esMazo(w);
+      // la lanza: estocada, barrido corto con el asta que empuja y doble estocada (dos pinchazos)
+      const lanza = esLanza(w);
+      if (lanza && golpe === 1) { range *= .75; arc = 2; kb = 380; }
+      else if (lanza && golpe === 2) { range *= 1.1; arc = .5; p.cd *= 1.15; }
+      else if (golpe === 2 && mazo) { range *= 1.1; arc = 1.4; dmg = Math.round(dmg * 1.5); kb = 440; p.cd *= 1.35; }
+      else if (golpe === 2) { range *= 1.35; arc = .6; dmg = Math.round(dmg * 1.3); kb = 340; p.cd *= 1.2; }
+      p.golpeT = p.cd + .4;
+      p.swing = { t: 0, dur: golpe === 2 && (mazo || lanza) ? .3 : w.id === 'shortsword' ? .17 : .24, a: p.aim, arc, range, dir: golpe === 1 ? -1 : 1, golpe };
+      if (lanza && golpe === 2) { const R = range, A = arc, D = dmg, K = kb; later(.15, () => { if (p.slots[p.cur] === w) meleeHit(p, w, R, A, D, K, false); }); }
+      if (golpe === 2 && mazo) {
+        mazazoFx(p, w, range); shake(5);
+        for (const e of G.enemies) if (!e.isBoss && !e.dead && dist(p, e) < range + e.r && Math.abs(angDiff(p.aim, angTo(p, e))) <= arc / 2) e.slowT = Math.max(e.slowT || 0, .8);
+      }
+    } else p.swing = { t: 0, dur: .16, a: p.aim, arc: w.arc, range: w.range, dir: (p.swingDir = -(p.swingDir || 1)) };
     // sonido por familia: los pesados retumban, los filos silban
-    if (w.shape === 'hammer') { sfx(110, .09, 'sawtooth', .03, -50); noise(.09, .05, 450); } else { sfx(190, .06, 'sawtooth', .018, -90); noise(.07, .035, 2600); }
-    meleeHit(p, w, w.range, w.arc, dmg, w.shape === 'hammer' ? 380 : 260, false);
+    if (w.shape === 'hammer') { sfx(110, .09, 'sawtooth', .03, -50); noise(.09, .05, 450); } else { sfx(p.swing.golpe === 2 ? 240 : 190, .06, 'sawtooth', .018, -90); noise(.07, .035, 2600); }
+    meleeHit(p, w, range, arc, dmg, kb, false);
     if (rc('onda')) {
       const a = p.aim;
       G.proj.push({ x: p.x + Math.cos(a) * 18, y: p.y + Math.sin(a) * 18, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, r: 10, dmg: Math.max(1, Math.round(dmg * .6)),
@@ -206,6 +267,7 @@ function attack(p) {
     p.en -= cost;
     const n = w.shots + (w.type === 'bow' ? rc('carcaj') + (syn('lluvia') ? 1 : 0) + (tl('carcaj2') ? 1 : 0) : 0), spread = .17;
     for (let i = 0; i < n; i++) shootPlayer(p, w, p.aim + (i - (n - 1) / 2) * spread + rand(-.025, .025), w.dmg);
+    p.tiroAt = G.time;   // v0.68: la Arquera HD anima el disparo
     if (w.type === 'staff') { sfx(520, .09, 'sine', .03, 200); sfx(1040, .06, 'sine', .012, 300); }
     else if (w.type === 'bow') { sfx(330, .05, 'triangle', .03, -150); noise(.05, .025, 3200); }   // cuerda
     else sfx(700, .06, 'triangle', .03, -300);
@@ -226,6 +288,7 @@ function meleeHit(p, w, range, arc, dmg, kb, full) {
     if (d > range + e.r) continue;
     if (!full && d > e.r + p.r + 4 && Math.abs(angDiff(p.aim, angTo(p, e))) > arc / 2) continue;
     hurtEnemy(e, dmg, angTo(p, e), kb, { src: w, melee: true, fx: w.fx });
+    impactoEspada(w, e.x, e.y - 6, angTo(p, e));   // v0.66: chispa de la espada HD
     p.en = Math.min(maxEnergy(p), p.en + 2);
   }
   for (const o of G.props) {
@@ -277,7 +340,7 @@ function chargedAttack(p) {
     case 'quake': {
       const R = w.range * (S >= 2 ? 2.5 : 2.1);
       const quake = (k) => {
-        p.swing = { t: 0, dur: .3, a: p.aim, arc: TAU, range: R, dir: 1, spin: true };
+        p.swing = { t: 0, dur: .3, a: p.aim, arc: TAU, range: R, dir: 1, spin: true, smash: true };
         meleeHit(p, w, R, TAU, dm(k), 520, true);
         for (const e of G.enemies) if (!e.isBoss && dist(e, p) < R + e.r) e.slowT = S >= 2 ? 2.2 : 1.5;
         breakCracks(p.x, p.y, R);

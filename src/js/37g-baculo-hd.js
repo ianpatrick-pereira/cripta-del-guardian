@@ -1,0 +1,140 @@
+// v0.70: armas del Nigromante en HD, dibujadas por IA (Báculo de almas, Cetro de escarcha, Grimorio de almas,
+// Linterna de almas,
+// Tomo de protección: un libro que flota a su lado, no se gira; su barrera es una burbuja dorada,
+// Ojo del abismo: su rayo se arma con tramos repetidos del dibujo, así se ve nítido a cualquier largo).
+// - El arma es un dibujo aparte (hoja por estrellas y «_el» por elemento), de pie con la cabeza arriba.
+//   El Nigromante la lleva de pie a su lado (las manos quedan libres para los gestos de necro_atq); otra clase la apunta.
+// - Cada arma tiene sus efectos: lo que vuela, el golpe, el salto en cadena, el cargado y lo que queda en el suelo.
+import { ANIM, animKey, drawSpr } from './02-pixel-art.js';
+import { ctx } from './00-inicio.js';
+import { G } from './07-estado.js';
+
+/** @type {Record<string, {hoja: string, libro?: boolean, vuela: string, grande?: string, impacto: string, salto?: string, cargado?: string, suelo?: string, ss: number}>} */
+const BACULO_HD = {
+  almas: { hoja: 'baculo', vuela: 'al_alma', impacto: 'al_impacto', salto: 'al_cadena', cargado: 'al_cargado', ss: .95 },
+  grimorio: { hoja: 'grimorio', libro: true, vuela: 'gr_arranca', impacto: 'gr_arranca', cargado: 'gr_cosecha', ss: 1 },
+  ojo: { hoja: 'ojo', vuela: 'oj_rayo', grande: 'oj_gigante', impacto: 'oj_impacto', cargado: 'oj_inicio', ss: 1 },
+  linterna: { hoja: 'lint', vuela: 'li_alma', impacto: 'li_impacto', cargado: 'li_pulso', suelo: 'li_farol', ss: .8 },
+  tomo: { hoja: 'tomo', libro: true, vuela: 'to_runa', impacto: 'to_impacto', cargado: 'to_rompe', ss: .7 },
+  escarcha: { hoja: 'cetro', vuela: 'es_esquirla', impacto: 'es_impacto', cargado: 'es_anillo', suelo: 'es_hielo', ss: 1 },
+};
+const BAC_EL = { fire: 0, water: 1, air: 2, earth: 3 };
+const BAC_ESCALA = 1.2;     // 128 px de alto con detalle 4 -> ~38 px en pantalla
+const BAC_AGARRE = 18;      // píxeles del dibujo desde el centro hasta donde va la mano (hacia el mango)
+const hd = w => (w && BACULO_HD[w.id] && ANIM[BACULO_HD[w.id].hoja]) ? BACULO_HD[w.id] : null;
+/** clave del dibujo HD del arma, o null si se dibuja por código */
+function baculoKey(w) {
+  const B = hd(w); if (!B) return null;
+  if (w.el && ANIM[B.hoja + '_el']) return B.hoja + '_el~reposo~' + BAC_EL[w.el];
+  return B.hoja + '~reposo~' + Math.min(4, (w.stars || 1) - 1);
+}
+/** dibuja el arma con la mano en (x, y) y la cabeza hacia a (a = -π/2: de pie) */
+function drawBaculo(key, x, y, a, scale = 1) {
+  if (key.startsWith('tomo') || key.startsWith('grimorio')) { drawSpr(key, x, y + Math.sin(G.time * 3) * 1.5, .75 * scale); return; }   // el libro flota derecho
+  const s = BAC_ESCALA * scale, off = BAC_AGARRE * .25 * s;
+  drawSpr(key, x + Math.cos(a) * off, y + Math.sin(a) * off, s, { rot: a + Math.PI / 2 });
+}
+/** el arma en la mano del Nigromante: de pie a su lado, se inclina hacia donde lanza mientras hace el gesto */
+function baculoMano(p) {
+  if (p.spr !== 'necro') return null;
+  const lado = Math.cos(p.aim) >= 0 ? 1 : -1, t = G.time - (p.castAt ?? -9), gesto = t >= 0 && t < .3 ? Math.sin(t / .3 * Math.PI) : 0;
+  if (hd(p.slots[p.cur])?.libro) return { hx: p.x + lado * (13 + 3 * gesto), hy: p.y - 4 - 3 * gesto, ang: 0 };   // el tomo, junto a su hombro
+  return { hx: p.x + lado * 8, hy: p.y + 4, ang: -Math.PI / 2 + lado * (.12 + .35 * gesto) };
+}
+const fxPart = (fx, x, y, s, rot, life) => G.parts.push({ x, y, vx: 0, vy: 0, life, max: life, fx, s, rot, color: '', size: 0 });
+/** opciones de lo que vuela (dibujo HD) para shootPlayer */
+function almaVuela(w, grande = false) {
+  const B = hd(w); if (!B || !ANIM[B.vuela]) return {};
+  if (grande && B.grande && ANIM[B.grande]) return { anim: B.grande, ss: B.ss * 1.4 };
+  return { anim: B.vuela, ss: B.ss * (grande ? 1.3 : 1) };
+}
+/** al pegar: el golpe de esa arma */
+function impactoAlma(pr) {
+  const B = hd(pr.src); if (!B || !ANIM[B.impacto]) return false;
+  fxPart(B.impacto, pr.x, pr.y, pr.boom ? pr.boom / 30 : .9, Math.atan2(pr.vy, pr.vx), pr.boom ? .35 : .25);
+  // lo que explota y quema deja fuego en el suelo
+  if (pr.quema && B.suelo && ANIM[B.suelo]) for (let i = 0; i < 3; i++) { const a = i * 2.1 + pr.x, d = (pr.boom || 40) * .4; fxPart(B.suelo, pr.x + Math.cos(a) * d, pr.y + Math.sin(a) * d * .6 + 6, pr.boom ? pr.boom / 55 : .8, 0, .9); }
+  return true;
+}
+/** la explosión ya tiene dibujo HD (sin el destello cuadrado de siempre) */
+const explosionHD = pr => { const B = hd(pr.src); return !!(B && ANIM[B.impacto]); };
+/** el alma salta de un enemigo a otro: rayo de almas estirado entre los dos */
+function saltoAlma(src, a, b) {
+  const B = hd(src); if (!B || !B.salto || !ANIM[B.salto]) return false;
+  fxPart(B.salto, (a.x + b.x) / 2, (a.y + b.y) / 2, Math.hypot(b.x - a.x, b.y - a.y) / 20, Math.atan2(b.y - a.y, b.x - a.x), .25);
+  return true;
+}
+/** cargado: el estallido alrededor (más grande cuanto mayor el radio R; sin R, el tamaño de siempre) */
+function cargadoAlmas(p, w, R = 0) {
+  const B = hd(w); if (!B || !ANIM[B.cargado]) return;
+  fxPart(B.cargado, p.x, p.y, R ? R / 40 : 2.4, 0, .4);
+}
+/** lo que brota del suelo bajo un enemigo (cristales de hielo del cargado del Cetro) */
+function sueloArma(w, e) {
+  const B = hd(w); if (!B || !B.suelo || !ANIM[B.suelo]) return;
+  fxPart(B.suelo, e.x, e.y - 4, 1.1, 0, .65);
+}
+/** rayo HD (Ojo del abismo) desde p hacia a; gigante = el del cargado. false si el arma no tiene dibujo */
+function drawRayoHD(p, w, a, len, wd, al, gigante = false) {
+  const B = hd(w); if (!B || !ANIM[B.vuela] || len < 4) return false;
+  const key = gigante && B.grande && ANIM[B.grande] ? B.grande : B.vuela, f = Math.floor(G.time * 12) % 4;
+  const s = gigante ? wd / 10 : wd / 3.5, T = 24 * s, n = Math.max(1, Math.round(len / T)), sx = len / (n * T), c = Math.cos(a), si = Math.sin(a);
+  for (let i = 0; i < n; i++) drawSpr(key + '~reposo~' + ((f + i) % 4), p.x + c * T * sx * (i + .5), p.y + si * T * sx * (i + .5), s, { rot: a, alpha: al, sx });
+  drawSpr(B.cargado + '~reposo~' + f, p.x + c * 6, p.y + si * 6, gigante ? 1.3 : .8, { rot: a, alpha: al });          // el ojo que se abre al salir
+  drawSpr(B.impacto + '~reposo~' + f, p.x + c * len, p.y + si * len, gigante ? 1.4 : .9, { rot: a, alpha: al });      // donde pega
+  return true;
+}
+/** la linterna que deja el cargado de la Linterna de almas, en el suelo (false si no hay dibujo HD) */
+function drawLinternaHD(L, al) {
+  const B = BACULO_HD.linterna; if (!ANIM[B.suelo]) return false;
+  drawSpr(animKey(B.suelo, 'reposo', G.time + L.x * .01), L.x, L.y - 12, 1.5, { alpha: al, luz: .3 });
+  return true;
+}
+/** pulso de curación de la linterna (cada vez que cura) */
+function pulsoLinterna(L) {
+  const B = BACULO_HD.linterna; if (!ANIM[B.cargado]) return false;
+  fxPart(B.cargado, L.x, L.y, L.R / 26, 0, .5);
+  return true;
+}
+/** burbuja dorada de la barrera del Tomo (mientras le queden golpes que aguantar); false si no hay dibujo */
+function drawBarreraHD(p, al) {
+  if (!(p.barreraN > 0) || !ANIM.to_barrera) return false;
+  drawSpr(animKey('to_barrera', 'reposo', G.time), p.x, p.y - 2, 2.9, { alpha: al * .9 });
+  return true;
+}
+/** la barrera se rompe al aguantar el último golpe */
+function barreraRota(p) {
+  if (ANIM.to_rompe) fxPart('to_rompe', p.x, p.y - 2, 2.9, 0, .4);
+}
+/** el alma arrancada vuela del enemigo hasta ti (Grimorio de almas) */
+function arrancaAlma(p, e) {
+  const a = Math.atan2(p.y - e.y, p.x - e.x), d = Math.hypot(p.x - e.x, p.y - e.y);
+  if (ANIM.gr_arranca) fxPart('gr_arranca', (e.x + p.x) / 2, (e.y + p.y) / 2 - 6, Math.min(2, Math.max(.8, d / 45)), a, .35);
+  else for (let i = 0; i < 6; i++) G.parts.push({ x: e.x, y: e.y - 6, vx: Math.cos(a) * d * (1.6 + i * .25), vy: Math.sin(a) * d * (1.6 + i * .25), life: .4, max: .4, color: i % 2 ? '#c9a8ff' : '#f0e8ff', size: 3 });
+}
+/** la cosecha de almas del especial: remolino alrededor (más grande con más almas) */
+function cosechaFx(p, n) {
+  if (ANIM.gr_cosecha) fxPart('gr_cosecha', p.x, p.y, 2.6 + n * .15, 0, .55);
+  else for (let i = 0; i < 30; i++) { const a = i * Math.PI / 15; G.parts.push({ x: p.x + Math.cos(a) * 160, y: p.y + Math.sin(a) * 160, vx: -Math.cos(a) * 320, vy: -Math.sin(a) * 320, life: .5, max: .5, color: i % 2 ? '#c9a8ff' : '#6a4a9a', size: 4 }); }
+}
+/** las almas guardadas del Grimorio giran a tu alrededor */
+function drawAlmasGuardadas(p) {
+  const n = p.almasN || 0; if (!n) return;
+  for (let i = 0; i < n; i++) {
+    const a = G.time * 1.6 + i * Math.PI * 2 / n, x = p.x + Math.cos(a) * 22, y = p.y - 4 + Math.sin(a) * 12;
+    if (ANIM.gr_alma) drawSpr(animKey('gr_alma', 'reposo', G.time + i * .13), x, y, .55, { alpha: Math.sin(a) < 0 ? .6 : 1 });
+    else { ctx.fillStyle = i % 2 ? '#c9a8ff' : '#f0e8ff'; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill(); }
+  }
+}
+/** un corazón gris aguanta el golpe y se rompe */
+function corazonGrisRoto(p) {
+  if (ANIM.gr_corazon) fxPart('gr_corazon', p.x, p.y - 30, .7, 0, .4);
+  else for (let i = 0; i < 8; i++) G.parts.push({ x: p.x, y: p.y - 20, vx: (Math.random() - .5) * 160, vy: -Math.random() * 120, life: .5, max: .5, color: '#a8a8b4', size: 3 });
+}
+/** corazón gris del HUD (dibujo HD; false si no hay) */
+function drawCorazonGris(x, y) {
+  if (!ANIM.gr_corazon) return false;
+  drawSpr('gr_corazon~reposo~' + (1 + Math.floor(G.time * 2) % 2), x + 6, y + 5, .62);
+  return true;
+}
+export { almaVuela, drawCorazonGris, arrancaAlma, corazonGrisRoto, cosechaFx, drawAlmasGuardadas, barreraRota, drawBarreraHD, drawLinternaHD, pulsoLinterna, drawRayoHD, explosionHD, baculoKey, baculoMano, cargadoAlmas, drawBaculo, impactoAlma, saltoAlma, sueloArma };

@@ -17,6 +17,8 @@ export interface DefEnemigo {
   /** comportamiento cada fotograma, o el id de otro enemigo para copiar el suyo */
   ia: ((e: any, c: any) => void) | string;
   forma?: Fn; debajo?: Fn; encima?: Fn;
+  /** con hoja HD: elige el cuadro (clave) según lo que hace; null = el de siempre */
+  cuadro?: (e: any, anda: boolean) => string | null;
   /** devuelve el daño que recibe de verdad */
   alRecibir?: (e: any, dmg: number, ang: number, o: any) => number;
   alMorir?: (e: any) => void;
@@ -24,7 +26,7 @@ export interface DefEnemigo {
 }
 
 export type Rareza = 'common' | 'uncommon' | 'rare' | 'epic';
-export type Clase = 'knight' | 'archer' | 'rogue';
+export type Clase = 'knight' | 'archer' | 'rogue' | 'necro';
 export interface DatosArma {
   name: string;
   type: 'melee' | 'bow' | 'staff';
@@ -36,7 +38,7 @@ export interface DatosArma {
   /** energía por ataque */
   en: number;
   /** ataque cargado y su coste de energía */
-  chg: 'bash' | 'blast' | 'boomer' | 'lash' | 'legion' | 'lunge' | 'nova' | 'power' | 'quake' | 'ray' | 'reap' | 'spin' | 'volley';
+  chg: 'almas' | 'bash' | 'blast' | 'boomer' | 'escarcha' | 'grimorio' | 'lash' | 'legion' | 'linterna' | 'lunge' | 'nova' | 'power' | 'quake' | 'ray' | 'reap' | 'spin' | 'tomo' | 'volley';
   chgEn: number;
   /** cuerpo a cuerpo: alcance y ángulo del golpe */
   range?: number; arc?: number;
@@ -44,7 +46,7 @@ export interface DatosArma {
   speed?: number; pierce?: number; shots?: number;
   /** efecto al golpear */
   fx?: 'burn' | 'chain' | 'explode' | 'homing' | 'poison' | 'push' | 'slow' | 'stun';
-  style?: 'beam' | 'boomer' | 'grimoire' | 'musket' | 'shield' | 'sickle' | 'whip';
+  style?: 'almas' | 'beam' | 'boomer' | 'escarcha' | 'grimoire' | 'grimorio' | 'linterna' | 'musket' | 'ojo' | 'shield' | 'sickle' | 'tomo' | 'whip';
   /** color de la gema del dibujo y tinte */
   gem?: string; tint?: string;
   leech?: boolean; big?: boolean;
@@ -66,6 +68,8 @@ export interface DefArma {
     ataque: (p: any, w: any, o: { a: number; dmg: number; cost?: number }) => void;
     cargado: (p: any, w: any, o: { a: number; S: number; dm: (k: number) => number; col: string }) => void;
     cobraAlLanzar?: boolean;
+    /** tecla R propia del arma; true si la usó (si no, hace el poder elemental) */
+    teclaR?: (p: any, w: any) => boolean;
   };
 }
 
@@ -95,6 +99,15 @@ export interface DefJefe {
     tint?: string; scale?: number;
     /** id de otro jefe cuyo dibujo reutiliza */
     look?: string;
+    /** hoja HD propia (clave de src/sprites/animaciones.jsonc) y su escala; sin ella se dibuja con aspecto() */
+    spr?: string;
+    s?: number;
+    /** true si camina por el suelo (no flota como el Guardián) */
+    rastrero?: boolean;
+    /** true si tiene una hoja por fase: spr (fase 1), spr_f2 y spr_f3 */
+    fases?: boolean;
+    /** ataques en los que usa su pose de ataque dibujada (2.º cuadro de «herido») al prepararlos; sin esto, en todos */
+    poseAtq?: string[];
     /** ataques de cada fase (ids de src/js/01g-ataques-de-jefe/) */
     p1: string[]; p2: string[]; p3: string[];
   };
@@ -110,10 +123,16 @@ export interface DefSubjefe {
     minion: string; want: number;
     /** color de sus balas */
     pc?: string;
+    /** sprite de sus flechas (volley, retreat), p. ej. flecha_capitan */
+    flecha?: string;
+    /** dibujos de sus ataques (src/sprites/): hacha = balas del abanico, estela = embestida, golpe = hachazo al suelo, circulo = invocación */
+    efectos?: { hacha?: string; estela?: string; golpe?: string; circulo?: string };
     /** ataques de cada fase (ids de src/js/01h-ataques-de-subjefe/) */
     p1: string[]; p2: string[];
   };
   forma?: Fn; encima?: Fn; alMorir?: Fn;
+  /** con hoja HD: elige el cuadro (clave) según el ataque; null = el de siempre */
+  cuadro?: (e: any) => string | null;
   rompeAlCaminar?: boolean;
 }
 

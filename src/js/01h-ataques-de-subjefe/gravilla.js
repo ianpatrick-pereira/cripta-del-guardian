@@ -11,7 +11,7 @@ defSubMove('gravilla', {
     const n = ph2 ? 3 : 2;
     if (e.timer > .4 && e.k < n && e.timer >= .4 + e.k * .5) {
       const A = angTo(e, p) + (e.k % 2 ? .1 : -.1);
-      for (let i = -3; i <= 3; i++) enemyShoot(e, A + i * .16 + rand(-.03, .03), 230, 5, '#a88a68');
+      for (let i = -3; i <= 3; i++) { const pr = enemyShoot(e, A + i * .16 + rand(-.03, .03), 230, 5, '#a88a68'); pr.anim = 't_esquirla'; pr.ss = 1.3; }   // v0.64: esquirlas de hueso y piedra
       e.k++; sfx(140, .12, 'square', .03, -60);
     }
     if (e.timer > .5 + n * .5) subIdle(e);

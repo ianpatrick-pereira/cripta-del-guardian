@@ -1,100 +1,46 @@
 # Informe de balance
 
-Generado por `node pruebas/balance.js 2 --ci`.
+Generado por `node pruebas/balance.js armas`.
 
 El bot juega peor que una persona (no recoge botín ni elige bien las mejoras): compara clases, pisos y armas entre sí, no mide la dificultad real.
 
 ## Límites (pruebas/balance-limites.jsonc)
 
-**✓ Ningún límite roto** (41 armas comprobadas, 8 pisos y 3 clases comprobados)
+**✓ Ningún límite roto** (23 armas comprobadas)
 
-- ⚠ Piso 3: 3.3× más difícil que el piso 2 (aviso desde 1.8×)
-- ⚠ Piso 4: 1.9× más difícil que el piso 3 (aviso desde 1.8×)
-- ⚠ Piso 7: 2.2× más difícil que el piso 6 (aviso desde 1.8×)
-- ⚠ Asesino necesita 2.5× las vidas de Caballero (aviso desde 2×)
+- ⚠ Arma «Arco explosivo»: 1.74× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Ojo del abismo»: 1.80× la mediana (aviso fuera de 0.6–1.7)
+- ⚠ Arma «Tomo de protección»: 0.46× la mediana (aviso fuera de 0.6–1.7)
 
-## Dificultad por piso
-
-El bot es inmortal: cada celda dice cuántas barras de vida llenas habría necesitado para terminar el piso (media de 2 partidas). 1 = justo una vida entera. Una persona con mejoras, reliquias y pociones necesita menos; lo útil es ver dónde sube de golpe.
-
-| Piso | Caballero | Tirador | Asesino | Salas | Subjefe | Jefe |
-|---|---|---|---|---|---|---|
-| 1 | 11.2 | 3.7 | 22.0 | 0.2 | 1.6 | 10.5 |
-| 2 | 9.5 | 9.6 | 21.5 | 0.9 | 3.4 | 9.3 |
-| 3 | 30.8 | 31.5 | 69.5 | 8.4 | 11.8 | 23.7 |
-| 4 | 58.0 | 69.2 | 119.9 | 20.2 | 18.9 | 43.3 |
-| 5 | 65.4 | 56.4 | 167.4 | 29.0 | 32.3 | 35.1 |
-| 6 | 29.6 | 42.8 | 65.8 | 11.2 | 12.2 | 22.6 |
-| 7 | 59.0 | 81.7 | 156.8 | 18.2 | 40.0 | 40.9 |
-| 8 | 47.8 | 100.4 | 170.1 | 10.7 | 49.5 | 46.0 |
-
-| Clase | Vidas por piso (media) | Minutos por piso | Salas que no pudo terminar |
-|---|---|---|---|
-| Caballero | 38.9 | 3.4 | 3 |
-| Tirador | 49.4 | 5.7 | 36 |
-| Asesino | 99.1 | 4.7 | 11 |
-
-### Quién hace más daño
-
-- Fantasma: 8 % del daño recibido
-- El Señor del Osario: 7 % del daño recibido
-- El Gemelo de Aldric: 7 % del daño recibido
-- Elena, Corazón de la Cripta: 6 % del daño recibido
-- El Obispo Hueco: 6 % del daño recibido
-- La Forjadora: 6 % del daño recibido
-- Escudero: 6 % del daño recibido
-- Embestidor: 6 % del daño recibido
-- Obispo de Ceniza: 6 % del daño recibido
-- Herrero Fundido: 5 % del daño recibido
-- La Raíz Madre: 5 % del daño recibido
-- El Devorador de Luz: 4 % del daño recibido
 
 ## Armas a 3★ (piso 4)
 
-Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: 29.1. Marcadas: contra un blanco, más de 1.7× (⬆) o menos de 0.6× (⬇) la mediana (los avisos de pruebas/balance-limites.jsonc).
+Daño por segundo, en manos de la clase que la domina. «Contra un blanco»: dos enemigos quietos y energía infinita (lo fuerte que es el arma). «Contra un grupo»: seis enemigos que se mueven y atacan, con la energía normal y sin recoger orbes (lo que rinde en una pelea; favorece a las armas que golpean a varios a la vez). Mediana contra un blanco: 30.0. Marcadas: contra un blanco, más de 1.7× (⬆) o menos de 0.6× (⬇) la mediana (los avisos de pruebas/balance-limites.jsonc).
 
 | Arma | Rareza | Clase | Contra un blanco (daño/s) | × mediana | Contra un grupo (daño/s) | Grupo despejado | Energía al final |
 |---|---|---|---|---|---|---|---|
-| Filo nocturno | epic | Asesino | 46.6 | 1.60 | 44.0 | 3/3 | 81 % |
-| Martillo de guerra | rare | Caballero | 43.2 | 1.48 | 39.8 | 3/3 | 85 % |
-| Látigo de cadenas | uncommon | Asesino | 42.9 | 1.47 | 35.0 | 3/3 | 82 % |
-| Guadaña sangrienta | epic | Asesino | 42.4 | 1.46 | 44.7 | 3/3 | 92 % |
-| Arco explosivo | epic | Tirador | 41.2 | 1.41 | 31.0 | 3/3 | 9 % |
-| Hoja del Abismo | epic | Caballero | 39.2 | 1.35 | 30.5 | 3/3 | 21 % |
-| Mandoble | rare | Caballero | 39.0 | 1.34 | 48.6 | 3/3 | 92 % |
-| Espada flamígera | epic | Caballero | 38.9 | 1.34 | 30.6 | 3/3 | 38 % |
-| Dagas gemelas | rare | Asesino | 38.3 | 1.31 | 33.0 | 2/3 | 49 % |
-| Shurikens | rare | Asesino | 37.7 | 1.30 | 17.6 | 2/3 | 4 % |
-| Hoz arrojadiza | rare | Asesino | 37.5 | 1.29 | 28.3 | 3/3 | 28 % |
-| Espada oxidada | common | Caballero | 36.9 | 1.27 | 35.2 | 3/3 | 95 % |
-| Hoja de escarcha | rare | Caballero | 36.7 | 1.26 | 38.9 | 3/3 | 94 % |
-| Lanza de guardia | uncommon | Caballero | 35.3 | 1.21 | 32.9 | 3/3 | 87 % |
-| Garras de sombra | rare | Asesino | 33.4 | 1.15 | 34.7 | 3/3 | 51 % |
-| Espada de hierro | uncommon | Caballero | 31.5 | 1.08 | 36.8 | 3/3 | 97 % |
-| Bumerán | common | Tirador | 31.0 | 1.06 | 32.0 | 3/3 | 88 % |
-| Arco de las Sombras | epic | Asesino | 30.7 | 1.05 | 7.4 | 0/3 | 5 % |
-| Katar | uncommon | Asesino | 30.6 | 1.05 | 23.9 | 2/3 | 35 % |
-| Garrote | common | Caballero | 30.0 | 1.03 | 35.8 | 3/3 | 100 % |
-| Honda | common | Tirador | 29.1 | 1.00 | 10.8 | 1/3 | 29 % |
-| Cerbatana | uncommon | Asesino | 28.2 | 0.97 | 17.8 | 3/3 | 29 % |
-| Bastón del vendaval | rare | Caballero | 27.5 | 0.94 | 12.2 | 2/3 | 4 % |
-| Bastón de fuego | rare | Caballero | 27.1 | 0.93 | 34.4 | 2/3 | 25 % |
-| Escudo de púas | uncommon | Caballero | 27.0 | 0.93 | 26.5 | 3/3 | 95 % |
-| Arco largo | uncommon | Tirador | 26.2 | 0.90 | 17.2 | 3/3 | 16 % |
-| Kunais | common | Asesino | 25.4 | 0.87 | 15.9 | 3/3 | 21 % |
-| Daga veloz | uncommon | Asesino | 25.0 | 0.86 | 38.3 | 3/3 | 92 % |
-| Grimorio de huesos | epic | Caballero | 24.3 | 0.84 | 30.2 | 3/3 | 35 % |
-| Arco corto | common | Tirador | 24.1 | 0.83 | 14.0 | 2/3 | 37 % |
-| Arco de escarcha | rare | Tirador | 23.8 | 0.82 | 17.1 | 1/3 | 5 % |
-| Bastón de la ciénaga | uncommon | Asesino | 22.1 | 0.76 | 21.7 | 2/3 | 19 % |
-| Bastón del rayo | epic | Caballero | 21.7 | 0.74 | 10.2 | 1/3 | 13 % |
-| Ballesta pesada | rare | Tirador | 21.4 | 0.74 | 23.6 | 3/3 | 33 % |
-| Varita de aprendiz | common | Caballero | 20.3 | 0.70 | 20.8 | 2/3 | 39 % |
-| Orbe del vacío | epic | Caballero | 20.1 | 0.69 | 10.0 | 0/3 | 10 % |
-| Bastón de roca | uncommon | Caballero | 20.1 | 0.69 | 15.9 | 3/3 | 6 % |
-| Mosquete | rare | Tirador | 20.1 | 0.69 | 35.3 | 3/3 | 78 % |
-| Rayo sostenido | epic | Caballero | 19.3 | 0.66 | 10.4 | 0/3 | 2 % |
-| Bastón de marea | rare | Caballero | 19.1 | 0.66 | 12.2 | 2/3 | 18 % |
-| Arco triple | rare | Tirador | 18.9 | 0.65 | 12.7 | 1/3 | 4 % |
+| Ojo del abismo ⬆ | epic | Nigromante | 53.9 | 1.80 | 21.8 | 3/3 | 37 % |
+| Arco explosivo ⬆ | epic | Tirador | 52.2 | 1.74 | 29.4 | 3/3 | 30 % |
+| Lanza de guardia | uncommon | Caballero | 44.3 | 1.48 | 45.6 | 3/3 | 86 % |
+| Katana | common | Asesino | 43.4 | 1.45 | 46.9 | 3/3 | 48 % |
+| Kusarigama | uncommon | Asesino | 41.2 | 1.37 | 33.6 | 2/3 | 52 % |
+| Guadaña | epic | Asesino | 40.2 | 1.34 | 76.0 | 3/3 | 85 % |
+| Ballesta pesada | rare | Tirador | 38.8 | 1.29 | 33.3 | 3/3 | 38 % |
+| Espada de hierro | uncommon | Caballero | 33.9 | 1.13 | 41.7 | 3/3 | 96 % |
+| Arco triple | rare | Tirador | 32.7 | 1.09 | 24.1 | 3/3 | 28 % |
+| Estrellas ninja | rare | Asesino | 31.7 | 1.06 | 29.1 | 3/3 | 26 % |
+| Grimorio de almas | rare | Nigromante | 30.7 | 1.02 | 15.0 | 2/3 | 28 % |
+| Martillo de guerra | rare | Caballero | 30.0 | 1.00 | 42.0 | 3/3 | 100 % |
+| Arco corto | common | Tirador | 29.1 | 0.97 | 18.1 | 3/3 | 45 % |
+| Báculo de almas | common | Nigromante | 28.8 | 0.96 | 9.5 | 1/3 | 27 % |
+| Espada corta | rare | Caballero | 26.4 | 0.88 | 28.8 | 3/3 | 77 % |
+| Garrote | common | Caballero | 26.2 | 0.87 | 37.9 | 3/3 | 99 % |
+| Espada oxidada | common | Caballero | 26.0 | 0.87 | 33.8 | 3/3 | 100 % |
+| Mosquete | rare | Tirador | 25.4 | 0.85 | 58.2 | 3/3 | 79 % |
+| Escudo de púas | uncommon | Caballero | 23.4 | 0.78 | 20.7 | 3/3 | 83 % |
+| Honda | common | Tirador | 22.7 | 0.76 | 12.4 | 1/3 | 11 % |
+| Linterna de almas | uncommon | Nigromante | 21.5 | 0.72 | 8.7 | 0/3 | 86 % |
+| Cetro de escarcha | uncommon | Nigromante | 18.4 | 0.61 | 6.3 | 0/3 | 6 % |
+| Tomo de protección ⬇ | rare | Nigromante | 13.7 | 0.46 | 6.6 | 0/3 | 39 % |
 
-_294 partidas en 226 s._
+_138 partidas en 376 s._

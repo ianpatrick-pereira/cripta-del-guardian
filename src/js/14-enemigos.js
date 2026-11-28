@@ -3,7 +3,7 @@ import { tr } from './00b-textos.js';
 import { TAU, TILE, angDiff, angTo, clamp, dist, rand, randi } from './01-utilidades.js';
 import { ENEMIES } from './01a-registro.js';
 import { mirrorDefeated } from './01d-salas/mirror.js';
-import { SPR_DEFS } from './02-pixel-art.js';
+import { ANIM, SPR_DEFS } from './02-pixel-art.js';
 import { BOSSES, BOTIN, D, ENEMY, OLEADAS, potMul, rollWeapon } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { noise, sfx } from './05-audio.js';
@@ -20,6 +20,8 @@ import { bestDmg, classHit, classKill, tl } from './26-clases.js';
 import { pact } from './27-pactos-de-piso.js';
 import { cheatDefeated } from './30-sala-de-apuestas.js';
 import { elemHitFx } from './37-armas-visual.js';
+import { drenaFx } from './37c-espada-hd.js';
+import { saltoAlma } from './37g-baculo-hd.js';
 function mkEnemy(type, x, y, depth, elite) {
   const d = ENEMY[type];
   // v0.55: cada piso más hondo aguanta bastante más (vida +70 % por piso) y desde el piso 5 pega 1 más
@@ -32,7 +34,8 @@ function mkEnemy(type, x, y, depth, elite) {
 }
 function mkBoss(kind, x, y) {
   // v0.56: los jefes tienen +30 % de vida además de ir en guardia (ver 16-jefes.js)
-  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * D().hp * (1 + .8 * (G.cycle - 1)));
+  // v0.69: el jefe no suma vida por tu fuerza: su guardia ya limita lo que quita cada golpe
+  const B = BOSSES[kind], hp = Math.round(B.hp * 1.3 * (D().hpJefe || D().hp) * (1 + .8 * (G.cycle - 1)));
   return { type: 'boss', kind, isBoss: true, x, y, r: B.r, hp, max: hp, speed: 42, dmg: 2,
     kx: 0, ky: 0, flash: 0, t: 0, phase: 1, st: 'idle', st_t: 1.2, last: '', k: 0, ca: 0, invuln: false, spin: 0, fade: 1, air: false, poison: 0, pt: 0, wob: 0, timer: 0 };
 }
@@ -52,6 +55,8 @@ function hurtEnemy(e, dmg, ang, kb, o = {}) {
   }
   if (e.elem === 'earth') dmg = Math.max(1, Math.round(dmg * .7));
   if (e.resist) dmg = Math.max(1, Math.round(dmg * e.resist));
+  // v0.70: armadura que le quitó el Grimorio (se acumula): recibe más daño (redondeo al azar para que cuente aunque sea poco)
+  if (e.almaArm) { const v = dmg * (1 + e.almaArm); dmg = Math.floor(v) + (Math.random() < v % 1 ? 1 : 0); }
   if (e.isBoss) {
     const raw = dmg;
     dmg = Math.max(1, Math.min(bossCap(e), Math.round(dmg * bossExposeK(e))));
@@ -92,9 +97,12 @@ function killEnemy(e, src) {
   e.dead = true; G.kills++;
   const p = G.player;
   burst(e.x, e.y, e.isBoss ? '#c77dff' : '#ece4cf', e.isBoss ? 30 : 6, e.isBoss ? 320 : 170, e.isBoss ? 6 : 3.5, e.isBoss ? 1.1 : .4);
+  // jefe con hoja HD: su armadura se agrieta y cae (la corona rueda en el último cuadro)
+  if (e.isBoss) { const BH = BOSSES[e.kind]; if (!BH.look && BH.spr && ANIM[BH.spr] && ANIM[BH.spr].muerte) G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 1.6, max: 1.6, spr: BH.fases && e.phase > 1 && ANIM[BH.spr + '_f' + e.phase] ? BH.spr + '_f' + e.phase : BH.spr, muerte: true, s: BH.s || 4, flip: G.player.x < e.x, color: '', size: 0 }); }
   // muerte con forma: el cuerpo se aplasta en blanco y se deshace en píxeles de su propio color
   if (!e.isBoss && e.spr && SPR_DEFS[e.spr]) {
-    G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .28, max: .28, spr: e.spr, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
+    if (ANIM[e.spr] && ANIM[e.spr].muerte) G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: 1.1, max: 1.1, spr: e.spr, muerte: true, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
+    else G.parts.push({ x: e.x, y: e.y, vx: 0, vy: 0, life: .28, max: .28, spr: e.spr, s: e.s, flip: G.player.x < e.x, color: '', size: 0 });
     const cols = Object.values(SPR_DEFS[e.spr][1]);
     for (let i = 0; i < 14; i++) { const a = rand(0, TAU), v = rand(40, 150); G.parts.push({ x: e.x + rand(-6, 6), y: e.y + rand(-8, 6), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, g: 260, life: rand(.35, .6), max: .6, color: cols[i % cols.length], size: rand(2, 4) }); }
   }
@@ -106,7 +114,7 @@ function killEnemy(e, src) {
     if (syn('infierno') && e.burn > 0) later(.05, () => explode(e.x, e.y, 64, 4 + G.floor, true));
   }
   classKill(e, src);
-  if (src && src.leech && Math.random() < (syn('sangre') ? .6 : .3) && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); }
+  if (src && src.leech && Math.random() < (syn('sangre') ? .6 : .3) && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, '+1', '#d4474b'); drenaFx(src, e, p); }
   if (rc('vampiro')) { p.killCount++; if (p.killCount % (syn('sangre') ? 8 : 12) === 0 && p.hp < p.maxHp) { p.hp++; addText(p.x, p.y - 22, tr('+1 vida'), '#b0303a'); } }
   if (e.isBoss) { bossDefeated(e); return; }
   if (e.mirror) mirrorDefeated(e);
@@ -126,11 +134,11 @@ function killEnemy(e, src) {
     if (Math.random() < BL.llave) G.pickups.push({ kind: 'key', x: e.x + 12, y: e.y });
   }
 }
-function chainHit(from, dmg) {
+function chainHit(from, dmg, src = null) {
   const targets = G.enemies.filter(e => e !== from && !e.dead && !e.air && dist(e, from) < 150).sort((a, b) => dist(a, from) - dist(b, from)).slice(0, 2);
   let prev = from;
   for (const t of targets) {
-    G.bolts.push({ x1: prev.x, y1: prev.y, x2: t.x, y2: t.y, life: .18 });
+    if (!saltoAlma(src, prev, t)) G.bolts.push({ x1: prev.x, y1: prev.y, x2: t.x, y2: t.y, life: .18 });   // v0.70: salto del alma HD
     hurtEnemy(t, Math.max(1, Math.round(dmg * .6)), angTo(prev, t), 80, syn('toxica') ? { fx: 'poison' } : {});
     prev = t;
   }
@@ -151,8 +159,17 @@ function extraDmg(e) {
 function enemyShoot(e, a, speed, r = 5, color = '#e86a8a', dmg = 1, kind = 'orb') {
   const S = G.elSrc;
   dmg += extraDmg(e);   // los disparos también pegan más en los pisos hondos
-  G.proj.push({ x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor) });
+  const pr = { x: e.x + Math.cos(a) * e.r, y: e.y + Math.sin(a) * e.r, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
+    r, dmg: S ? Math.max(dmg, S.dmg) : dmg, owner: 'enemy', kind, life: 4.5, color, slowFx: kind === 'web', shred: kind === 'web' && !!e.isBoss, el: S ? S.elem : null, por: quien(e) || quien(G.actor), debil: e.almaT > 0 ? e.almaK || 0 : 0 };
+  // v0.65: los limos del piso 2 escupen orbes ácidos dibujados (solo cambia el dibujo)
+  if (kind === 'orb' && ACIDO.has(e.spr)) { pr.anim = 'l_orbe'; pr.ss = r * .32; pr.rotOff = Math.PI / 4; }
+  G.proj.push(pr); return pr;
+}
+const ACIDO = new Set(['toxic', 'matriarch']);
+// v0.65: salpicón de limo en el suelo al caer de un salto (y charco ácido si es grande)
+function salpicon(x, y, s, charco = false) {
+  G.parts.push({ x, y, vx: 0, vy: 0, life: .5, max: .5, fx: 'l_salpicon', s, color: '', size: 0 });
+  if (charco) G.parts.push({ x, y: y + 2, vx: 0, vy: 0, life: 2.4, max: 2.4, fx: 'l_charco', s: s * .8, color: '', size: 0 });
 }
 
 // ---- herramientas de IA ----
@@ -228,9 +245,13 @@ function blinkAway(e, minD) {
   return true;
 }
 
+// distancia (px) de un ciclo de pasos de un enemigo con piernas (esqueleto a velocidad 85: ~1,5 ciclos por segundo)
+const ZANCADA_MOB = 55;
+
 function updateEnemy(e, dt) {
   const p = G.player, hidden = p.shadowT > 0 || p.veilT > 0, Df = D();
   if (e.lx !== undefined) { const mx = e.x - e.lx, my = e.y - e.ly; if (mx * mx + my * my > .25) { const ta = Math.atan2(my, mx); e.face2 = e.face2 === undefined ? ta : e.face2 + clamp(angDiff(ta, e.face2), -5 * dt, 5 * dt); } }
+  if (e.lx !== undefined) e.paso = (e.paso || 0) + Math.min(12, Math.hypot(e.x - e.lx, e.y - e.ly)) / ZANCADA_MOB * TAU;   // pasos según lo que de verdad avanzó
   e.lx = e.x; e.ly = e.y;
   e.t += dt; e.flash -= dt; e.tele = (e.tele || 0) - dt;
   if (e.poison > 0) {
@@ -243,6 +264,7 @@ function updateEnemy(e, dt) {
     if (e.bt >= .5) { e.bt = 0; e.hp -= 1; e.flash = .06; addText(e.x, e.y - e.r - 4, 1, '#ff8a3a', 11); if (e.hp <= 0) { killEnemy(e); return; } }
   }
   e.slowT = (e.slowT || 0) - dt; if (e.slowT <= 0) e.slowK = 0;
+  if (e.type === 'boss' || e.isSub) e.hitT = (e.hitT || 0) - dt;   // solo dibujo (retroceso y cuadro de herido); los normales lo bajan más abajo
   if (e.type === 'boss') { updateBoss(e, dt); return; }
   if (e.isSub) { G.elSrc = e.elem ? e : null; updateSub(e, dt); G.elSrc = null; return; }
   const cdt = dt * Df.rate * enemyPace();
@@ -278,5 +300,4 @@ function updateEnemy(e, dt) {
   const f = Math.exp(-10 * dt); e.kx *= f; e.ky *= f;
 }
 
-export { blinkAway, chainHit, dropCoin, elemHit, enemyShoot, flankPoint, hazard, hurtEnemy, killEnemy,
-  leadAng, mkBoss, mkEnemy, quien, takeToken, telegraph, updateEnemy, updateFlames };
+export { blinkAway, chainHit, dropCoin, elemHit, enemyShoot, flankPoint, hazard, hurtEnemy, killEnemy, leadAng, mkBoss, mkEnemy, quien, salpicon, takeToken, telegraph, updateEnemy, updateFlames };

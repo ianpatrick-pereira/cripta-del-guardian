@@ -3,7 +3,57 @@ import { tr } from './00b-textos.js';
 import { $, ctx, cv } from './00-inicio.js';
 import { GRID, TAU, TILE, angTo, clamp, rand } from './01-utilidades.js';
 import { BOSS_DEFS, BOSS_MOVES, ENEMIES, ROOM_OBJ, SUB_DEFS, SUB_MOVES } from './01a-registro.js';
-import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, walkFrame, walkKey } from './02-pixel-art.js';
+import { ANIM, MAPS, SPR, SPR_DEFS, animKey, drawSpr, fxLuz, luzSuelo, mobKey, sombraSuelo, walkFrame, walkKey } from './02-pixel-art.js';
+// efectos que están pegados al suelo: se dibujan con borde suave y aparecen extendiéndose
+const SUELO = new Set(['a_charco', 'g_runas', 'v_vortice', 'g_impacto']);
+// punto de luz redondo y difuso de un color (se guarda uno por color)
+const PUNTOS = {};
+function puntoLuz(col) {
+  if (PUNTOS[col]) return PUNTOS[col];
+  const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+  const r = g.createRadialGradient(16, 16, 0, 16, 16, 16); r.addColorStop(0, '#ffffff'); r.addColorStop(.25, col); r.addColorStop(1, col + '00');
+  g.fillStyle = r; g.fillRect(0, 0, 32, 32);
+  return (PUNTOS[col] = c);
+}
+// efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
+// v0.65: Hilos de Muerte de la Reina: un hilo de seda fino que tiembla como aviso y, al cortar, brilla blanco y rojo
+function drawHilo(b) {
+  const ex = b.x + Math.cos(b.a) * b.largo, ey = b.y + Math.sin(b.a) * b.largo, nx = -Math.sin(b.a), ny = Math.cos(b.a);
+  ctx.save();
+  if (!b.on) {
+    const tiembla = Math.sin(G.time * 40) * (1 - b.k) * 1.5;
+    ctx.strokeStyle = `rgba(232,232,216,${.25 + .55 * b.k})`; ctx.lineWidth = 1 + b.k * 1.5;
+    ctx.beginPath(); ctx.moveTo(b.x + nx * tiembla, b.y + ny * tiembla); ctx.lineTo(ex - nx * tiembla, ey - ny * tiembla); ctx.stroke();
+    if (b.k > .6) { ctx.fillStyle = 'rgba(232,240,255,.8)'; for (let i = 1; i < 12; i++) { const q = i / 12 + (G.time * .05) % (1 / 12); ctx.fillRect(b.x + (ex - b.x) * q - 1, b.y + (ey - b.y) * q - 1, 2, 2); } }   // gotas de rocío
+  } else {
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.strokeStyle = 'rgba(255,60,70,.45)'; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.strokeStyle = '#fff4f0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke();
+  }
+  ctx.restore();
+}
+// v0.65: Mirada Ardiente del Devorador: el rayo es un trozo de la hoja d_rayo repetido a lo largo (cada trozo mide 96)
+function drawRayo(b) {
+  const L = 96, n = 10, c = Math.cos(b.a), s = Math.sin(b.a);
+  let key, o = { rot: b.a };
+  if (!b.on) { key = 'd_rayo~reposo~' + Math.min(3, Math.floor((b.k || 0) * 4)); o = { rot: b.a, alpha: .55 + .45 * Math.abs(Math.sin(G.time * 20)) }; }
+  else key = 'd_rayo~muerte~' + ((b.fin ?? 1) < .15 ? 2 : Math.floor(G.time * 12) % 2);
+  if (b.on) { o.luz = .35; luzSuelo(b.x + c * 200, b.y + s * 200, 220, '255,40,40', .18); }
+  for (let i = 0; i < n; i++) drawSpr(key, b.x + c * (L * i + L / 2 + 10), b.y + s * (L * i + L / 2 + 10), 6, o);
+}
+function drawFxPart(pt) {
+  const el = pt.max - pt.life, pre = pt.pre || 0;
+  const L = fxLuz(pt.fx), a = Math.min(1, pt.life / .15), suelo = SUELO.has(pt.fx);
+  if (L && L[2]) luzSuelo(pt.x, pt.y + (suelo || BAJO.has(pt.fx) ? 0 : 14), pt.s * 14, L[0], L[2] * .35 * a);
+  // aparece creciendo un poco en vez de saltar a su tamaño
+  const crece = Math.min(1, .7 + el * 3);
+  drawSpr(el < pre ? animKey(pt.fx, 'reposo', el) : animKey(pt.fx, 'muerte', el - pre, true), pt.x, pt.y, pt.s * crece, { alpha: a, luz: L ? L[1] : 0, suave: suelo, rot: pt.rot || 0 });
+}
+// marcas que quedan en el suelo: se pintan antes que los personajes
+const HUEVO = new Set(['toxic', 'mini']);
+const BAJO = new Set(['g_onda', 'g_estela', 'g_crater', 'g_runas', 'g_impacto', 'a_charco', 't_grieta', 'v_vortice', 'l_salpicon', 'l_charco', 'r_impacto', 'r_anillo', 'd_ola', 'd_portal', 'm_mazazo']);
+// colores de chispa que brillan (fuego, magia, rayos)
+const CHISPA = new Set(['#ffd27a', '#ff8a3a', '#e8402a', '#ff6a2a', '#ffb347', '#c77dff', '#d6a6ff', '#9be0ff', '#e8f8ff', '#9bff7a']);
 import { BOSSES, CHARS, FLOORS, RARITY, RELICS, SKINS, weaponStats } from './03-datos-del-juego.js';
 import { SAVE } from './04-guardado.js';
 import { musicTick } from './05-audio.js';
@@ -17,6 +67,13 @@ import { drawGuide } from './21b-guia.js';
 import { drawPet } from './19-companeros.js';
 import { ELEMS, EL_ORDER, drawCrystal, drawElemental, drawFlamer, drawTotem } from './23-elementos.js';
 import { drawBoulders, drawPillar, drawPuddles } from './23b-poderes-elementales.js';
+import { auraJefe, cuadroJefe, hojaJefe, poseJefe } from './37b-poses-del-jefe.js';
+import { drawCorte, drawCorteGiro, drawEmbestida, drawEmpujon, drawEspada, drawPua, espadaEnMano, espadaKey, golpeCuadro, guadEspejo } from './37c-espada-hd.js';
+import { drawOlaHD, drawRocaHD, drawVientoHD } from './37d-poderes-hd.js';
+import { arcoEnMano, arcoKey, drawArco, drawFlecha, tiroCuadro } from './37e-arco-hd.js';
+import { drawHoz, kusaCuadro, kusaKey, kusaMano } from './37f-kusarigama-hd.js';
+import { baculoKey, baculoMano, drawBaculo, drawBarreraHD, drawCorazonGris } from './37g-baculo-hd.js';
+import { drawZonasAire, drawZonasSuelo } from './16b-zonas-de-jefe.js';
 import { SPECS, SUB_T, SUB_UNLOCK, classRes, subLv } from './26-clases.js';
 import { PACTS, pact } from './27-pactos-de-piso.js';
 import { dareText } from './28-desafios-dentro-del-piso.js';
@@ -31,11 +88,14 @@ import { drawLavaSea, drawLavaSteam, drawLighting, drawShadow, drawTiles } from 
 import { STAR_COL, WREACT, drawVfx, haloSpr, setWREACT, swingTrail, weaponDeco } from './37-armas-visual.js';
 // colores de src/sprites/<clase>.png que se tiñen con el color de la armadura (si cambias esos colores en el PNG, cámbialos aquí).
 // El caballero (v0.62, dibujo de la IA) tiene 5 tonos de acero, de oscuro a claro: se tiñen con una escala hecha con los 2 colores.
-const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#5c8a4a', '#3f7a46'], rogue: ['#2b2636', '#3a3348'] };
+const ARMOR_PARTS = { knight: ['#4a4c58', '#5f6973', '#7d8a92', '#9aa7ab', '#c9ccca'], archer: ['#242623', '#2f2f2b', '#393833', '#41413c', '#4b4b45', '#5b594a', '#686755'], rogue: ['#1c161f', '#221b25', '#27202b', '#2c2431', '#312936', '#372d3b', '#3c3242', '#433950'], necro: ['#301a2a', '#391e2f', '#432236', '#4b263b', '#532940', '#5f2d45', '#69314b'] };
 const ARMOR_COLS = [['#7e7c8a', '#a6a4b0'], ['#3f8a4a', '#6cc46a'], ['#2f6ab0', '#5aa4e8'], ['#7a42b8', '#bb7cf0'], ['#c08020', '#ffc850']];
 // colores de detalle que cambia cada aspecto (penacho y hombreras, cinturón y botas, ojos y bufanda).
+// Arquera (v0.68): la armadura tiñe la capa (7 tonos) y el aspecto, el cuero.
+// Asesino (v0.69): la armadura tiñe el traje (8 tonos, las sombras más negras no) y el aspecto, la cinta roja (4 tonos).
 // Caballero: penacho y capa; el 3.º y 4.º (sus sombras) se oscurecen solos a partir de los 2 colores del aspecto.
-const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#6b4a2a', '#4a3a2a'], rogue: ['#ffd34a', '#b0303a'] };
+const SKIN_PARTS = { knight: ['#b8393e', '#36446a', '#7a262d', '#2a2a36'], archer: ['#633f35', '#774d3f', '#865d4a', '#956b53'], rogue: ['#b01e29', '#6d1020', '#8c1824', '#3c0e16'], necro: ['#2e094a', '#560d86', '#811ab9', '#af32df'] };
+// Nigromante (v0.70): la armadura tiñe la túnica (7 tonos) y el aspecto, el brillo de los ojos (4 tonos).
 // mezcla dos colores #rrggbb (t = 0 da a, t = 1 da b)
 const mixHex = (a, b, t) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.substr(i, 2), 16) * (1 - t) + parseInt(b.substr(i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
 // si el dibujo tiene más tonos que colores trae el aspecto o la armadura, se completan los que faltan
@@ -49,7 +109,9 @@ function fillCols(to, n, ramp) {
 // si la clase tiene hoja de animación, lo mismo para cada cuadro (knight~caminar~2_S…_A…)
 function buildArmorSprites() {
   for (const ch of Object.keys(ARMOR_PARTS)) {
-    const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros)];
+    // v0.68: las hojas de ataque de la Arquera y del Asesino usan los mismos colores que su dibujo, así que también se tiñe
+    const atq = ['_atq', '_nova'].flatMap(suf => ANIM[ch + suf] && ch !== 'knight' ? Object.values(ANIM[ch + suf]).flatMap(a => a.cuadros) : []);
+    const cuadros = [ch, ...Object.values(ANIM[ch] || {}).flatMap(a => a.cuadros), ...atq];
     for (const fk of cuadros) {
       const [mapName, pal] = SPR_DEFS[fk], rows = MAPS[mapName], h = rows.length, wd = rows[0].length, k = SPR[fk].k;
       const swap = (P, from, to, ramp) => { to = fillCols(to, from.length, ramp); for (const c in P) { const i = from.indexOf(P[c].toLowerCase()); if (i >= 0) P[c] = to[i]; } return P; };
@@ -83,7 +145,7 @@ function armorAura(p) {
 // habilidades: Baluarte (cúpula dorada hexagonal) y Sombra (humo y ecos)
 function drawAbilityFx(p) {
   const t = G.time;
-  if (p.bulwarkT > 0) {
+  if (p.bulwarkT > 0 && !drawBarreraHD(p, Math.min(1, p.bulwarkT / .3))) {   // v0.70: la barrera del Tomo tiene dibujo HD
     const k = Math.min(1, p.bulwarkT / .3), R = 26;
     ctx.save(); ctx.translate(p.x, p.y);
     ctx.fillStyle = `rgba(255,200,90,${.12 * k})`; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fill();
@@ -103,7 +165,33 @@ function drawAbilityFx(p) {
   } else if (p.ghosts && p.ghosts.length) p.ghosts.length = 0;
 }
 
+// v0.69: arma tirada en el suelo o en la tienda: todas del mismo tamaño a la vista, sin importar cómo se sostienen.
+// Se mide lo que ocupa el dibujo de verdad (sin el borde vacío del cuadro) y se escala para que lo más largo mida «largo».
+const CAJA = {};
+function cajaDibujo(key) {
+  if (CAJA[key]) return CAJA[key];
+  const sp = SPR[key]; if (!sp) return null;
+  const d = sp.n.getContext('2d').getImageData(0, 0, sp.wd, sp.ht).data;
+  let x0 = sp.wd, y0 = sp.ht, x1 = -1, y1 = -1;
+  for (let y = 0; y < sp.ht; y++) for (let x = 0; x < sp.wd; x++) if (d[(y * sp.wd + x) * 4 + 3] > 40) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 < 0) return null;
+  return (CAJA[key] = { cx: (x0 + x1 + 1) / 2 - sp.wd / 2, cy: (y0 + y1 + 1) / 2 - sp.ht / 2, w: x1 - x0 + 1, h: y1 - y0 + 1, k: sp.k });
+}
+/** dibuja el arma centrada en (x, y); las largas van inclinadas. largo: tamaño en el mundo de lo más largo del arma */
+function drawWeaponSuelo(w, x, y, largo = 30) {
+  const key = espadaKey(w) || arcoKey(w) || kusaKey(w) || baculoKey(w), c = key && cajaDibujo(key);
+  if (!c) { drawWeapon(w, x - 10, y, -.6); return; }
+  const larga = Math.max(c.w, c.h) > 1.6 * Math.min(c.w, c.h);
+  const tam = larga ? largo : largo * .75, s = tam / (Math.max(c.w, c.h) * c.k), rot = larga ? (c.h > c.w ? .6 : -.6) : 0;
+  const ox = c.cx * c.k * s, oy = c.cy * c.k * s;
+  drawSpr(key, x - (ox * Math.cos(rot) - oy * Math.sin(rot)), y - (ox * Math.sin(rot) + oy * Math.cos(rot)), s, { rot });
+}
 function drawWeapon(w, x, y, a, scale = 1) {
+  // v0.66: espadas con dibujo HD (37c-espada-hd.js): la estrella o el elemento ya vienen en el dibujo
+  const ek = espadaKey(w); if (ek) { drawEspada(ek, x, y, a, scale); return; }
+  const ak = arcoKey(w); if (ak) { drawArco(ak, x, y, a, scale); return; }   // v0.68: arco HD
+  const kk = kusaKey(w); if (kk) { drawHoz(kk, x, y, .6 * scale, a); return; }   // v0.69: hoz del kusarigama HD
+  const bk = baculoKey(w); if (bk) { drawBaculo(bk, x, y, a, scale); return; }   // v0.70: báculo HD del Nigromante
   ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(scale, scale);
   const c = w.tint || RARITY[w.rarity].c;
   const shape = w.shape || (w.type === 'bow' ? 'bow' : 'sword');
@@ -200,8 +288,15 @@ function drawWeapon(w, x, y, a, scale = 1) {
 }
 
 // cuadro de la hoja de animación del personaje (si tiene): muerte > herido > caminar > reposo
+// v0.64: el caballero y el esqueleto caminan con piernas por cuadros (8). Los demás dibujos HD con pies se mecen al caminar (de lado a lado y un saltito por paso) mientras no tengan hoja de caminata propia
+const CON_PIES = new Set(['captain', 'elem_earth']);
+const paso = (fase, anda) => anda ? { rot: Math.sin(fase) * .07, dy: -Math.abs(Math.sin(fase)) * 2.5 } : { rot: 0, dy: 0 };
 function playerFrame(p) {
   const A = ANIM[p.spr]; if (!A) return p.spr;
+  const g = !G.over && golpeCuadro(p); if (g) return g.key;   // v0.66: atacando con la espada HD
+  const t = !G.over && tiroCuadro(p); if (t) return t.key;    // v0.68: la Arquera disparando con el arco HD
+  const kc = !G.over && kusaCuadro(p); if (kc) return kc.key;  // v0.69: el Asesino lanzando el kusarigama
+  const hc = !G.over && hechizoCuadro(p); if (hc) return hc;    // v0.70: el Nigromante lanzando hechizos
   if (G.over && !G.won && A.muerte) return animKey(p.spr, 'muerte', 1.4 - G.endT, true);
   if (A.herido && p.sqT > -.08) return A.herido.cuadros[0];   // golpe recibido: ~0,26 s
   if (A.caminar && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40) {
@@ -209,21 +304,45 @@ function playerFrame(p) {
   }
   return animKey(p.spr, 'reposo', G.time);
 }
+// v0.70: hechizos del Nigromante. Cada arma usa una fila de necro_atq (el rayo del Ojo canaliza mientras dispara,
+// el cargado invoca) y la Nova alza los brazos (necro_nova). p.castAt / p.castFila los pone el ataque (11-jugador.js)
+const HECHIZO = .32;
+function hechizoCuadro(p) {
+  if (p.spr !== 'necro' || !ANIM.necro_atq) return null;
+  const e = G.time - (p.novaAt ?? -9);
+  if (e >= 0 && e < .45) return 'necro_nova~reposo~' + (e < .12 ? 0 : 1);
+  if (p.charge > 0) return 'necro_atq~herido~0';                       // concentrando el cargado
+  const t = G.time - (p.castAt ?? -9), fila = p.castFila || 'reposo';
+  if (fila === 'muerte') return t >= 0 && t < .25 ? 'necro_atq~muerte~' + (1 + Math.floor(G.time * 8) % 3) : null;   // canalizando el rayo
+  if (t < 0 || t > HECHIZO) return null;
+  return 'necro_atq~' + fila + '~' + (t < .07 ? 1 : t < .22 ? 2 : 3);   // prepara, lanza (se sostiene), vuelve
+}
 function drawPlayer(p) {
   const dead = G.over && !G.won;
   drawShadow(p.x, p.y + 4, p.r);
   const blink = !dead && p.inv > 0 && p.dashT <= 0 && p.bulwarkT <= 0 && Math.floor(G.time * 20) % 2 === 0;
-  const bob = dead ? 0 : Math.abs(Math.sin(p.walk)) * -2;
+  const bob = dead || ANIM[p.spr] ? 0 : Math.abs(Math.sin(p.walk)) * -2;   // con hoja, el rebote ya viene en los cuadros
   const w = p.slots[p.cur];
-  const back = Math.sin(p.aim) < -.3;
+  const back = Math.sin(p.aim) < -.3 && !(w.type === 'melee' && !w.style && espadaKey(w) && espadaEnMano(p))   // la espada HD en la mano va siempre delante
+    && !(arcoKey(w) && arcoEnMano(p) && !tiroCuadro(p));   // y el arco colgando de la mano, también
   const drawW = () => {
     if (w.style === 'shield') {
       const push = p.swing ? Math.sin(Math.min(1, p.swing.t / p.swing.dur) * Math.PI) * 12 : 0, a = p.swing ? p.swing.a : p.aim;
+      if (p.swing && drawEmpujon(p, w, p.swing, Math.min(1, p.swing.t / p.swing.dur))) drawWeapon(w, p.x + Math.cos(a) * (9 + push), p.y + 2 + bob + Math.sin(a) * (7 + push), a);   // v0.67: escudo HD
+      else if (espadaKey(w)) drawWeapon(w, p.x + Math.cos(a) * 9, p.y + 2 + bob + Math.sin(a) * 7, a);
+      if (espadaKey(w)) return;
       if (p.swing) { ctx.strokeStyle = `rgba(216,208,184,${.5 * (1 - p.swing.t / p.swing.dur)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, p.swing.range * .9, a - .7, a + .7); ctx.stroke(); }
       drawWeapon(w, p.x + Math.cos(a) * (4 + push), p.y + 2 + bob + Math.sin(a) * (4 + push), a);
       return;
     }
-    if (w.type === 'melee' && p.swing) {
+    const gl = w.type === 'melee' && !p.swing && p.lunge && espadaKey(w) && golpeCuadro(p);
+    if (gl) { drawEmbestida(p, w); drawWeapon(w, gl.hx, gl.hy, gl.ang); return; }   // v0.67: embestida de la lanza HD
+    if (w.type === 'melee' && p.swing && espadaKey(w)) {
+      // v0.66: espada HD: corte dibujado y la espada en la mano del Caballero (o en el centro si es otra clase)
+      const s = p.swing, prog = Math.min(1, s.t / s.dur), g = golpeCuadro(p), hx = g ? g.hx : p.x, hy = g ? g.hy : p.y + bob;
+      if (s.spin) { drawCorteGiro(p, w, s, prog); guadEspejo(g && g.espejo); drawWeapon(w, hx, hy, g ? g.ang : s.a + prog * TAU * 1.5); }
+      else { drawCorte(p, w, s, prog); guadEspejo(g ? g.espejo : s.dir < 0); drawWeapon(w, hx, hy, g && g.fija ? g.ang : s.a - s.dir * s.arc / 2 + s.dir * s.arc * prog); }
+    } else if (w.type === 'melee' && p.swing) {
       const s = p.swing, prog = s.t / s.dur;
       if (s.spin) {
         const sc = w.el ? ELEMS[w.el].c : STAR_COL[(w.stars || 1) - 1];
@@ -239,6 +358,16 @@ function drawPlayer(p) {
         swingTrail(p, w, s, prog);
         drawWeapon(w, p.x, p.y + bob, ang);
       }
+    } else if (kusaKey(w) && (p.whip || kusaMano(p))) {
+      // v0.69: kusarigama HD: atacando, la cadena ya lleva la hoz (12-armas-con-estilo-propio); si no, la hoz de pie en la mano
+      const m = !p.whip && kusaMano(p); if (m) drawHoz(kusaKey(w), m.hx, m.hy, .75, null, m.flip);
+    } else if (baculoKey(w) && baculoMano(p)) {
+      const m = baculoMano(p); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.70: el báculo HD de pie junto al Nigromante
+    } else if (arcoKey(w) && (tiroCuadro(p) || arcoEnMano(p))) {
+      const t = tiroCuadro(p), m = t || arcoEnMano(p);   // v0.68: el arco HD va en el puño de la Arquera
+      if (!(t && t.oculta)) drawWeapon(w, m.hx, m.hy, m.ang, t ? 1 : m.s);   // v0.69: la estrella ya lanzada no está en la mano
+    } else if (w.type === 'melee' && espadaKey(w) && espadaEnMano(p)) {
+      const m = espadaEnMano(p); guadEspejo(m.espejo); drawWeapon(w, m.hx, m.hy, m.ang);   // v0.66: la espada HD va en la mano del Caballero
     } else drawWeapon(w, p.x + Math.cos(p.aim) * 6, p.y + 2 + bob + Math.sin(p.aim) * 6, w.type === 'melee' ? p.aim + (p.flip ? .5 : -.5) : p.aim);
   };
   setWREACT(1 + (p.swing ? 1.5 : 0) + (p.cd > 0 ? .5 : 0) + (p.charge > 0 ? 1 : 0));
@@ -247,16 +376,19 @@ function drawPlayer(p) {
   const sb = p.skin && SPR[fk + '_S' + p.skin] ? fk + '_S' + p.skin : fk;
   const spr0 = p.armor && SPR[sb + '_A' + p.armor] ? sb + '_A' + p.armor : sb;
   const spr = p.dashT > 0 || ANIM[p.spr] ? spr0 : walkKey(spr0, walkFrame(p.walk, Math.hypot(G.pv.x, G.pv.y) > 40));
+  if (!dead) drawRocaHD(p);   // v0.66: Piel de roca, a los pies
   if (back && !dead) drawW();
   // se estira al esquivar y se aplasta al recibir daño
   let psx = 1, psy = 1;
   if (p.dashT > 0) { psx = 1.14; psy = .88; }
   if (p.sqT > 0) { const k = p.sqT / .18; psx *= 1 + .2 * k; psy *= 1 - .16 * k; }
-  if (!blink) drawSpr(spr, p.x, p.y - 2 + bob, 2, { flip: p.flip, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1, sx: psx, sy: psy });
+  const pp = paso(p.walk, CON_PIES.has(p.spr) && !dead && p.dashT <= 0 && Math.hypot(G.pv.x, G.pv.y) > 40);
+  if (!blink) drawSpr(spr, p.x, p.y - 2 + bob + pp.dy * .4, 2, { flip: p.flip, rot: pp.rot, alpha: p.shadowT > 0 || p.veilT > 0 ? .35 : 1, sx: psx, sy: psy });
   if (!back && !dead) drawW();
   setWREACT(1);
   if (dead) return;
   drawAbilityFx(p);
+  drawVientoHD(p);   // v0.66: remolino de la Ráfaga
   if (p.rageT > 0) { ctx.strokeStyle = `rgba(212,71,75,${.45 + .3 * Math.sin(G.time * 16)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 20, 0, TAU); ctx.stroke(); }
   if (p.charge > 0) {
     const k = Math.min(1, p.charge / .55);
@@ -286,6 +418,18 @@ function drawBoss(e) {
     ctx.strokeStyle = `rgba(255,216,74,${.45 + .4 * Math.abs(Math.sin(G.time * 12))})`; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(e.x, e.y, e.r * (1.1 + .5 * k), 0, TAU); ctx.stroke();
   }
+  // jefe con hoja HD propia (datos.spr + entrada en animaciones.jsonc); los que reutilizan su look siguen dibujados por código
+  const BH = BOSSES[e.kind];
+  if (!BH.look && BH.spr && ANIM[BH.spr]) {
+    // pose según lo que está haciendo (37b-poses-del-jefe.js): anticipa cada ataque, se cansa al quedar expuesto...
+    const P = poseJefe(e), anda = P.anda || e.st === 'charge';
+    auraJefe(e.x + P.dx, e.y - lift - 10 + P.dy, e.r * 2.2 * P.auraR, P.aura, P.auraA);
+    // cuadro: la pose dibujada de cada ataque; si no ataca, reposo / se desliza / herido (en fase 2, su versión furiosa)
+    const hoja = hojaJefe(e), sk = cuadroJefe(e, hoja, { ...P, anda }, ph2, hojaJefe(e, e.phase - 1)) || hoja;
+    const mira = e.st === 'embestida' ? Math.cos(e.ca) < 0 : G.player.x < e.x;   // al embestir mira hacia donde va
+    drawSpr(sk, e.x + P.dx, e.y - lift - 10 + P.dy, BH.s || 4, { alpha: e.fade ?? 1, flip: mira, rot: P.rot, sx: P.sx, sy: P.sy, white: white || (e.invuln && e.st !== 'enrage' && Math.floor(G.time * 12) % 2 === 0) });
+    return;
+  }
   // se dibuja a media resolución y se escala para que se vea pixelado
   const g = bctx; g.clearRect(0, 0, 64, 64);
   g.save(); g.translate(32, 32); g.scale(.5, .5);
@@ -311,10 +455,13 @@ function drawSub(e) {
   if (sd.forma) { const f = { sx, sy }; sd.forma(e, f); sx = f.sx; sy = f.sy; }
   if (e.tele > 0 && Math.floor(G.time * 16) % 2 === 0) { sx *= 1.06; sy *= 1.06; }
   if (e.hitT > 0) { const k = e.hitT / .14; sx *= 1 + .14 * k; sy *= 1 - .12 * k; }
-  drawSpr(e.spr, e.x, e.y - lift, e.s, { flip: Math.cos(angTo(e, p)) < 0, white, sx, sy });
+  const sk = (ANIM[e.spr] && sd.cuadro && !(e.hitT > -.06) && sd.cuadro(e)) || mobKey(e.spr, e.t || G.time, Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk', e.hitT > -.06) || e.spr;
+  const ps = paso((e.t || G.time) * 7, CON_PIES.has(e.spr) && (Math.hypot(e.vx || 0, e.vy || 0) > 20 || e.st === 'walk'));
+  drawSpr(sk, e.x, e.y - lift + ps.dy, e.s, { flip: Math.cos(angTo(e, p)) < 0, rot: ps.rot, white, sx, sy });
   if (sd.encima) sd.encima(e, lift, p);
   if (e.cheat) drawCheatForm(e, lift);
-  // corona: distingue al subjefe
+  // corona: distingue al subjefe (las hojas HD ya traen la suya dibujada)
+  if (ANIM[e.spr]) return;
   const cy = e.y - lift - e.r - 14;
   ctx.fillStyle = '#e3a24a'; ctx.fillRect(e.x - 9, cy, 18, 4);
   for (const dx of [-9, -2, 5]) ctx.fillRect(e.x + dx, cy - 5, 4, 5);
@@ -329,8 +476,9 @@ function drawEnemy(e) {
   // cada enemigo ajusta su forma y dibuja sus detalles en su archivo de 01b-enemigos/
   const ed = ENEMIES[e.type] || /** @type {any} */ ({}), f = { sx: 1, sy: 1, alpha: 1, oy: 0 };
   if (ed.forma) ed.forma(e, f);
-  // respira en reposo y se aplasta al recibir un golpe
-  f.sy *= 1 + .035 * Math.sin(e.t * 5);
+  // respira en reposo y se aplasta al recibir un golpe (con hoja de animación respira el propio dibujo)
+  const hoja = !!ANIM[e.spr];
+  if (!hoja) f.sy *= 1 + .035 * Math.sin(e.t * 5);
   if (e.hitT > 0) { const k = e.hitT / .14; f.sx *= 1 + .22 * k; f.sy *= 1 - .18 * k; }
   if (ed.debajo) ed.debajo(e, la);
   if (e.shield > 0) { ctx.strokeStyle = `rgba(155,216,255,${.5 + .2 * Math.sin(G.time * 8)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 6, 0, TAU); ctx.stroke(); }
@@ -346,8 +494,13 @@ function drawEnemy(e) {
   }
   if (e.el) { ctx.fillStyle = ELEMS[e.el].c + '44'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 7, 0, TAU); ctx.fill(); }
   if (e.poison > 0) { ctx.fillStyle = 'rgba(155,224,90,.25)'; ctx.beginPath(); ctx.arc(e.x, e.y, e.r + 3, 0, TAU); ctx.fill(); }
-  const ek = walkKey(e.spr, walkFrame(e.t * 9 + e.wob, e.st === 'walk' && e.speed > 0 && !(e.stagT > 0)));   // los que tienen piernas caminan
-  drawSpr(ek, e.x, e.y + f.oy, e.s, { flip: Math.cos(la) < 0, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
+  const anda = e.st === 'walk' && e.speed > 0 && !(e.stagT > 0);
+  const pasos = hoja && anda && !(e.hitT > -.06) && ANIM[e.spr].caminar?.cuadros.length >= 8 ? ANIM[e.spr].caminar.cuadros : null;   // caminata de 8 cuadros: sigue a lo que avanza
+  const ek = (hoja && ed.cuadro && !(e.hitT > -.06) && ed.cuadro(e, anda)) || (pasos ? pasos[Math.floor((e.paso || 0) / TAU * pasos.length) % pasos.length]
+    : hoja ? mobKey(e.spr, e.t + (e.wob || 0), anda, e.hitT > -.06)   // hoja: reposo, caminar o herido
+    : walkKey(e.spr, walkFrame(e.t * 9 + e.wob, anda)));   // los que tienen piernas caminan
+  const pe = paso(e.t * 9 + (e.wob || 0), hoja && anda && CON_PIES.has(e.spr));
+  drawSpr(ek, e.x, e.y + f.oy + pe.dy, e.s, { flip: Math.cos(la) < 0, rot: pe.rot, white, sx: f.sx, sy: f.sy, alpha: f.alpha });
   if (ed.encima) ed.encima(e, la, white);
   if (e.hp < e.max) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(e.x - 14, e.y - e.r - 12, 28, 4);
@@ -397,7 +550,7 @@ function drawPickup(it) {
       const c = RARITY[it.weapon.rarity].c;
       const gr = ctx.createRadialGradient(it.x, it.y, 2, it.x, it.y, 26); gr.addColorStop(0, c + '66'); gr.addColorStop(1, c + '00');
       ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(it.x, it.y, 26, 0, TAU); ctx.fill();
-      drawWeapon(it.weapon, it.x - 10, it.y + b, -.6);
+      drawWeaponSuelo(it.weapon, it.x, it.y - 2 + b, 30);
       ctx.font = '600 10px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = c; ctx.fillText('★'.repeat(it.weapon.stars || 1), it.x, it.y + 20);
       break;
@@ -420,7 +573,7 @@ function drawPickup(it) {
         if (s.t === 'potion') drawSpr('potion', it.x, it.y - 8 + b, 2);
         if (s.t === 'key') drawKey(it.x, it.y - 8 + b);
         if (s.t === 'relic') drawRelicIcon(s.relic, it.x, it.y - 10 + b);
-        if (s.t === 'weapon') { drawWeapon(s.weapon, it.x - 10, it.y - 8 + b, -.6, .9); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
+        if (s.t === 'weapon') { drawWeaponSuelo(s.weapon, it.x, it.y - 6 + b, 28); ctx.font = '600 9px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.fillStyle = RARITY[s.weapon.rarity].c; ctx.fillText('★'.repeat(s.weapon.stars), it.x, it.y + 18); }
         ctx.font = '600 11px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = G.coins >= s.price ? '#f0c040' : '#9d95ab'; ctx.fillText(s.price + tr(' mon.'), it.x, it.y + 30);
       }
@@ -590,9 +743,10 @@ function drawHUD(w, h) {
     hudText(`${Math.floor(val)}/${max}`, 196, y + 6, 10, '#ece4cf', 'right');
   };
   // vida en corazones y escudo en placas: se cuentan de un vistazo (si no caben, vuelve a la barra)
-  const pips = (y, val, max, kind, label) => {
-    if (max > 12) { bar(y, val, max, kind === 'heart' ? '#d4474b' : '#8fb7d9', label, true); return; }
-    const step = Math.min(16, 148 / Math.max(1, max));
+  const pips = (y, val, max, kind, label, extra = 0) => {
+    if (max > 12) { bar(y, val, max, kind === 'heart' ? '#d4474b' : '#8fb7d9', label, true); if (extra) hudText('+' + extra, 196, y - 4, 9, '#cfcfd8', 'right'); return; }
+    const step = Math.min(16, 148 / Math.max(1, max + extra));
+    for (let j = 0; j < extra; j++) { const x = Math.round(52 + (max + j) * step); if (!drawCorazonGris(x, y)) drawHeart(x, y, '#8a8a98', '#d8d8e2'); }   // v0.70: corazones grises
     hudText(label, 18, y + 6, 10, '#9d95ab');
     for (let i = 0; i < max; i++) {
       const x = Math.round(52 + i * step), full = i < Math.floor(val);
@@ -600,7 +754,7 @@ function drawHUD(w, h) {
       else drawShieldPip(x, y, full ? '#8fb7d9' : '#2a2638', full ? '#d6ecff' : '#3a3448');
     }
   };
-  pips(18, p.hp, p.maxHp, 'heart', tr('VIDA'));
+  pips(18, p.hp, p.maxHp, 'heart', tr('VIDA'), p.grisN || 0);
   pips(34, p.sh, p.maxSh + rc('escudo') + armorSh(p), 'shield', tr('ESC.'));
   bar(50, p.en, maxEnergy(p), '#5aa4e8', tr('ENER.'), false);
   {
@@ -726,6 +880,37 @@ function render0() {
     ctx.fillText(tr('Los muros agrietados esconden salas secretas'), s.cx, s.cy - 74);
   }
 
+  // v0.64: todo lo que está en el suelo va DEBAJO de personajes y enemigos (antes se pintaba encima y parecía pegado):
+  // charcos, fuego del suelo, avisos de área y marcas de los ataques (grietas, zarpazos, cráteres, ondas)
+  for (const pt of G.parts) if (pt.fx && BAJO.has(pt.fx)) drawFxPart(pt);
+  // suelo en llamas del Señor de las Brasas
+  drawPuddles(); drawBoulders(); drawZonasSuelo();
+  for (const f of G.flames || []) {
+    const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
+    g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
+    // v0.64: fuego infernal con cadenas (hoja f_linea); al apagarse quedan brasas
+    if (f.fight && ANIM.f_linea) drawSpr(f.t < .7 ? 'f_linea~muerte~2' : 'f_linea~muerte~0', f.x, f.y - f.r * .45, f.r / 13, { alpha: Math.min(1, f.t / .4), flip: Math.floor(G.time * 7 + f.x * .1) % 2 === 0 });
+  }
+  // círculos de área: el relleno crece hasta el borde y entonces estalla
+  for (const h of G.hazards) {
+    const k = clamp(1 - h.t / h.max, 0, 1);
+    if (!h.sinCirculo) {   // la grieta del Gólem ya es su propio aviso: sin círculo encima
+      ctx.fillStyle = h.color;
+      ctx.globalAlpha = .14; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = .4; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * k, 0, TAU); ctx.fill();
+      ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    // aviso con dibujo (v0.64): grieta que brilla o espada que cae
+    if (h.fx) {
+      const L = fxLuz(h.fx), cae = h.caida ? (1 - k) * h.caida : 0, suelo = SUELO.has(h.fx);
+      if (h.caida) sombraSuelo(h.x, h.y, 6 + 10 * k, .15 + .2 * k);   // lo que cae: su sombra crece al acercarse
+      if (L && L[2]) luzSuelo(h.x, h.y, (h.s || 3) * 12, L[0], L[2] * .3 * (.4 + .6 * k));
+      drawSpr(animKey(h.fx, 'reposo', h.max - h.t), h.x - (1 - k) * (h.caidaX || 0), h.y - (h.fy || 0) - cae, (h.s || 3) * (suelo ? .75 + .25 * Math.min(1, k * 3) : 1),
+        { alpha: h.caida ? .3 + .7 * k : .45 + .55 * k, luz: L ? L[1] * k : 0, suave: suelo, rot: h.rot || 0 });
+    }
+  }
   for (const it of G.pickups) if (it.kind !== 'coin') drawPickup(it);
   for (const it of G.pickups) if (it.kind === 'coin') drawPickup(it);
   const ents = [...G.props, ...G.enemies, G.player].sort((a, b) => a.y - b.y);
@@ -742,13 +927,27 @@ function render0() {
     for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.ellipse(T.x, T.y - i * 10, 12 + i * 7, 5 + i * 2, 0, G.time * 9 + i, G.time * 9 + i + 4); ctx.stroke(); }
   }
   for (const pt of G.parts) {
+    // efecto de ataque con hoja (v0.64): «pre» segundos en bucle de reposo y luego el golpe una vez
+    if (pt.fx) { if (!BAJO.has(pt.fx)) drawFxPart(pt); continue; }
+    // copia fantasma de un jefe que embiste
+    if (pt.ghost) { drawSpr(pt.ghost, pt.x, pt.y, pt.s, { alpha: .5 * pt.life / pt.max, tint: '#c77dff', flip: pt.flip }); continue; }
+    if (pt.muerte) {   // enemigo con hoja de animación: cae con sus propios cuadros y se desvanece al final
+      drawSpr(animKey(pt.spr, 'muerte', pt.max - pt.life, true), pt.x, pt.y, pt.s, { flip: pt.flip, alpha: Math.min(1, pt.life / .3), tint: pt.tint });
+      continue;
+    }
     if (pt.spr) {   // cuerpo de un enemigo que muere: blanco, se aplasta y se ensancha
       const k = 1 - pt.life / pt.max;
       drawSpr(pt.spr, pt.x, pt.y + k * 6, pt.s, { flip: pt.flip, white: true, sx: 1 + k * .6, sy: Math.max(.05, 1 - k), alpha: Math.max(0, 1 - k * .7) });
       continue;
     }
-    ctx.globalAlpha = Math.max(0, pt.life / pt.max); ctx.fillStyle = pt.color;
-    ctx.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
+    // v0.64: las chispas se achican al apagarse, y las de fuego y magia brillan (se suman a la luz) en vez de tapar el suelo
+    const vida = Math.max(0, pt.life / pt.max), sz = pt.size > 3 ? pt.size * (.45 + .55 * vida) : pt.size;
+    const brilla = CHISPA.has(pt.color);
+    if (brilla) ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = brilla ? vida * .85 : vida; ctx.fillStyle = pt.color;
+    if (brilla && sz > 4) { const r = sz * 1.3; ctx.drawImage(puntoLuz(pt.color), pt.x - r, pt.y - r, r * 2, r * 2); }   // las grandes son llamaradas redondas, no cuadros
+    else ctx.fillRect(pt.x - sz / 2, pt.y - sz / 2, sz, sz);
+    if (brilla) ctx.globalCompositeOperation = 'source-over';
   }
   ctx.globalAlpha = 1;
   drawVfx();
@@ -792,25 +991,11 @@ function render0() {
       ctx.fillRect(e.x - 5, e.y - 5, 3, 3); ctx.fillRect(e.x + 2, e.y - 5, 3, 3);
     }
     const B = G.enemies.find(e => e.isBoss);
-    if (B) { ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(B.x, B.y, 6, 0, TAU); ctx.fill(); }
+    // v0.65: un jefe con hoja HD no lleva el punto rojo encima: brilla suave donde tiene el ojo (solo se nota en la oscuridad)
+    if (B && BOSSES[B.kind].spr && !BOSSES[B.kind].look) luzSuelo(B.x, B.y - 12, 26, '255,40,30', .35 + .1 * Math.sin(G.time * 4));
+    else if (B) { ctx.fillStyle = '#ff3a2a'; ctx.beginPath(); ctx.arc(B.x, B.y, 6, 0, TAU); ctx.fill(); }
   }
   for (const it of G.pickups) if (it.kind === 'portal' && Math.random() < .3) G.parts.push({ x: it.x + rand(-20, 20), y: it.y + rand(-28, 28), vx: 0, vy: -40, life: .6, max: .6, color: '#c77dff', size: 3 });
-  // suelo en llamas del Señor de las Brasas
-  drawPuddles(); drawBoulders();
-  for (const f of G.flames || []) {
-    const a = Math.min(1, f.t / .6), g = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, f.r);
-    g.addColorStop(0, `rgba(255,170,60,${.55 * a})`); g.addColorStop(.7, `rgba(255,90,40,${.35 * a})`); g.addColorStop(1, 'rgba(255,60,30,0)');
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, TAU); ctx.fill();
-  }
-  // círculos de área: el relleno crece hasta el borde y entonces estalla
-  for (const h of G.hazards) {
-    const k = clamp(1 - h.t / h.max, 0, 1);
-    ctx.fillStyle = h.color;
-    ctx.globalAlpha = .14; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.fill();
-    ctx.globalAlpha = .4; ctx.beginPath(); ctx.arc(h.x, h.y, h.r * k, 0, TAU); ctx.fill();
-    ctx.globalAlpha = .9; ctx.strokeStyle = h.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, TAU); ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
   // «!»: este enemigo está a punto de atacar
   ctx.font = '800 18px "Chakra Petch", ui-monospace, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   for (const e of G.enemies) {
@@ -819,12 +1004,17 @@ function render0() {
     ctx.fillStyle = Math.floor(G.time * 14) % 2 ? '#ffd27a' : '#d4474b';
     ctx.fillText('!', e.x, y);
   }
+  drawZonasAire();   // v0.65: redes y sacos en vuelo, arañas colgando (16b-zonas-de-jefe.js)
   for (const m of G.markers) {
+    // v0.65: los limos nacen de un huevo que late
+    if (HUEVO.has(m.type)) { const q = 1 + .08 * Math.sin(G.time * 18); drawSpr('l_huevo~reposo~0', m.x, m.y - 6, (m.type === 'mini' ? 1.1 : 1.6) * Math.min(1, .5 + (.8 - m.t) * 2), { sx: q, sy: 2 - q }); continue; }
     const k = 1 - m.t % .4 / .4, big = m.type === 'boss' || m.type === 'sub' || m.type === 'elem';
     ctx.strokeStyle = big ? 'rgba(199,125,255,.8)' : m.elite ? 'rgba(255,210,122,.9)' : 'rgba(212,71,75,.8)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(m.x, m.y, (big ? 40 : 14) * (.5 + k * .6), 0, TAU); ctx.stroke();
   }
   for (const b of G.beams) {
+    if (b.hilo) { drawHilo(b); continue; }
+    if (b.rayo && ANIM.d_rayo) { drawRayo(b); continue; }
     const ex = b.x + Math.cos(b.a) * 900, ey = b.y + Math.sin(b.a) * 900;
     if (!b.on) { ctx.strokeStyle = 'rgba(255,60,40,.55)'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]); ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(ex, ey); ctx.stroke(); ctx.setLineDash([]); }
     else {
@@ -833,6 +1023,24 @@ function render0() {
     }
   }
   for (const pr of G.proj) {
+    if (pr.kind === 'ball' && pr.owner === 'player' && drawFlecha(pr)) continue;   // v0.68: bala del mosquete HD
+    // v0.64: flechas de enemigos con dibujo propio (diagonales en el PNG: +45°)
+    // v0.64: lo que vuela lleva sombra en el suelo y, si es de energía, alumbra lo que tiene debajo
+    if (pr.anim || pr.spr) {
+      const key = pr.anim || pr.spr, L = fxLuz(key), ss = pr.ss || 2.3;
+      sombraSuelo(pr.x, pr.y + 14, 3 + ss * 2, .22);
+      if (L && L[2]) luzSuelo(pr.x, pr.y + 10, ss * 16, L[0], L[2] * .3);
+      if (pr.anim) drawSpr(animKey(pr.anim, 'reposo', G.time + pr.x * .01), pr.x, pr.y, ss, { rot: Math.atan2(pr.vy, pr.vx) + (pr.rotOff || 0), luz: L ? L[1] : 0 });
+      else drawSpr(pr.spr, pr.x, pr.y, ss, { rot: Math.atan2(pr.vy, pr.vx) + Math.PI / 4 });
+      continue;
+    }
+    // v0.64: balas de enemigos = orbe de energía teñido del color del ataque, que late
+    if (pr.owner === 'enemy' && pr.kind === 'orb') {
+      const f = 1 + 2 * (Math.floor((pr.life + pr.x * .01) * 8) % 2);   // alterna los dos cuadros medianos
+      sombraSuelo(pr.x, pr.y + 12, 2 + pr.r * .6, .16);
+      drawSpr('orbe~reposo~' + f, pr.x, pr.y, pr.r * .32, { tint: pr.color });
+      continue;
+    }
     if (pr.kind === 'boomer') {
       ctx.save(); ctx.translate(pr.x, pr.y); ctx.rotate(pr.spinA || 0);
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.moveTo(-10, -9); ctx.lineTo(4, 0); ctx.lineTo(-10, 9); ctx.lineTo(-5, 0); ctx.fill();
@@ -850,6 +1058,8 @@ function render0() {
       const el = pr.src.el, c = ELEMS[el].c;
       G.parts.push({ x: pr.x, y: pr.y, vx: el === 'air' ? rand(-50, 50) : rand(-10, 10), vy: el === 'fire' ? rand(-60, -30) : rand(-10, 10), g: el === 'water' ? 400 : el === 'earth' ? 300 : 0, life: .35, max: .35, color: c, size: 2.5 });
     }
+    if (pr.kind === 'arrow' && drawPua(pr)) continue;   // v0.67: púas del escudo HD
+    if ((pr.kind === 'arrow' || pr.kind === 'power') && drawFlecha(pr)) continue;   // v0.68: flechas HD
     if (pr.kind === 'arrow') {
       const a = Math.atan2(pr.vy, pr.vx);
       // estela de la flecha
@@ -861,6 +1071,7 @@ function render0() {
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(2, -3.5); ctx.lineTo(2, 3.5); ctx.fill();
       ctx.restore();
     } else if (pr.kind === 'wave') {
+      if (pr.fx === 'tsunami' && drawOlaHD(pr)) continue;   // v0.66: ola dibujada
       const a = Math.atan2(pr.vy, pr.vx);
       ctx.strokeStyle = `rgba(236,228,207,${clamp(pr.life * 2, 0, .9)})`; ctx.lineWidth = 4;
       ctx.beginPath(); ctx.arc(pr.x - Math.cos(a) * 8, pr.y - Math.sin(a) * 8, 14, a - 1.1, a + 1.1); ctx.stroke();
@@ -873,14 +1084,10 @@ function render0() {
     } else if (pr.kind === 'power') {
       ctx.fillStyle = 'rgba(255,230,160,.4)'; ctx.beginPath(); ctx.arc(pr.x, pr.y, 12, 0, TAU); ctx.fill();
       ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(pr.x, pr.y, 6, 0, TAU); ctx.fill();
-    } else if (pr.kind === 'web' && pr.shred) {
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 2, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = pr.color; ctx.lineWidth = 2;
-      ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(pr.x - Math.cos(a) * pr.r, pr.y - Math.sin(a) * pr.r); ctx.lineTo(pr.x + Math.cos(a) * pr.r, pr.y + Math.sin(a) * pr.r); } ctx.stroke();
     } else if (pr.kind === 'web') {
-      ctx.strokeStyle = pr.color; ctx.lineWidth = 2;
-      ctx.beginPath(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(pr.x - Math.cos(a) * pr.r, pr.y - Math.sin(a) * pr.r); ctx.lineTo(pr.x + Math.cos(a) * pr.r, pr.y + Math.sin(a) * pr.r); } ctx.stroke();
-      ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r * .6, 0, TAU); ctx.stroke();
+      // v0.65: bola de telaraña dibujada (hilos hacia atrás); la de la Reina rompe escudos y lleva un halo blanco
+      if (pr.shred) { ctx.strokeStyle = `rgba(255,255,255,${.5 + .3 * Math.sin(G.time * 14)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r + 4, 0, TAU); ctx.stroke(); }
+      drawSpr(animKey('telarana', 'reposo', G.time + pr.r), pr.x, pr.y, pr.r * .34, { rot: Math.atan2(pr.vy, pr.vx) });
     } else {
       ctx.fillStyle = pr.color; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r, 0, TAU); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(pr.x, pr.y, pr.r * .45, 0, TAU); ctx.fill();

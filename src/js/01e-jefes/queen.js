@@ -2,11 +2,13 @@
 import { tr } from '../00b-textos.js';
 import { TAU } from '../01-utilidades.js';
 import { defBoss } from '../01a-registro.js';
+// v0.65: sus 5 ataques propios (01g-ataques-de-jefe/): red, aplastar, crias, hilos (fase 2+) y veneno (fase 3);
+// en cada fase cambia de dibujo (queen, queen_f2, queen_f3: ver animaciones.jsonc)
 defBoss('queen', {
   orden: 2,
-  datos: { name: tr('La Reina Tejedora'), hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,
-           p1: ['web', 'leap', 'aimed', 'summon'], p2: ['web', 'leap', 'spiral', 'burst', 'summon', 'rain'], p3: ['leap', 'web', 'gapring', 'rain', 'predict', 'summon'] },
-  // su dibujo (a media resolución; los jefes con look: 'queen' lo reutilizan con otro color)
+  datos: { name: tr('La Reina Tejedora'), spr: 'queen', s: 4.2, rastrero: true, fases: true, hp: 800, r: 30, minion: 'spider', col: '#cfd8a0', want: 190,
+           p1: ['red', 'aplastar', 'crias', 'web'], p2: ['red', 'aplastar', 'crias', 'hilos', 'web'], p3: ['red', 'aplastar', 'crias', 'hilos', 'veneno'] },
+  // v0.65 la Reina usa su hoja HD (spr 'queen'); este dibujo por código queda para los jefes con look: 'queen' (con otro color)
   aspecto(g, e, fill, ph2) {
     g.strokeStyle = fill('#4a3a4a'); g.lineWidth = 5;
     for (let s = -1; s <= 1; s += 2) for (let i = 0; i < 4; i++) {
